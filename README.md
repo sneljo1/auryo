@@ -12,12 +12,12 @@ ___
 
 ### Current features
 - Listening to your feed
+- track detail page
+- track liking
 
 ### Upcoming features
-- track liking
 - reposting
 - artist info page
-- track detail page
 - listening to playlists
 
 ### Download
