@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/Superjo149/auryo.png?label=ready&title=Ready)](https://waffle.io/Superjo149/auryo)
 # auryo
 A beautiful soundcloud desktop app. 
 
