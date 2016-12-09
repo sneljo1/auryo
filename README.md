@@ -1,4 +1,7 @@
 [![Stories in Ready](https://badge.waffle.io/Superjo149/auryo.png?label=ready&title=Ready)](https://waffle.io/Superjo149/auryo)
+[![Stories in Progress](https://badge.waffle.io/Superjo149/auryo.png?label=in%20progress&title=Progress)](https://waffle.io/Superjo149/auryo)
+[![Stories in New features](https://badge.waffle.io/Superjo149/auryo.png?label=new%20feature&title=New features)](https://waffle.io/Superjo149/auryo)
+
 # auryo
 A beautiful soundcloud desktop app. 
 
