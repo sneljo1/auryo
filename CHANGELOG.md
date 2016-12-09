@@ -1,15 +1,24 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.3.0] -
+### Added 
+- user card to song details page
+- ability to (un)follow other users
+- list of comments
+- basic artist details page
+
+### Changed
+- replaced react-list with npm package
+- made related tracks a bit nicer
+
 ## [1.2.0] - 2016-11-19
 ### Added
 - Title and artist to player
 - Song details page
 	- related tracks
-	- comments
 	- liking
 - added next and previous buttons to navigate through the app
-	
 
 ### Changed
 - made volume vertical instead of horizontal to save some space
@@ -48,4 +57,3 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 - Project refactoring
-
