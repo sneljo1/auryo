@@ -16,11 +16,12 @@ ___
 - Listening to your feed
 - track detail page
 - track liking
+- artist info page
 
 ### Upcoming features
 - reposting
-- artist info page
 - listening to playlists
+- listening to likes
 
 ### Download
 Binaries are coming soon
