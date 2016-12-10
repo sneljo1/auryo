@@ -4,8 +4,6 @@
 
 # auryo
 A beautiful soundcloud desktop app. 
-
-[Changelog](CHANGELOG.md)
 ___
 
 - **This app is currently under heavy development but beta builds will be available soon.**
