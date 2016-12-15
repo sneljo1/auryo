@@ -2,7 +2,7 @@
 [![Stories in Progress](https://badge.waffle.io/Superjo149/auryo.png?label=in%20progress&title=Progress)](https://waffle.io/Superjo149/auryo)
 [![Stories in New features](https://badge.waffle.io/Superjo149/auryo.png?label=new%20feature&title=New features)](https://waffle.io/Superjo149/auryo)
 
-# auryo v1.4.0
+# auryo v0.5.0
 A beautiful soundcloud desktop app. 
 ___
 
