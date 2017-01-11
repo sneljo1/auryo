@@ -1,8 +1,6 @@
-[![Stories in Ready](https://badge.waffle.io/Superjo149/auryo.png?label=ready&title=Ready)](https://waffle.io/Superjo149/auryo)
-[![Stories in Progress](https://badge.waffle.io/Superjo149/auryo.png?label=in%20progress&title=Progress)](https://waffle.io/Superjo149/auryo)
-[![Stories in New features](https://badge.waffle.io/Superjo149/auryo.png?label=new%20feature&title=New features)](https://waffle.io/Superjo149/auryo)
+[![Chat with us on https://gitter.im/auryo/Auryo](https://badges.gitter.im/auryo/Auryo.svg)](https://gitter.im/auryo/Auryo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-# auryo v0.5.0
+# Auryo
 A beautiful soundcloud desktop app. 
 ___
 
