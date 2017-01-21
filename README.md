@@ -10,7 +10,7 @@ ___
 
 
 ![Auryo screenshot]
-(http://i.imgur.com/ZLzrVhQ.jpg)
+(http://i.imgur.com/8IbMBgC.jpg)
 
 ### Current features
 - Listening to your feed
