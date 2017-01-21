@@ -6,6 +6,8 @@ ___
 
 - **This app is currently under heavy development but beta builds will be available soon.**
 ___
+
+
 ![Auryo screenshot]
 (http://i.imgur.com/ZLzrVhQ.jpg)
 
