@@ -5,6 +5,7 @@ A beautiful soundcloud desktop app.
 ___
 
 - **This app is currently under heavy development but beta builds will be available soon.**
+
 ___
 
 
