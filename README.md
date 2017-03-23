@@ -9,8 +9,7 @@ ___
 ___
 
 
-![Auryo screenshot]
-(http://i.imgur.com/8IbMBgC.jpg)
+![Auryo screenshot](screenshot.jpg)
 
 ### Current features
 - Listening to your feed
