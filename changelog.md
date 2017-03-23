@@ -1,12 +1,25 @@
 # Change Log
 All notable changes to this project will be documented in this file.
-## [0.8.0] -
+
+## [0.9.0] -
+### Added
+- 
+
+### Changed
+-
+
+### Fixed
+-
+
+
+## [0.8.0] - 2016-03-23
 ### Added
 - System media shortcut keys
 
 ### Changed
 - Refactored all existing api code
 - Refactoring of all backend code
+- Redone authentication
 
 ### Fixed
 - Automated test with CI were failing
