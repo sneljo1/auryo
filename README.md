@@ -1,5 +1,3 @@
-[![Chat with us on https://gitter.im/auryo/Auryo](https://badges.gitter.im/auryo/Auryo.svg)](https://gitter.im/auryo/Auryo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
 # Auryo
 A beautiful soundcloud desktop app. 
 ___
@@ -23,5 +21,6 @@ ___
 ...
 
 ### Download
-Binaries are coming soon
+Finally downloads.... They are useable but there still may be some bugs.
+[Download](http://github.com/Superjo149/auryo/releases/latest)
 
