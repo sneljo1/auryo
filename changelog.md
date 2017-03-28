@@ -12,7 +12,7 @@ All notable changes to this project will be documented in this file.
 -
 
 
-## [0.8.0] - 2016-03-23
+## [0.8.0] - 2016-03-28
 ### Added
 - System media shortcut keys
 
@@ -24,6 +24,7 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 - Automated test with CI were failing
 - linux update notification
+- minor bugs
 
 ## [0.7.0] - 2016-01-21
 ### Added 
