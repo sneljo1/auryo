@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file.
 - 
 
 ### Changed
--
+- significantly reduced launcher size
 
 ### Fixed
 -
