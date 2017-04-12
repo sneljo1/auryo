@@ -7,7 +7,7 @@ ___
 ___
 
 
-![Auryo screenshot](screenshot.jpg)
+![Auryo screenshot](screenshot0.9.0.jpg)
 
 ### Current features
 - Listening to your feed
