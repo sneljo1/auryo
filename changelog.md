@@ -1,16 +1,17 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [0.9.0] -
+## [0.9.0] - 2016-06-21
 ### Added
-- 
+- search bar
+- ability to add music to playlist
 
 ### Changed
 - significantly reduced launcher size
 
 ### Fixed
--
-
+- refactoring
+- bug fixes
 
 ## [0.8.0] - 2016-03-28
 ### Added
