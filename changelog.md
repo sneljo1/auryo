@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.9.3] - 2016-08-11
+### Fixed
+- refactoring
+- bug fixes
+
 ## [0.9.0] - 2016-06-21
 ### Added
 - search bar
