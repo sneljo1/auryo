@@ -1,7 +1,7 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [0.9.3] - 2016-08-11
+## [1.0.0] - 2016-08-12
 ### Fixed
 - refactoring
 - bug fixes
