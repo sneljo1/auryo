@@ -1,11 +1,5 @@
 # Auryo
 A beautiful soundcloud desktop app. 
-___
-
-- **This app is currently under heavy development but beta builds will be available soon.**
-
-___
-
 
 ![Auryo screenshot](screenshot0.9.0.jpg)
 
@@ -15,12 +9,11 @@ ___
 - track liking
 - artist info page
 - reposting
+- listening to playlists
 
 ### Upcoming features
-- listening to playlists
 ...
 
 ### Download
-Finally downloads.... They are useable but there still may be some bugs.
-[Download](http://github.com/Superjo149/auryo/releases/latest)
+[Download](http://auryo.com#downloads)
 
