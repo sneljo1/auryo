@@ -1,6 +1,25 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.2.0] - 2016-08-13
+### Added
+- Improved search
+
+### Changed
+- Improved error handling
+- Improved search interface
+- Improved top bar
+- switched some icons
+- hidden follow button on your own profile
+
+## [1.1.0] - 2016-08-13
+### Added
+- better exception handling
+
+### Changed
+- refactoring
+- package updates
+
 ## [1.0.0] - 2016-08-12
 ### Fixed
 - refactoring
