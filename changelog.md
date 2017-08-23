@@ -1,7 +1,33 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [1.2.0] - 2016-08-13
+## [1.3.0] - 2017-08-22
+### Added
+- fundamentals for touchbar integration (not yet fully implemented)
+- Linux mpris integration
+
+### Changed
+- refactoring backend
+
+### Fixed
+- playlist stopped when playing playlists
+- Issue #39
+- Issue #33
+- Issue #32
+- Issue #42
+- Issue #37
+- Properly fixed issue #37
+- windows integration
+- small css bugs
+
+## [1.2.1] - 2017-08-14
+### Fixed
+- Issue #35
+- Issue #37
+- Issue #38
+- Issue #40
+
+## [1.2.0] - 2017-08-13
 ### Changed
 - Improved error handling
 - Improved search interface
@@ -9,7 +35,7 @@ All notable changes to this project will be documented in this file.
 - switched some icons
 - hidden follow button on your own profile
 
-## [1.1.0] - 2016-08-13
+## [1.1.0] - 2017-08-13
 ### Added
 - better exception handling
 
@@ -17,12 +43,12 @@ All notable changes to this project will be documented in this file.
 - refactoring
 - package updates
 
-## [1.0.0] - 2016-08-12
+## [1.0.0] - 2017-08-12
 ### Fixed
 - refactoring
 - bug fixes
 
-## [0.9.0] - 2016-06-21
+## [0.9.0] - 2017-06-21
 ### Added
 - search bar
 - ability to add music to playlist
@@ -34,7 +60,7 @@ All notable changes to this project will be documented in this file.
 - refactoring
 - bug fixes
 
-## [0.8.0] - 2016-03-28
+## [0.8.0] - 2017-03-28
 ### Added
 - System media shortcut keys
 
@@ -48,7 +74,7 @@ All notable changes to this project will be documented in this file.
 - linux update notification
 - minor bugs
 
-## [0.7.0] - 2016-01-21
+## [0.7.0] - 2017-01-21
 ### Added 
 - ability to repost on the song page
 - gradient to song & artist details page
