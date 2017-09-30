@@ -1,6 +1,27 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.4.1] - The Queue update
+*2017-09-30*
+### Added
+- Touchbar integration
+- Like, repost, add to playlist actions to track grid view
+- Queue & add up next feature
+- repeat feature
+
+### Changed
+- UI improvements & tweaks
+
+### Fixed
+- Issue #49
+- Issue #47
+- Issue #46
+- Partial Issue #34
+- bug where window didn't re-open on mac
+- (Linux) crash when playing certain tracks
+- other minor bug fixes & overal improvements
+
+
 ## [1.3.0] - 2017-08-22
 ### Added
 - fundamentals for touchbar integration (not yet fully implemented)
