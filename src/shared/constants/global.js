@@ -1,0 +1,11 @@
+export const OBJECT_TYPES = {
+    PLAYLISTS: "PLAYLISTS",
+    COMMENTS: "COMMENTS",
+    USERS: "USERS",
+};
+
+export const REDUX_STATES = {
+    LOADING: 'LOADING',
+    SUCCESS: 'SUCCESS',
+    ERROR: 'ERROR'
+};

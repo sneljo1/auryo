@@ -1,0 +1,70 @@
+@import "../../../css/vars";
+@import "~bootstrap/scss/mixins";
+@import "~bootstrap/scss/variables";
+
+.trackList {
+  table-layout: fixed;
+  width: 100%;
+
+  td {
+    text-overflow: ellipsis;
+    border-top: none !important;
+  }
+
+  .row-play {
+    width: 5%;
+  }
+  .row-title {
+    width: 50%;
+
+  }
+  .row-artist {
+    width: 25%;
+
+  }
+  .row-timer {
+    width: 7%;
+    text-align: center;
+  }
+  .row-actions {
+    width: 13%;
+
+  }
+
+  .trackListHeader {
+    color: #bbbbbb;
+    padding: 0 10px 10px;
+    * {
+      font-weight: 300;
+    }
+  }
+
+  .trackItem {
+    padding: 15px 0;
+    font-size: .9rem;
+    align-items: center;
+
+    a {
+
+      color: #3b3e42;
+      display: block;
+      width: 100%;
+      min-width: 100%;
+    }
+    .trackTitle {
+      width: 100%;
+      min-width: 100%;
+    }
+    &.isPlaying .trackTitle a, &.isPlaying .trackArtist a {
+      color: theme-color("primary");
+    }
+    .liked i {
+      color: theme-color("primary");
+    }
+
+    i {
+      padding-right: 10px;
+      display: inline-block;
+    }
+  }
+}

@@ -1,0 +1,46 @@
+@import "../../../../../css/vars";
+
+.input-group.search-box {
+
+  i {
+    background: transparent;
+    border: none;
+    color: #717171;
+    font-size: 1.3rem;
+  }
+
+  #clear {
+    right: 0;
+    cursor: pointer;
+    pointer-events: auto;
+    z-index: 999;
+    transform: scale(1);
+    transition: .25s ease-out transform;
+    font-size: 1.1rem;
+  }
+  .input-group-text {
+    background: transparent;
+    border: 0;
+  }
+
+  input {
+    width: 300px;
+    background: transparent;
+    border: none;
+    color: lighten($sidebar_bg, 30%);
+    transition: .1s ease-in transform;
+    font-size: .95rem;
+    outline: none !important;
+
+    &::-webkit-input-placeholder {
+      color: #ADADAD;
+    }
+
+    &:placeholder-shown {
+      & + .input-group-append #clear {
+        pointer-events: none;
+        transform: scale(0);
+      }
+    }
+  }
+}

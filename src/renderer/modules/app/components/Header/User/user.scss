@@ -1,0 +1,27 @@
+.user {
+  color: #717171;
+
+  .userPofile {
+    text-decoration: none !important;
+    color: #717171 !important;
+    padding: 4px 4px 4px 6px;
+    border-radius: .25rem;
+    margin-right: .4rem;
+    display: block;
+
+    &:hover {
+      background: darken(#fff, 5%);
+    }
+  }
+
+  .userImage img {
+    margin-left: 5px;
+    border-radius: .25rem;
+    width: 30px;
+  }
+
+  .userName {
+    font-size: .9rem;
+  }
+
+}

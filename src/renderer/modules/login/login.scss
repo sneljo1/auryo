@@ -1,0 +1,58 @@
+#login {
+  height: 100vh;
+  .settings {
+    font-size: .9rem;
+    border: none !important;
+    text-decoration: underline;
+    color: #6c757d;
+    background: transparent;
+    &:hover {
+      color: darken(#6c757d, 5%)
+    }
+  }
+
+  .row {
+    height: 100%;
+  }
+
+  .login-wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 400px;
+    min-width: 300px;
+  }
+
+  .login-bg {
+    -webkit-app-region: drag;
+    background-size: cover;
+    position: relative;
+    z-index: 1;
+    height: 100%;
+
+    &:after {
+      content: '';
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      display: block;
+      background: linear-gradient(#457DC6, #2f343f);
+      left: 0;
+      top: 0;
+      opacity: 0.7;
+      z-index: -1;
+    }
+  }
+}
+
+div#login:before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 50px;
+  display: block;
+  z-index: 999999;
+  content: "";
+  right: 0;
+  -webkit-app-region: drag;
+}

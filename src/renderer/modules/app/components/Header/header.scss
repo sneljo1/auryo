@@ -1,0 +1,115 @@
+@import "../../../../css/vars";
+
+.header-wrapper {
+  min-height: 52px;
+  .sticky {
+    .navbar {
+      background: white;
+      transition: .5s all;
+    }
+  }
+
+  .sticky-1 {
+    .navbar {
+      box-shadow: 3px 3px 15px rgba(0, 0, 0, 0.03), 3px 3px 30px rgba(0, 0, 0, 0.01);
+    }
+  }
+
+  .sticky-2 {
+    .navbar {
+      box-shadow: 3px 3px 15px rgba(0, 0, 0, 0.06), 3px 3px 30px rgba(0, 0, 0, 0.03);
+    }
+  }
+
+  .sticky-3 {
+    .navbar {
+      box-shadow: 3px 3px 15px rgba(0, 0, 0, 0.11), 3px 3px 30px rgba(0, 0, 0, 0.05);
+    }
+  }
+}
+
+.sticky-appear {
+  //transform: translateY(-52px);
+}
+
+.sticky-appear.sticky-appear-active {
+  //transform: translateY(0);
+  transition: all 500ms ease-in-out;
+}
+
+.navbar {
+  padding: .4rem .4rem .4rem 1.5rem !important;
+  height: 52px;
+  justify-content: center;
+  color: #717171;
+  transition: .5s all;
+
+  &:after {
+    content: "";
+    -webkit-app-region: drag;
+    width: 100%;
+    height: 53px;
+    position: absolute;
+    background: transparent;
+    top: 0;
+    left: 0;
+    z-index: -1;
+  }
+}
+
+.navbar .control-nav {
+  align-items: center;
+  padding: 0 15px 0 0;
+  .control-nav-inner {
+    border-radius: 20px;
+    position: relative;
+  }
+  a {
+    display: inline-block;
+    padding: 2px;
+    color: #666666;
+    text-decoration: none;
+    border-radius: 100%;
+    transition: .4s background;
+    &:not(.disabled):hover {
+
+      background: darken(#fff, 3%);
+      transition: .4s background;
+    }
+
+    &.disabled {
+      opacity: .3;
+      cursor: default;
+    }
+
+    &:first-child {
+      border-right: none;
+      margin-left: 1px;
+    }
+    i {
+      outline: none;
+      font-size: 1.7em;
+    }
+  }
+}
+
+.navbar {
+
+  .toggle {
+    text-decoration: none !important;
+    color: #717171;
+    padding: 0 5px;
+    transition: .5s color;
+
+    &:hover {
+      color: theme-color("primary");
+      transition: .5s color;
+    }
+
+    i {
+      font-size: 1.1rem;
+      vertical-align: middle;
+
+    }
+  }
+}

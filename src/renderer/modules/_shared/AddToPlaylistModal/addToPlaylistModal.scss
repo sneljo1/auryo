@@ -1,0 +1,56 @@
+.modal-dialog {
+  .modal-content {
+
+    .modal-track {
+      margin-bottom: .7rem;
+      div {
+        &:not(:last-child) {
+          margin-right: 10px;
+        }
+      }
+    }
+
+    .modal-playlists {
+      .modal-playlist {
+        padding: 10px 0;
+
+        .playlist-title {
+          font-size: 1rem;
+          max-width: 240px;
+        }
+        .playlist-add {
+          & > * {
+            margin-left: 10px;
+          }
+        }
+        .playlist-info {
+          font-size: 1rem;
+          color: darken(#ccc, 30%);
+          span {
+            margin-right: 8px;
+          }
+          i {
+            margin-right: 4px;
+            font-size: 1rem;
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (min-width: 576px) {
+  .modal-dialog {
+    max-width: 600px;
+
+    .modal-playlist {
+      padding: 10px 0;
+      .playlist-title {
+        font-size: 1.3rem;
+      }
+      .playlist-add {
+        margin-right: -50px;
+      }
+    }
+  }
+}

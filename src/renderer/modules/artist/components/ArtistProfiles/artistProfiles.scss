@@ -1,0 +1,115 @@
+$facebook_color: hsla(222, 47%, 40%, 1); // #365397
+$twitter_color: hsla(198, 100%, 47%, 1); // #00a9f1
+$google_color: hsla(217, 89%, 61%, 1); // #4285f4
+$google_plus_color: hsla(8, 74%, 53%, 1); // #e0452c
+$youtube_color: hsla(0, 100%, 60%, 1); // #ff3333
+$instagram_color: hsla(208, 46%, 41%, 1); // #396d9a
+$soundcloud: #ff3a00;
+$songkick: #f80046;
+$spotify: #2ebd59;
+$tumblr: #35465c;
+$pinterest: #cb2027;
+$beatport: #8fc73e;
+$snapchat: #fffc00;
+
+@import "../../../../css/vars";
+
+@mixin color($color) {
+  i {
+    color: $color;
+    border-color: $color;
+
+  }
+  &:hover {
+    i {
+      background: $color;
+      border-color: $color;
+    }
+  }
+}
+
+#web-profiles {
+  padding: 0 10px 20px;
+
+  .profile {
+    color: #3b3e42;
+    display: flex;
+    text-decoration: none;
+    align-items: center;
+    padding: 5px;
+    margin-bottom: 4px;
+    text-transform: capitalize;
+
+    @include color(#3b3e42);
+
+    &.facebook {
+      @include color($facebook_color);
+    }
+
+    &.twitter {
+      @include color($twitter_color);
+    }
+
+    &.instagram {
+      @include color($instagram_color);
+    }
+
+    &.youtube {
+      @include color($youtube_color);
+    }
+
+    &.soundcloud {
+      @include color($soundcloud);
+    }
+
+    &.songkick {
+      @include color($songkick);
+    }
+
+    &.spotify {
+      @include color($spotify);
+    }
+
+    &.tumblr {
+      @include color($tumblr);
+    }
+    &.pinterest {
+      @include color($pinterest);
+    }
+    &.beatport {
+      @include color($beatport);
+    }
+    &.snapchat {
+      @include color(darken($snapchat, 3%));
+    }
+
+    i {
+      width: 35px;
+      height: 35px;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      border: 2px solid;
+      transition: .5s color, .5s background;
+      margin-right: 8px;
+      flex-shrink: 0;
+
+    }
+
+    span {
+      font-size: 1rem;
+    }
+
+    &:hover {
+      span {
+        text-decoration: underline;
+      }
+      i {
+        color: #fff;
+        transition: .5s color, .5s background;
+      }
+    }
+
+  }
+}

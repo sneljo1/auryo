@@ -1,0 +1,25 @@
+.comments {
+  .comment {
+    padding: 10px 5px;
+
+    .divider {
+      width: 5px;
+      height: 5px;
+      display: inline-block;
+      background: #353535;
+      border-radius: 100%;
+      margin: 0 10px;
+    }
+  }
+  .comment-body {
+    font-size: .9rem;
+
+    max-width: 100%;
+    word-break: break-all;
+  }
+  .comment-user {
+    img {
+      border-radius: 100%;
+    }
+  }
+}

@@ -1,0 +1,32 @@
+.auryo {
+  .redux-toastr {
+    .top-right {
+      margin-top: 50px;
+    }
+
+    .toastr .rrt-left-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      .rrt-holder {
+        width: auto;
+        height: auto;
+        position: relative;
+        top: auto;
+        margin: 0;
+        left: auto;
+        line-height: initial;
+      }
+    }
+    .toastr.rrt-info, .toastr.rrt-success, .toastr.rrt-warning, .toastr.rrt-error {
+      background: white;
+      color: #222326;
+      font-size: 13px;
+      box-shadow: 0 10px 60px rgba(0, 0, 0, 0.03), 0 6px 50px rgba(0, 0, 0, 0.13);
+      opacity: 1;
+      img {
+        width: 50px;
+      }
+    }
+  }
+}
