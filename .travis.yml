@@ -30,12 +30,6 @@ before_install:
       brew update > /dev/null
       brew cask install google-chrome
     fi
-  - # work-around for issue https://github.com/travis-ci/travis-ci/issues/6307
-    # might not be necessary in the future
-    if [ "$TRAVIS_OS_NAME" == "osx" ]; then
-     command curl -sSL https://rvm.io/mpapis.asc | gpg --import -
-     rvm get stable
-    fi
 
 install:
   - yarn
