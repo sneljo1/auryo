@@ -44,9 +44,9 @@ script:
 after_success:
   - |
     if [ "$TRAVIS_OS_NAME" == "linux" ]; then
-       yarn run package:linux
+       yarn run release:linux
     else
-       yarn run package:mac
+       yarn run release:mac
     fi
 
 cache:

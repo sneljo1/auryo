@@ -22,7 +22,7 @@ build_script:
   - npm run test-e2e
 
 deploy_script:
-- cmd: npm run package:win
+- cmd: npm run release:win
 
 artifacts:
   - path: 'dist\*.exe'
