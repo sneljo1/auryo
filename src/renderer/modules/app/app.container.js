@@ -28,6 +28,7 @@ import PlaylistPage from '../playlist/PlaylistPage'
 import SearchWrapper from '../search/SearchWrapper'
 import UtilitiesModal from '../UtilitiesModel/UtilitiesModal'
 import trackSchema from '../../../shared/schemas/track'
+import { toastr } from 'react-redux-toastr'
 
 class App extends React.Component {
 
@@ -53,18 +54,18 @@ class App extends React.Component {
     }
 
     componentWillReceiveProps(nextProps, nextContext) {
-        const { hide, info, app } = this.props
+        const { app } = this.props
 
         if (app.offline !== nextProps.app.offline && nextProps.app.offline === true) {
-            info({
-                uid: 'offline',
+            toastr.info({
+                id: 'offline',
                 title: 'You are currently offline',
                 message: 'Please reconnect!',
                 autoDismiss: 0,
                 dismissible: false
             })
         } else if (app.offline !== nextProps.app.offline && nextProps.app.offline === false) {
-            hide('offline')
+            toastr.remove('offline')
         }
     }
 

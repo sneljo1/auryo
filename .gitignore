@@ -47,4 +47,5 @@ main.js.map
 
 .yarnclean
 .env
+.env*
 src/.env*
