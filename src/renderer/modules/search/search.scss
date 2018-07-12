@@ -3,24 +3,6 @@
 
 #search-page {
 
-  #playlist-header {
-    height: 150px;
-    margin-bottom: 5rem;
-  }
-
-  #playlist-info {
-    max-width: 400px;
-    margin: 80px auto 0;
-  }
-
-  .search-box {
-    background: white;
-    padding: 8px 10px;
-    box-sizing: content-box;
-    box-shadow: 0 10px 60px rgba(0, 0, 0, 0.03), 0 6px 50px rgba(0, 0, 0, 0.13);
-    border-radius: 5px;
-  }
-
   .search-img {
     position: absolute;
     left: 0;
@@ -36,14 +18,21 @@
     margin: 2rem 0 3.5rem;
   }
   .search-tabs {
-    margin-bottom: 20px;
+    margin: 0 0 2rem 9.8rem;
     .nav-link {
-      font-size: .9rem;
-      padding: .5rem .5rem .25rem;
+      font-size: .8rem;
       color: #77797d;
+
+      background: white;
+      padding: 6px 12px;
+      box-sizing: content-box;
+      border-radius: 5px;
+      margin-right: 10px;
+      border: 1px solid #f1f1f1;
+
       &.active {
         color: theme-color("primary") !important;
-        border-bottom: 1px dashed;
+        font-weight: bold;
       }
     }
   }

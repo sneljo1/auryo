@@ -104,8 +104,6 @@ class Header extends React.Component {
 
                         <div className="d-flex align-items-center justify-content-between">
                             <User me={me} push={push} />
-                            <div className="CHANGE_THIS"></div>
-
 
                             <ButtonDropdown isOpen={this.state.dropdownOpen} toggle={this.toggle}
                                             className="d-flex align-items-center">

@@ -8,7 +8,7 @@ import SideBar from './components/Sidebar/sidebar.component'
 import Header from './components/Header/header.component'
 import Spinner from '../_shared/Spinner/spinner.component'
 import * as actions from '../../../shared/actions/index'
-import ReduxToastr from 'react-redux-toastr'
+import ReduxToastr, { toastr } from 'react-redux-toastr'
 import { hashHistory, Route, Switch, withRouter } from 'react-router'
 import Queue from './components/Queue/queue.component'
 import { OBJECT_TYPES } from '../../../shared/constants/global'
@@ -28,7 +28,6 @@ import PlaylistPage from '../playlist/PlaylistPage'
 import SearchWrapper from '../search/SearchWrapper'
 import UtilitiesModal from '../UtilitiesModel/UtilitiesModal'
 import trackSchema from '../../../shared/schemas/track'
-import { toastr } from 'react-redux-toastr'
 
 class App extends React.Component {
 
@@ -57,12 +56,11 @@ class App extends React.Component {
         const { app } = this.props
 
         if (app.offline !== nextProps.app.offline && nextProps.app.offline === true) {
-            toastr.info({
-                id: 'offline',
-                title: 'You are currently offline',
-                message: 'Please reconnect!',
-                autoDismiss: 0,
-                dismissible: false
+            toastr.info('You are currently offline.', 'Please reconnect!', {
+                id: 'offline', // If not provided we will add one.
+                timeOut: 0,
+                showCloseButton: false,
+
             })
         } else if (app.offline !== nextProps.app.offline && nextProps.app.offline === false) {
             toastr.remove('offline')

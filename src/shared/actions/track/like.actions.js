@@ -24,7 +24,6 @@ export function toggleLike(trackId, playlist) {
             playlist = false
         }
 
-
         const liked = !SC.hasID(trackId, (playlist ? likes.playlist : likes.track))
 
         console.log(actionTypes.AUTH_SET_LIKE, liked)

@@ -22,6 +22,12 @@ body {
   overflow: hidden;
 }
 
+// fix for https://github.com/electron/electron/issues/4420
+::selection {
+  background: rgba(213, 213, 213, 0.99);
+  color: #3e3e3e;
+}
+
 .playing .custom-scroll {
   height: calc(100% - 66px);
 }
