@@ -10,11 +10,22 @@ import { PLAYLISTS } from '../../../shared/constants'
 import playlistSchema from '../../../shared/schemas/playlist'
 import trackSchema from '../../../shared/schemas/track'
 import { userSchema } from '../../../shared/schemas'
+import _ from 'lodash'
 
-class Search extends React.PureComponent {
+class Search extends React.Component {
 
     state = {
         loading: false
+    }
+
+    shouldComponentUpdate(nextProps, nextState) {
+        if (!_.isEqual(nextProps.query, this.props.query) ||
+            !_.isEqual(nextProps.playlist_object, this.props.playlist_object) ||
+            !_.isEqual(nextState.loading, this.props.loading)) {
+            return true
+        }
+        return false
+
     }
 
     componentDidMount() {
@@ -37,7 +48,7 @@ class Search extends React.PureComponent {
     componentWillReceiveProps(nextProps) {
         const { query, searchAll, playlist_object } = this.props
 
-        if ((query !== nextProps.query || !playlist_object) && query && query.length) {
+        if ((query !== nextProps.query || !playlist_object) && nextProps.query && nextProps.query.length) {
             this.setState({
                 loading: true
             })
@@ -77,8 +88,21 @@ class Search extends React.PureComponent {
             object_id
         } = this.props
 
-        if (this.state.loading) {
-            return <Spinner />
+        if (this.state.loading || !playlist_object || (playlist_object && playlist_object.isFetching)) {
+            return (
+                <div className="pt-5 mt-5">
+                    <Spinner />
+                </div>
+            )
+        }
+
+        if (!results || !results.length) {
+            return (
+                <div className="pt-5 mt-5">
+                    <h5 className='text-muted text-center'>No results for "{this.props.query}"</h5>
+                    <div className="text-center" style={{ fontSize: '5rem' }}>😭</div>
+                </div>
+            )
         }
 
         return (

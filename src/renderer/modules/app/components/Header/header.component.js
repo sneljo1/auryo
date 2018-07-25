@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { browserHistory } from 'react-router'
+import { browserHistory, withRouter } from 'react-router'
 import './header.scss'
 import User from './User/user.component'
 import SearchBox from './Search/searchBox.component'
@@ -161,4 +161,4 @@ Header.defaultProps = {
     scrollTop: 0
 }
 
-export default Header
+export default withRouter(Header)

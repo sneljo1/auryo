@@ -9,7 +9,7 @@ class SearchBox extends React.Component {
         super(props)
 
         this.state = {
-            query: props.value || ''
+            query: props.initialValue || props.value || ''
         }
 
         this.onChange = this.onChange.bind(this)
@@ -58,6 +58,11 @@ class SearchBox extends React.Component {
                        className="form-control"
                        placeholder="Search people, tracks and albums"
                        value={this.state.query}
+                       onKeyPress={(e) => {
+                           if(e.key === "Enter"){
+                               this.handleSearchDebounced(this.state.query, this.search.value)
+                           }
+                       }}
                        onChange={this.onChange} />
 
                 <div className="input-group-append">
@@ -76,7 +81,8 @@ class SearchBox extends React.Component {
 
 SearchBox.propTypes = {
     handleSearch: PropTypes.func.isRequired,
-    className: PropTypes.string
+    className: PropTypes.string,
+    initialValue: PropTypes.string,
 }
 
 

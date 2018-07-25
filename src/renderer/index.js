@@ -8,10 +8,10 @@ import './css/app.scss'
 import { version } from '../../package.json'
 import config from '../config'
 
-/*if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== 'production') {
     const { whyDidYouUpdate } = require('why-did-you-update')
-    whyDidYouUpdate(React)
-}*/
+    //whyDidYouUpdate(React)
+}
 
 const store = configureStore()
 

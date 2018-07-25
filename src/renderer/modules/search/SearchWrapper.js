@@ -11,8 +11,21 @@ import CustomScroll from '../_shared/CustomScroll'
 import debounce from 'lodash/debounce'
 import { setScrollPosition } from '../../../shared/actions'
 import Spinner from '../_shared/Spinner/spinner.component'
+import _ from 'lodash'
+
+
+const getquery = (props) => props.match.params.query
 
 class SearchWrapper extends React.Component {
+
+    shouldComponentUpdate(nextProps, nextState) {
+
+        if (!_.isEqual(getquery(nextProps), getquery(this.props))) {
+            return true
+        }
+        return false
+
+    }
 
     componentDidMount() {
 
@@ -50,9 +63,10 @@ class SearchWrapper extends React.Component {
         return (
             <CustomScroll heightRelativeToParent="100%"
                           loader={<Spinner />}
+                          onScroll={this.debouncedSetScroll}
                           loadMore={this.loadMore}
                           hasMore={this.hasMore()}
-                          onScroll={this.debouncedSetScroll}>
+            >
                 <div id="search-page" className="h-100">
                     <Nav className="search-tabs">
                         <NavLink exact className="nav-link" to={'/search/' + query}
@@ -66,7 +80,7 @@ class SearchWrapper extends React.Component {
                     </Nav>
 
 
-                    <div className="search-content h-100 p-2">
+                    <div className="search-content p-2">
                         <Switch>
                             <Route exact path={`${match.url}`} render={(props) => (
                                 <SearchPage query={query} ref={ref => this.child = ref} {...props} />

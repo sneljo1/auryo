@@ -72,7 +72,7 @@
     "socket.io-client": "^1.7.3",
     "soundcloud": "^3.3.0",
     "source-map-support": "^0.4.6",
-    "styled-components": "^3.1.6",
+    "styled-components": "^3.3.3",
     "universal-analytics": "^0.4.15",
     "winston": "^2.3.1"
   },
