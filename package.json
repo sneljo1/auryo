@@ -195,6 +195,7 @@
   },
   "dependencies": {
     "dotenv": "^5.0.1",
+    "react-infinite-scroller": "^1.2.0",
     "rebuild-node-sass": "^1.1.0"
   },
   "devEngines": {

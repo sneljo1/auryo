@@ -1,5 +1,3 @@
-@import "../../assets/fonts/Roboto/roboto.css";
-@import "../../assets/fonts/Arimo/stylesheet.css";
 @import "../../assets/fonts/iconmoon/style.css";
 @import "./vars";
 @import "./responsive";
@@ -526,12 +524,12 @@ i {
 }
 
 .f-height {
-  height: calc(100% - 52px);
+  height: 100%;
 }
 
 .playing {
   .f-height {
-    height: calc(100% - 118px);
+    height: calc(100% - 66px);
   }
 }
 

@@ -6,7 +6,8 @@ import isEqual from 'lodash/isEqual'
 
 class SideBarPlaylist extends React.Component {
     static propTypes = {
-        playlists: PropTypes.array.isRequired
+        playlists: PropTypes.array.isRequired,
+        currentPlaylistId: PropTypes.string
     }
 
     static defaultProps = {
@@ -15,18 +16,20 @@ class SideBarPlaylist extends React.Component {
 
     shouldComponentUpdate(nextProps, nextState, nextContext) {
         return !isEqual(this.props.playlists.length, nextProps.playlists.length) ||
-            !isEqual(this.props.location, nextProps.location)
+            !isEqual(this.props.location, nextProps.location) ||
+            !isEqual(this.props.currentPlaylistId, nextProps.currentPlaylistId)
     }
 
     render() {
-        const { playlists } = this.props
+        const { playlists, currentPlaylistId } = this.props
 
         return (
             <div>
                 {
                     playlists.map((playlist, i) => {
                         return (
-                            <li key={`sidebar-${playlist.id}`} className="navItem">
+                            <li key={`sidebar-${playlist.id}`}
+                                className={`navItem ${playlist.id === +currentPlaylistId ? 'playing' : null}`}>
                                 <NavLink to={'/playlist/' + playlist.id}
                                          className="navLink"
                                          activeClassName="active">

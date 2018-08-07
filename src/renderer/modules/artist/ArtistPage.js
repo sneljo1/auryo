@@ -23,9 +23,10 @@ import Linkify from '../_shared/linkify.component'
 import CustomScroll from '../_shared/CustomScroll'
 import { denormalize, schema } from 'normalizr'
 import trackSchema from '../../../shared/schemas/track'
-import debounce from 'lodash/debounce'
+import Header from '../app/components/Header/Header'
+import WithHeaderComponent from '../_shared/WithHeaderComponent'
 
-class ArtistContainer extends React.Component {
+class ArtistContainer extends WithHeaderComponent {
 
     state = {
         activeTab: '1',
@@ -40,8 +41,6 @@ class ArtistContainer extends React.Component {
         if (this.props.scrollTop) {
             this.scroll.updateScrollPosition(this.props.scrollTop)
         }
-
-        this.debouncedSetScroll = debounce(this.props.setScrollPosition, 10)
     }
 
     componentWillReceiveProps(nextProps) {
@@ -163,10 +162,11 @@ class ArtistContainer extends React.Component {
         return (
             <CustomScroll heightRelativeToParent="100%"
                           allowOuterScroll={true}
-                          onScroll={this.debouncedSetScroll}
+                          onScroll={this.debouncedOnScroll}
                           threshold={300}
                           loadMore={this.fetchMore.bind(this)}
                           hasMore={this.canFetchMore()}>
+                <Header scrollTop={this.state.scrollTop} />
                 <div className='artistPage container-fluid'>
                     <Row className='trackHeader row'>
 

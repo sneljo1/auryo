@@ -80,6 +80,8 @@ export default class Auryo {
             y: mainWindowState.y,
             width: mainWindowState.width,
             height: mainWindowState.height,
+            minWidth: 950,
+            minHeight: 400,
             titleBarStyle: 'hiddenInset',
             show: false,
             fullscreen: mainWindowState.isFullScreen,

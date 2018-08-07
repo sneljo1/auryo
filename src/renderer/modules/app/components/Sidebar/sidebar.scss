@@ -2,8 +2,8 @@
 @import "~bootstrap/scss/mixins";
 @import "~bootstrap/scss/variables";
 
-.playing #sidebar-menu.scroll {
-  height: calc(100% - 122px);
+.playing #sidebar .custom-scroll {
+  height: calc(100% - 122px) !important;
 }
 
 #sidebar-menu {
@@ -26,6 +26,21 @@
   .navItem .navLink.active {
     color: #eeeeee !important;
     border-left: 4px solid theme-color("primary");
+  }
+  .navItem.playing .navLink {
+    position: relative;
+    &:after {
+      content: '\e96d';
+      color: theme-color("primary");
+      display: inline;
+      font-family: Icomoon;
+      position: absolute;
+      top: 50%;
+      right: 0;
+      transform: translateY(-50%);
+      font-size: 1rem;
+      margin-right: .6rem;
+    }
   }
   .navLink * {
     vertical-align: middle;

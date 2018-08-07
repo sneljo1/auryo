@@ -3,7 +3,7 @@ import * as actions from '../../../shared/actions/index'
 import { OBJECT_TYPES } from '../../../shared/constants/index'
 import { connect } from 'react-redux'
 import './search.scss'
-import TracksGrid from '../_shared/TracksGrid/tracksGrid.component'
+import TracksGrid from '../_shared/TracksGrid/TracksGrid'
 import Spinner from '../_shared/Spinner/spinner.component'
 import { denormalize, schema } from 'normalizr'
 import { PLAYLISTS } from '../../../shared/constants'
@@ -21,7 +21,7 @@ class Search extends React.Component {
     shouldComponentUpdate(nextProps, nextState) {
         if (!_.isEqual(nextProps.query, this.props.query) ||
             !_.isEqual(nextProps.playlist_object, this.props.playlist_object) ||
-            !_.isEqual(nextState.loading, this.props.loading)) {
+            !_.isEqual(nextState.loading, this.state.loading)) {
             return true
         }
         return false
@@ -52,6 +52,8 @@ class Search extends React.Component {
             this.setState({
                 loading: true
             })
+            console.log('componentWillReceiveProps')
+
             searchAll(nextProps.query, 40)
                 .then(() => {
                     this.setState({
@@ -67,11 +69,14 @@ class Search extends React.Component {
 
     loadMore = () => {
         if (this.props.canFetchMoreOf(PLAYLISTS.SEARCH, OBJECT_TYPES.PLAYLISTS)) {
+            console.log('Loadmore')
             this.props.fetchMore(PLAYLISTS.SEARCH, OBJECT_TYPES.PLAYLISTS)
         }
     }
 
     render() {
+        console.log('render')
+
         const {
             player,
             entities,
@@ -88,7 +93,7 @@ class Search extends React.Component {
             object_id
         } = this.props
 
-        if (this.state.loading || !playlist_object || (playlist_object && playlist_object.isFetching)) {
+        if (this.state.loading || (playlist_object && playlist_object.isFetching)) {
             return (
                 <div className="pt-5 mt-5">
                     <Spinner />
@@ -99,8 +104,10 @@ class Search extends React.Component {
         if (!results || !results.length) {
             return (
                 <div className="pt-5 mt-5">
-                    <h5 className='text-muted text-center'>No results for "{this.props.query}"</h5>
-                    <div className="text-center" style={{ fontSize: '5rem' }}>😭</div>
+                    <h5 className='text-muted text-center'>{this.props.query ? `No results for "${this.props.query}"` : 'Search for people, tracks and albums'}</h5>
+                    <div className="text-center" style={{ fontSize: '5rem' }}>
+                        {this.props.query ? '😭' : '🕵️‍'}
+                    </div>
                 </div>
             )
         }
@@ -132,7 +139,7 @@ class Search extends React.Component {
 const mapStateToProps = (state, props) => {
     const { auth, entities, objects, player: { playingTrack }, app, player } = state
 
-    const object_id = PLAYLISTS.SEARCH
+    const object_id = PLAYLISTS.SEARCH + props.query
 
     const playlist_objects = objects[OBJECT_TYPES.PLAYLISTS] || {}
     const playlist_object = playlist_objects[object_id]

@@ -8,32 +8,17 @@ import { NavLink } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { push, replace } from 'react-router-redux'
 import CustomScroll from '../_shared/CustomScroll'
-import debounce from 'lodash/debounce'
 import { setScrollPosition } from '../../../shared/actions'
 import Spinner from '../_shared/Spinner/spinner.component'
-import _ from 'lodash'
+import WithHeaderComponent from '../_shared/WithHeaderComponent'
+import Header from '../app/components/Header/Header'
 
-
-const getquery = (props) => props.match.params.query
-
-class SearchWrapper extends React.Component {
-
-    shouldComponentUpdate(nextProps, nextState) {
-
-        if (!_.isEqual(getquery(nextProps), getquery(this.props))) {
-            return true
-        }
-        return false
-
-    }
+class SearchWrapper extends WithHeaderComponent {
 
     componentDidMount() {
-
         if (this.props.scrollTop) {
             this.scroll.updateScrollPosition(this.props.scrollTop)
         }
-
-        this.debouncedSetScroll = debounce(this.props.setScrollPosition, 10)
     }
 
     loadMore = () => {
@@ -57,27 +42,32 @@ class SearchWrapper extends React.Component {
     }
 
     render() {
-        const { match, replace, push } = this.props
+        const { match } = this.props
         const { params: { query } } = match
 
         return (
             <CustomScroll heightRelativeToParent="100%"
                           loader={<Spinner />}
-                          onScroll={this.debouncedSetScroll}
+                          onScroll={this.debouncedOnScroll}
                           loadMore={this.loadMore}
                           hasMore={this.hasMore()}
             >
+
                 <div id="search-page" className="h-100">
-                    <Nav className="search-tabs">
-                        <NavLink exact className="nav-link" to={'/search/' + query}
-                                 activeClassName="active">All</NavLink>
-                        <NavLink className="nav-link" to={'/search/' + query + '/user'}
-                                 activeClassName="active">Users</NavLink>
-                        <NavLink className="nav-link" to={'/search/' + query + '/track'}
-                                 activeClassName="active">Tracks</NavLink>
-                        <NavLink className="nav-link" to={'/search/' + query + '/playlist'}
-                                 activeClassName="active">Playlist</NavLink>
-                    </Nav>
+                    <Header focus query={query}
+                            scrollTop={this.state.scrollTop}>
+
+                        <Nav className="search-tabs">
+                            <NavLink exact className="nav-link" to={'/search/' + query}
+                                     activeClassName="active">All</NavLink>
+                            <NavLink className="nav-link" to={'/search/' + query + '/user'}
+                                     activeClassName="active">Users</NavLink>
+                            <NavLink className="nav-link" to={'/search/' + query + '/track'}
+                                     activeClassName="active">Tracks</NavLink>
+                            <NavLink className="nav-link" to={'/search/' + query + '/playlist'}
+                                     activeClassName="active">Playlist</NavLink>
+                        </Nav>
+                    </Header>
 
 
                     <div className="search-content p-2">

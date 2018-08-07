@@ -1,26 +1,21 @@
-import React, { Component } from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import * as actions from '../../../shared/actions/index'
 import { PLAYLISTS } from '../../../shared/constants/index'
-import TracksGrid from '../_shared/TracksGrid/tracksGrid.component'
+import TracksGrid from '../_shared/TracksGrid/TracksGrid'
 import Spinner from '../_shared/Spinner/spinner.component'
 import CustomScroll from '../_shared/CustomScroll'
-import debounce from 'lodash/debounce'
 import { withRouter } from 'react-router-dom'
 import { denormalize, schema } from 'normalizr'
 import playlistSchema from '../../../shared/schemas/playlist'
 import trackSchema from '../../../shared/schemas/track'
+import Header from '../app/components/Header/Header'
+import WithHeaderComponent from '../_shared/WithHeaderComponent'
 
-class PlayListPage extends Component {
+class PlayListPage extends WithHeaderComponent {
 
     componentDidMount() {
-
-        if (this.props.scrollTop) {
-            this.scroll.updateScrollPosition(this.props.scrollTop)
-        }
-
-        this.debouncedSetScroll = debounce(this.props.setScrollPosition, 10)
 
         const { playlist: playlist_object, fetchMore, object_id, object_type, getAuthLikesIfNeeded, getAuthTracksIfNeeded, getAuthAllPlaylistsIfNeeded } = this.props
 
@@ -39,6 +34,10 @@ class PlayListPage extends Component {
 
         } else if (!playlist_object || playlist_object.items.length === 0 && (playlist_object && !playlist_object.isFetching)) {
             fetchMore(object_id, object_type)
+        }
+
+        if (this.props.scrollTop) {
+            this.scroll.updateScrollPosition(this.props.scrollTop)
         }
     }
 
@@ -93,14 +92,17 @@ class PlayListPage extends Component {
 
         return (
             <CustomScroll heightRelativeToParent="100%"
+                          heightMargin={35}
                           allowOuterScroll={true}
                           threshold={300}
                           isFetching={playlist_object.isFetching}
                           ref={r => this.scroll = r}
                           loadMore={fetchMore.bind(null, object_id, object_type)}
                           loader={<Spinner />}
-                          onScroll={this.debouncedSetScroll}
-                          hasMore={playlist_object.nextUrl}>
+                          onScroll={this.debouncedOnScroll}
+                          hasMore={!!playlist_object.nextUrl}>
+
+                <Header scrollTop={this.state.scrollTop} />
 
                 <div className={'header ' + title.replace(' ', '_')}>
                     <h2>{title}</h2>
@@ -158,7 +160,6 @@ const mapStateToProps = (state, props) => {
         playlist_object,
         items: denormalized,
         scrollTop: history.action === 'POP' ? ui.scrollPosition[location.pathname] : undefined
-
     }
 }
 

@@ -81,7 +81,7 @@ export function searchAll(query, limit, offset) {
         const { objects } = getState()
 
         const playlist_objects = objects[OBJECT_TYPES.PLAYLISTS] || {}
-        const object_id = PLAYLISTS.SEARCH
+        const object_id = PLAYLISTS.SEARCH + query;
         const tracklist_object = playlist_objects[object_id]
 
         if (!query) {

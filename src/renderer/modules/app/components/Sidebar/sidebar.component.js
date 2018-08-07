@@ -12,11 +12,12 @@ class SideBar extends React.Component {
     shouldComponentUpdate(nextProps, nextState, nextContext) {
         return !isEqual(this.props.playing, nextProps.playing) ||
             !isEqual(this.props.playlists, nextProps.playlists) ||
-            !isEqual(this.props.location, nextProps.location)
+            !isEqual(this.props.location, nextProps.location) ||
+            !isEqual(this.props.currentPlaylistId, nextProps.currentPlaylistId)
     }
 
     render() {
-        const { playlists, playing } = this.props
+        const { playlists, playing,currentPlaylistId } = this.props
 
         return (
 
@@ -61,7 +62,7 @@ class SideBar extends React.Component {
                         </ul>
                         <h2>Playlists</h2>
                         <div id="playlists" className="nav flex-column">
-                            <SideBarPlaylist playlists={playlists} />
+                            <SideBarPlaylist playlists={playlists} currentPlaylistId={currentPlaylistId}/>
                         </div>
                     </div>
                 </CustomScroll>
@@ -72,7 +73,8 @@ class SideBar extends React.Component {
 
 SideBar.propTypes = {
     playlists: PropTypes.array.isRequired,
-    playing: PropTypes.bool
+    playing: PropTypes.bool,
+    currentPlaylistId: PropTypes.string
 }
 
 SideBar.defaultProps = {

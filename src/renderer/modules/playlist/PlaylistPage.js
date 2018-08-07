@@ -4,30 +4,29 @@ import * as actions from '../../../shared/actions/index'
 import { getReadableTime, SC } from '../../../shared/utils/index'
 import { IMAGE_SIZES, OBJECT_TYPES } from '../../../shared/constants/index'
 import './playlist.scss'
-import TracksGrid from '../_shared/TracksGrid/tracksGrid.component'
+import TracksGrid from '../_shared/TracksGrid/TracksGrid'
 import Spinner from '../_shared/Spinner/spinner.component'
 import cn from 'classnames'
 import { PLAYER_STATUS } from '../../modules/player/constants/player'
 import img from '../../../assets/img/search.jpg'
 import CustomScroll from '../_shared/CustomScroll'
-import debounce from 'lodash/debounce'
 import { withRouter } from 'react-router-dom'
 import { denormalize, schema } from 'normalizr'
 import trackSchema from '../../../shared/schemas/track'
+import Header from '../app/components/Header/Header'
+import WithHeaderComponent from '../_shared/WithHeaderComponent'
 
-class PlaylistContainer extends Component {
+class PlaylistContainer extends WithHeaderComponent {
 
     componentDidMount() {
         const { fetchPlaylistIfNeeded, playlistId } = this.props
 
         fetchPlaylistIfNeeded(playlistId)
 
-
         if (this.props.scrollTop) {
             this.scroll.updateScrollPosition(this.props.scrollTop)
         }
 
-        this.debouncedSetScroll = debounce(this.props.setScrollPosition, 10)
     }
 
     componentWillReceiveProps(nextProps) {
@@ -103,14 +102,16 @@ class PlaylistContainer extends Component {
 
         return (
             <CustomScroll heightRelativeToParent="100%"
+                          heightMargin={35}
                           allowOuterScroll={true}
                           threshold={300}
                           isFetching={playlist_object.isFetching}
                           ref={r => this.scroll = r}
                           loadMore={fetchPlaylistTracks.bind(null, playlistId)}
                           loader={<Spinner />}
-                          onScroll={this.debouncedSetScroll}
+                          onScroll={this.debouncedOnScroll}
                           hasMore={canFetchPlaylistTracks(playlistId)}>
+                <Header scrollTop={this.state.scrollTop} />
                 <div id='playlist-header' className="hasImage">
                     {
                         playlist_entity.artwork_url || (first_item && first_item.artwork_url) ? (

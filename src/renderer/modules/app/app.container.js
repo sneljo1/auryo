@@ -5,7 +5,6 @@ import cn from 'classnames'
 import PlayerContainer from '../player/player.container'
 import IsOffline from './components/Offline/offline.component'
 import SideBar from './components/Sidebar/sidebar.component'
-import Header from './components/Header/header.component'
 import Spinner from '../_shared/Spinner/spinner.component'
 import * as actions from '../../../shared/actions/index'
 import ReduxToastr, { toastr } from 'react-redux-toastr'
@@ -59,7 +58,7 @@ class App extends React.Component {
             toastr.info('You are currently offline.', 'Please reconnect!', {
                 id: 'offline', // If not provided we will add one.
                 timeOut: 0,
-                showCloseButton: false,
+                showCloseButton: false
 
             })
         } else if (app.offline !== nextProps.app.offline && nextProps.app.offline === false) {
@@ -159,6 +158,7 @@ class App extends React.Component {
                     })}>
                         <SideBar
                             playing={player.playingTrack.id !== null}
+                            currentPlaylistId={player.currentPlaylistId}
                             playlists={p.playlists} />
 
                         <Queue
@@ -179,13 +179,6 @@ class App extends React.Component {
                             addUpNext={addUpNext} />
 
                         <section className="content">
-
-                            <Header scrollTop={scrollTop} push={push} history={app.history} me={me}
-                                    show={show}
-                                    replace={replace}
-                                    goBack={this.props.history.goBack}
-                                    goForward={this.props.history.goForward}
-                                    logout={logout} />
 
                             <ReduxToastr
                                 timeOut={4000}

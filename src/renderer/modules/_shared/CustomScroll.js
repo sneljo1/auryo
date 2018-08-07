@@ -74,6 +74,11 @@ class CustomScroll extends React.Component {
         this.contentHeight = this.innerContainer.scrollHeight
         this.scrollbarYWidth = this.innerContainer.offsetWidth - this.innerContainer.clientWidth
         this.visibleHeight = this.innerContainer.clientHeight
+
+        if (this.props.heightMargin && this.contentHeight !== this.visibleHeight) {
+            this.visibleHeight -= this.props.heightMargin
+        }
+
         this.scrollRatio = this.contentHeight ? this.visibleHeight / this.contentHeight : 1
 
         this.toggleScrollIfNeeded()
@@ -397,6 +402,7 @@ try {
         rtl: PropTypes.bool,
         scrollTo: PropTypes.number,
         threshold: PropTypes.number,
+        heightMargin: PropTypes.number,
         keepAtBottom: PropTypes.bool,
         isFetching: PropTypes.bool,
         loadMore: PropTypes.func,

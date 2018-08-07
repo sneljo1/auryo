@@ -5,15 +5,26 @@ import { connect } from 'react-redux'
 import Spinner from '../../_shared/Spinner/spinner.component'
 import './searchCategory.scss'
 import { PLAYLISTS } from '../../../../shared/constants'
-import TracksGrid from '../../_shared/TracksGrid/tracksGrid.component'
+import TracksGrid from '../../_shared/TracksGrid/TracksGrid'
 import { denormalize, schema } from 'normalizr'
 import playlistSchema from '../../../../shared/schemas/playlist'
 import { userSchema } from '../../../../shared/schemas'
 import trackSchema from '../../../../shared/schemas/track'
+import isEqual from 'lodash/isEqual'
 
-class SearchCategory extends React.PureComponent {
+class SearchCategory extends React.Component {
     state = {
         loading: false
+    }
+
+    shouldComponentUpdate(nextProps, nextState) {
+        if (!isEqual(nextProps.query, this.props.query) ||
+            !isEqual(nextProps.playlist_object, this.props.playlist_object) ||
+            !isEqual(nextState.loading, this.state.loading)) {
+            return true
+        }
+        return false
+
     }
 
     componentDidMount() {

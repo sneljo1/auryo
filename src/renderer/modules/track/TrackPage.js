@@ -18,10 +18,11 @@ import Linkify from '../_shared/linkify.component'
 import CustomScroll from '../_shared/CustomScroll'
 import { denormalize, schema } from 'normalizr'
 import trackSchema from '../../../shared/schemas/track'
-import debounce from 'lodash/debounce'
 import { withRouter } from 'react-router-dom'
+import Header from '../app/components/Header/Header'
+import WithHeaderComponent from '../_shared/WithHeaderComponent'
 
-class SongContainer extends React.Component {
+class SongContainer extends WithHeaderComponent {
 
     state = {
         activeTab: '1'
@@ -33,8 +34,6 @@ class SongContainer extends React.Component {
         if (this.props.scrollTop) {
             this.scroll.updateScrollPosition(this.props.scrollTop)
         }
-
-        this.debouncedSetScroll = debounce(this.props.setScrollPosition, 10)
 
         fetchTrackIfNeeded(songId)
 
@@ -170,9 +169,11 @@ class SongContainer extends React.Component {
             <CustomScroll heightRelativeToParent="100%"
                           allowOuterScroll={true}
                           threshold={300}
-                          onScroll={this.debouncedSetScroll}
+                          onScroll={this.debouncedOnScroll}
                           loadMore={this.fetchMore.bind(this)}
                           hasMore={this.canFetchMore()}>
+
+                <Header scrollTop={this.state.scrollTop} />
                 <div
                     className="trackDetails container-fluid d-flex flex-column">
 

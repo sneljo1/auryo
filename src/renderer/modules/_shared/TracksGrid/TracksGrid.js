@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import ReactList from 'react-list'
-import TrackGridItem from './trackGridItem.component'
+import TrackGridItem from './TrackGridItem'
 import cn from 'classnames'
 import * as SC from '../../../../shared/utils/soundcloudUtils'
 import TrackGridUser from './TrackGridUser'
@@ -78,6 +78,8 @@ class TracksGrid extends Component {
                     user={obj} />
             )
         }
+
+        if (!obj.user) return null
 
         return (
             <TrackGridItem

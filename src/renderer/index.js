@@ -9,7 +9,7 @@ import { version } from '../../package.json'
 import config from '../config'
 
 if (process.env.NODE_ENV !== 'production') {
-    const { whyDidYouUpdate } = require('why-did-you-update')
+    //const { whyDidYouUpdate } = require('why-did-you-update')
     //whyDidYouUpdate(React)
 }
 
@@ -24,6 +24,7 @@ if (!process.env.TOKEN && process.env.NODE_ENV === 'production') {
 
         Raven.config(config.SENTRY_URL).install()
     }
+
     if (analytics) {
         const ua = require('../shared/utils/universalAnalytics')
 
