@@ -1,5 +1,6 @@
 export const OBJECT_TYPES = {
     PLAYLISTS: "PLAYLISTS",
+    CHARTS: "CHARTS",
     COMMENTS: "COMMENTS",
     USERS: "USERS",
 };

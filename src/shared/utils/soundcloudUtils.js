@@ -40,11 +40,12 @@ export function getTrackUrl(trackID) {
     })
 }
 
-export function getChartsUrl(genre, sort = 'top') {
-    return makeUrl('charts/', {
+export function getChartsUrl(genre, sort = 'top', limit = 50) {
+    return makeUrl('charts', {
         client_id: true,
         kind: sort,
-        genre: 'soundcloud:genres:' + genre
+        genre: 'soundcloud:genres:' + genre,
+        limit
     }, true)
 }
 

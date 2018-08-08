@@ -10,9 +10,10 @@ import flattenDeep from 'lodash/flattenDeep'
  *
  * @param object_id
  * @param type
+ * @param chart
  * @returns {function(*, *)}
  */
-export function fetchMore(object_id, type) {
+export function fetchMore(object_id, type, chart) {
     return (dispatch, getState) => {
         const { objects } = getState()
         const object_group = objects[type] || {}
@@ -115,42 +116,42 @@ export function getPlaylist(url, object_id, refresh) {
                                     items: flattenDeep(result
                                         .filter(trackIdSchema => trackIdSchema.schema !== 'users')
                                         .map((trackIdSchema, i) => {
-                                        const id = trackIdSchema.id || trackIdSchema
+                                            const id = trackIdSchema.id || trackIdSchema
 
-                                        const playlist = playlist_entities[id]
-                                        const playlist_object = playlists[id]
+                                            const playlist = playlist_entities[id]
+                                            const playlist_object = playlists[id]
 
-                                        if (playlist) {
+                                            if (playlist) {
 
-                                            if (!playlist_object) {
+                                                if (!playlist_object) {
 
-                                                dispatch({
-                                                    type: actionTypes.OBJECT_SET,
-                                                    payload: {
-                                                        object_id: id,
-                                                        object_type: OBJECT_TYPES.PLAYLISTS,
-                                                        result: playlist.tracks,
-                                                        fetchedItems: 0
+                                                    dispatch({
+                                                        type: actionTypes.OBJECT_SET,
+                                                        payload: {
+                                                            object_id: id,
+                                                            object_type: OBJECT_TYPES.PLAYLISTS,
+                                                            result: playlist.tracks,
+                                                            fetchedItems: 0
+                                                        }
+                                                    })
+
+                                                    dispatch(fetchPlaylistTracks(id, 50))
+
+                                                }
+
+                                                return playlist.tracks.map(trackId => {
+                                                    return {
+                                                        id: trackId,
+                                                        playlistId: id
                                                     }
                                                 })
-
-                                                dispatch(fetchPlaylistTracks(id, 50))
-
                                             }
 
-                                            return playlist.tracks.map(trackId => {
-                                                return {
-                                                    id: trackId,
-                                                    playlistId: id
-                                                }
-                                            })
-                                        }
-
-                                        return {
-                                            id,
-                                            playlistId: currentPlaylistId
-                                        }
-                                    })),
+                                            return {
+                                                id,
+                                                playlistId: currentPlaylistId
+                                            }
+                                        })),
                                     index: queue.length
                                 }
                             })

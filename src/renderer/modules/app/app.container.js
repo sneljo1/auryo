@@ -27,6 +27,8 @@ import PlaylistPage from '../playlist/PlaylistPage'
 import SearchWrapper from '../search/SearchWrapper'
 import UtilitiesModal from '../UtilitiesModel/UtilitiesModal'
 import trackSchema from '../../../shared/schemas/track'
+import ChartsPage from '../charts/ChartsPage'
+import ChartsDetailsPage from '../charts/ChartsDetailsPage'
 
 class App extends React.Component {
 
@@ -83,6 +85,8 @@ class App extends React.Component {
             <div className="f-height">
                 <Switch>
                     <Route exact path="/" component={FeedPlaylistPage} />
+                    <Route exact path="/charts" component={ChartsPage} />
+                    <Route path="/charts/:genre" component={ChartsDetailsPage} />
                     <Route path="/likes" component={LikesPlaylistPage} />
                     <Route path="/mytracks" component={MyTracksPage} />
                     <Route path="/myplaylists" component={MyPlaylistsPage} />
@@ -213,7 +217,6 @@ class App extends React.Component {
 }
 
 App.propTypes = {
-
     playlists_ids: PropTypes.array,
     playlists_ent: PropTypes.object,
     me: PropTypes.object,

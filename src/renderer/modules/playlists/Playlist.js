@@ -16,37 +16,36 @@ import WithHeaderComponent from '../_shared/WithHeaderComponent'
 class PlayListPage extends WithHeaderComponent {
 
     componentDidMount() {
-
-        const { playlist: playlist_object, fetchMore, object_id, object_type, getAuthLikesIfNeeded, getAuthTracksIfNeeded, getAuthAllPlaylistsIfNeeded } = this.props
-
-        if (!playlist_object) {
-            switch (object_id) {
-                case PLAYLISTS.LIKES:
-                    getAuthLikesIfNeeded()
-                    break
-                case PLAYLISTS.MYTRACKS:
-                    getAuthTracksIfNeeded()
-                    break
-                case PLAYLISTS.PLAYLISTS:
-                    getAuthAllPlaylistsIfNeeded()
-                    break
-            }
-
-        } else if (!playlist_object || playlist_object.items.length === 0 && (playlist_object && !playlist_object.isFetching)) {
-            fetchMore(object_id, object_type)
+        if (this.props.scrollTop) {
+            this.scroll.updateScrollPosition(this.props.scrollTop)
         }
+
+    }
+
+    componentDidMount() {
 
         if (this.props.scrollTop) {
             this.scroll.updateScrollPosition(this.props.scrollTop)
         }
+
+        this.fetchPlaylist()
     }
 
     componentWillReceiveProps(nextProps) {
-        const { playlist: playlist_object, fetchMore, getAuthLikesIfNeeded, getAuthTracksIfNeeded, getAuthAllPlaylistsIfNeeded } = this.props
+        this.fetchPlaylist()
 
-        if (playlist_object !== nextProps.playlist_object) {
-            if (!nextProps.playlist_object) {
-                switch (nextProps.object_id) {
+    }
+
+    fetchPlaylist = () => {
+        const { playlist: playlist_object, chart, fetchChartsIfNeeded, fetchMore, object_id, object_type, getAuthLikesIfNeeded, getAuthTracksIfNeeded, getAuthAllPlaylistsIfNeeded } = this.props
+
+
+        if (!playlist_object) {
+
+            if (chart) {
+                fetchChartsIfNeeded(object_id)
+            } else {
+                switch (object_id) {
                     case PLAYLISTS.LIKES:
                         getAuthLikesIfNeeded()
                         break
@@ -57,12 +56,11 @@ class PlayListPage extends WithHeaderComponent {
                         getAuthAllPlaylistsIfNeeded()
                         break
                 }
-
-            } else if (!nextProps.playlist_object || nextProps.playlist_object.items.length === 0 && (nextProps.playlist_object && !nextProps.playlist_object.isFetching)) {
-                fetchMore(nextProps.object_id, nextProps.object_type)
             }
-        }
 
+        } else if (!playlist_object || playlist_object.items.length === 0 && (playlist_object && !playlist_object.isFetching)) {
+            fetchMore(object_id, object_type, chart)
+        }
     }
 
     render() {

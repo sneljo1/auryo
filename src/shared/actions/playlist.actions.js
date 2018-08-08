@@ -289,6 +289,26 @@ export function fetchPlaylistIfNeeded(playlistId) {
     }
 }
 
+/**
+ * Fetch new chart if needed
+ *
+ * @returns {function(*, *)}
+ * @param genre
+ * @param sortType
+ */
+export function fetchChartsIfNeeded(genre, sortType) {
+    return (dispatch, getState) => {
+        const { objects } = getState()
+
+        const playlist_objects = objects[OBJECT_TYPES.PLAYLISTS]
+        const playlist_object = playlist_objects[genre]
+
+        if (!playlist_object) {
+            dispatch(getPlaylist(SC.getChartsUrl(genre, sortType,25), genre))
+        }
+    }
+}
+
 export function canFetchPlaylistTracks(playlistId) {
     return (dispatch, getState) => {
         const {

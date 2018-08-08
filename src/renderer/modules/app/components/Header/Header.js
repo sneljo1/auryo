@@ -20,6 +20,7 @@ class Header extends React.Component {
     shouldComponentUpdate(nextProps, nextState, nextContext) {
         return this.state.dropdownOpen !== nextState.dropdownOpen ||
             !isEqual(this.props.location.pathname, nextProps.location.pathname) ||
+            !isEqual(this.props.locHistory, nextProps.locHistory) ||
             this.props.me !== nextProps.me ||
             (this.props.scrollTop < 52 && nextProps.scrollTop > 52) || (this.props.scrollTop > 52 && nextProps.scrollTop < 52)
     }

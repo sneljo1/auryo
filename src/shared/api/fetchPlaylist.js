@@ -51,7 +51,16 @@ export default function fetchPlaylist(url, playlist_type, hideReposts) {
 
 
             } else if (json.collection) {
-                const collection = json.collection
+                let collection = json.collection
+
+                if (json.genre) {
+                    collection = collection.map(item => {
+                        let track = item.track
+                        track.score = item.score
+
+                        return track
+                    })
+                }
 
                 let schem = new schema.Array({
                     playlists: playlistSchema,

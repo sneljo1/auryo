@@ -1,0 +1,122 @@
+@import "../../../node_modules/bootstrap/scss/bootstrap";
+@import "../../css/vars";
+
+.tabs {
+  &.nav-tabs {
+    border: none;
+    .nav-link {
+      font-size: .8rem;
+      color: #77797d;
+
+      background: white;
+      padding: 6px 12px;
+      box-sizing: content-box;
+      border-radius: 5px;
+      margin-right: 10px;
+      border: 1px solid #f1f1f1;
+
+      cursor: pointer;
+
+      &.active {
+        color: theme-color("primary") !important;
+        font-weight: bold;
+        border-color: #f1f1f1;
+      }
+    }
+  }
+  padding-bottom: 2rem;
+
+}
+
+.charts {
+  padding: 0 2.5rem !important;
+
+  .chart {
+    position: relative;
+    box-shadow: 0 10px 60px rgba(0, 0, 0, 0.03), 0 6px 50px rgba(0, 0, 0, 0.13);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 3rem;
+    &.withImage {
+      min-height: 150px;
+    }
+
+
+    &:not(.withImage) {
+      padding: 1.5rem 0;
+      width: 100%;
+      margin-bottom: 1.5rem;
+      h1 {
+        font-size: 1rem;
+      }
+    }
+    &:after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      z-index: 1;
+      opacity: .3;
+    }
+    i {
+      position: absolute;
+      font-size: 5rem;
+      bottom: 0;
+      right: 0;
+      z-index: 9999;
+      opacity: .4;
+      transform: rotate(-25deg);
+    }
+
+    .overlay {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      display: block;
+      z-index: 1;
+      opacity: .5;
+    }
+    h1 {
+      position: absolute;
+      left: 0;
+      right: 0;
+      margin: 0 auto;
+      color: white;
+      font-weight: bold;
+      text-align: center;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.5rem;
+      z-index: 3;
+    }
+    img {
+      max-width: 100%;
+    }
+  }
+}
+
+.my-masonry-grid {
+  display: -webkit-box; /* Not needed if autoprefixing */
+  display: -ms-flexbox; /* Not needed if autoprefixing */
+  display: flex;
+  margin-left: -30px; /* gutter size offset */
+  width: auto;
+}
+
+.my-masonry-grid_column {
+  padding-left: 30px; /* gutter size */
+  background-clip: padding-box;
+}
+
+// Style your items
+.my-masonry-grid_column > div { /* change div to reference your elements you put in <Masonry> */
+  background: grey;
+  margin-bottom: 30px;
+}

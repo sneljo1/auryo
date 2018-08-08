@@ -52,7 +52,6 @@ class Search extends React.Component {
             this.setState({
                 loading: true
             })
-            console.log('componentWillReceiveProps')
 
             searchAll(nextProps.query, 40)
                 .then(() => {
@@ -69,14 +68,11 @@ class Search extends React.Component {
 
     loadMore = () => {
         if (this.props.canFetchMoreOf(PLAYLISTS.SEARCH, OBJECT_TYPES.PLAYLISTS)) {
-            console.log('Loadmore')
             this.props.fetchMore(PLAYLISTS.SEARCH, OBJECT_TYPES.PLAYLISTS)
         }
     }
 
     render() {
-        console.log('render')
-
         const {
             player,
             entities,

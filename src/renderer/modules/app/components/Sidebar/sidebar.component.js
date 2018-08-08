@@ -40,6 +40,11 @@ class SideBar extends React.Component {
                                     Stream
                                 </NavLink>
                             </li>
+                            <li className="navItem">
+                                <NavLink exact to="/charts" className="navLink" activeClassName="active">
+                                    Charts
+                                </NavLink>
+                            </li>
                         </ul>
 
                         <h2>Me</h2>
