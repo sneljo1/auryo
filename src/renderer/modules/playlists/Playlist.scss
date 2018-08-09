@@ -1,0 +1,85 @@
+.header.withImage {
+  background-position: center center;
+  background-size: cover;
+  position: relative;
+  z-index: -1;
+  margin-top: -52px;
+  &:before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    background-image: linear-gradient(transparent 0%, rgba(255, 255, 255, .25) 50%, rgb(255, 255, 255) 100%);
+    z-index: 2;
+  }
+
+  &:after {
+
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: black;
+    z-index: 1;
+    opacity: .3;
+  }
+
+  & + .songs {
+    margin-top: -5rem;
+  }
+  .gradient {
+    background-image: linear-gradient(120deg, rgb(132, 250, 176) 0%, rgb(143, 211, 244) 100%);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: block;
+    height: 100%;
+    opacity: .3;
+    z-index: -1;
+  }
+  h2 {
+    color: #fff;
+    padding: 7rem 2rem 7rem 2.5rem;
+    position: relative;
+    z-index: 4;
+  }
+}
+
+.header-wrapper.withImage {
+  background: rgba(255, 255, 255, 0.15);
+  .stickymaker:not(.sticky) {
+    i {
+      color: white;
+    }
+    .navbar .control-nav a {
+      color: white;
+      &:not(.disabled):hover {
+        background: rgba(247, 247, 247, 0.33);
+        transition: .4s background;
+      }
+    }
+    .user .userPofile:not(:hover) {
+      color: #fff !important;
+    }
+    .user .userPofile:hover {
+      background: rgba(247, 247, 247, 0.33);
+      transition: .4s all;
+    }
+
+    .search-box {
+      input {
+        color: #fff;
+        &::-webkit-input-placeholder {
+          color: rgba(247, 247, 247, 0.7);
+        }
+      }
+    }
+  }
+}

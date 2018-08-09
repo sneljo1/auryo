@@ -11,7 +11,7 @@ import { AUDIO_GENRES, MUSIC_GENRES } from '../../../shared/constants'
 import { Nav, NavLink, TabContent, TabPane } from 'reactstrap'
 import cn from 'classnames'
 
-const images = {
+export const GENRE_IMAGES = {
     'all-music': require('../../../assets/img/genres/all-music.jpg'),
     'alternativerock': require('../../../assets/img/genres/alternativerock.jpg'),
     'ambient': require('../../../assets/img/genres/ambient.jpg'),
@@ -52,7 +52,9 @@ class ChartsPage extends WithHeaderComponent {
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        return this.state.activeTab !== nextState.activeTab
+        return this.state.activeTab !== nextState.activeTab ||
+            (this.state.scrollTop < 52 && nextState.scrollTop > 52) || (this.state.scrollTop > 52 && nextState.scrollTop < 52)
+
     }
 
     componentDidMount() {
@@ -112,7 +114,7 @@ class ChartsPage extends WithHeaderComponent {
                                     className="my-masonry-grid">
                                     {MUSIC_GENRES.map((genre, i) => {
 
-                                        const img = images[genre.key]
+                                        const img = GENRE_IMAGES[genre.key]
 
                                         return (
                                             <Link key={i} to={`/charts/${genre.key}`}>
@@ -120,9 +122,9 @@ class ChartsPage extends WithHeaderComponent {
                                                     <img src={img} />
                                                     <h1>{genre.name}</h1>
 
-                                                    {
+                                                    {/*{
                                                         genre.icon && <i className={`icon icon-${genre.icon}`} />
-                                                    }
+                                                    }*/}
 
                                                     {
                                                         genre.gradient && <div className="overlay"
@@ -145,9 +147,9 @@ class ChartsPage extends WithHeaderComponent {
                                             <Link key={i} to={`/charts/${genre.key}`}>
                                                 <div className="chart">
                                                     <h1>{genre.name}</h1>
-                                                    {
+                                                    {/*{
                                                         genre.icon && <i className={`icon icon-${genre.icon}`}></i>
-                                                    }
+                                                    }*/}
 
                                                 </div>
                                             </Link>

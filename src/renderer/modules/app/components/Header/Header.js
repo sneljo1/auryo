@@ -64,11 +64,12 @@ class Header extends React.Component {
     }
 
     render() {
-        const { locHistory: { next, back }, push, me, logout, scrollTop, replace } = this.props
+        const { locHistory: { next, back }, push, me, logout, scrollTop, replace, className } = this.props
 
         return (
-            <div className="header-wrapper" style={{ minHeight: this.state.height }}>
+            <div className={'header-wrapper ' + className || ""} style={{ minHeight: this.state.height }}>
                 <Sticky
+                    className="stickymaker"
                     activeClassName={`sticky sticky-3`}
                     stickyWidth={`calc(100% - ${260}px)`}
                     isSticky={scrollTop - 52 > 0}
@@ -148,6 +149,7 @@ class Header extends React.Component {
 
 Header.propTypes = {
     history: PropTypes.object.isRequired,
+    className: PropTypes.string,
     push: PropTypes.func.isRequired,
     replace: PropTypes.func.isRequired,
     me: PropTypes.object.isRequired,

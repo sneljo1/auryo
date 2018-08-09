@@ -12,6 +12,8 @@ import playlistSchema from '../../../shared/schemas/playlist'
 import trackSchema from '../../../shared/schemas/track'
 import Header from '../app/components/Header/Header'
 import WithHeaderComponent from '../_shared/WithHeaderComponent'
+import cn from 'classnames'
+import './Playlist.scss'
 
 class PlayListPage extends WithHeaderComponent {
 
@@ -100,9 +102,14 @@ class PlayListPage extends WithHeaderComponent {
                           onScroll={this.debouncedOnScroll}
                           hasMore={!!playlist_object.nextUrl}>
 
-                <Header scrollTop={this.state.scrollTop} />
+                <Header className={cn({ withImage: this.props.backgroundImage})} scrollTop={this.state.scrollTop} />
 
-                <div className={'header ' + title.replace(' ', '_')}>
+                <div className={cn('header ', title.replace(' ', '_'), {
+                    withImage: this.props.backgroundImage
+                })}
+                     style={this.props.backgroundImage ? { backgroundImage: `url(${this.props.backgroundImage})` } : {}}>
+                    {this.props.gradient &&
+                    <div className="gradient" style={{ backgroundImage: this.props.gradient }} />}
                     <h2>{title}</h2>
                 </div>
 
@@ -130,6 +137,7 @@ PlayListPage.propTypes = {
     object_id: PropTypes.string.isRequired,
     object_type: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired,
+    backgroundImage: PropTypes.string,
     showInfo: PropTypes.bool
 }
 
