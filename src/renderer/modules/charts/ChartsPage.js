@@ -10,6 +10,8 @@ import Masonry from 'react-masonry-css'
 import { AUDIO_GENRES, MUSIC_GENRES } from '../../../shared/constants'
 import { Nav, NavLink, TabContent, TabPane } from 'reactstrap'
 import cn from 'classnames'
+import LazyLoad from 'react-lazyload';
+import PageHeader from '../_shared/PageHeader/PageHeader'
 
 export const GENRE_IMAGES = {
     'all-music': require('../../../assets/img/genres/all-music.jpg'),
@@ -86,9 +88,7 @@ class ChartsPage extends WithHeaderComponent {
 
                 <Header scrollTop={this.state.scrollTop} />
 
-                <div className="header">
-                    <h2>Charts</h2>
-                </div>
+                <PageHeader title="Charts" />
 
                 <div className="container-fluid charts">
                     <Nav className="tabs" tabs>
@@ -118,6 +118,7 @@ class ChartsPage extends WithHeaderComponent {
 
                                         return (
                                             <Link key={i} to={`/charts/${genre.key}`}>
+                                                <LazyLoad>
                                                 <div className="chart withImage">
                                                     <img src={img} />
                                                     <h1>{genre.name}</h1>
@@ -132,6 +133,7 @@ class ChartsPage extends WithHeaderComponent {
                                                     }
 
                                                 </div>
+                                                </LazyLoad>
                                             </Link>
                                         )
                                     })}

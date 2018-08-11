@@ -13,7 +13,7 @@ import trackSchema from '../../../shared/schemas/track'
 import Header from '../app/components/Header/Header'
 import WithHeaderComponent from '../_shared/WithHeaderComponent'
 import cn from 'classnames'
-import './Playlist.scss'
+import PageHeader from '../_shared/PageHeader/PageHeader'
 
 class PlayListPage extends WithHeaderComponent {
 
@@ -102,16 +102,11 @@ class PlayListPage extends WithHeaderComponent {
                           onScroll={this.debouncedOnScroll}
                           hasMore={!!playlist_object.nextUrl}>
 
-                <Header className={cn({ withImage: this.props.backgroundImage})} scrollTop={this.state.scrollTop} />
+                <Header className={cn({ withImage: this.props.backgroundImage })} scrollTop={this.state.scrollTop} />
 
-                <div className={cn('header ', title.replace(' ', '_'), {
-                    withImage: this.props.backgroundImage
-                })}
-                     style={this.props.backgroundImage ? { backgroundImage: `url(${this.props.backgroundImage})` } : {}}>
-                    {this.props.gradient &&
-                    <div className="gradient" style={{ backgroundImage: this.props.gradient }} />}
+                <PageHeader image={this.props.backgroundImage} gradient={this.props.gradient}>
                     <h2>{title}</h2>
-                </div>
+                </PageHeader>
 
                 <TracksGrid likes={likes}
                             items={items}

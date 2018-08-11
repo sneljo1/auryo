@@ -68,6 +68,37 @@ export function getReadableTime(sec, ms, with_seconds) {
     return str
 }
 
+export function getReadableTimeFull(sec, inMs) {
+    if (!sec) return '0min.'
+
+    //Get hours from milliseconds
+    let hours = sec / (60 * 60)
+    if (inMs) {
+        hours = sec / (60 * 60 * 1000)
+    }
+    const h = Math.floor(hours)
+
+    //Get remainder from hours and convert to minutes
+    const minutes = (hours - h) * 60
+    const m = Math.floor(minutes)
+
+    //Get remainder from minutes and convert to seconds
+    const seconds = (minutes - m) * 60
+    const s = Math.floor(seconds)
+
+
+    let str = ''
+
+    if (h !== 0) {
+        str += `${h}h ${m}min.`
+    } else {
+        str += `${m}min.`
+    }
+
+
+    return str
+}
+
 export function getPos(e, el) {
     if (!el) {
         el = e.currentTarget

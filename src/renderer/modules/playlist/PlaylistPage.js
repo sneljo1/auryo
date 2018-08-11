@@ -1,20 +1,23 @@
-import React, { Component } from 'react'
+import React from 'react'
 import { connect } from 'react-redux'
 import * as actions from '../../../shared/actions/index'
-import { getReadableTime, SC } from '../../../shared/utils/index'
+import { SC } from '../../../shared/utils/index'
 import { IMAGE_SIZES, OBJECT_TYPES } from '../../../shared/constants/index'
 import './playlist.scss'
 import TracksGrid from '../_shared/TracksGrid/TracksGrid'
 import Spinner from '../_shared/Spinner/spinner.component'
 import cn from 'classnames'
 import { PLAYER_STATUS } from '../../modules/player/constants/player'
-import img from '../../../assets/img/search.jpg'
 import CustomScroll from '../_shared/CustomScroll'
 import { withRouter } from 'react-router-dom'
 import { denormalize, schema } from 'normalizr'
 import trackSchema from '../../../shared/schemas/track'
 import Header from '../app/components/Header/Header'
 import WithHeaderComponent from '../_shared/WithHeaderComponent'
+import PageHeader from '../_shared/PageHeader/PageHeader'
+import { getReadableTimeFull } from '../../../shared/utils'
+import MoreActionsDropdown from '../_shared/moreActionsDropdown.component'
+import {UncontrolledButtonDropdown,DropdownToggle,DropdownMenu,DropdownItem} from "reactstrap"
 
 class PlaylistContainer extends WithHeaderComponent {
 
@@ -51,7 +54,7 @@ class PlaylistContainer extends WithHeaderComponent {
 
         if (player.currentPlaylistId === playlistId && player.status === PLAYER_STATUS.PLAYING) {
             return (
-                <a href="javascript:void(0)" className="c_btn"
+                <a href="javascript:void(0)" className="c_btn playing"
                    onClick={() => toggleStatus()}>
                     <i className="icon-pause" />
                     Playing
@@ -77,10 +80,11 @@ class PlaylistContainer extends WithHeaderComponent {
             playlist_entity,
             playlistId,
             player,
-            auth: { likes, reposts },
+            auth: { likes, reposts, playlists },
 
             // Functions
             show,
+            openExternal,
             toggleLike,
             playTrack,
             fetchPlaylistIfNeeded,
@@ -97,8 +101,12 @@ class PlaylistContainer extends WithHeaderComponent {
 
         const first_id = playlist_object.items[0]
         const first_item = items[0]
+        const hasImage = playlist_entity.artwork_url || (first_item && first_item.artwork_url)
 
         const liked = SC.hasID(playlistId, likes.playlist)
+        const playlistOwned = playlists.indexOf(playlist_entity.id) !== -1
+
+        const openExternalFunc = openExternal.bind(null, playlist_entity.permalink_url)
 
         return (
             <CustomScroll heightRelativeToParent="100%"
@@ -111,59 +119,59 @@ class PlaylistContainer extends WithHeaderComponent {
                           loader={<Spinner />}
                           onScroll={this.debouncedOnScroll}
                           hasMore={canFetchPlaylistTracks(playlistId)}>
-                <Header scrollTop={this.state.scrollTop} />
-                <div id='playlist-header' className="hasImage">
-                    {
-                        playlist_entity.artwork_url || (first_item && first_item.artwork_url) ? (
-                            <div className='imgOverlay'
-                                 style={{ backgroundImage: 'url(' + SC.getImageUrl(playlist_entity.artwork_url || first_item.artwork_url, IMAGE_SIZES.XSMALL) + ')' }} />
-                        ) : <div className="imgOverlay" style={{ backgroundImage: 'url(' + img + ')' }} />
-                    }
 
-                    <div id='playlist-info' className="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h1>{playlist_entity.title}</h1>
-                            <ul className='d-flex playlist-stats'>
-                                <li className="d-flex align-items-center">
-                                    <i className='icon-disc' />
-                                    <span>{playlist_entity.track_count}</span>
-                                </li>
-                                <li className="d-flex align-items-center">
-                                    <i className='icon-clock' />
-                                    <span>{getReadableTime(playlist_entity.duration, true, true)}</span>
-                                </li>
-                            </ul>
+                <Header className={cn({
+                    withImage: hasImage
+                })} scrollTop={this.state.scrollTop} />
+                <PageHeader
+                    image={hasImage ? SC.getImageUrl(playlist_entity.artwork_url || first_item.artwork_url, IMAGE_SIZES.XLARGE) : null}>
+                    <h2>{playlist_entity.title}</h2>
+                    <div>
+                        <div className='stats'>
+                            {playlist_entity.track_count} titles{' - '}{getReadableTimeFull(playlist_entity.duration, true)}
+                        </div>
 
-                            <div id="playlist-buttons">
-                                {
-                                    first_id ? (
-                                        this.renderPlayButton()
-                                    ) : null
-                                }
+                        <div id="playlist-buttons" className="d-flex">
+                            {
+                                first_id ? (
+                                    this.renderPlayButton()
+                                ) : null
+                            }
 
 
-                                {
-                                    playlist_object.items.length ? (
-                                        <a href="javascript:void(0)" className={cn('c_btn', { liked: liked })}
-                                           onClick={toggleLike.bind(this, playlist_entity.id, true)}>
-                                            <i className={liked ? 'icon-favorite' : 'icon-favorite_border'} />
-                                            <span>{liked ? 'Liked' : 'Like'}</span>
-                                        </a>
-                                    ) : null
-                                }
+                            {
+                                playlist_object.items.length && !playlistOwned ? (
+                                    <a href="javascript:void(0)" className={cn('c_btn', { liked: liked })}
+                                       onClick={toggleLike.bind(this, playlist_entity.id, true)}>
+                                        <i className={liked ? 'icon-favorite' : 'icon-favorite_border'} />
+                                        <span>{liked ? 'Liked' : 'Like'}</span>
+                                    </a>
+                                ) : null
+                            }
 
 
-                                {
-                                    playlist_object.items.length ? (
-                                        <a href="javascript:void(0)" className="c_btn"
-                                           onClick={addUpNext.bind(this, playlist_entity.id, items, null)}>
-                                            <i className="icon-playlist_play" /> <span>Add to queue</span>
-                                        </a>
-                                    ) : null
-                                }
+                            {
+                                playlist_object.items.length ? (
+                                    <a href="javascript:void(0)" className="c_btn"
+                                       onClick={addUpNext.bind(this, playlist_entity.id, items, null)}>
+                                        <i className="icon-playlist_play" /> <span>Add to queue</span>
+                                    </a>
+                                ) : null
+                            }
+
+                            <MoreActionsDropdown>
+                                <a className='dropdown-item'
+                                   onClick={openExternalFunc}>
+                                    View in browser
+                                </a>
+                                <a className='dropdown-item'
+                                   onClick={openExternalFunc}>
+                                    View in browser
+                                </a>
+                            </MoreActionsDropdown>
 
 
-                                {/*<a href='javascript:void(0)' className='c_btn'
+                            {/*<a href='javascript:void(0)' className='c_btn'
                          {
                          items.user_id === me.id ? (
                          <a href="javascript:void(0)" className="c_btn"
@@ -174,12 +182,9 @@ class PlaylistContainer extends WithHeaderComponent {
                          ) : null
                          }
                          </a>*/}
-                            </div>
                         </div>
-
                     </div>
-
-                </div>
+                </PageHeader>
                 {
                     !playlist_object.isFetching && playlist_object.items.length === 0 && items.duration !== 0 ? (
                         <div className="py-4"><h4 className="text-center p-5">This <a target="_blank"

@@ -1,6 +1,47 @@
 @import "../../../../css/vars";
 
 .header-wrapper {
+  &.withImage {
+    background: rgba(255, 255, 255, 0.15);
+    position: relative;
+    z-index: 5;
+
+
+    .stickymaker:not(.sticky) {
+      i {
+        color: white;
+      }
+
+      #globalSearch{
+        background: rgba(255, 255, 255, 0.23);
+        border-radius: 20px;
+      }
+      .navbar .control-nav a {
+        color: white;
+        &:not(.disabled):hover {
+          background: rgba(247, 247, 247, 0.33);
+          transition: .4s background;
+        }
+      }
+      .user .userPofile:not(:hover) {
+        color: #fff !important;
+      }
+      .user .userPofile:hover {
+        background: rgba(247, 247, 247, 0.33);
+        transition: .4s all;
+      }
+
+      .search-box {
+        input {
+          color: #fff;
+          &::-webkit-input-placeholder {
+            color: rgba(247, 247, 247, 0.7);
+          }
+        }
+      }
+    }
+  }
+
   .sticky {
     .navbar-wrapper {
       background: white;
