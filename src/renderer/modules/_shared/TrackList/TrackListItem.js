@@ -78,8 +78,6 @@ class trackListItem extends React.Component {
 
         if (!track.title) return null
 
-        console.log(track)
-
         return (
             <tr className={cn('trackItem', { isPlaying: isPlaying })} onDoubleClick={playTrackFunc.bind(null, false)}>
                 <td>

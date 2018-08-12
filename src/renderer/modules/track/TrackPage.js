@@ -19,12 +19,8 @@ import trackSchema from '../../../shared/schemas/track'
 import { withRouter } from 'react-router-dom'
 import Header from '../app/components/Header/Header'
 import WithHeaderComponent from '../_shared/WithHeaderComponent'
-import { Position } from '@blueprintjs/core/lib/esm/index'
 import ShareMenuItem from '../_shared/ShareMenuItem'
-import { MenuItem } from '@blueprintjs/core/lib/cjs/components/menu/menuItem'
-import { MenuDivider } from '@blueprintjs/core/lib/cjs/components/menu/menuDivider'
-import { Menu } from '@blueprintjs/core/lib/cjs/components/menu/menu'
-import { Popover } from '@blueprintjs/core/lib/cjs/components/popover/popover'
+import { Popover,MenuDivider,Menu,MenuItem,Position } from '@blueprintjs/core'
 import PageHeader from '../_shared/PageHeader/PageHeader'
 import TrackGridUser from '../_shared/TracksGrid/TrackGridUser'
 import ToggleMore from '../_shared/toggleMore.component'
@@ -155,7 +151,7 @@ class TrackPage extends WithHeaderComponent {
         }, [])
 
         return (
-            <CustomScroll heightRelativeToParent="100%"
+            <CustomScroll className="column"  heightRelativeToParent="100%"
                           allowOuterScroll={true}
                           threshold={300}
                           onScroll={this.debouncedOnScroll}
@@ -271,7 +267,8 @@ class TrackPage extends WithHeaderComponent {
                         </a>
                     </div>
                 </PageHeader>
-                <div className="trackDetails container-fluid main_track_content">
+
+                <div className="trackDetails container-fluid main_track_content detailPage">
                     <TabContent activeTab={this.state.activeTab}>
                         <TabPane tabId="1" className="overview">
                             <Row>

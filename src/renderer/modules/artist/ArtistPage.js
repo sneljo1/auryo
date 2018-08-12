@@ -15,7 +15,6 @@ import Spinner from '../_shared/Spinner/spinner.component'
 import FallbackImage from '../_shared/FallbackImage'
 import ToggleMoreComponent from '../_shared/toggleMore.component'
 import ArtistProfiles from './components/ArtistProfiles/artistProfiles.component'
-import MoreActionsDropdown from '../_shared/moreActionsDropdown.component'
 import './index.scss'
 import { openExternal } from '../../../shared/actions/app/window.actions'
 import { withRouter } from 'react-router'
@@ -25,6 +24,10 @@ import { denormalize, schema } from 'normalizr'
 import trackSchema from '../../../shared/schemas/track'
 import Header from '../app/components/Header/Header'
 import WithHeaderComponent from '../_shared/WithHeaderComponent'
+import PageHeader from '../_shared/PageHeader/PageHeader'
+import ShareMenuItem from '../_shared/ShareMenuItem'
+import { Menu, MenuItem, Popover, Position } from '@blueprintjs/core'
+import { PLAYER_STATUS } from '../player/constants/player'
 
 class ArtistContainer extends WithHeaderComponent {
 
@@ -46,10 +49,8 @@ class ArtistContainer extends WithHeaderComponent {
     componentWillReceiveProps(nextProps) {
         const { fetchArtistIfNeeded, params: { artistId } } = this.props
 
-        if (artistId !== nextProps.params.artistId) {
-            fetchArtistIfNeeded(nextProps.params.artistId)
+        fetchArtistIfNeeded(nextProps.params.artistId)
 
-        }
     }
 
     componentWillUpdate(nextProps) {
@@ -89,7 +90,7 @@ class ArtistContainer extends WithHeaderComponent {
         const { likes, reposts } = auth
 
         const object_id = artistId + playlist_name
-        const playlist = playlist_objects[playlist_name] || {}
+        const playlist = playlist_objects[object_id] || {}
 
         return (
             <div>
@@ -104,12 +105,49 @@ class ArtistContainer extends WithHeaderComponent {
                     addUpNext={addUpNext}
                     likeFunc={(trackId => toggleLike(trackId, false))}
                     toggleRepost={toggleRepost}
-                    playTrackFunc={playTrack.bind(null, playlist_name)}
+                    playTrackFunc={playTrack.bind(null, object_id)}
                     show={show}
                 />
-                {playlist.isFetching ? <Spinner full /> : null}
+                {playlist.isFetching ? <Spinner /> : null}
             </div>
 
+        )
+    }
+
+    renderPlayButton = () => {
+        const {
+            player,
+            playTrack,
+            toggleStatus,
+            params,
+            items
+        } = this.props
+        const { artistId } = params
+
+        const playlistId = artistId + USER_TRACKS_PLAYLIST_SUFFIX
+
+        const playlistItems = items[playlistId]
+
+        if (!playlistItems.length) return null
+
+        const first_id = playlistItems[0].id
+
+        if (player.currentPlaylistId === playlistId && player.status === PLAYER_STATUS.PLAYING) {
+            return (
+                <a href="javascript:void(0)" className="c_btn playing"
+                   onClick={() => toggleStatus()}>
+                    <i className="icon-pause" />
+                    Playing
+                </a>
+            )
+        }
+
+        return (
+            <a href="javascript:void(0)" className="c_btn"
+               onClick={player.currentPlaylistId === playlistId ? toggleStatus.bind(null, null) : playTrack.bind(null, playlistId, first_id, null)}>
+                <i className="icon-play_arrow" />
+                Play
+            </a>
         )
     }
 
@@ -160,45 +198,56 @@ class ArtistContainer extends WithHeaderComponent {
         const openExternalFunc = openExternal.bind(null, user.permalink_url)
 
         return (
-            <CustomScroll heightRelativeToParent="100%"
+            <CustomScroll className="column" heightRelativeToParent="100%"
                           allowOuterScroll={true}
                           onScroll={this.debouncedOnScroll}
                           threshold={300}
                           loadMore={this.fetchMore.bind(this)}
                           hasMore={this.canFetchMore()}>
-                <Header scrollTop={this.state.scrollTop} />
-                <div className='artistPage container-fluid'>
-                    <Row className='trackHeader row'>
+                <Header className="withImage" scrollTop={this.state.scrollTop} />
 
-                        <div className='overlayWrapper'>
-                            <FallbackImage
-                                overflow
-                                id={user.id}
-                                className='overlayImg'
-                                src={user_img} />
-                        </div>
-
-                        <Col xs='12' md='4' xl='2'>
-                            <div className='imageWrapper'>
+                <PageHeader image={user_img}>
+                    <Row className="trackHeader">
+                        <Col xs="12" md="4" xl="2">
+                            <div className="imageWrapper">
                                 <FallbackImage
-                                    overflow
-                                    id={user.id}
-                                    src={user_img} />
-
-                                <FallbackImage
-                                    overflow
-                                    id={user.id}
-                                    className='imgShadow'
-                                    src={user_img} />
+                                    src={user_img}
+                                    id={user.id} />
                             </div>
                         </Col>
 
-                        <Col xs='12' md='8' xl='10' className='trackInfo text-md-left text-xs-center'>
-
+                        <Col xs="12" md="8" xl="" className="trackInfo text-md-left text-xs-center">
                             <Row className='justify-content-md-between'>
                                 <Col xs='12' md='6'>
-                                    <h1 className='trackTitle'>{user.username}</h1>
-                                    <h2 className='trackArtist'>{user.city}{user.city && user.country ? ' , ' : null}{user.country}</h2>
+                                    <h2>{user.username}</h2>
+                                    <h3 className='trackArtist'>{user.city}{user.city && user.country ? ' , ' : null}{user.country}</h3>
+                                    <div className="button-group">
+                                        {
+                                            this.renderPlayButton()
+                                        }
+                                        {
+                                            artistId !== me.id ? <a href='javascript:void(0)'
+                                                                    className={cn('c_btn', { following: following })}
+                                                                    onClick={this.toggleFollow.bind(this)}>
+                                                {following ? <i className='icon-check' /> : <i className='icon-add' />}
+                                                <span>{following ? 'Following' : 'Follow'}</span>
+                                            </a> : null
+                                        }
+
+                                        <Popover autoFocus={false} minimal={true} content={(
+                                            <Menu>
+                                                <MenuItem
+                                                    text="View in browser"
+                                                    onClick={openExternalFunc} />
+                                                <ShareMenuItem username={user.username}
+                                                               permalink={user.permalink_url} />
+                                            </Menu>
+                                        )} position={Position.BOTTOM_LEFT}>
+                                            <a href="javascript:void(0)" className="c_btn round">
+                                                <i className="icon-more_horiz" />
+                                            </a>
+                                        </Popover>
+                                    </div>
                                 </Col>
 
                                 <Col xs='12' md='' className='col-md text-xs-right'>
@@ -216,31 +265,14 @@ class ArtistContainer extends WithHeaderComponent {
                                             <span>Tracks</span>
                                         </li>
                                     </ul>
-                                    <div
-                                        className='flex trackActions flex-wrap justify-content-center justify-content-md-end'>
-                                        {
-                                            artistId !== me.id ? <a href='javascript:void(0)'
-                                                                    className={cn('c_btn', { following: following })}
-                                                                    onClick={this.toggleFollow.bind(this)}>
-                                                {following ? <i className='icon-check' /> : <i className='icon-add' />}
-                                                <span>{following ? 'Following' : 'Follow'}</span>
-                                            </a> : null
-                                        }
-
-                                        <MoreActionsDropdown>
-                                            <a className='dropdown-item'
-                                               onClick={openExternalFunc}>
-                                                View in browser
-                                            </a>
-                                        </MoreActionsDropdown>
-                                    </div>
                                 </Col>
                             </Row>
-
                         </Col>
 
                     </Row>
-                    <div className='d-flex tracktabs row'>
+
+
+                    <div className="flex tracktabs row">
                         <a href='javascript:void(0)' className={cn({ active: this.state.activeTab === '1' })}
                            onClick={() => {
                                this.toggle('1')
@@ -263,10 +295,12 @@ class ArtistContainer extends WithHeaderComponent {
                                 </a> : null
                         }
                     </div>
+                </PageHeader>
+                <div className='artistPage container-fluid detailPage'>
                     <Row className="main_track_content">
                         <Col xs='12' lg='9'>
 
-                            <TabContent activeTab={this.state.activeTab}>
+                            <TabContent activeTab={this.state.activeTab} className="px-4">
                                 <TabPane tabId='1'>
                                     {this.renderPlaylist(USER_TRACKS_PLAYLIST_SUFFIX)}
                                 </TabPane>
@@ -276,12 +310,10 @@ class ArtistContainer extends WithHeaderComponent {
                                 {
                                     small ? (
                                         <TabPane tabId='3'>
-                                            <ArtistProfiles className='pt-1' profiles={user.profiles} />
-
                                             <div className='artistInfo p-1 pt-0'>
                                                 <Linkify text={user.description} router={this.props.router} />
-
                                             </div>
+                                            <ArtistProfiles className='pt-1' profiles={user.profiles} />
                                         </TabPane>
                                     ) : null
                                 }
@@ -291,7 +323,6 @@ class ArtistContainer extends WithHeaderComponent {
                         {
                             !small ? (
                                 <Col xs='3' className='artistSide'>
-                                    <ArtistProfiles profiles={user.profiles} />
 
                                     <ToggleMoreComponent>
                                         <div className='artistInfo'>
@@ -299,6 +330,7 @@ class ArtistContainer extends WithHeaderComponent {
                                         </div>
                                     </ToggleMoreComponent>
 
+                                    <ArtistProfiles profiles={user.profiles} />
                                 </Col>
                             ) : null
                         }

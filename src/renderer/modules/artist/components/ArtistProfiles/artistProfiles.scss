@@ -16,14 +16,12 @@ $snapchat: #fffc00;
 
 @mixin color($color) {
   i {
-    color: $color;
-    border-color: $color;
+
 
   }
   &:hover {
     i {
-      background: $color;
-      border-color: $color;
+      color: $color;
     }
   }
 }
@@ -36,9 +34,8 @@ $snapchat: #fffc00;
     display: flex;
     text-decoration: none;
     align-items: center;
-    padding: 5px;
-    margin-bottom: 4px;
     text-transform: capitalize;
+    font-size: .8rem;
 
     @include color(#3b3e42);
 
@@ -90,15 +87,10 @@ $snapchat: #fffc00;
       flex-direction: row;
       justify-content: center;
       align-items: center;
-      border: 2px solid;
       transition: .5s color, .5s background;
       margin-right: 8px;
       flex-shrink: 0;
 
-    }
-
-    span {
-      font-size: 1rem;
     }
 
     &:hover {

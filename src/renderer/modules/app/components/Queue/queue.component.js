@@ -96,17 +96,10 @@ class Queue extends React.Component {
         const {
             // Vars
             player,
-            likes,
-            reposts,
             items,
 
             // Functions
-            toggleLike,
-            toggleRepost,
-            show,
             playTrack,
-            push,
-            addUpNext
         } = this.props
 
         const { queue, playingTrack, currentPlaylistId, currentIndex } = player
@@ -117,27 +110,17 @@ class Queue extends React.Component {
 
         const current_pos = getCurrentPosition(queue, trackData)
 
-        const liked = SC.hasID(track.id, likes.track)
-        const reposted = SC.hasID(track.id, reposts)
-
         return <QueueItem key={key}
                           index={index}
                           track={track}
                           currentPlaylist={currentPlaylistId}
-                          liked={liked}
-                          reposted={reposted}
                           playingTrack={playingTrack}
                           trackData={trackData}
 
                           played={current_pos < currentIndex}
                           playing={current_pos === currentIndex}
 
-                          push={push}
-                          playTrack={playTrack}
-                          addUpNext={addUpNext}
-                          show={show}
-                          toggleLike={toggleLike}
-                          toggleRepost={toggleRepost} />
+                          playTrack={playTrack}/>
     }
 
 }
@@ -145,16 +128,11 @@ class Queue extends React.Component {
 Queue.propTypes = {
     showQueue: PropTypes.bool,
     player: PropTypes.object.isRequired,
-    show: PropTypes.func.isRequired,
-    likes: PropTypes.object.isRequired,
-    reposts: PropTypes.object.isRequired,
+    items: PropTypes.array.isRequired,
 
     toggleQueue: PropTypes.func.isRequired,
     updateQueue: PropTypes.func.isRequired,
-    push: PropTypes.func.isRequired,
     playTrack: PropTypes.func.isRequired,
-    toggleRepost: PropTypes.func.isRequired,
-    addUpNext: PropTypes.func.isRequired
 
 }
 

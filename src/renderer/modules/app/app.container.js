@@ -167,20 +167,12 @@ class App extends React.Component {
 
                         <Queue
                             showQueue={ui.queue}
-                            dimensions={app.dimensions}
                             items={deNormalizedQueue}
                             player={player}
-                            show={show}
-                            likes={likes}
-                            reposts={reposts}
 
-                            toggleLike={toggleLike}
                             updateQueue={updateQueue}
-                            toggleRepost={toggleRepost}
-                            push={push}
                             toggleQueue={toggleQueue}
-                            playTrack={playTrack}
-                            addUpNext={addUpNext} />
+                            playTrack={playTrack} />
 
                         <section className="content">
 

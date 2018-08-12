@@ -7,6 +7,15 @@
     font-weight: bold;
   }
 
+  .button-group {
+    display: flex;
+    align-items: center;
+    margin-top: 1.5rem;
+    a {
+      margin-right: .5rem;
+    }
+  }
+
   &.withImage {
     background-position: center center;
     background-size: cover;
@@ -43,9 +52,11 @@
       margin-top: -5rem;
     }
 
-    & + .trackDetails {
+    & + .detailPage {
       margin-top: -6.5rem;
       position: relative;
+      background: #f7f7f7;
+      flex-grow: 1;
     }
 
     .gradient {
@@ -78,15 +89,6 @@
     .header-content {
       position: relative;
       z-index: 4;
-    }
-
-    .button-group {
-      display: flex;
-      align-items: center;
-      margin-top: 1.5rem;
-      a {
-        margin-right: .5rem;
-      }
     }
   }
 }

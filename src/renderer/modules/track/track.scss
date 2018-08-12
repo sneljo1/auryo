@@ -1,6 +1,24 @@
 @import "../../../node_modules/bootstrap/scss/bootstrap";
 @import "../../css/vars";
 
+
+
+.stats {
+  color: #999;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  i {
+    font-size: 1.3rem;
+    &.bxs-heart {
+      font-size: 1rem;
+    }
+    margin-right: .1rem;
+  }
+  span {
+    margin-right: .5rem;
+  }
+}
+
 .trackDetails {
   background: #f7f7f7;
   padding-top: 1rem;
@@ -22,22 +40,6 @@
       font-size: .9rem;
       font-family: "Roboto", sans-serif;
       font-weight: 400;
-    }
-  }
-
-  .stats {
-    color: #999;
-    font-size: 1rem;
-    margin-bottom: 1rem;
-    i {
-      font-size: 1.3rem;
-      &.bxs-heart {
-        font-size: 1rem;
-      }
-      margin-right: .1rem;
-    }
-    span {
-      margin-right: .5rem;
     }
   }
 

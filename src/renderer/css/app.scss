@@ -609,3 +609,16 @@ i {
 .bp3-menu-item {
   font-size: .9rem;
 }
+
+.column .content-wrapper {
+  display: flex;
+  flex-flow: column;
+
+  .header-wrapper, .page-header {
+    flex-shrink: 0;
+  }
+}
+
+.bp3-portal {
+  z-index: 999999;
+}
