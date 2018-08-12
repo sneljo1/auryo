@@ -6,6 +6,7 @@ import io from 'socket.io-client'
 import { registerError } from '../utils/raven'
 import { setLoginError, setLoginLoading } from '../../shared/actions/auth/auth.actions'
 import { EVENTS } from '../../shared/constants/events'
+import { download } from 'electron-dl'
 
 const { app, clipboard } = require('electron')
 
@@ -26,6 +27,12 @@ export default class IPCManager extends IFeature {
 
         ipcMain.on('write_clipboard', (event, arg) => {
             clipboard.writeText(arg)
+        })
+
+        ipcMain.on('download_file', (event, url) => {
+            download(this.win, url)
+                .then(dl => console.log(dl.getSavePath()))
+                .catch(console.error);
         })
 
         ipcMain.on('error', (event, arg) => {

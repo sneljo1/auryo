@@ -1,12 +1,15 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import cn from 'classnames'
-import { getReadableTime } from '../../../../shared/utils/index'
+import { getReadableTime, SC } from '../../../../shared/utils/index'
 import TogglePlayButton from '../togglePlay.component'
 import './trackListItem.scss'
 import TextTruncate from 'react-dotdotdot'
 import ActionsDropdown from '../actionsDropDown.component'
 import { Link } from 'react-router-dom'
+import FallbackImage from '../FallbackImage'
+import { IMAGE_SIZES } from '../../../../shared/constants'
+import { abbreviate_number } from '../../../../shared/utils'
 
 class trackListItem extends React.Component {
 
@@ -46,7 +49,7 @@ class trackListItem extends React.Component {
         const { isPlaying, playTrackFunc } = this.props
 
         if (isPlaying) {
-            return <TogglePlayButton classname="toggleButton" />
+            return <TogglePlayButton className="toggleButton" />
         }
 
         const icon = isPlaying ? 'pause' : 'play_arrow'
@@ -75,14 +78,20 @@ class trackListItem extends React.Component {
 
         if (!track.title) return null
 
+        console.log(track)
+
         return (
             <tr className={cn('trackItem', { isPlaying: isPlaying })} onDoubleClick={playTrackFunc.bind(null, false)}>
                 <td>
-                    {
-                        track.streamable ? this.renderToggleButton() : null
-                    }
+                    <div className="img-with-shadow">
+                        <FallbackImage src={SC.getImageUrl(track, IMAGE_SIZES.XSMALL)} />
+                        <FallbackImage overflow className="shadow" src={SC.getImageUrl(track, IMAGE_SIZES.XSMALL)} />
+                        {
+                            track.streamable ? this.renderToggleButton() : null
+                        }
+                    </div>
                 </td>
-                <td className="d-flex">
+                <td>
                     <div className="trackTitle">
                         <Link to={`/track/${track.id}`}>
                             <TextTruncate
@@ -91,6 +100,15 @@ class trackListItem extends React.Component {
                             >{track.title}</TextTruncate>
                         </Link>
                     </div>
+                    <div className="stats d-flex align-items-center">
+                        <i className='bx bxs-heart' />
+
+                        <span>{abbreviate_number(track.likes_count || track.favoritings_count)}</span>
+
+                        <i className='bx bx-repost' />
+                        <span>{abbreviate_number(track.reposts_count)}</span>
+
+                    </div>
                 </td>
 
                 <td className="trackArtist">
@@ -98,10 +116,10 @@ class trackListItem extends React.Component {
                         {track.user.username}
                     </Link>
                 </td>
-                <td className="text-right">
+                <td className="time">
                     {getReadableTime(track.duration, true, true)}
                 </td>
-                <td className="trackitemActions d-flex">
+                <td className="trackitemActions">
                     {/*<i className="icon-retweet"/>
                      <i className="icon-playlist_add"/>*/}
 

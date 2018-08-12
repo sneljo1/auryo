@@ -10,7 +10,7 @@ import {
     USER_LIKES_SUFFIX,
     USER_TRACKS_PLAYLIST_SUFFIX
 } from '../../../shared/constants/index'
-import TrackList from '../_shared/TrackList/trackList.component'
+import TrackList from '../_shared/TrackList/TrackList'
 import Spinner from '../_shared/Spinner/spinner.component'
 import FallbackImage from '../_shared/FallbackImage'
 import ToggleMoreComponent from '../_shared/toggleMore.component'

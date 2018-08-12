@@ -58,7 +58,7 @@ class TrackGridItem extends React.Component {
                             track.user.username
                         }
                     </Link>
-                    <i className="icon-retweet" />
+                    <i class='bx bx-repost'></i>
 
                     <Link to={`/user/${track.from_user.id}`} className="repost">
                         {track.from_user.username}
@@ -106,7 +106,7 @@ class TrackGridItem extends React.Component {
                                 <span>{abbreviate_number(track.likes_count)}</span>
                             </div>
                             <div className="stat">
-                                <i className="icon-retweet" />
+                                <i class='bx bx-repost'></i>
                                 <span>{abbreviate_number(track.reposts_count)}</span>
                             </div>
                         </div>) : null

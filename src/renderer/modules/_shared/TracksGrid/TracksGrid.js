@@ -5,6 +5,7 @@ import TrackGridItem from './TrackGridItem'
 import cn from 'classnames'
 import * as SC from '../../../../shared/utils/soundcloudUtils'
 import TrackGridUser from './TrackGridUser'
+import { Col } from 'reactstrap'
 
 class TracksGrid extends Component {
 
@@ -22,7 +23,7 @@ class TracksGrid extends Component {
             // Functions
             playTrackFunc,
             fetchPlaylistIfNeededFunc,
-            toggleFollowing,
+            toggleFollowing
         } = this.props
 
 
@@ -63,11 +64,14 @@ class TracksGrid extends Component {
             const following = SC.hasID(obj.id, followings)
 
             return (
-                <TrackGridUser
-                    following={following}
-                    toggleFollowingFunc={toggleFollowing.bind(null, obj.id)}
-                    key={`grid-item-${obj.kind}-${obj.id}`}
-                    user={obj} />
+                <Col xs="12" sm="6" lg="4" className="userWrapper">
+                    <TrackGridUser
+                        withStats
+                        following={following}
+                        toggleFollowingFunc={toggleFollowing.bind(null, obj.id)}
+                        key={`grid-item-${obj.kind}-${obj.id}`}
+                        user={obj} />
+                </Col>
             )
         }
 
@@ -124,8 +128,8 @@ TracksGrid.propTypes = {
 
     playTrackFunc: PropTypes.func.isRequired,
     fetchPlaylistIfNeededFunc: PropTypes.func.isRequired,
-    toggleFollowing: PropTypes.func,
- }
+    toggleFollowing: PropTypes.func
+}
 
 TracksGrid.defaultProps = {
     items: []

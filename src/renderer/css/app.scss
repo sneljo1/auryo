@@ -7,6 +7,7 @@
 @import '~rc-slider/dist/rc-slider.css';
 @import "../../node_modules/bootstrap/scss/bootstrap";
 @import "~@blueprintjs/core/lib/css/blueprint.css";
+@import "~boxicons/css/boxicons.min.css";
 
 body {
   font-family: 'Roboto', sans-serif;
@@ -318,39 +319,40 @@ i {
 
 .tracktabs {
   padding: 0 15px 0 15px;
-  border-bottom: 2px solid #ccc;
-  background: #f0f0f0;
-  font-family: 'Arimo', sans-serif;
   min-height: 55px;
+  font-size: .9rem;
+  text-transform: uppercase;
+  font-weight: bold;
+  font-family: 'Roboto', sans-serif;
+  align-items: center;
+  margin-top: 1rem;
 
   a {
-    padding: 14px 20px 14px 20px;
+    padding: 10px 20px;
     text-decoration: none;
-    margin-bottom: -2px;
-    color: #3a3e43;
-    font-weight: 400;
-    border-bottom: 2px solid transparent;
+    color: #fff;
     position: relative;
 
     &.active {
-      border-bottom: 2px solid theme-color("primary");
-      color: theme-color("primary");
+      &:after {
+        content: '';
+        background: theme-color("primary");
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: 0 auto;
+        width: 3rem;
+        display: block;
+        height: 4px;
+        border-radius: 10px;
+      }
     }
 
     & span {
       vertical-align: middle;
       &.text {
         margin-right: 5px;
-      }
-      &.up {
-        position: absolute;
-        top: 0;
-        right: 0;
-        color: theme-color("primary");
-        padding: 5px;
-      }
-      &.blink {
-        animation: blink infinite 5s;
       }
     }
   }

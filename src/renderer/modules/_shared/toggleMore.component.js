@@ -1,11 +1,11 @@
-import React, {Component} from "react";
-import PropTypes from "prop-types";
-import ReactDOM from "react-dom";
-import cn from "classnames";
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
+import ReactDOM from 'react-dom'
+import cn from 'classnames'
 
 class ToggleMore extends Component {
     constructor(props) {
-        super(props);
+        super(props)
 
         this.state = {
             open: false,
@@ -17,8 +17,8 @@ class ToggleMore extends Component {
     }
 
     componentDidMount() {
-        const height = ReactDOM.findDOMNode(this.refs.overflow).clientHeight;
-        const {overflow, check_height} = this.state;
+        const height = ReactDOM.findDOMNode(this.refs.overflow).clientHeight
+        const { overflow, check_height } = this.state
 
         if (height > check_height && !overflow) {
             this.setState({
@@ -30,27 +30,28 @@ class ToggleMore extends Component {
     }
 
     toggleOpen() {
-        const {open, current_height, max, check_height} = this.state;
+        const { open, current_height, max, check_height } = this.state
 
         this.setState({
             open: !open,
-            current_height: current_height == max ? check_height : max
+            current_height: current_height === max ? check_height : max
         })
     }
 
     render() {
-        const {overflow, open, current_height} = this.state;
+        const { overflow, open, current_height } = this.state
+        const { className } = this.props
 
         if (!overflow) {
             return (
-                <div ref="overflow">
+                <div ref="overflow" className={className}>
                     {this.props.children}
                 </div>
             )
         }
 
         return (
-            <div className={cn("overflow-container", {open: open})}>
+            <div className={cn('overflow-container', className, { open: open })}>
                 <div className="overflow-div" ref="overflow" style={{
                     height: current_height
                 }}>
@@ -58,7 +59,7 @@ class ToggleMore extends Component {
                 </div>
                 <div className="overflow-bottom">
                     <a className="overflow-button" href="javascript:void(0)" onClick={this.toggleOpen.bind(this)}>
-                        <i className={"icon-" + (open ? "keyboard_arrow_up" : "keyboard_arrow_down")}/>
+                        <i className={'icon-' + (open ? 'keyboard_arrow_up' : 'keyboard_arrow_down')} />
                     </a>
                 </div>
             </div>
@@ -66,8 +67,13 @@ class ToggleMore extends Component {
     }
 
 }
-ToggleMore.propTypes = {
-    height: PropTypes.number
-};
 
-export default ToggleMore;
+ToggleMore.propTypes = {
+    height: PropTypes.number,
+    className: PropTypes.string
+}
+ToggleMore.defaultProps = {
+    className: ''
+}
+
+export default ToggleMore

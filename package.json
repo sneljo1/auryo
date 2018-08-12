@@ -194,12 +194,6 @@
     "webpack-merge": "^2.4.0"
   },
   "dependencies": {
-    "@blueprintjs/core": "^3.2.0",
-    "dotenv": "^5.0.1",
-    "popper.js": "^1.14.4",
-    "react-infinite-scroller": "^1.2.0",
-    "react-lazyload": "^2.3.0",
-    "react-masonry-css": "^1.0.11",
     "rebuild-node-sass": "^1.1.0"
   },
   "devEngines": {

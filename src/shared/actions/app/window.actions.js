@@ -25,6 +25,10 @@ export function writeToClipboard(content) {
     ipcRenderer.send('write_clipboard', content)
 }
 
+export function downloadFile(url) {
+    ipcRenderer.send('download_file', url)
+}
+
 let listeners = []
 
 export function initWatchers() {

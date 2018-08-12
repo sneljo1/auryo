@@ -13,6 +13,7 @@
     position: relative;
     margin-top: -52px;
     padding: 7rem 2rem 7rem 2.5rem;
+    overflow: hidden;
 
     &:after {
       content: "";
@@ -41,6 +42,12 @@
     & + .songs {
       margin-top: -5rem;
     }
+
+    & + .trackDetails {
+      margin-top: -6.5rem;
+      position: relative;
+    }
+
     .gradient {
       background-image: linear-gradient(120deg, rgb(132, 250, 176) 0%, rgb(143, 211, 244) 100%);
       position: absolute;
@@ -61,7 +68,7 @@
       background-size: cover;
       width: 120%;
       height: 120%;
-      filter: blur(5px);
+      filter: blur(10px);
       margin: -10%;
       z-index: -1;
     }
@@ -71,6 +78,15 @@
     .header-content {
       position: relative;
       z-index: 4;
+    }
+
+    .button-group {
+      display: flex;
+      align-items: center;
+      margin-top: 1.5rem;
+      a {
+        margin-right: .5rem;
+      }
     }
   }
 }

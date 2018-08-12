@@ -81,7 +81,8 @@ class SearchCategory extends React.Component {
             results,
             fetchPlaylistIfNeeded,
             playTrack,
-            object_id
+            object_id,
+            toggleFollowing
         } = this.props
 
         if (this.state.loading) {
@@ -91,6 +92,7 @@ class SearchCategory extends React.Component {
         return (
             <div>
                 <TracksGrid
+                    toggleFollowing={toggleFollowing}
                     followings={followings}
                     items={results}
                     player={player}

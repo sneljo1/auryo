@@ -2,9 +2,9 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { SC } from '../../../../shared/utils/index'
 import { PLAYER_STATUS } from '../../../../shared/constants/index'
-import TrackListItem from './trackListItem.component'
+import TrackListItem from './TrackListItem'
 
-class trackList extends React.PureComponent {
+class TrackList extends React.PureComponent {
 
     playTrack(id, dbl, e) {
         const { playTrackFunc, player } = this.props
@@ -41,8 +41,8 @@ class trackList extends React.PureComponent {
         const _this = this
 
         return (
-            <div className="table-responsive trackList">
-                <table className="table">
+            <div className="table-responsive  trackList">
+                <table className="table table-borderless">
                     <thead>
                     <tr className="trackListHeader">
                         <th className="row-play" />
@@ -53,7 +53,7 @@ class trackList extends React.PureComponent {
                             Artist
                         </th>
                         <th className="text-xs-center row-timer">
-                            <i className="icon-timer" />
+                            Time
                         </th>
                         <th className="trackitemActions row-actions">
 
@@ -97,7 +97,7 @@ class trackList extends React.PureComponent {
     }
 }
 
-trackList.propTypes = {
+TrackList.propTypes = {
     playingTrack: PropTypes.object,
     items: PropTypes.array.isRequired,
     player: PropTypes.object.isRequired,
@@ -112,9 +112,9 @@ trackList.propTypes = {
 
 }
 
-trackList.defaultProps = {
+TrackList.defaultProps = {
     items: [],
     hideFirstTrack: false
 }
 
-export default trackList
+export default TrackList

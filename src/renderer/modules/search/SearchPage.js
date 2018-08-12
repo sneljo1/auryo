@@ -10,7 +10,7 @@ import { PLAYLISTS } from '../../../shared/constants'
 import playlistSchema from '../../../shared/schemas/playlist'
 import trackSchema from '../../../shared/schemas/track'
 import { userSchema } from '../../../shared/schemas'
-import _ from 'lodash'
+import isEqual from 'lodash/isEqual'
 
 class Search extends React.Component {
 
@@ -19,9 +19,9 @@ class Search extends React.Component {
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        if (!_.isEqual(nextProps.query, this.props.query) ||
-            !_.isEqual(nextProps.playlist_object, this.props.playlist_object) ||
-            !_.isEqual(nextState.loading, this.state.loading)) {
+        if (!isEqual(nextProps.query, this.props.query) ||
+            !isEqual(nextProps.playlist_object, this.props.playlist_object) ||
+            !isEqual(nextState.loading, this.state.loading)) {
             return true
         }
         return false
@@ -76,18 +76,13 @@ class Search extends React.Component {
         const {
             player,
             entities,
-            auth:{followings},
+            auth: { followings },
             results,
-            toggleLike,
-            toggleRepost,
             fetchPlaylistIfNeeded,
             toggleFollowing,
             playTrack,
-            show,
-            addUpNext,
             playlist_object,
-            object_id,
-            togglePlaylistTrack
+            object_id
         } = this.props
 
         if (this.state.loading || (playlist_object && playlist_object.isFetching)) {
@@ -117,6 +112,8 @@ class Search extends React.Component {
                     player={player}
                     playlist_name={object_id}
                     entities={entities}
+                    toggleFollowing={toggleFollowing}
+
                     playTrackFunc={playTrack}
                     fetchPlaylistIfNeededFunc={fetchPlaylistIfNeeded} />
             </div>

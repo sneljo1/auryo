@@ -132,7 +132,7 @@ class PlaylistContainer extends WithHeaderComponent {
                             {playlist_entity.track_count} titles{' - '}{getReadableTimeFull(playlist_entity.duration, true)}
                         </div>
 
-                        <div id="playlist-buttons" className="d-flex">
+                        <div className="button-group">
                             {
                                 first_item ? (
                                     this.renderPlayButton()

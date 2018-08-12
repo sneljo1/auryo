@@ -7,11 +7,10 @@ import { abbreviate_number, isCurrentPlaylistPlaying, SC } from '../../../shared
 import { IMAGE_SIZES, OBJECT_TYPES, RELATED_PLAYLIST_SUFFIX } from '../../../shared/constants/index'
 import Spinner from '../_shared/Spinner/spinner.component'
 import TogglePlay from '../_shared/togglePlay.component'
-import TrackList from '../_shared/TrackList/trackList.component'
-import UserCard from '../_shared/UserCard/userCard.component'
+import TrackList from '../_shared/TrackList/TrackList'
 import CommentList from '../_shared/CommentList/commentList.component'
 import FallbackImage from '../_shared/FallbackImage'
-import { openExternal } from '../../../shared/actions/app/window.actions'
+import { downloadFile, openExternal } from '../../../shared/actions/app/window.actions'
 import './track.scss'
 import Linkify from '../_shared/linkify.component'
 import CustomScroll from '../_shared/CustomScroll'
@@ -26,6 +25,10 @@ import { MenuItem } from '@blueprintjs/core/lib/cjs/components/menu/menuItem'
 import { MenuDivider } from '@blueprintjs/core/lib/cjs/components/menu/menuDivider'
 import { Menu } from '@blueprintjs/core/lib/cjs/components/menu/menu'
 import { Popover } from '@blueprintjs/core/lib/cjs/components/popover/popover'
+import PageHeader from '../_shared/PageHeader/PageHeader'
+import TrackGridUser from '../_shared/TracksGrid/TrackGridUser'
+import ToggleMore from '../_shared/toggleMore.component'
+import moment from 'moment'
 
 class TrackPage extends WithHeaderComponent {
 
@@ -42,28 +45,14 @@ class TrackPage extends WithHeaderComponent {
 
         fetchTrackIfNeeded(songId)
 
-        const new_tab = this.hasDescription(songId) ? '1' : '2'
-
-        if (this.state.activeTab !== new_tab) {
-            this.toggle(new_tab)
-        }
-
     }
 
     componentWillReceiveProps(nextProps) {
-        const { fetchTrackIfNeeded, params: { songId }, entities: { track_entities } } = this.props
+        const { fetchTrackIfNeeded, params: { songId } } = this.props
 
-        if (songId !== nextProps.params.songId || !track_entities[songId]) {
-            const new_tab = this.hasDescription(nextProps.params.songId) ? '1' : '2'
-
-            if (this.state.activeTab !== new_tab) {
-                this.toggle(new_tab)
-            }
-        }
-
-        if (songId !== nextProps.params.songId) {
-            fetchTrackIfNeeded(nextProps.params.songId)
-        }
+        //if (songId !== nextProps.params.songId) {
+        fetchTrackIfNeeded(nextProps.params.songId)
+        //}
     }
 
     toggle = (tab) => {
@@ -74,18 +63,7 @@ class TrackPage extends WithHeaderComponent {
         }
     }
 
-    hasDescription = () => {
-        const { entities: { track_entities }, params: { songId } } = this.props
-
-        const track = track_entities[songId]
-
-        if (!track || !track.description) return false
-
-        return track.description !== null && track.description.length > 0
-
-    }
-
-    renderToggleButton() {
+    renderToggleButton = () => {
         const { params: { songId }, playTrack, object_id, player: { queue, playingTrack } } = this.props
 
         if (playingTrack.id !== null && (playingTrack.id === parseInt(songId))) {
@@ -104,7 +82,7 @@ class TrackPage extends WithHeaderComponent {
         )
     }
 
-    toggleRepost(trackID, e) {
+    toggleRepost = (trackID, e) => {
         e.preventDefault()
 
         this.props.toggleRepost(trackID)
@@ -113,7 +91,7 @@ class TrackPage extends WithHeaderComponent {
     fetchMore = () => {
         const { params: { songId }, fetchMore } = this.props
 
-        if (this.state.activeTab === '3') {
+        if (this.state.activeTab === '1') {
             fetchMore(songId, OBJECT_TYPES.COMMENTS)
         }
     }
@@ -121,7 +99,7 @@ class TrackPage extends WithHeaderComponent {
     canFetchMore = () => {
         const { params: { songId }, canFetchMoreOf } = this.props
 
-        if (this.state.activeTab === '3') {
+        if (this.state.activeTab === '1') {
             canFetchMoreOf(songId, OBJECT_TYPES.COMMENTS)
         }
 
@@ -160,6 +138,7 @@ class TrackPage extends WithHeaderComponent {
 
         const liked = SC.hasID(track.id, likes.track)
         const reposted = SC.hasID(track.id, reposts)
+        const following = SC.hasID(track.user_id, followings)
 
         const openExternalFunc = openExternal.bind(null, track.permalink_url)
         const toggleFollowingFunc = toggleFollowing.bind(null, track.user_id)
@@ -167,8 +146,13 @@ class TrackPage extends WithHeaderComponent {
 
         const playlist_playing = isCurrentPlaylistPlaying(player, object_id)
 
+        const tags = track.tag_list.split(/\s(?=(?:[^'"`]*(['"`])[^'"`]*\1)*[^'"`]*$)/g).reduce((all, obj) => {
+            if (obj && obj !== '"') {
+                all.push(obj.replace(/"/g, ''))
+            }
 
-        const hasDesc = this.hasDescription()
+            return all
+        }, [])
 
         return (
             <CustomScroll heightRelativeToParent="100%"
@@ -178,19 +162,10 @@ class TrackPage extends WithHeaderComponent {
                           loadMore={this.fetchMore.bind(this)}
                           hasMore={this.canFetchMore()}>
 
-                <Header scrollTop={this.state.scrollTop} />
-                <div
-                    className="trackDetails container-fluid d-flex flex-column">
+                <Header className="withImage" scrollTop={this.state.scrollTop} />
 
+                <PageHeader image={SC.getImageUrl(track, IMAGE_SIZES.LARGE)}>
                     <Row className="trackHeader">
-                        <div className="overlayWrapper">
-
-                            <FallbackImage
-                                overflow
-                                src={SC.getImageUrl(track, IMAGE_SIZES.LARGE)}
-                                id={track.id}
-                                className="overlayImg" />
-                        </div>
 
 
                         <Col xs="12" md="4" xl="2">
@@ -200,34 +175,14 @@ class TrackPage extends WithHeaderComponent {
                                     src={SC.getImageUrl(track, IMAGE_SIZES.LARGE)}
                                     id={track.id} />
 
-                                <FallbackImage
-                                    src={SC.getImageUrl(track, IMAGE_SIZES.LARGE)}
-                                    id={track.id}
-                                    className="imgShadow" />
 
-                                <div className="row justify-content-center trackStats">
-                                    <div className="stat col-xs">
-                                        <i className="icon-favorite_border" />
-                                        <span>{abbreviate_number(track.favoritings_count)}</span>
-                                    </div>
-                                    <div className="stat col-xs">
-                                        <i className="icon-play_arrow" />
-                                        <span>{abbreviate_number(track.playback_count)}</span>
-                                    </div>
-                                    <div className="stat col-xs">
-                                        <i className="icon-retweet" />
-                                        <span>{abbreviate_number(track.reposts_count)}</span>
-                                    </div>
-                                </div>
                             </div>
                         </Col>
 
                         <Col xs="12" md="8" xl="" className="trackInfo text-md-left text-xs-center">
-                            <h1 className="trackTitle">{track.title}</h1>
-                            <h2 className="trackArtist">{user.username}</h2>
+                            <h2>{track.title}</h2>
 
-                            <div
-                                className="flex trackActions flex-wrap justify-content-center justify-content-md-start">
+                            <div className="button-group">
                                 {
                                     track.streamable || track.kind === 'playlist' ? this.renderToggleButton() :
                                         <a href="javascript:void(0)" className="disabled c_btn">
@@ -237,27 +192,49 @@ class TrackPage extends WithHeaderComponent {
 
                                 <a href="javascript:void(0)" className={cn('c_btn', { liked: liked })}
                                    onClick={toggleLike.bind(this, track.id, false)}>
-                                    <i className={liked ? 'icon-favorite' : 'icon-favorite_border'} />
+                                    <i className={liked ? 'bx bxs-heart' : 'bx bx-heart'} />
                                     <span>{liked ? 'Liked' : 'Like'}</span>
                                 </a>
 
 
                                 <a href="javascript:void(0)" className={cn('c_btn', { liked: reposted })}
                                    onClick={toggleRepost.bind(null, track.id)}>
-                                    <i className="icon-retweet" />
+                                    <i class='bx bx-repost' />
                                     <span>{reposted ? 'Reposted' : 'Repost'}</span>
                                 </a>
 
-                                <a href="javascript:void(0)" className={cn('c_btn')}
-                                   onClick={() => {
-                                       show('addToPlaylist', { trackID: track.id })
-                                   }}>
-                                    <i className="icon-playlist_add" />
-                                    <span>Add to playlist</span>
-                                </a>
+
+                                {
+                                    !track.purchase_url && track.download_url && (
+                                        <a href="javascript:void(0)" className="c_btn round"
+                                           onClick={downloadFile.bind(null, SC.appendClientId(track.download_url))}>
+                                            <i className='bx bxs-download-alt' />
+                                        </a>
+                                    )
+                                }
 
                                 <Popover autoFocus={false} minimal={true} content={(
                                     <Menu>
+
+                                        {
+                                            track.purchase_url && (
+                                                <React.Fragment>
+                                                    {
+                                                        track.purchase_url && (
+                                                            <MenuItem icon="link"
+                                                                      text={track.purchase_title || 'Download'}
+                                                                      onClick={openExternal.bind(null, track.purchase_url)} />
+                                                        )
+                                                    }
+
+
+                                                    <MenuDivider />
+                                                </React.Fragment>
+                                            )
+                                        }
+
+                                        <MenuItem text="Add to playlist"
+                                                  onClick={show.bind(null, 'addToPlaylist', { trackID: track.id })} />
                                         <MenuItem text="Add to queue"
                                                   onClick={addUpNext.bind(null, track.id, null, null)} />
                                         <MenuDivider />
@@ -278,82 +255,99 @@ class TrackPage extends WithHeaderComponent {
                         </Col>
 
                     </Row>
+
+
                     <div className="flex tracktabs row">
-                        {
-                            hasDesc ?
-                                (
-                                    <a href="javascript:void(0)"
-                                       className={cn({ active: this.state.activeTab === '1' })}
-                                       onClick={() => this.toggle('1')}>
-                                        Info
-                                    </a>
-                                ) : null
-                        }
+                        <a href="javascript:void(0)"
+                           className={cn({ active: this.state.activeTab === '1' })}
+                           onClick={() => this.toggle('1')}>
+                            Overview
+                        </a>
 
                         <a href="javascript:void(0)"
                            className={cn({ active: this.state.activeTab === '2', playing: playlist_playing })}
                            onClick={() => this.toggle('2')}>
                             Related tracks
-                            {playlist_playing ? <i className="icon-volume_up up blink" /> : null}
-
-                        </a>
-                        <a href="javascript:void(0)" className={cn({ active: this.state.activeTab === '3' })}
-                           onClick={() => {
-                               this.toggle('3')
-                           }}>
-                            <span className="text">Comments</span>
-                            <span className="badge badge-pill badge-primary">{track.comment_count}</span>
                         </a>
                     </div>
+                </PageHeader>
+                <div className="trackDetails container-fluid main_track_content">
+                    <TabContent activeTab={this.state.activeTab}>
+                        <TabPane tabId="1" className="overview">
+                            <Row>
+                                <Col xs="3">
+                                    <TrackGridUser following={following} user={user}
+                                                   toggleFollowingFunc={toggleFollowingFunc} />
+                                    <div className="p-3 track-info">
+                                        <strong>Created</strong>
+                                        <div>{moment(track.created_at).fromNow()}</div>
 
-                    <Row className="main_track_content">
-                        <Col xs="12" className="col-lg user_card_wrap trackMain">
-                            <UserCard
-                                toggleFollowingFunc={toggleFollowingFunc}
-                                user={user}
-                                followings={followings}
-                            />
-                        </Col>
-                        <Col xs="12" className="trackMain col-lg">
+                                        {
+                                            track.label_name && (
+                                                <React.Fragment>
+                                                    <strong>Label</strong>
+                                                    <div>{track.label_name}</div>
+                                                </React.Fragment>
+                                            )
+                                        }
 
-                            <TabContent activeTab={this.state.activeTab}>
-                                {
-                                    hasDesc ? (
-                                        <TabPane tabId="1">
-                                            <div
-                                                className={cn('trackDescription', { isOpen: this.state.open })}>
+                                    </div>
+                                </Col>
 
+                                <Col xs="12" className="trackPadding col-lg">
+                                    <div className="flex stats align-items-center justify-content-between">
+                                        <div
+                                            className="taglist">
+                                            {tags.map(tag => (
+                                                <span key={tag} className="badge badge-secondary">{tag}</span>
+                                            ))}
+                                        </div>
+                                        <div className="d-flex align-items-center">
+                                            <i className='bx bxs-heart' />
+
+                                            <span>{abbreviate_number(track.likes_count || track.favoritings_count)}</span>
+
+                                            <i className='bx bx-play' />
+                                            <span>{abbreviate_number(track.playback_count)}</span>
+
+                                            <i className='bx bx-repost' />
+                                            <span>{abbreviate_number(track.reposts_count)}</span>
+
+                                        </div>
+                                    </div>
+                                    {
+                                        track.description && (
+                                            <ToggleMore className="trackDescription">
                                                 <Linkify text={track.description} router={this.props.router} />
+                                            </ToggleMore>
+                                        )
+                                    }
 
-                                            </div>
-                                        </TabPane>
-                                    ) : null
-                                }
-                                <TabPane tabId="2">
-                                    <TrackList
-                                        items={tracks}
-                                        hideFirstTrack={true}
-                                        player={player}
-                                        playingTrack={playingTrack}
-                                        likes={likes}
-                                        reposts={reposts}
 
-                                        playTrackFunc={playTrackFunc}
-                                        likeFunc={toggleLike}
-                                        toggleRepost={toggleRepost}
-                                        addUpNext={addUpNext}
-                                        show={show} />
-                                </TabPane>
-                                <TabPane tabId="3">
                                     <CommentList
                                         comments={track_comments}
                                         user_entities={user_entities}
                                         comment_entities={comment_entities} />
-                                </TabPane>
-                            </TabContent>
+                                </Col>
+                            </Row>
+                        </TabPane>
+                        <TabPane tabId="2" className="trackPadding-side">
+                            <TrackList
+                                items={tracks}
+                                hideFirstTrack={true}
+                                player={player}
+                                playingTrack={playingTrack}
+                                likes={likes}
+                                reposts={reposts}
 
-                        </Col>
-                    </Row>
+                                playTrackFunc={playTrackFunc}
+                                likeFunc={toggleLike}
+                                toggleRepost={toggleRepost}
+                                addUpNext={addUpNext}
+                                show={show} />
+                        </TabPane>
+                    </TabContent>
+
                 </div>
             </CustomScroll>
         )
