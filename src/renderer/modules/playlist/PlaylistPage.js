@@ -1,6 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import * as actions from '../../../shared/actions/index'
+import { openExternal } from '../../../shared/actions/index'
 import { SC } from '../../../shared/utils/index'
 import { IMAGE_SIZES, OBJECT_TYPES } from '../../../shared/constants/index'
 import './playlist.scss'
@@ -10,14 +11,15 @@ import cn from 'classnames'
 import { PLAYER_STATUS } from '../../modules/player/constants/player'
 import CustomScroll from '../_shared/CustomScroll'
 import { withRouter } from 'react-router-dom'
-import { denormalize, schema } from 'normalizr'
-import trackSchema from '../../../shared/schemas/track'
+import { denormalize } from 'normalizr'
 import Header from '../app/components/Header/Header'
 import WithHeaderComponent from '../_shared/WithHeaderComponent'
 import PageHeader from '../_shared/PageHeader/PageHeader'
 import { getReadableTimeFull } from '../../../shared/utils'
-import MoreActionsDropdown from '../_shared/moreActionsDropdown.component'
-import {UncontrolledButtonDropdown,DropdownToggle,DropdownMenu,DropdownItem} from "reactstrap"
+import { Menu, MenuItem, Popover, Position } from '@blueprintjs/core'
+import { MenuDivider } from '@blueprintjs/core/lib/cjs/components/menu/menuDivider'
+import { playlistSchema } from '../../../shared/schemas'
+import ShareMenuItem from '../_shared/ShareMenuItem'
 
 class PlaylistContainer extends WithHeaderComponent {
 
@@ -42,7 +44,7 @@ class PlaylistContainer extends WithHeaderComponent {
 
     renderPlayButton = () => {
         const {
-            playlist_object,
+            playlist_entity,
             playlistId,
             player,
             playTrack,
@@ -50,7 +52,7 @@ class PlaylistContainer extends WithHeaderComponent {
 
         } = this.props
 
-        const first_id = playlist_object.items[0]
+        const first_id = playlist_entity.tracks[0].id
 
         if (player.currentPlaylistId === playlistId && player.status === PLAYER_STATUS.PLAYING) {
             return (
@@ -74,39 +76,38 @@ class PlaylistContainer extends WithHeaderComponent {
     render() {
         const {
             // Vars
-            items,
             entities,
             playlist_object,
             playlist_entity,
             playlistId,
             player,
-            auth: { likes, reposts, playlists },
+            auth,
 
             // Functions
-            show,
-            openExternal,
             toggleLike,
             playTrack,
             fetchPlaylistIfNeeded,
             fetchPlaylistTracks,
             canFetchPlaylistTracks,
             deletePlaylist,
-            addUpNext,
-            toggleRepost
+            addUpNext
         } = this.props
+
+        const { likes, playlists, followings } = auth
 
         if (!playlist_object || !playlist_entity) {
             return <Spinner />
         }
 
-        const first_id = playlist_object.items[0]
-        const first_item = items[0]
+        const first_item = playlist_entity.tracks[0]
         const hasImage = playlist_entity.artwork_url || (first_item && first_item.artwork_url)
 
         const liked = SC.hasID(playlistId, likes.playlist)
         const playlistOwned = playlists.indexOf(playlist_entity.id) !== -1
 
         const openExternalFunc = openExternal.bind(null, playlist_entity.permalink_url)
+
+        const isEmpty = !playlist_object.isFetching && playlist_entity.tracks.length === 0 && playlist_entity.duration === 0
 
         return (
             <CustomScroll heightRelativeToParent="100%"
@@ -133,14 +134,14 @@ class PlaylistContainer extends WithHeaderComponent {
 
                         <div id="playlist-buttons" className="d-flex">
                             {
-                                first_id ? (
+                                first_item ? (
                                     this.renderPlayButton()
                                 ) : null
                             }
 
 
                             {
-                                playlist_object.items.length && !playlistOwned ? (
+                                playlist_entity.tracks.length && !playlistOwned ? (
                                     <a href="javascript:void(0)" className={cn('c_btn', { liked: liked })}
                                        onClick={toggleLike.bind(this, playlist_entity.id, true)}>
                                         <i className={liked ? 'icon-favorite' : 'icon-favorite_border'} />
@@ -149,27 +150,39 @@ class PlaylistContainer extends WithHeaderComponent {
                                 ) : null
                             }
 
-
                             {
-                                playlist_object.items.length ? (
-                                    <a href="javascript:void(0)" className="c_btn"
-                                       onClick={addUpNext.bind(this, playlist_entity.id, items, null)}>
-                                        <i className="icon-playlist_play" /> <span>Add to queue</span>
-                                    </a>
-                                ) : null
+                                !isEmpty && (
+                                    <Popover autoFocus={false} minimal={true} content={(
+                                        <Menu>
+                                            {
+                                                playlist_entity.tracks.length ? (
+                                                    <React.Fragment>
+                                                        <MenuItem text="Add to queue"
+                                                                  onClick={addUpNext.bind(this, playlist_entity.id, playlist_entity.tracks, null)} />
+                                                        <MenuDivider />
+                                                    </React.Fragment>
+                                                ) : null
+                                            }
+
+                                            <MenuItem
+                                                text="View in browser"
+                                                onClick={openExternalFunc} />
+                                            <ShareMenuItem title={playlist_entity.title}
+                                                           permalink={playlist_entity.permalink_url}
+                                                           username={playlist_entity.user.username} />
+                                        </Menu>
+                                    )} position={Position.BOTTOM_LEFT}>
+                                        <a href="javascript:void(0)" className="c_btn round">
+                                            <i className="icon-more_horiz" />
+                                        </a>
+                                    </Popover>
+                                )
                             }
 
-                            <MoreActionsDropdown>
-                                <a className='dropdown-item'
-                                   onClick={openExternalFunc}>
-                                    View in browser
-                                </a>
-                                <a className='dropdown-item'
-                                   onClick={openExternalFunc}>
-                                    View in browser
-                                </a>
-                            </MoreActionsDropdown>
 
+                            {
+                                //TODO: re-add deleting of playlists maybe? Takes a while before it actually deletes it, which is annoying
+                            }
 
                             {/*<a href='javascript:void(0)' className='c_btn'
                          {
@@ -186,24 +199,26 @@ class PlaylistContainer extends WithHeaderComponent {
                     </div>
                 </PageHeader>
                 {
-                    !playlist_object.isFetching && playlist_object.items.length === 0 && items.duration !== 0 ? (
-                        <div className="py-4"><h4 className="text-center p-5">This <a target="_blank"
-                                                                                      href={playlist_entity.permalink_url}>playlist </a>
-                            is empty or not available via a third party!</h4></div>
-                    ) : <TracksGrid
-                        items={items}
-                        likes={likes}
-                        reposts={reposts}
-                        player={player}
-                        playlist_name={playlistId}
-                        entities={entities}
+                    isEmpty ? (
+                        <div className="pt-5 mt-5">
+                            <h5 className='text-muted text-center'>
+                                This{' '}<a target="_blank" href={playlist_entity.permalink_url}>playlist</a>{' '}
+                                is empty or not available via a third party!</h5>
+                            <div className="text-center" style={{ fontSize: '5rem' }}>
+                                😲
+                            </div>
+                        </div>
+                    ) : (
+                        <TracksGrid
+                            followings={followings}
+                            items={playlist_entity.tracks}
+                            player={player}
+                            playlist_name={playlistId}
+                            entities={entities}
+                            playTrackFunc={playTrack}
+                            fetchPlaylistIfNeededFunc={fetchPlaylistIfNeeded} />
 
-                        show={show}
-                        toggleLike={toggleLike}
-                        toggleRepost={toggleRepost}
-                        addUpNext={addUpNext}
-                        playTrackFunc={playTrack}
-                        fetchPlaylistIfNeededFunc={fetchPlaylistIfNeeded} />
+                    )
                 }
             </CustomScroll>
         )
@@ -212,25 +227,19 @@ class PlaylistContainer extends WithHeaderComponent {
 
 const mapStateToProps = (state, props) => {
     const { entities, objects, player, auth, ui } = state
-    const { playlist_entities } = entities
 
     const { match: { params: { playlistId } }, location, history } = props
 
     const playlist_objects = objects[OBJECT_TYPES.PLAYLISTS] || {}
     const playlist_object = playlist_objects[playlistId]
 
-    let denormalized = []
-
-    if (playlist_object) {
-        denormalized = denormalize(playlist_object.items, new schema.Array(trackSchema), entities)
-    }
+    const playlist = denormalize(playlistId, playlistSchema, entities)
 
     return {
         auth,
         player,
         entities,
-        items: denormalized,
-        playlist_entity: playlist_entities[playlistId],
+        playlist_entity: playlist,
         playlist_object,
         playlistId,
         scrollTop: history.action === 'POP' ? ui.scrollPosition[location.pathname] : undefined

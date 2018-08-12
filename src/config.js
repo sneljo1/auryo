@@ -7,6 +7,7 @@ export default {
     BASE_URL,
     CLIENT_ID: process.env.CLIENT_ID,
     SENTRY_URL: process.env.SENTRY_URL,
+    FB_APP_ID: process.env.FB_APP_ID,
 
     getConnectUrl: (socketID) => {
         return `${BASE_URL}/connect?state=${socketID}&env=${process.env.NODE_ENV}`

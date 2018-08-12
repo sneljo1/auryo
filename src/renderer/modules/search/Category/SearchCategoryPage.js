@@ -77,16 +77,10 @@ class SearchCategory extends React.Component {
         const {
             player,
             entities,
-            auth: { likes, reposts, followings },
+            auth: { followings },
             results,
-            toggleLike,
-            toggleRepost,
             fetchPlaylistIfNeeded,
-            toggleFollowing,
             playTrack,
-            show,
-            addUpNext,
-            playlist_object,
             object_id
         } = this.props
 
@@ -96,21 +90,14 @@ class SearchCategory extends React.Component {
 
         return (
             <div>
-                <TracksGrid likes={likes}
-                            items={results}
-                            followings={followings}
-                            toggleFollowing={toggleFollowing}
-                            reposts={reposts}
-                            player={player}
-                            playlist_name={object_id}
-                            showInfo
-                            entities={entities}
-                            toggleLike={toggleLike}
-                            toggleRepost={toggleRepost}
-                            show={show}
-                            addUpNext={addUpNext}
-                            playTrackFunc={playTrack}
-                            fetchPlaylistIfNeededFunc={fetchPlaylistIfNeeded}
+                <TracksGrid
+                    followings={followings}
+                    items={results}
+                    player={player}
+                    playlist_name={object_id}
+                    entities={entities}
+                    playTrackFunc={playTrack}
+                    fetchPlaylistIfNeededFunc={fetchPlaylistIfNeeded}
                 />
             </div>
         )

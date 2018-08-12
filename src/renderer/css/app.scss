@@ -6,6 +6,7 @@
 @import './notification';
 @import '~rc-slider/dist/rc-slider.css';
 @import "../../node_modules/bootstrap/scss/bootstrap";
+@import "~@blueprintjs/core/lib/css/blueprint.css";
 
 body {
   font-family: 'Roboto', sans-serif;
@@ -601,4 +602,8 @@ i {
 
 .fixed-bottom.player-container {
   z-index: 100010;
+}
+
+.bp3-menu-item {
+  font-size: .9rem;
 }

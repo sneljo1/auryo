@@ -21,6 +21,10 @@ export function openExternal(url) {
     ipcRenderer.send('open_external', url)
 }
 
+export function writeToClipboard(content) {
+    ipcRenderer.send('write_clipboard', content)
+}
+
 let listeners = []
 
 export function initWatchers() {

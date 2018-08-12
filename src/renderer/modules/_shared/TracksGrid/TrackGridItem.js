@@ -14,13 +14,6 @@ import { Link } from 'react-router-dom'
 
 class TrackGridItem extends React.Component {
 
-    constructor() {
-        super()
-
-        this.renderArtist = this.renderArtist.bind(this)
-        this.renderInfo = this.renderInfo.bind(this)
-    }
-
     shouldComponentUpdate(nextProps, nextState, nextContext) {
 
         if (nextProps.track.id !== this.props.track.id) {
@@ -28,14 +21,6 @@ class TrackGridItem extends React.Component {
         }
 
         if (nextProps.isPlaying !== this.props.isPlaying) {
-            return true
-        }
-
-        if (nextProps.liked !== this.props.liked) {
-            return true
-        }
-
-        if (nextProps.reposted !== this.props.reposted) {
             return true
         }
 
@@ -62,7 +47,7 @@ class TrackGridItem extends React.Component {
         }
     }
 
-    renderArtist() {
+    renderArtist = () => {
         const { repost, track } = this.props
 
         if (repost && track.from_user) {
@@ -91,7 +76,7 @@ class TrackGridItem extends React.Component {
         )
     }
 
-    renderToggleButton() {
+    renderToggleButton = () => {
         const { isPlaying, playTrackFunc } = this.props
 
         if (isPlaying) {
@@ -109,7 +94,7 @@ class TrackGridItem extends React.Component {
     }
 
     renderStats() {
-        const { track, showInfo, toggleLike, liked, show, addUpNext, reposted, toggleRepost } = this.props
+        const { track, showInfo } = this.props
 
         return (
             <div className="trackFooter d-flex justify-content-between align-items-center">
@@ -130,13 +115,8 @@ class TrackGridItem extends React.Component {
 
                 <div>
                     <ActionsDropdown
-                        toggleLike={toggleLike}
-                        toggleRepost={toggleRepost}
-                        reposted={reposted}
-                        liked={liked}
-                        show={show}
-                        track={track}
-                        addUpNext={addUpNext} />
+                        track={track} />
+
                     <div className="trackTime">
                         <i className="icon-clock" />
                         <span>{getReadableTime(track.duration, true, true)}</span>
@@ -259,16 +239,8 @@ TrackGridItem.propTypes = {
     playlist: PropTypes.bool,
     repost: PropTypes.bool,
     playlist_exists: PropTypes.bool,
-    liked: PropTypes.bool,
-    reposted: PropTypes.bool,
     track: PropTypes.object.isRequired,
-
-
-    fetchPlaylistIfNeededFunc: PropTypes.func.isRequired,
-    show: PropTypes.func.isRequired,
-    toggleLike: PropTypes.func.isRequired,
-    toggleRepost: PropTypes.func.isRequired,
-    addUpNext: PropTypes.func.isRequired
+    fetchPlaylistIfNeededFunc: PropTypes.func.isRequired
 }
 
 export default TrackGridItem

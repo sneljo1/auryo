@@ -75,15 +75,11 @@ class PlayListPage extends WithHeaderComponent {
             object_type,
             title,
             player,
-            auth: { likes, reposts },
+            auth: { followings },
             // Functions
-            toggleLike,
             playTrack,
-            show,
             fetchPlaylistIfNeeded,
-            addUpNext,
             fetchMore,
-            toggleRepost
         } = this.props
 
         if (!playlist_object) {
@@ -108,20 +104,15 @@ class PlayListPage extends WithHeaderComponent {
                     <h2>{title}</h2>
                 </PageHeader>
 
-                <TracksGrid likes={likes}
-                            items={items}
-                            reposts={reposts}
-                            player={player}
-                            playlist_name={object_id}
-                            showInfo={showInfo}
-                            entities={entities}
-
-                            toggleLike={toggleLike}
-                            toggleRepost={toggleRepost}
-                            show={show}
-                            addUpNext={addUpNext}
-                            playTrackFunc={playTrack}
-                            fetchPlaylistIfNeededFunc={fetchPlaylistIfNeeded}
+                <TracksGrid
+                    followings={followings}
+                    items={items}
+                    player={player}
+                    playlist_name={object_id}
+                    showInfo={showInfo}
+                    entities={entities}
+                    playTrackFunc={playTrack}
+                    fetchPlaylistIfNeededFunc={fetchPlaylistIfNeeded}
                 />
             </CustomScroll>
         )

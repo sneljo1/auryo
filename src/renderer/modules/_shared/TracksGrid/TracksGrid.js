@@ -17,18 +17,12 @@ class TracksGrid extends Component {
             playlist_name,
             followings,
             player,
-            likes,
-            reposts,
             items,
 
             // Functions
             playTrackFunc,
             fetchPlaylistIfNeededFunc,
             toggleFollowing,
-            show,
-            toggleLike,
-            toggleRepost,
-            addUpNext
         } = this.props
 
 
@@ -56,8 +50,6 @@ class TracksGrid extends Component {
 
         let newplayTrackFunc = playTrackFunc.bind(null, playlist_name, obj.id, obj.kind === 'playlist' ? obj : null, true)
 
-        const liked = SC.hasID(obj.id, (obj.kind === 'playlist' ? likes.playlist : likes.track))
-        const reposted = SC.hasID(obj.id, reposts)
 
         let isPlaying
 
@@ -87,18 +79,12 @@ class TracksGrid extends Component {
                 playlist_exists={!!playlist_entities[obj.id]}
                 playlist={obj.kind === 'playlist'}
                 showInfo={showInfo}
-                liked={liked}
-                reposted={reposted}
                 repost={repost}
                 isPlaying={isPlaying}
                 track={obj}
 
-                toggleLike={toggleLike}
-                toggleRepost={toggleRepost}
                 playTrackFunc={newplayTrackFunc}
-                addUpNext={addUpNext}
-                fetchPlaylistIfNeededFunc={fetchPlaylistIfNeededFunc.bind(null, obj.id)}
-                show={show} />
+                fetchPlaylistIfNeededFunc={fetchPlaylistIfNeededFunc.bind(null, obj.id)} />
         )
     }
 
@@ -133,19 +119,13 @@ TracksGrid.propTypes = {
     entities: PropTypes.object.isRequired,
     items: PropTypes.array,
     player: PropTypes.object.isRequired,
-    likes: PropTypes.object.isRequired,
     followings: PropTypes.object,
-    reposts: PropTypes.object.isRequired,
     playlist_name: PropTypes.oneOfType([PropTypes.string.isRequired, PropTypes.number.isRequired]),
 
     playTrackFunc: PropTypes.func.isRequired,
     fetchPlaylistIfNeededFunc: PropTypes.func.isRequired,
     toggleFollowing: PropTypes.func,
-    show: PropTypes.func.isRequired,
-    toggleLike: PropTypes.func.isRequired,
-    toggleRepost: PropTypes.func.isRequired,
-    addUpNext: PropTypes.func.isRequired
-}
+ }
 
 TracksGrid.defaultProps = {
     items: []

@@ -7,7 +7,7 @@ import { registerError } from '../utils/raven'
 import { setLoginError, setLoginLoading } from '../../shared/actions/auth/auth.actions'
 import { EVENTS } from '../../shared/constants/events'
 
-const { app } = require('electron')
+const { app, clipboard } = require('electron')
 
 export default class IPCManager extends IFeature {
 
@@ -22,6 +22,10 @@ export default class IPCManager extends IFeature {
 
         ipcMain.on('open_external', (event, arg) => {
             shell.openExternal(arg)
+        })
+
+        ipcMain.on('write_clipboard', (event, arg) => {
+            clipboard.writeText(arg)
         })
 
         ipcMain.on('error', (event, arg) => {

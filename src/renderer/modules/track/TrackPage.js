@@ -11,7 +11,6 @@ import TrackList from '../_shared/TrackList/trackList.component'
 import UserCard from '../_shared/UserCard/userCard.component'
 import CommentList from '../_shared/CommentList/commentList.component'
 import FallbackImage from '../_shared/FallbackImage'
-import MoreActionsDropdown from '../_shared/moreActionsDropdown.component'
 import { openExternal } from '../../../shared/actions/app/window.actions'
 import './track.scss'
 import Linkify from '../_shared/linkify.component'
@@ -21,8 +20,14 @@ import trackSchema from '../../../shared/schemas/track'
 import { withRouter } from 'react-router-dom'
 import Header from '../app/components/Header/Header'
 import WithHeaderComponent from '../_shared/WithHeaderComponent'
+import { Position } from '@blueprintjs/core/lib/esm/index'
+import ShareMenuItem from '../_shared/ShareMenuItem'
+import { MenuItem } from '@blueprintjs/core/lib/cjs/components/menu/menuItem'
+import { MenuDivider } from '@blueprintjs/core/lib/cjs/components/menu/menuDivider'
+import { Menu } from '@blueprintjs/core/lib/cjs/components/menu/menu'
+import { Popover } from '@blueprintjs/core/lib/cjs/components/popover/popover'
 
-class SongContainer extends WithHeaderComponent {
+class TrackPage extends WithHeaderComponent {
 
     state = {
         activeTab: '1'
@@ -251,12 +256,24 @@ class SongContainer extends WithHeaderComponent {
                                     <span>Add to playlist</span>
                                 </a>
 
-                                <MoreActionsDropdown>
-                                    <a href="javascript:void(0)" className="dropdown-item"
-                                       onClick={openExternalFunc}>
-                                        View in browser
+                                <Popover autoFocus={false} minimal={true} content={(
+                                    <Menu>
+                                        <MenuItem text="Add to queue"
+                                                  onClick={addUpNext.bind(null, track.id, null, null)} />
+                                        <MenuDivider />
+
+                                        <MenuItem
+                                            text="View in browser"
+                                            onClick={openExternalFunc} />
+                                        <ShareMenuItem title={track.title}
+                                                       permalink={track.permalink_url}
+                                                       username={user.username} />
+                                    </Menu>
+                                )} position={Position.BOTTOM_LEFT}>
+                                    <a href="javascript:void(0)" className="c_btn round">
+                                        <i className="icon-more_horiz" />
                                     </a>
-                                </MoreActionsDropdown>
+                                </Popover>
                             </div>
                         </Col>
 
@@ -343,7 +360,7 @@ class SongContainer extends WithHeaderComponent {
     }
 }
 
-SongContainer.defaultProps = {
+TrackPage.defaultProps = {
     track_comments: {},
     playlist: {
         items: []
@@ -380,4 +397,4 @@ const mapStateToProps = (state, props) => {
     }
 }
 
-export default withRouter(connect(mapStateToProps, actions)(SongContainer))
+export default withRouter(connect(mapStateToProps, actions)(TrackPage))

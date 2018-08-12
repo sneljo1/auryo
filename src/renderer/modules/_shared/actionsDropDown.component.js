@@ -1,120 +1,105 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { ButtonDropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
-import cn from 'classnames';
+import React from 'react'
+import PropTypes from 'prop-types'
+import cn from 'classnames'
+import { Position } from '@blueprintjs/core/lib/esm/index'
+import { Popover } from '@blueprintjs/core/lib/cjs/components/popover/popover'
+import { Menu } from '@blueprintjs/core/lib/cjs/components/menu/menu'
+import { MenuItem } from '@blueprintjs/core/lib/cjs/components/menu/menuItem'
+import ShareMenuItem from './ShareMenuItem'
+import * as actions from '../../../shared/actions'
+import { openExternal } from '../../../shared/actions'
+import { MenuDivider } from '@blueprintjs/core/lib/cjs/components/menu/menuDivider'
+import { connect } from 'react-redux'
+import isEqual from 'lodash/isEqual'
+import { OBJECT_TYPES } from '../../../shared/constants'
+import { SC } from '../../../shared/utils/index'
 
-class ActionsDropdown extends Component {
-    
+class ActionsDropdown extends React.Component {
+
     shouldComponentUpdate(nextProps, nextState, nextContext) {
-        return this.state.dropdownOpen !== nextState.dropdownOpen ||
-            this.props.track.id !== nextProps.track.id ||
+        return this.props.track.id !== nextProps.track.id ||
             this.props.liked !== nextProps.liked ||
             this.props.index !== nextProps.index ||
-            this.props.reposted !== nextProps.reposted;
+            this.props.reposted !== nextProps.reposted ||
+            !isEqual(this.props.playlists, nextProps.playlists)
     }
 
-    constructor(props) {
-        super();
-
-        this.state = {
-            dropdownOpen: false
-        };
-
-        this.toggle = this.toggle.bind(this);
-        this.onClick = this.onClick.bind(this);
-    }
-
-    toggle() {
-        this.setState({
-            dropdownOpen: !this.state.dropdownOpen
-        });
-    }
-
-    onClick(e) {
-        e.stopPropagation();
-        e.nativeEvent.stopImmediatePropagation();
-        this.toggle();
+    onClick = (e) => {
+        e.stopPropagation()
+        e.nativeEvent.stopImmediatePropagation()
     }
 
     render() {
-        const { toggleLike, toggleRepost, show, reposted, liked, track, addUpNext, index } = this.props;
+        const { toggleLike, toggleRepost, reposted, liked, track, addUpNext, index, playlists, togglePlaylistTrack, playlist_objects } = this.props
 
-        const trackId = track.id;
+        const trackId = track.id
 
         return (
-            <ButtonDropdown isOpen={this.state.dropdownOpen} toggle={this.toggle}
-                            className="actions-dropdown">
+            <Popover className="actions-dropdown" autoFocus={false} minimal={true} content={(
+                <Menu>
+                    <MenuItem className={cn({ 'text-primary': liked })} text={liked ? 'Liked' : 'Like'}
+                              onClick={(e) => {
+                                  this.onClick(e)
+                                  toggleLike(trackId, track.kind === 'playlist')
+                              }} />
+                    <MenuItem className={cn({ 'text-primary': reposted })} text={reposted ? 'Reposted' : 'Repost'}
+                              onClick={(e) => {
+                                  this.onClick(e)
+                                  toggleRepost(trackId)
+                              }} />
 
-                <DropdownToggle tag="a" className="toggle" href="javascript:void(0)" onClick={(e) => {
-                    e.stopPropagation();
-                    e.nativeEvent.stopImmediatePropagation();
-                }}>
-                    <i className="icon-more_horiz" />
-                </DropdownToggle>
-                <DropdownMenu right>
-                    <a href="javascript:void(0)" className={cn('dropdown-item', { liked: liked })}
-                       onClick={(e) => {
-                           this.onClick(e);
-                           toggleLike(trackId, track.kind === 'playlist');
-                       }}>
-                        <div className="d-flex flex-nowrap align-items-center">
-                            <i className={cn(liked ? 'icon-favorite' : 'icon-favorite_border', {
-                                'text-primary': liked
-                            })} /> {liked ? 'Liked' : 'Like'}
-                        </div>
-                    </a>
-
-                    <a href="javascript:void(0)" className={cn('dropdown-item', { reposted: reposted })}
-                       onClick={(e) => {
-                           this.onClick(e);
-                           toggleRepost(trackId);
-
-                       }}>
-                        <div className="d-flex flex-nowrap align-items-center">
-                            <i className={cn('icon-retweet', { 'text-primary': reposted })} /> {reposted ? 'Reposted' : 'Repost'}
-                        </div>
-                    </a>
+                    <MenuItem text="Add to queue" onClick={(e) => {
+                        this.onClick(e)
+                        addUpNext(trackId, track.kind === 'playlist' ? track : null)
+                    }} />
 
                     {
                         track.kind !== 'playlist' ? (
-                            <a href="javascript:void(0)" className="dropdown-item" onClick={(e) => {
-                                this.onClick(e);
-                                show('addToPlaylist', { trackID: trackId });
+                            <MenuItem text="Add to playlist">
+                                {
+                                    playlists.map(playlist => {
 
-                            }}>
-                                <div className="d-flex flex-nowrap align-items-center">
-                                    <i className="icon-playlist_add" /> Add to playlist
-                                </div>
-                            </a>
+                                        const items = playlist_objects[playlist.id].items || []
+
+                                        const inPlaylist = items.indexOf(trackId) !== -1
+
+                                        return (
+                                            <MenuItem
+                                                key={playlist.id}
+                                                className={cn({ 'text-primary': inPlaylist })}
+                                                onClick={togglePlaylistTrack.bind(null, trackId, playlist.id)}
+                                                text={playlist.title} />
+                                        )
+                                    })
+                                }
+                            </MenuItem>
                         ) : null
                     }
 
-                    <a href="javascript:void(0)" className="dropdown-item" onClick={(e) => {
-                        this.onClick(e);
-                        addUpNext(trackId, track.kind === 'playlist' ? track : null);
-
-                    }}>
-                        <div className="d-flex flex-nowrap align-items-center">
-                            <i className="icon-playlist_play" /> Add to queue
-                        </div>
-                    </a>
 
                     {
                         index !== undefined ? (
-                            <a href="javascript:void(0)" className="dropdown-item" onClick={(e) => {
-                                this.onClick(e);
-                                addUpNext(trackId, track.kind === 'playlist' ? track : null, index);
-
-                            }}>
-                                <div className="d-flex flex-nowrap align-items-center">
-                                    <i className="icon-x" /> Remove from queue
-                                </div>
-                            </a>
+                            <MenuItem text="Remove from queue" onClick={(e) => {
+                                this.onClick(e)
+                                addUpNext(trackId, track.kind === 'playlist' ? track : null, index)
+                            }} />
                         ) : null
                     }
-                </DropdownMenu>
-            </ButtonDropdown>
-        );
+
+                    <MenuDivider />
+
+                    <MenuItem
+                        text="View in browser"
+                        onClick={openExternal.bind(this, track.permalink_url)} />
+                    <ShareMenuItem title={track.title} permalink={track.permalink_url} username={track.user.username} />
+
+                </Menu>
+            )} position={Position.BOTTOM_LEFT}>
+                <a href="javascript:void(0)">
+                    <i className="icon-more_horiz" />
+                </a>
+            </Popover>
+        )
     }
 }
 
@@ -122,12 +107,33 @@ ActionsDropdown.propTypes = {
     liked: PropTypes.bool.isRequired,
     reposted: PropTypes.bool.isRequired,
     track: PropTypes.object.isRequired,
+    playlists: PropTypes.array.isRequired,
     index: PropTypes.number,
+
 
     show: PropTypes.func.isRequired,
     addUpNext: PropTypes.func.isRequired,
     toggleLike: PropTypes.func.isRequired,
-    toggleRepost: PropTypes.func.isRequired
-};
+    toggleRepost: PropTypes.func.isRequired,
+    togglePlaylistTrack: PropTypes.func.isRequired
 
-export default ActionsDropdown;
+}
+
+const mapStateToProps = (state, { track }) => {
+    const { auth: { playlists, likes, reposts }, entities, objects } = state
+    const { playlist_entities } = entities
+
+    const playlist_objects = objects[OBJECT_TYPES.PLAYLISTS] || {}
+
+    const liked = SC.hasID(track.id, (track.kind === 'playlist' ? likes.playlist : likes.track))
+    const reposted = SC.hasID(track.id, reposts)
+
+    return {
+        playlists: playlists.map(id => playlist_entities[id]),
+        playlist_objects,
+        liked, reposted
+
+    }
+}
+
+export default connect(mapStateToProps, actions)(ActionsDropdown)

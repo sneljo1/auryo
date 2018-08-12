@@ -252,7 +252,7 @@
     }
 
     .actions-dropdown {
-      & > a {
+      .bp3-popover-target  a {
         color: #fff;
         text-decoration: none;
         i {

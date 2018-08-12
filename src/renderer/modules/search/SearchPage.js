@@ -76,7 +76,7 @@ class Search extends React.Component {
         const {
             player,
             entities,
-            auth: { likes, reposts, followings },
+            auth:{followings},
             results,
             toggleLike,
             toggleRepost,
@@ -86,7 +86,8 @@ class Search extends React.Component {
             show,
             addUpNext,
             playlist_object,
-            object_id
+            object_id,
+            togglePlaylistTrack
         } = this.props
 
         if (this.state.loading || (playlist_object && playlist_object.isFetching)) {
@@ -110,22 +111,14 @@ class Search extends React.Component {
 
         return (
             <div>
-                <TracksGrid likes={likes}
-                            items={results}
-                            followings={followings}
-                            toggleFollowing={toggleFollowing}
-                            reposts={reposts}
-                            player={player}
-                            playlist_name={object_id}
-                            showInfo
-                            entities={entities}
-                            toggleLike={toggleLike}
-                            toggleRepost={toggleRepost}
-                            show={show}
-                            addUpNext={addUpNext}
-                            playTrackFunc={playTrack}
-                            fetchPlaylistIfNeededFunc={fetchPlaylistIfNeeded}
-                />
+                <TracksGrid
+                    followings={followings}
+                    items={results}
+                    player={player}
+                    playlist_name={object_id}
+                    entities={entities}
+                    playTrackFunc={playTrack}
+                    fetchPlaylistIfNeededFunc={fetchPlaylistIfNeeded} />
             </div>
         )
     }
