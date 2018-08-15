@@ -110,7 +110,7 @@ export function initWatchers() {
                     const { config: { app: { analytics } } } = getState()
 
                     if (process.env.NODE_ENV === 'production' && analytics) {
-                        const ua = require('../../../shared/utils/universalAnalytics')
+                        const ua = require('../../utils/universalAnalytics')
                         ua().event('SoundCloud', 'Play').send()
                     }
                 }
@@ -162,7 +162,7 @@ export function initWatchers() {
                                             toastr.error('Stream limit reached!', 'Unfortunately the API enforces a 15K plays/hour limit. this limit will expire in ' + moment(error.meta.reset_time).toNow())
 
                                             if (process.env.NODE_ENV === 'production' && analytics) {
-                                                const ua = require('../../../shared/utils/universalAnalytics')
+                                                const ua = require('../../utils/universalAnalytics')
                                                 ua().event('SoundCloud', 'Rate limit reached').send()
                                             }
 

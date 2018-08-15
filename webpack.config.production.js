@@ -13,7 +13,7 @@ import LodashModuleReplacementPlugin from 'lodash-webpack-plugin';
 
 export default merge(baseConfig, {
 
-    entry: ['babel-polyfill', path.join(__dirname, 'src', 'renderer', 'index.js')],
+    entry: ['babel-polyfill', path.join(__dirname, 'src', 'renderer', 'index.jsx')],
 
     output: {
         path: path.join(__dirname, 'src/dist'),

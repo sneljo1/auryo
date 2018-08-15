@@ -1,6 +1,6 @@
 import { json, status } from '../utils'
 import { playlistSchema, trackSchema } from '../schemas'
-import { PLAYLISTS } from '../../shared/constants'
+import { PLAYLISTS } from '../constants'
 import { normalize, schema } from 'normalizr'
 import uniqWith from 'lodash/uniqWith'
 import isEqual from 'lodash/isEqual'

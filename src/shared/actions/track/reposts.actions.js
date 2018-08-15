@@ -1,5 +1,5 @@
-import { actionTypes } from '../../constants/index'
-import { SC } from '../../utils/index'
+import { actionTypes } from '../../constants'
+import { SC } from '../../utils'
 import fetchToObject from '../../api/helpers/fetchToObject'
 import { EVENTS } from '../../constants/events'
 import { windowRouter } from '../../utils/router'

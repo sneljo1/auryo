@@ -5,7 +5,7 @@
  * @param args  - Arguments for this function
  * @returns {function(*, *)}
  */
-import {actionTypes} from "../../../shared/constants";
+import {actionTypes} from "../../constants";
 import {initApp, setLoaded} from "./app.actions";
 
 let interval;

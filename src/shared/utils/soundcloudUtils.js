@@ -1,5 +1,5 @@
 import { CLIENT_ID } from '../../config'
-import { IMAGE_SIZES } from '../../shared/constants'
+import { IMAGE_SIZES } from '../constants'
 
 const _endpoint = 'https://api.soundcloud.com/'
 const _v2_endpoint = 'https://api-v2.soundcloud.com/'

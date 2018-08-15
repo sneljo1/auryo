@@ -1,4 +1,4 @@
-import {actionTypes} from "../../../shared/constants";
+import {actionTypes} from "../../constants";
 import {SC} from "../../utils";
 import fetchToObject from "../../api/helpers/fetchToObject";
 import fetchToJson from "../../api/helpers/fetchToJson";

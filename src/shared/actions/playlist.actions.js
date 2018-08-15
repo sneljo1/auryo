@@ -1,5 +1,5 @@
 import { SC } from '../utils'
-import { actionTypes, OBJECT_TYPES, PLAYLISTS } from '../../shared/constants'
+import { actionTypes, OBJECT_TYPES, PLAYLISTS } from '../constants'
 import { STREAM_CHECK_INTERVAL } from '../../config'
 import { getPlaylist, setObject } from './objectActions'
 import fetchPlaylists from '../api/fetchPlaylists'
@@ -293,18 +293,20 @@ export function fetchPlaylistIfNeeded(playlistId) {
  * Fetch new chart if needed
  *
  * @returns {function(*, *)}
- * @param genre
+ * @param object_id
  * @param sortType
  */
-export function fetchChartsIfNeeded(genre, sortType) {
+export function fetchChartsIfNeeded(object_id, sortType) {
     return (dispatch, getState) => {
         const { objects } = getState()
 
         const playlist_objects = objects[OBJECT_TYPES.PLAYLISTS]
-        const playlist_object = playlist_objects[genre]
+        const playlist_object = playlist_objects[object_id]
+
+        console.log("fetchChartsIfNeeded")
 
         if (!playlist_object) {
-            dispatch(getPlaylist(SC.getChartsUrl(genre, sortType,25), genre))
+            dispatch(getPlaylist(SC.getChartsUrl(object_id.split('_')[0], sortType, 25), object_id))
         }
     }
 }

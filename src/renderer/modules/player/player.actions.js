@@ -1,6 +1,6 @@
-import { actionTypes, OBJECT_TYPES, PLAYER_STATUS } from '../../../shared/constants/index'
+import { actionTypes, OBJECT_TYPES, PLAYER_STATUS } from '../../../shared/constants'
 
-import { fetchPlaylistIfNeeded } from '../../../shared/actions/index'
+import { fetchPlaylistIfNeeded } from '../../../shared/actions'
 import { fetchPlaylistTracks, fetchTracks } from '../../../shared/actions/playlist.actions'
 import flattenDeep from 'lodash/flattenDeep'
 import { fetchMore } from '../../../shared/actions/objectActions'

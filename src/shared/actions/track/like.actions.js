@@ -1,5 +1,5 @@
 import { SC } from '../../utils'
-import { actionTypes } from '../../../shared/constants'
+import { actionTypes } from '../../constants'
 import fetchToJson from '../../api/helpers/fetchToJson'
 import { windowRouter } from '../../utils/router'
 import { EVENTS } from '../../constants/events'

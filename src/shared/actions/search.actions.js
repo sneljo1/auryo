@@ -1,6 +1,13 @@
 import fetchToJson from '../api/helpers/fetchToJson'
 import { SC } from '../utils'
-import { actionTypes, OBJECT_TYPES, PLAYLISTS } from '../constants'
+import {
+    actionTypes,
+    OBJECT_TYPES,
+    PLAYLISTS,
+    SEARCH_PLAYLISTS_SUFFIX,
+    SEARCH_SUFFIX,
+    SEARCH_TRACKS_SUFFIX, SEARCH_USERS_SUFFIX
+} from '../constants'
 import { playlistSchema, trackSchema, userSchema } from '../schemas'
 import { normalize, schema } from 'normalizr'
 
@@ -23,20 +30,17 @@ export function search(object_id, query, limit, offset) {
 
             return Promise.all()
         }
+
         let url
 
-        switch (object_id) {
-            case PLAYLISTS.SEARCH_TRACK:
-                url = SC.searchTracksUrl(query, limit, offset)
-                break
-            case PLAYLISTS.SEARCH_PLAYLIST:
-                url = SC.searchPlaylistsUrl(query, limit, offset)
-                break
-            case PLAYLISTS.SEARCH_USER:
-                url = SC.searchUsersUrl(query, limit, offset)
-                break
-        }
 
+        if(object_id.endsWith(SEARCH_TRACKS_SUFFIX)){
+            url = SC.searchTracksUrl(query, limit, offset)
+        } else if(object_id.endsWith(SEARCH_PLAYLISTS_SUFFIX)){
+            url = SC.searchPlaylistsUrl(query, limit, offset)
+        } else if(object_id.endsWith(SEARCH_USERS_SUFFIX)){
+            url = SC.searchUsersUrl(query, limit, offset)
+        }
 
         if (!tracklist_object || (tracklist_object && !tracklist_object.isFetching && tracklist_object.nextUrl)) {
             return dispatch({
@@ -81,7 +85,7 @@ export function searchAll(query, limit, offset) {
         const { objects } = getState()
 
         const playlist_objects = objects[OBJECT_TYPES.PLAYLISTS] || {}
-        const object_id = PLAYLISTS.SEARCH + query;
+        const object_id =  query + SEARCH_SUFFIX;
         const tracklist_object = playlist_objects[object_id]
 
         if (!query) {

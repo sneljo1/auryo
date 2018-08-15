@@ -1,4 +1,4 @@
-import {REDUX_STATES} from "../../shared/constants";
+import {REDUX_STATES} from "../constants";
 
 export function isLoading(actionType) {
     return actionType + "_" + REDUX_STATES.LOADING

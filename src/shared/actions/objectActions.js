@@ -1,4 +1,4 @@
-import { actionTypes, OBJECT_TYPES } from '../../shared/constants'
+import { actionTypes, OBJECT_TYPES } from '../constants'
 import { SC } from '../utils'
 import fetchPlaylist from '../api/fetchPlaylist'
 import fetchComments from '../api/fetchComments'

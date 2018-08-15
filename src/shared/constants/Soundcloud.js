@@ -226,10 +226,10 @@ export const AUDIO_GENRES = [
     }
 ]
 
-export const CHART_SORT_TYPE = [
-    'top',
-    'trending'
-]
+export const CHART_SORT_TYPE = {
+    TOP: 'top',
+    TRENDING: 'trending'
+}
 
 export const IMAGE_SIZES = {
     XSMALL: 't50x50',

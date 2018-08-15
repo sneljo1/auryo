@@ -2,7 +2,7 @@ export * from './like.actions'
 
 import { SC } from '../../utils'
 import fetchTrack from '../../api/fetchTrack'
-import { actionTypes, OBJECT_TYPES, RELATED_PLAYLIST_SUFFIX } from '../../../shared/constants'
+import { actionTypes, OBJECT_TYPES, RELATED_PLAYLIST_SUFFIX } from '../../constants'
 import { getComments, getRelatedPlaylist } from '../objectActions'
 
 /**

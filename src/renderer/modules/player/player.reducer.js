@@ -1,4 +1,4 @@
-import { actionTypes, PLAYER_STATUS } from "../../../shared/constants/index";
+import { actionTypes, PLAYER_STATUS } from "../../../shared/constants";
 import { onSuccess } from "../../../shared/utils/reduxUtils";
 import { findIndex } from "lodash";
 

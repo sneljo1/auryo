@@ -6,6 +6,7 @@ import isEqual from 'lodash/isEqual'
 const initialObjectsState = {
     isFetching: false,
     error: null,
+    meta: {},
     items: [],
     futureUrl: false,
     nextUrl: false,
@@ -14,7 +15,7 @@ const initialObjectsState = {
 }
 
 function objects(state = initialObjectsState, action) {
-    const { type, payload, meta } = action
+    const { type, payload } = action
 
     switch (type) {
         case isLoading(actionTypes.OBJECT_SET):
@@ -46,12 +47,12 @@ function objects(state = initialObjectsState, action) {
             if (payload.refresh) {
                 new_items = uniqWith([...result], isEqual)
             } else {
-                //new_items = [...new Set([...state.items, ...payload.result])];
                 new_items = uniqWith([...items, ...result], isEqual)
             }
             return {
                 ...state,
                 isFetching: false,
+                meta: payload.meta || {},
                 items: new_items,
                 futureUrl: payload.futureUrl,
                 nextUrl: payload.nextUrl,
@@ -92,7 +93,7 @@ function objects(state = initialObjectsState, action) {
 const initialObjectGroupState = {}
 
 function objectgroup(state = initialObjectGroupState, action) {
-    const { type, payload, meta } = action
+    const { type, payload } = action
 
     switch (type) {
         case isLoading(actionTypes.OBJECT_SET):
@@ -126,7 +127,7 @@ const initialState = {
 }
 
 export default function objectsgroups(state = initialState, action) {
-    const { type, payload, meta } = action
+    const { type, payload } = action
 
     switch (type) {
         case isLoading(actionTypes.OBJECT_SET):
