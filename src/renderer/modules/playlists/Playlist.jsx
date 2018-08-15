@@ -18,16 +18,7 @@ import PageHeader from '../_shared/PageHeader/PageHeader'
 class PlayListPage extends WithHeaderComponent {
 
     componentDidMount() {
-        if (this.props.scrollTop) {
-            this.scroll.updateScrollPosition(this.props.scrollTop)
-        }
-    }
-
-    componentDidMount() {
-
-        if (this.props.scrollTop) {
-            this.scroll.updateScrollPosition(this.props.scrollTop)
-        }
+        super.componentDidMount()
 
         this.fetchPlaylist(this.props)
     }
@@ -90,15 +81,15 @@ class PlayListPage extends WithHeaderComponent {
 
         return (
             <CustomScroll heightRelativeToParent="100%"
-                          heightMargin={35}
-                          allowOuterScroll={true}
-                          threshold={300}
-                          isFetching={playlist_object.isFetching}
-                          ref={r => this.scroll = r}
-                          loadMore={fetchMore.bind(null, object_id, object_type)}
-                          loader={<Spinner />}
-                          onScroll={this.debouncedOnScroll}
-                          hasMore={!!playlist_object.nextUrl}>
+                heightMargin={35}
+                allowOuterScroll={true}
+                threshold={300}
+                isFetching={playlist_object.isFetching}
+                ref={r => this.scroll = r}
+                loadMore={fetchMore.bind(null, object_id, object_type)}
+                loader={<Spinner />}
+                onScroll={this.debouncedOnScroll}
+                hasMore={!!playlist_object.nextUrl}>
 
                 <Header className={cn({ withImage: this.props.backgroundImage })} scrollTop={this.state.scrollTop} />
 
@@ -106,9 +97,9 @@ class PlayListPage extends WithHeaderComponent {
                     {
                         chart && (
                             <div className="float-right">
-                                <div className="bp3-select">
+                                <div className="bp3-select bp3-minimal">
                                     <select defaultValue={sortType} value={sortType}
-                                            onChange={sortTypeChange}>
+                                        onChange={sortTypeChange}>
                                         <option value={CHART_SORT_TYPE.TOP}>{CHART_SORT_TYPE.TOP}</option>
                                         <option value={CHART_SORT_TYPE.TRENDING}>{CHART_SORT_TYPE.TRENDING}</option>
                                     </select>

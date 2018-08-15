@@ -16,9 +16,7 @@ import Header from '../app/components/Header/Header'
 class SearchWrapper extends WithHeaderComponent {
 
     componentDidMount() {
-        if (this.props.scrollTop) {
-            this.scroll.updateScrollPosition(this.props.scrollTop)
-        }
+        super.componentDidMount()
     }
 
     loadMore = () => {

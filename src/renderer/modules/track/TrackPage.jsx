@@ -33,11 +33,9 @@ class TrackPage extends WithHeaderComponent {
     }
 
     componentDidMount() {
+        super.componentDidMount()
+        
         const { fetchTrackIfNeeded, params: { songId } } = this.props
-
-        if (this.props.scrollTop) {
-            this.scroll.updateScrollPosition(this.props.scrollTop)
-        }
 
         fetchTrackIfNeeded(songId)
 
@@ -195,13 +193,13 @@ class TrackPage extends WithHeaderComponent {
 
                                 <a href="javascript:void(0)" className={cn('c_btn', { liked: reposted })}
                                    onClick={toggleRepost.bind(null, track.id)}>
-                                    <i class='bx bx-repost' />
+                                    <i className='bx bx-repost' />
                                     <span>{reposted ? 'Reposted' : 'Repost'}</span>
                                 </a>
 
 
                                 {
-                                    !track.purchase_url && track.download_url && (
+                                    !track.purchase_url && track.download_url && track.downloadable  && (
                                         <a href="javascript:void(0)" className="c_btn round"
                                            onClick={downloadFile.bind(null, SC.appendClientId(track.download_url))}>
                                             <i className='bx bxs-download-alt' />

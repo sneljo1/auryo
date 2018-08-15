@@ -1,5 +1,5 @@
-import { canFetchMoreOf, fetchMore } from './objectActions'
 import { push, replace } from 'react-router-redux'
+import { canFetchMoreOf, fetchMore } from './objectActions'
 
 export { show } from 'redux-modal'
 

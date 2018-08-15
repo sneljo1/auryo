@@ -152,9 +152,9 @@ asynckit@^0.4.0:
   version "0.4.0"
   resolved "https://registry.yarnpkg.com/asynckit/-/asynckit-0.4.0.tgz#c79ed97f7f34cb8f2ba1bc9790bcc366474b4b79"
 
-autolinker@^1.4.3:
+autolinker@Superjo149/Autolinker.js:
   version "1.7.1"
-  resolved "https://registry.yarnpkg.com/autolinker/-/autolinker-1.7.1.tgz#36397dd0c09c369433142677b5247ed4c9d2d705"
+  resolved "https://codeload.github.com/Superjo149/Autolinker.js/tar.gz/0b47d8f70acbccb7b3253590ea31821309bde013"
 
 aws-sign2@~0.7.0:
   version "0.7.0"

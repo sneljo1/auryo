@@ -17,5 +17,6 @@ export const EVENTS = {
         NEW_VERSION: 'app::new_version',
         READY: 'app::ready',
         RESTART: 'app::restart',
+        VALID_DIR: 'app::valid_dir',
     }
 };

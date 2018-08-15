@@ -46,7 +46,7 @@ export default class Auryo {
 
         app.setAppUserModelId('com.auryo.core')
 
-        // Make the app a single-instance app (to avoid Database concurrency)
+        // Make the app a single-instance app
         const _this = this
         const shouldQuit = app.makeSingleInstance(() => {
             if (_this.mainWindow) {
@@ -131,8 +131,7 @@ export default class Auryo {
         if (process.env.NODE_ENV === 'development' || process.env.ENV === 'development') {
             this.mainWindow.webContents.on('context-menu', (e, props) => {
                 const { x, y } = props
-                Menu.buildFromTemplate([
-                    {
+                Menu.buildFromTemplate([{
                         label: 'Inspect element',
                         click() {
                             _main.inspectElement(x, y)
@@ -194,6 +193,8 @@ export default class Auryo {
                 } else {
                     shell.openExternal(u)
                 }
+            } else if (/^mailto\:/g.exec(u) !== null) {
+                shell.openExternal(u)
             }
         })
         this.mainWindow.webContents.on('new-window', (e, u) => {

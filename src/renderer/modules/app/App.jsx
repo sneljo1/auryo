@@ -7,7 +7,7 @@ import IsOffline from './components/Offline/Offline'
 import SideBar from './components/Sidebar/Sidebar'
 import Spinner from '../_shared/Spinner/Spinner'
 import * as actions from '../../../shared/actions'
-import ReduxToastr, { toastr } from 'react-redux-toastr'
+import ReduxToastr from 'react-redux-toastr'
 import { hashHistory, Route, Switch, withRouter } from 'react-router'
 import Queue from './components/Queue/Queue'
 import { OBJECT_TYPES } from '../../../shared/constants/global'
@@ -29,6 +29,7 @@ import UtilitiesModal from '../UtilitiesModel/UtilitiesModal'
 import trackSchema from '../../../shared/schemas/track'
 import ChartsPage from '../charts/ChartsPage'
 import ChartsDetailsPage from '../charts/ChartsDetailsPage'
+import { actions as toastrActions } from 'react-redux-toastr'
 
 class App extends React.Component {
 
@@ -46,26 +47,29 @@ class App extends React.Component {
 
     }
 
+    componentWillReceiveProps(nextProps) {
+        const { app, add,remove } = this.props
+
+        if (app.offline !== nextProps.app.offline && nextProps.app.offline === true) {
+            add({
+                id: 'offline', // If not provided we will add one.
+                timeOut: 0,
+                type: 'info',
+                showCloseButton: false,
+                title: 'You are currently offline.',
+                message: 'Please reconnect!'
+
+            })
+        } else if (app.offline !== nextProps.app.offline && nextProps.app.offline === false) {
+            remove('offline')
+        }
+    }
+
     componentWillUnmount() {
         this.props.cleanApp()
 
         window.removeEventListener('online', this.setOnlineStatus)
         window.removeEventListener('offline', this.setOnlineStatus)
-    }
-
-    componentWillReceiveProps(nextProps, nextContext) {
-        const { app } = this.props
-
-        if (app.offline !== nextProps.app.offline && nextProps.app.offline === true) {
-            toastr.info('You are currently offline.', 'Please reconnect!', {
-                id: 'offline', // If not provided we will add one.
-                timeOut: 0,
-                showCloseButton: false
-
-            })
-        } else if (app.offline !== nextProps.app.offline && nextProps.app.offline === false) {
-            toastr.remove('offline')
-        }
     }
 
     setOnlineStatus = () => {
@@ -102,8 +106,8 @@ class App extends React.Component {
     handleResize = ({ width, height }) => {
 
         this.props.setDimensions({
-            height: height,
-            width: width
+            height,
+            width
         })
     }
 
@@ -196,10 +200,10 @@ class App extends React.Component {
                     </footer>
 
                     <AddToPlaylistModal playlist_entities={playlists_ent}
-                                        playlist_objects={playlists_objs}
-                                        playlists={playlists}
-                                        togglePlaylistTrackFunc={togglePlaylistTrack}
-                                        track_entities={track_entities} />
+                        playlist_objects={playlists_objs}
+                        playlists={playlists}
+                        togglePlaylistTrackFunc={togglePlaylistTrack}
+                        track_entities={track_entities} />
 
                     <UtilitiesModal authenticated />
                 </div>
@@ -243,4 +247,4 @@ const mapStateToProps = (state, props) => {
     }
 }
 
-export default withRouter(connect(mapStateToProps, actions)(App))
+export default withRouter(connect(mapStateToProps, { ...actions, ...toastrActions })(App))

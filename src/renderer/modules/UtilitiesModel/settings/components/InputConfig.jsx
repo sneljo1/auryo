@@ -1,8 +1,9 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import debounce from 'lodash/debounce'
+import cn from "classnames";
 
-class InputConfig extends React.Component {
+class InputConfig extends React.PureComponent {
 
     static propTypes = {
         config: PropTypes.object,
@@ -12,7 +13,13 @@ class InputConfig extends React.Component {
         type: PropTypes.string,
         className: PropTypes.string,
         onChange: PropTypes.func,
-        usePlaceholder: PropTypes.bool
+        usePlaceholder: PropTypes.bool,
+        invalid: PropTypes.bool
+    }
+
+    static defaultProps = {
+        className: "",
+        invalid: false
     }
 
     constructor() {
@@ -22,7 +29,7 @@ class InputConfig extends React.Component {
             isChecked: null
         }
 
-        this.saveDebounced = debounce(this._handleChange.bind(this), 20)
+        this.saveDebounced = debounce(this._handleChange.bind(this), 50)
     }
 
 
@@ -32,29 +39,29 @@ class InputConfig extends React.Component {
         const value = configKey.split('.').reduce((o, i) => o[i], config)
 
         return (
-            <div className={`setting d-flex justify-content-between align-items-center ${className}`}>
+            <div className={`setting${className}`}>
                 {
-                    !usePlaceholder && <span>{name}</span>
+                    !usePlaceholder && <label>{name}</label>
                 }
                 <input type={type || 'text'}
-                       className="form-control form-control-sm"
-                       onChange={this.saveDebounced}
-                       ref={r => this.input = r}
-                       placeholder={usePlaceholder ? name : undefined}
-                       defaultValue={value || ''} />
+                    className={cn("form-control form-control-sm ", {
+                        "is-invalid": this.props.invalid
+                    })}
+                    onChange={this.saveDebounced}
+                    ref={r => this.input = r}
+                    placeholder={usePlaceholder ? name : undefined}
+                    defaultValue={value || ''} />
             </div>
         )
     }
 
-
     _handleChange(e, v) {
         const { configKey } = this.props
 
-        this.props.setConfigKey(configKey, this.input.value)
-
-
         if (this.props.onChange) {
-            this.props.onChange(this.input.value)
+            this.props.onChange(this.input.value, this.props.setConfigKey.bind(this, configKey, this.input.value))
+        } else {
+            this.props.setConfigKey(configKey, this.input.value)
         }
     }
 

@@ -37,13 +37,11 @@ class ArtistContainer extends WithHeaderComponent {
     }
 
     componentDidMount() {
+        super.componentDidMount()
+
         const { fetchArtistIfNeeded, params: { artistId } } = this.props
 
         fetchArtistIfNeeded(artistId)
-
-        if (this.props.scrollTop) {
-            this.scroll.updateScrollPosition(this.props.scrollTop)
-        }
     }
 
     componentWillReceiveProps(nextProps) {

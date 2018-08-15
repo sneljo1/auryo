@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Switch from '../../../_shared/Switch/Switch';
+import { Switch } from '@blueprintjs/core';
 
-class CheckboxConfig extends React.Component {
+class CheckboxConfig extends React.PureComponent {
 
     static propTypes = {
         config: PropTypes.object,
@@ -29,8 +29,8 @@ class CheckboxConfig extends React.Component {
         const value = configKey.split('.').reduce((o, i) => o[i], config);
 
         return (
-            <div className="setting d-flex justify-content-between align-items-center">
-                <span>{name}</span> <Switch id={configKey} checked={value} onChange={this._handleChange} />
+            <div className="setting">
+                <Switch inline large label={name} checked={value} onChange={this._handleChange} />
             </div>
         );
     }

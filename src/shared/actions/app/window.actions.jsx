@@ -16,6 +16,7 @@ import { EVENTS } from '../../constants/events'
 
 import { windowRouter } from '../../utils/router'
 import { toggleRepost } from '../track/reposts.actions'
+import { Redirect } from "react-router-dom"
 
 export function openExternal(url) {
     ipcRenderer.send('open_external', url)
@@ -124,7 +125,7 @@ export function initWatchers() {
                         component: (
                             <div className='notification-children'>
                                 <a href={'https://github.com/Superjo149/auryo/releases/tag/v' + data}
-                                   className='notification-action-button'>View changelog</a>
+                                    className='notification-action-button'>View changelog</a>
                             </div>
                         )
                     })
@@ -235,27 +236,25 @@ function setUpdateAvailable(version) {
 }
 
 
-export function resolveUrl(url, dispatch) {
+export function resolveUrl(url, history) {
     if (is.renderer()) {
         fetchToJson(SC.resolveUrl(url))
             .then(json => {
+                console.log("response",json)
                 switch (json.kind) {
                     case 'track':
-                        dispatch(replace('/track/' + json.id))
-                        return
+                        history.replace('/track/' + json.id)
                     case 'user':
-                        dispatch(replace('/user/' + json.id))
-                        return
+                        return history.replace('/user/' + json.id)
                     default:
                         throw Error('Not implemented')
                 }
             })
             .catch(err => {
-                const browserHistory = require('react-router').browserHistory
-
-                browserHistory.goBack()
+                history.goBack()
 
                 ipcRenderer.send('open_external', unescape(url))
+
             })
 
     }

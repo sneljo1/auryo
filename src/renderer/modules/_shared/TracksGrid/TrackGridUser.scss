@@ -1,6 +1,3 @@
-@import "../../../../node_modules/bootstrap/scss/bootstrap";
-@import "../../../css/vars";
-
 .songs .userWrapper {
   @include make-col-ready();
   @media (min-width: 1300px) and (max-width: 1500px) {

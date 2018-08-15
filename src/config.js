@@ -2,6 +2,15 @@ import { version } from './package.json'
 
 const BASE_URL = 'http://api.auryo.com'
 
+import is from "electron-is";
+
+let downloadPath = "";
+
+if (!is.renderer()) {
+    const { app } = require('electron')
+    downloadPath = app.getPath('downloads')
+}
+
 export default {
     // SoundCloud
     BASE_URL,
@@ -39,8 +48,8 @@ export default {
         },
         app: {
             analytics: true,
-            crashReports: true
+            crashReports: true,
+            downloadPath
         }
     }
 }
-

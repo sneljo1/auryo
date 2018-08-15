@@ -11,17 +11,13 @@ export function toggleQueue(toggle) {
     }
 }
 
-export function setScrollPosition(scrollTop) {
-    return (dispatch, getState) => {
-        const { routing: { location: { pathname } } } = getState()
+export function setScrollPosition(scrollTop, pathname) {
+    return {
+        type: actionTypes.UI_SET_SCROLL_TOP,
+        payload: {
+            scrollTop,
+            pathname
 
-        dispatch({
-            type: actionTypes.UI_SET_SCROLL_TOP,
-            payload: {
-                scrollTop,
-                pathname
-
-            }
-        })
+        }
     }
 }

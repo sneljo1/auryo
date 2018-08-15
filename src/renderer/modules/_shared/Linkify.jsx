@@ -17,7 +17,7 @@ class Linkify extends React.PureComponent {
             <div>
                 <div dangerouslySetInnerHTML={{
                     __html: autolinker.link((text ? text : ' ').replace(/\n/g, '</br>'), {
-                        mention: 'twitter',
+                        mention: 'twitter', // TODO change to souncloud
                         replaceFn: (match) => {
                             switch (match.getType()) {
                                 case 'url':
@@ -37,6 +37,13 @@ class Linkify extends React.PureComponent {
                                     tag.setAttr('target', '_self')
 
                                     return tag
+
+                                case 'email':
+                                    let a = match.buildTag()
+
+                                    a.setAttr('target', '_self')
+
+                                    return a
                                 default:
                                     return false
 

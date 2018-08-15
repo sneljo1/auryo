@@ -17,14 +17,6 @@ class Header extends React.Component {
         height: 0
     }
 
-    shouldComponentUpdate(nextProps, nextState, nextContext) {
-        return this.state.dropdownOpen !== nextState.dropdownOpen ||
-            !isEqual(this.props.location.pathname, nextProps.location.pathname) ||
-            !isEqual(this.props.locHistory, nextProps.locHistory) ||
-            this.props.me !== nextProps.me ||
-            (this.props.scrollTop < 52 && nextProps.scrollTop > 52) || (this.props.scrollTop > 52 && nextProps.scrollTop < 52)
-    }
-
     componentDidMount() {
         this.setState({
             height: this.divElement.clientHeight
@@ -32,6 +24,23 @@ class Header extends React.Component {
 
         if (this.props.focus) {
             this.search.focus()
+        }
+    }
+
+    shouldComponentUpdate(nextProps, nextState, nextContext) {
+        return this.state.dropdownOpen !== nextState.dropdownOpen ||
+            !isEqual(this.props.location.pathname, nextProps.location.pathname) ||
+            !isEqual(this.props.locHistory, nextProps.locHistory) ||
+            this.props.me !== nextProps.me ||
+            nextState.height !== this.divElement.clientHeight ||
+            (this.props.scrollTop < 52 && nextProps.scrollTop > 52) || (this.props.scrollTop > 52 && nextProps.scrollTop < 52)
+    }
+
+    componentWillReceiveProps(nextProps){
+        if(this.state.height !== this.divElement.clientHeight){
+            this.setState({
+                height: this.divElement.clientHeight
+            })
         }
     }
 
@@ -67,7 +76,7 @@ class Header extends React.Component {
         const { locHistory: { next, back }, push, me, logout, scrollTop, replace, className } = this.props
 
         return (
-            <div className={'header-wrapper ' + className || ""} style={{ minHeight: this.state.height }}>
+            <div className={`header-wrapper ${  className}` || ""} style={{ minHeight: this.state.height }}>
                 <Sticky
                     className="stickymaker"
                     activeClassName={`sticky sticky-3`}

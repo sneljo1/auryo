@@ -6,7 +6,6 @@ import './search.scss'
 import TracksGrid from '../_shared/TracksGrid/TracksGrid'
 import Spinner from '../_shared/Spinner/Spinner'
 import { denormalize, schema } from 'normalizr'
-import { PLAYLISTS } from '../../../shared/constants'
 import playlistSchema from '../../../shared/schemas/playlist'
 import trackSchema from '../../../shared/schemas/track'
 import { userSchema } from '../../../shared/schemas'
@@ -36,6 +35,7 @@ class Search extends React.Component {
             this.setState({
                 loading: true
             })
+
             searchAll(query, 40)
                 .then(() => {
                     this.setState({
@@ -63,12 +63,14 @@ class Search extends React.Component {
     }
 
     hasMore = () => {
-        return this.props.canFetchMoreOf(PLAYLISTS.SEARCH, OBJECT_TYPES.PLAYLISTS)
+        return this.props.canFetchMoreOf(this.props.object_id, OBJECT_TYPES.PLAYLISTS)
     }
 
     loadMore = () => {
-        if (this.props.canFetchMoreOf(PLAYLISTS.SEARCH, OBJECT_TYPES.PLAYLISTS)) {
-            this.props.fetchMore(PLAYLISTS.SEARCH, OBJECT_TYPES.PLAYLISTS)
+        const { object_id } = this.props;
+
+        if (this.props.canFetchMoreOf(object_id, OBJECT_TYPES.PLAYLISTS)) {
+            this.props.fetchMore(object_id, OBJECT_TYPES.PLAYLISTS)
         }
     }
 
@@ -85,15 +87,15 @@ class Search extends React.Component {
             object_id
         } = this.props
 
-        if (this.state.loading || (playlist_object && playlist_object.isFetching)) {
+        if (this.state.loading) {
             return (
                 <div className="pt-5 mt-5">
-                    <Spinner />
+                    <Spinner contained />
                 </div>
             )
         }
 
-        if (!results || !results.length) {
+        if (!results || !results.length && (playlist_object && !playlist_object.isFetching)) {
             return (
                 <div className="pt-5 mt-5">
                     <h5 className='text-muted text-center'>{this.props.query ? `No results for "${this.props.query}"` : 'Search for people, tracks and albums'}</h5>
@@ -116,6 +118,10 @@ class Search extends React.Component {
 
                     playTrackFunc={playTrack}
                     fetchPlaylistIfNeededFunc={fetchPlaylistIfNeeded} />
+
+                {
+                    playlist_object && playlist_object.isFetching && <Spinner />
+                }
             </div>
         )
     }

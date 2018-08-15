@@ -623,3 +623,7 @@ i {
 .bp3-portal {
   z-index: 999999;
 }
+
+.bp3-control .bp3-control-indicator::before{
+  display: block !important;
+}

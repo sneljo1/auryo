@@ -49,6 +49,14 @@ export default merge(baseConfig, {
                         options: {
                             sourceMap: true,
                         }
+                    },
+                    {
+                      loader: 'sass-resources-loader',
+                      options: {
+                        resources: [
+                          path.join(__dirname, 'src', "renderer","css", "bootstrap.imports.scss")
+                        ]
+                      },
                     }
                 ]
             },

@@ -200,7 +200,7 @@ export function togglePlaylistTrack(trackId, playlistId) {
                             showCloseButton: false,
                             component: (
                                 <div>
-                                    {(add ? 'Added track to ' : 'Removed track from ') + 'playlist '} <Link
+                                    {(!add ? 'Added track to ' : 'Removed track from ') + 'playlist '} <Link
                                     onClick={() => {
                                         dispatch(toastrActions.remove(`addtoplaylist-${add}-${playlist_entitity.id}`))
                                         dispatch(hide('addToPlaylist'))

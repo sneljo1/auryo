@@ -60,10 +60,7 @@ class ChartsPage extends WithHeaderComponent {
     }
 
     componentDidMount() {
-        if (this.props.scrollTop) {
-            this.scroll.updateScrollPosition(this.props.scrollTop)
-        }
-
+        super.componentDidMount()
     }
 
     toggle = (tab) => {

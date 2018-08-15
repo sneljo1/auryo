@@ -24,13 +24,11 @@ import ShareMenuItem from '../_shared/ShareMenuItem'
 class PlaylistContainer extends WithHeaderComponent {
 
     componentDidMount() {
+        super.componentDidMount()
+        
         const { fetchPlaylistIfNeeded, playlistId } = this.props
 
         fetchPlaylistIfNeeded(playlistId)
-
-        if (this.props.scrollTop) {
-            this.scroll.updateScrollPosition(this.props.scrollTop)
-        }
 
     }
 
@@ -96,7 +94,7 @@ class PlaylistContainer extends WithHeaderComponent {
         const { likes, playlists, followings } = auth
 
         if (!playlist_object || !playlist_entity) {
-            return <Spinner />
+            return <Spinner contained />
         }
 
         const first_item = playlist_entity.tracks[0]
