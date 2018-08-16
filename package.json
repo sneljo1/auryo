@@ -149,6 +149,7 @@
     "cross-env": "^3.1.4",
     "css-loader": "^0.26.1",
     "devtron": "^1.4.0",
+    "dotenv": "^6.0.0",
     "electron": "^2.0.0",
     "electron-builder": "^20.13.3",
     "electron-devtools-installer": "^2.0.1",
@@ -200,8 +201,8 @@
     "rebuild-node-sass": "^1.1.0"
   },
   "devEngines": {
-    "node": ">=6.x",
-    "npm": ">=3.x"
+    "node": ">=8.10",
+    "npm": ">=5.6"
   },
   "optionalDependencies": {
     "7zip-bin-mac": "^1.0.1"
