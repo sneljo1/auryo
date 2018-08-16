@@ -1,9 +1,9 @@
-import React, { Component } from 'react'
-import PropTypes from 'prop-types'
-import Spinner from '../Spinner/Spinner'
-import './commentList.scss'
-import ReactList from 'react-list'
-import CommentListItem from './CommentListItem'
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import ReactList from 'react-list';
+import Spinner from '../Spinner/Spinner';
+import './commentList.scss';
+import CommentListItem from './CommentListItem';
 
 class CommentList extends Component {
 
