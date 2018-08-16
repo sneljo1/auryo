@@ -65,7 +65,7 @@ class ActionsDropdown extends React.Component {
 
                                         return (
                                             <MenuItem
-                                                key={playlist.id}
+                                                key={`menu-item-add-to-playlist-${playlist.id}`}
                                                 className={cn({ 'text-primary': inPlaylist })}
                                                 onClick={togglePlaylistTrack.bind(null, trackId, playlist.id)}
                                                 text={playlist.title} />

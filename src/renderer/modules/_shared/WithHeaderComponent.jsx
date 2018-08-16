@@ -22,7 +22,6 @@ class WithHeaderComponent extends React.Component {
     }
 
     componentWillUnmount(){
-        console.log("unmount",this.props.location.pathname)
         this.props.setScrollPosition(this.state.scrollTop, this.props.location.pathname)
     }
 

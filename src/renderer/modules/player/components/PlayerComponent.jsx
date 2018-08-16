@@ -251,7 +251,7 @@ class Player extends Component {
         /**
          * If Track ID is empty, just exit here
          */
-        if (playingTrack.id === null || !track || !trackID) return null
+        if (playingTrack.id === null || !track || !trackID  || (track && track.loading)) return null
 
         track.user = user_entities[track.user_id || track.user]
 

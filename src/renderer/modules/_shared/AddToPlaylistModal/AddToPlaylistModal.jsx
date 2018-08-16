@@ -20,7 +20,7 @@ class AddToPlaylistModal extends Component {
 
         const track = track_entities[trackID]
 
-        if (!track) return null
+        if (!track || (track && track.loading)) return null
 
         const first_track = track_entities[playlist.tracks[0]]
         const url = SC.getImageUrl(first_track, IMAGE_SIZES.XSMALL)

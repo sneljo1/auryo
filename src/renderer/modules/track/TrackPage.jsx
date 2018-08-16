@@ -1,30 +1,30 @@
-import React from 'react'
-import { connect } from 'react-redux'
-import cn from 'classnames'
-import { Col, Row, TabContent, TabPane } from 'reactstrap'
-import * as actions from '../../../shared/actions'
-import { abbreviate_number, isCurrentPlaylistPlaying, SC } from '../../../shared/utils'
-import { IMAGE_SIZES, OBJECT_TYPES, RELATED_PLAYLIST_SUFFIX } from '../../../shared/constants'
-import Spinner from '../_shared/Spinner/Spinner'
-import TogglePlay from '../_shared/TogglePlayButton'
-import TrackList from '../_shared/TrackList/TrackList'
-import CommentList from '../_shared/CommentList/CommentList'
-import FallbackImage from '../_shared/FallbackImage'
-import { downloadFile, openExternal } from '../../../shared/actions/app/window.actions'
-import './track.scss'
-import Linkify from '../_shared/Linkify'
-import CustomScroll from '../_shared/CustomScroll'
-import { denormalize, schema } from 'normalizr'
-import trackSchema from '../../../shared/schemas/track'
-import { withRouter } from 'react-router-dom'
-import Header from '../app/components/Header/Header'
-import WithHeaderComponent from '../_shared/WithHeaderComponent'
-import ShareMenuItem from '../_shared/ShareMenuItem'
-import { Popover,MenuDivider,Menu,MenuItem,Position } from '@blueprintjs/core'
-import PageHeader from '../_shared/PageHeader/PageHeader'
-import TrackGridUser from '../_shared/TracksGrid/TrackGridUser'
-import ToggleMore from '../_shared/ToggleMore'
-import moment from 'moment'
+import { Menu, MenuDivider, MenuItem, Popover, Position } from '@blueprintjs/core';
+import cn from 'classnames';
+import moment from 'moment';
+import { denormalize, schema } from 'normalizr';
+import React from 'react';
+import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
+import { Col, Row, TabContent, TabPane } from 'reactstrap';
+import * as actions from '../../../shared/actions';
+import { downloadFile, openExternal } from '../../../shared/actions/app/window.actions';
+import { IMAGE_SIZES, OBJECT_TYPES, RELATED_PLAYLIST_SUFFIX } from '../../../shared/constants';
+import trackSchema from '../../../shared/schemas/track';
+import { abbreviate_number, isCurrentPlaylistPlaying, SC } from '../../../shared/utils';
+import Header from '../app/components/Header/Header';
+import CommentList from '../_shared/CommentList/CommentList';
+import CustomScroll from '../_shared/CustomScroll';
+import FallbackImage from '../_shared/FallbackImage';
+import Linkify from '../_shared/Linkify';
+import PageHeader from '../_shared/PageHeader/PageHeader';
+import ShareMenuItem from '../_shared/ShareMenuItem';
+import Spinner from '../_shared/Spinner/Spinner';
+import ToggleMore from '../_shared/ToggleMore';
+import TogglePlay from '../_shared/TogglePlayButton';
+import TrackList from '../_shared/TrackList/TrackList';
+import TrackGridUser from '../_shared/TracksGrid/TrackGridUser';
+import WithHeaderComponent from '../_shared/WithHeaderComponent';
+import './track.scss';
 
 class TrackPage extends WithHeaderComponent {
 
@@ -34,7 +34,7 @@ class TrackPage extends WithHeaderComponent {
 
     componentDidMount() {
         super.componentDidMount()
-        
+
         const { fetchTrackIfNeeded, params: { songId } } = this.props
 
         fetchTrackIfNeeded(songId)
@@ -44,9 +44,9 @@ class TrackPage extends WithHeaderComponent {
     componentWillReceiveProps(nextProps) {
         const { fetchTrackIfNeeded, params: { songId } } = this.props
 
-        //if (songId !== nextProps.params.songId) {
+        // if (songId !== nextProps.params.songId) {
         fetchTrackIfNeeded(nextProps.params.songId)
-        //}
+        // }
     }
 
     toggle = (tab) => {
@@ -60,18 +60,18 @@ class TrackPage extends WithHeaderComponent {
     renderToggleButton = () => {
         const { params: { songId }, playTrack, object_id, player: { queue, playingTrack } } = this.props
 
-        if (playingTrack.id !== null && (playingTrack.id === parseInt(songId))) {
+        if (playingTrack.id !== null && (playingTrack.id === +songId)) {
             return <TogglePlay className="c_btn round playButton" />
         }
 
-        const playTrackFunc = playTrack.bind(null, object_id, parseInt(songId), null)
+        const playTrackFunc = playTrack.bind(null, object_id, +songId, null)
 
         const icon = (playingTrack.id === songId) ? 'pause' : 'play_arrow'
 
         return (
 
             <a href="javascript:void(0)" className="c_btn round playButton" onClick={playTrackFunc}>
-                <i className={'icon-' + icon} />
+                <i className={`icon-${icon}`} />
             </a>
         )
     }
@@ -124,7 +124,7 @@ class TrackPage extends WithHeaderComponent {
 
         const track = track_entities[songId]
 
-        if (!track) {
+        if (!track || (track && track.loading)) {
             return <Spinner contained />
         }
 
@@ -149,12 +149,12 @@ class TrackPage extends WithHeaderComponent {
         }, [])
 
         return (
-            <CustomScroll className="column"  heightRelativeToParent="100%"
-                          allowOuterScroll={true}
-                          threshold={300}
-                          onScroll={this.debouncedOnScroll}
-                          loadMore={this.fetchMore.bind(this)}
-                          hasMore={this.canFetchMore()}>
+            <CustomScroll className="column" heightRelativeToParent="100%"
+                allowOuterScroll
+                threshold={300}
+                onScroll={this.debouncedOnScroll}
+                loadMore={this.fetchMore.bind(this)}
+                hasMore={this.canFetchMore()}>
 
                 <Header className="withImage" scrollTop={this.state.scrollTop} />
 
@@ -184,30 +184,30 @@ class TrackPage extends WithHeaderComponent {
                                         </a>
                                 }
 
-                                <a href="javascript:void(0)" className={cn('c_btn', { liked: liked })}
-                                   onClick={toggleLike.bind(this, track.id, false)}>
+                                <a href="javascript:void(0)" className={cn('c_btn', { liked })}
+                                    onClick={toggleLike.bind(this, track.id, false)}>
                                     <i className={liked ? 'bx bxs-heart' : 'bx bx-heart'} />
                                     <span>{liked ? 'Liked' : 'Like'}</span>
                                 </a>
 
 
                                 <a href="javascript:void(0)" className={cn('c_btn', { liked: reposted })}
-                                   onClick={toggleRepost.bind(null, track.id)}>
+                                    onClick={toggleRepost.bind(null, track.id)}>
                                     <i className='bx bx-repost' />
                                     <span>{reposted ? 'Reposted' : 'Repost'}</span>
                                 </a>
 
 
                                 {
-                                    !track.purchase_url && track.download_url && track.downloadable  && (
+                                    !track.purchase_url && track.download_url && track.downloadable && (
                                         <a href="javascript:void(0)" className="c_btn round"
-                                           onClick={downloadFile.bind(null, SC.appendClientId(track.download_url))}>
+                                            onClick={downloadFile.bind(null, SC.appendClientId(track.download_url))}>
                                             <i className='bx bxs-download-alt' />
                                         </a>
                                     )
                                 }
 
-                                <Popover autoFocus={false} minimal={true} content={(
+                                <Popover autoFocus={false} minimal content={(
                                     <Menu>
 
                                         {
@@ -216,8 +216,8 @@ class TrackPage extends WithHeaderComponent {
                                                     {
                                                         track.purchase_url && (
                                                             <MenuItem icon="link"
-                                                                      text={track.purchase_title || 'Download'}
-                                                                      onClick={openExternal.bind(null, track.purchase_url)} />
+                                                                text={track.purchase_title || 'Download'}
+                                                                onClick={openExternal.bind(null, track.purchase_url)} />
                                                         )
                                                     }
 
@@ -228,17 +228,17 @@ class TrackPage extends WithHeaderComponent {
                                         }
 
                                         <MenuItem text="Add to playlist"
-                                                  onClick={show.bind(null, 'addToPlaylist', { trackID: track.id })} />
+                                            onClick={show.bind(null, 'addToPlaylist', { trackID: track.id })} />
                                         <MenuItem text="Add to queue"
-                                                  onClick={addUpNext.bind(null, track.id, null, null)} />
+                                            onClick={addUpNext.bind(null, track.id, null, null)} />
                                         <MenuDivider />
 
                                         <MenuItem
                                             text="View in browser"
                                             onClick={openExternalFunc} />
                                         <ShareMenuItem title={track.title}
-                                                       permalink={track.permalink_url}
-                                                       username={user.username} />
+                                            permalink={track.permalink_url}
+                                            username={user.username} />
                                     </Menu>
                                 )} position={Position.BOTTOM_LEFT}>
                                     <a href="javascript:void(0)" className="c_btn round">
@@ -253,14 +253,14 @@ class TrackPage extends WithHeaderComponent {
 
                     <div className="flex tracktabs row">
                         <a href="javascript:void(0)"
-                           className={cn({ active: this.state.activeTab === '1' })}
-                           onClick={() => this.toggle('1')}>
+                            className={cn({ active: this.state.activeTab === '1' })}
+                            onClick={() => this.toggle('1')}>
                             Overview
                         </a>
 
                         <a href="javascript:void(0)"
-                           className={cn({ active: this.state.activeTab === '2', playing: playlist_playing })}
-                           onClick={() => this.toggle('2')}>
+                            className={cn({ active: this.state.activeTab === '2', playing: playlist_playing })}
+                            onClick={() => this.toggle('2')}>
                             Related tracks
                         </a>
                     </div>
@@ -272,7 +272,7 @@ class TrackPage extends WithHeaderComponent {
                             <Row>
                                 <Col xs="3">
                                     <TrackGridUser following={following} user={user}
-                                                   toggleFollowingFunc={toggleFollowingFunc} />
+                                        toggleFollowingFunc={toggleFollowingFunc} />
                                     <div className="p-3 track-info">
                                         <strong>Created</strong>
                                         <div>{moment(track.created_at).fromNow()}</div>
@@ -329,7 +329,7 @@ class TrackPage extends WithHeaderComponent {
                         <TabPane tabId="2" className="trackPadding-side">
                             <TrackList
                                 items={tracks}
-                                hideFirstTrack={true}
+                                hideFirstTrack
                                 player={player}
                                 playingTrack={playingTrack}
                                 likes={likes}

@@ -12,6 +12,7 @@ import { Nav, NavLink, TabContent, TabPane } from 'reactstrap'
 import cn from 'classnames'
 import LazyLoad from 'react-lazyload';
 import PageHeader from '../_shared/PageHeader/PageHeader'
+import ChartGenre from './components/ChartGenre';
 
 export const GENRE_IMAGES = {
     'all-music': require('../../../assets/img/genres/all-music.jpg'),
@@ -75,13 +76,13 @@ class ChartsPage extends WithHeaderComponent {
 
         return (
             <CustomScroll heightRelativeToParent="100%"
-                          heightMargin={35}
-                          allowOuterScroll={true}
-                          threshold={300}
-                          isFetching={false}
-                          ref={r => this.scroll = r}
-                          onScroll={this.debouncedOnScroll}
-                          hasMore={false}>
+                heightMargin={35}
+                allowOuterScroll={true}
+                threshold={300}
+                isFetching={false}
+                ref={r => this.scroll = r}
+                onScroll={this.debouncedOnScroll}
+                hasMore={false}>
 
                 <Header scrollTop={this.state.scrollTop} />
 
@@ -109,52 +110,20 @@ class ChartsPage extends WithHeaderComponent {
                                 <Masonry
                                     breakpointCols={4}
                                     className="my-masonry-grid">
-                                    {MUSIC_GENRES.map((genre, i) => {
-
-                                        const img = GENRE_IMAGES[genre.key]
-
-                                        return (
-                                            <Link key={i} to={`/charts/${genre.key}`}>
-                                                <LazyLoad>
-                                                <div className="chart withImage">
-                                                    <img src={img} />
-                                                    <h1>{genre.name}</h1>
-
-                                                    {/*{
-                                                        genre.icon && <i className={`icon icon-${genre.icon}`} />
-                                                    }*/}
-
-                                                    {
-                                                        genre.gradient && <div className="overlay"
-                                                                               style={{ backgroundImage: genre.gradient }} />
-                                                    }
-
-                                                </div>
-                                                </LazyLoad>
-                                            </Link>
-                                        )
-                                    })}
+                                    {MUSIC_GENRES.map((genre) => (
+                                        <ChartGenre key={genre.key} genre={genre} img={GENRE_IMAGES[genre.key]} />
+                                    ))}
                                 </Masonry>
 
                             </div>
                         </TabPane>
                         <TabPane tabId="2">
                             <div className="row">
-                                {AUDIO_GENRES.map((genre, i) => {
-                                    return (
-                                        <div className="col-3">
-                                            <Link key={i} to={`/charts/${genre.key}`}>
-                                                <div className="chart">
-                                                    <h1>{genre.name}</h1>
-                                                    {/*{
-                                                        genre.icon && <i className={`icon icon-${genre.icon}`}></i>
-                                                    }*/}
-
-                                                </div>
-                                            </Link>
-                                        </div>
-                                    )
-                                })}
+                                {AUDIO_GENRES.map((genre) => (
+                                    <div key={genre.key} className="col-3">
+                                        <ChartGenre genre={genre} />
+                                    </div>
+                                ))}
                             </div>
                         </TabPane>
                     </TabContent>

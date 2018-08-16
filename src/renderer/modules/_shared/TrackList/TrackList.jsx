@@ -65,7 +65,7 @@ class TrackList extends React.PureComponent {
                         items.map((track, i) => {
                             if (i === 0 && hideFirstTrack) return
 
-                            if (!track) {
+                            if (!track || (track && track.loading)) {
                                 console.error('no track', track)
                                 return null
                             }

@@ -303,8 +303,6 @@ export function fetchChartsIfNeeded(object_id, sortType) {
         const playlist_objects = objects[OBJECT_TYPES.PLAYLISTS]
         const playlist_object = playlist_objects[object_id]
 
-        console.log("fetchChartsIfNeeded")
-
         if (!playlist_object) {
             dispatch(getPlaylist(SC.getChartsUrl(object_id.split('_')[0], sortType, 25), object_id))
         }

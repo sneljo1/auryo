@@ -1,20 +1,29 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import { Col, Row } from 'reactstrap'
-import moment from 'moment'
-import { Link } from 'react-router-dom'
-import { SC } from '../../../../shared/utils'
-import { IMAGE_SIZES } from '../../../../shared/constants'
-import './commentList.scss'
-import FallbackImage from '../FallbackImage'
-import fallback_url from '../../../../assets/img/avatar_placeholder.jpg'
-import Linkify from '../Linkify'
+import isEqual from "lodash/isEqual";
+import moment from 'moment';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { Col, Row } from 'reactstrap';
+import fallback_url from '../../../../assets/img/avatar_placeholder.jpg';
+import { IMAGE_SIZES } from '../../../../shared/constants';
+import { SC } from '../../../../shared/utils';
+import FallbackImage from '../FallbackImage';
+import Linkify from '../Linkify';
+import './commentList.scss';
 
-class CommentListItem extends React.PureComponent {
+class CommentListItem extends React.Component {
 
     static propTypes = {
         comment: PropTypes.object.isRequired,
         user: PropTypes.object.isRequired
+    }
+
+    shouldComponentUpdate(nextProps, nextState) {
+        if (!isEqual(this.props.comment, nextProps.comment) ||
+            !isEqual(this.props.user, nextProps.user)) {
+            return true
+        }
+        return false
     }
 
     render() {

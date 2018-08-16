@@ -2,18 +2,12 @@ import React, { Component } from 'react'
 import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap'
 
 class MoreActionsDropdown extends Component {
-
-    constructor(props) {
-        super(props)
-
-        this.toggleDropdown = this.toggleDropdown.bind(this)
-
-        this.state = {
-            dropdownOpen: false
-        }
+    
+    state = {
+        dropdownOpen: false
     }
 
-    toggleDropdown() {
+    toggleDropdown = () => {
         this.setState({
         
             dropdownOpen: !this.state.dropdownOpen

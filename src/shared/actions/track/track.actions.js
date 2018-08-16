@@ -20,7 +20,7 @@ export function fetchTrackIfNeeded(trackID) {
 
         const track = track_entities[trackID]
 
-        if (!track || (track && !track.playback_count)) {
+        if (!track || (track && !track.playback_count && !track.loading)) {
             dispatch(getTrack(trackID))
         }
 
@@ -47,12 +47,37 @@ function getTrack(trackID) {
     return dispatch => {
         return dispatch({
             type: actionTypes.TRACK_ADD,
-            payload: fetchTrack(trackID)
-                .then(({ normalized, json }) => {
-                    return {
-                        entities: normalized.entities
+            payload: {
+                promise: fetchTrack(trackID)
+                    .then(({ normalized }) => {
+
+                        let entities = normalized.entities
+
+                        entities.track_entities[trackID].loading = false;
+
+                        return {
+                            entities
+                        }
+                    })
+                    .catch(() => ({
+                        entities: {
+                            track_entities: {
+                                [trackID]: {
+                                    loading: false
+                                }
+                            }
+                        }
+                    })),
+                data: {
+                    entities: {
+                        track_entities: {
+                            [trackID]: {
+                                loading: true
+                            }
+                        }
                     }
-                })
+                }
+            }
         })
     }
 }

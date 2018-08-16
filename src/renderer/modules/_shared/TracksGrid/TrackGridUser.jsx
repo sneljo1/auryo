@@ -1,13 +1,22 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import { IMAGE_SIZES } from '../../../../shared/constants'
-import { abbreviate_number, SC } from '../../../../shared/utils'
-import './TrackGridUser.scss'
-import { Link } from 'react-router-dom'
-import FallbackImage from '../FallbackImage'
-import cn from 'classnames'
+import cn from 'classnames';
+import isEqual from 'lodash/isEqual';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { IMAGE_SIZES } from '../../../../shared/constants';
+import { abbreviate_number, SC } from '../../../../shared/utils';
+import FallbackImage from '../FallbackImage';
+import './TrackGridUser.scss';
 
 class TrackGridUser extends React.Component {
+
+    shouldComponentUpdate(nextProps, nextState) {
+        if (!isEqual(this.props.user, nextProps.user) ||
+            this.props.following !== nextProps.following) {
+            return true
+        }
+        return false
+    }
 
     render() {
 
@@ -42,7 +51,7 @@ class TrackGridUser extends React.Component {
                                 </div>
                             }
                             <a href="javascript:void(0)" className={cn('c_btn outline', { following: following })}
-                               onClick={toggleFollowingFunc}>
+                                onClick={toggleFollowingFunc}>
                                 {following ? <i className="icon-check" /> : <i className="icon-add" />}
                                 <span>{following ? 'Following' : 'Follow'}</span>
                             </a>
