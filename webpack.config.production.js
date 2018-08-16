@@ -30,7 +30,15 @@ export default merge(baseConfig, {
                         fallback: 'style-loader',
                         use: [
                             { loader: 'css-loader', query: { modules: false, sourceMaps: true } },
-                            { loader: 'sass-loader', query: { sourceMaps: true } }
+                            { loader: 'sass-loader', query: { sourceMaps: true } },
+                            {
+                              loader: 'sass-resources-loader',
+                              options: {
+                                resources: [
+                                  path.join(__dirname, 'src', "renderer","css", "bootstrap.imports.scss")
+                                ]
+                              },
+                            }
                         ]
                     })
             },

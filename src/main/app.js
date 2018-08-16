@@ -1,11 +1,11 @@
-import { app, BrowserWindow, Menu, nativeImage, shell } from 'electron'
-import { posCenter } from './utils'
-import { MAIN_WINDOW } from '../config'
-import Logger from './utils/logger'
-import path from 'path'
-import os from 'os'
-import windowStateKeeper from 'electron-window-state'
-import { groupBy } from './utils/utils'
+import { app, BrowserWindow, Menu, nativeImage, shell } from 'electron';
+import windowStateKeeper from 'electron-window-state';
+import os from 'os';
+import path from 'path';
+import { MAIN_WINDOW } from '../config';
+import { posCenter } from './utils';
+import Logger from './utils/logger';
+import { groupBy } from './utils/utils';
 
 const Router = require('electron-router')
 
@@ -47,13 +47,12 @@ export default class Auryo {
         app.setAppUserModelId('com.auryo.core')
 
         // Make the app a single-instance app
-        const _this = this
         const shouldQuit = app.makeSingleInstance(() => {
-            if (_this.mainWindow) {
-                if (_this.mainWindow.isMinimized()) _this.mainWindow.restore()
-                _this.mainWindow.focus()
-                _this.mainWindow.show()
-                _this.mainWindow.setSkipTaskbar(false)
+            if (this.mainWindow) {
+                if (this.mainWindow.isMinimized()) this.mainWindow.restore()
+                this.mainWindow.focus()
+                this.mainWindow.show()
+                this.mainWindow.setSkipTaskbar(false)
                 if (app.dock && app.dock.show) app.dock.show()
             }
         })

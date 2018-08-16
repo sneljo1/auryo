@@ -12,8 +12,6 @@ import { EVENTS } from '../../shared/constants/events';
 
 export default class IPCManager extends IFeature {
 
-    socket
-
     register() {
         this.on(EVENTS.APP.RESTART, () => {
             app.relaunch({ args: process.argv.slice(1).concat(['--relaunch']) });
@@ -71,15 +69,9 @@ export default class IPCManager extends IFeature {
             this.startLoginSocket();
 
             if (this.socket.connected) {
-                login();
+                this.login();
             } else {
-                this.socket.on('connect', login);
-            }
-
-            function login() {
-                shell.openExternal(getConnectUrl(this.socket.id));
-                this.store.dispatch(setLoginLoading(false));
-                this.socket.removeListener('connect', login);
+                this.socket.on('connect', this.login);
             }
 
             if (this.socket && !this.socket.connected) {
@@ -93,7 +85,7 @@ export default class IPCManager extends IFeature {
                 if (loading) {
                     this.store.dispatch(setLoginError('Timed out, login took longer than expected'));
                     if (this.socket) {
-                        this.socket.removeListener('connect', login);
+                        this.socket.removeListener('connect', this.login);
                         this.socket.disconnect();
                     }
                 }
@@ -101,8 +93,13 @@ export default class IPCManager extends IFeature {
         });
     }
 
+    login = () => {
+        shell.openExternal(getConnectUrl(this.socket.id));
+        this.store.dispatch(setLoginLoading(false));
+        this.socket.removeListener('connect', this.login);
+    }
 
-    startLoginSocket() {
+    startLoginSocket = () => {
         if (!this.socket) {
             this.socket = io(BASE_URL);
 

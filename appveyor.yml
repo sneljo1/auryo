@@ -19,7 +19,7 @@ build_script:
   - npm --version
   - npm run build
   # run tests
-  - npm run test-e2e
+  - npm run test-e2e -- --retries 2
 
 deploy_script:
 - cmd: npm run release:win

@@ -49,3 +49,4 @@ main.js.map
 .env
 .env*
 src/.env*
+xunit.xml
