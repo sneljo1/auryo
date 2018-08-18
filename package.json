@@ -168,6 +168,7 @@
     "express": "^4.14.0",
     "fbjs-scripts": "^0.7.1",
     "file-loader": "^1.1.11",
+    "html-webpack-plugin": "^4.0.0-alpha",
     "identity-obj-proxy": "^3.0.0",
     "jsdom": "^9.9.1",
     "json-loader": "^0.5.4",

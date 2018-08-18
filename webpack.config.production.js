@@ -7,6 +7,7 @@ import path from 'path';
 import webpack from 'webpack';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 import merge from 'webpack-merge';
+import HtmlWebpackPlugin from "html-webpack-plugin";
 import baseConfig from './webpack.config.base';
 
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
@@ -17,7 +18,7 @@ export default merge(baseConfig, {
 
     target: 'electron-renderer',
 
-    entry: ['babel-polyfill', path.join(__dirname, 'src', 'renderer', 'index.jsx')],
+    entry: [path.join(__dirname, 'src', 'renderer', 'index.jsx')],
 
     output: {
         path: path.join(__dirname, 'src/dist'),
@@ -31,7 +32,10 @@ export default merge(baseConfig, {
                 test: /\.scss$/,
                 use: [
                     {
-                        loader: MiniCssExtractPlugin.loader
+                        loader: MiniCssExtractPlugin.loader,
+                        options: {
+                            publicPath: './'
+                        }
                     },
                     { loader: 'css-loader', query: { modules: false, sourceMaps: true } },
                     { loader: 'sass-loader', query: { sourceMaps: true } },
@@ -131,7 +135,9 @@ export default merge(baseConfig, {
             DEBUG_PROD: 'false'
         }),
 
-        new MiniCssExtractPlugin('style.css'),
+        new MiniCssExtractPlugin({
+            filename: 'style.css'
+        }),
 
         new BundleAnalyzerPlugin({
             analyzerMode:
