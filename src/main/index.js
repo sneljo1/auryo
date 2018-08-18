@@ -1,6 +1,6 @@
-import config from '../config'
 import { app } from 'electron'
 import os from 'os'
+import config from '../config'
 import settings from './settings'
 import { configureStore } from './store'
 import Auryo from './app'
@@ -15,9 +15,7 @@ if (process.argv.some(arg => arg === '--development') || process.argv.some(arg =
     process.env.ENV = 'development'
 }
 
-
 const { init } = require('@sentry/electron')
-
 
 const sendCrashReports = settings.get('app.crashReports')
 
@@ -34,7 +32,6 @@ if (sendCrashReports && process.env.NODE_ENV === 'production') {
 const store = configureStore()
 
 const auryo = new Auryo(store)
-
 
 // Quit when all windows are closed
 app.on('window-all-closed', () => {

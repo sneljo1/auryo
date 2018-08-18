@@ -1,11 +1,11 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import './sidebar.scss'
-import cn from 'classnames'
-import SideBarPlaylist from './playlist/SideBarPlaylist'
-import { NavLink, withRouter } from 'react-router-dom'
-import isEqual from 'lodash/isEqual'
-import CustomScroll from '../../../_shared/CustomScroll'
+import cn from 'classnames';
+import isEqual from 'lodash/isEqual';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { NavLink, withRouter } from 'react-router-dom';
+import CustomScroll from '../../../_shared/CustomScroll';
+import SideBarPlaylist from './playlist/SideBarPlaylist';
+import './sidebar.scss';
 
 class SideBar extends React.Component {
 
@@ -31,8 +31,8 @@ class SideBar extends React.Component {
                 <div className="drag-strip" />
 
                 <CustomScroll heightRelativeToParent="100%"
-                              allowOuterScroll={true}>
-                    <div id="sidebar-menu">
+                              allowOuterScroll>
+                    <div key="sidebar-menu" id="sidebar-menu">
                         <h2>Discover</h2>
                         <ul className="nav flex-column">
                             <li className="navItem">

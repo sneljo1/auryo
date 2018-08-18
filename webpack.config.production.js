@@ -1,17 +1,20 @@
 /**
  * Build config for electron 'Renderer Process' file
  */
+import ExtractTextPlugin from 'extract-text-webpack-plugin';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
+import OptimizeCSSAssetsPlugin from 'optimize-css-assets-webpack-plugin';
 import path from 'path';
 import webpack from 'webpack';
-import ExtractTextPlugin from 'extract-text-webpack-plugin';
+import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 import merge from 'webpack-merge';
-import HtmlWebpackPlugin from 'html-webpack-plugin';
-import MinifyPlugin from 'babili-webpack-plugin';
 import baseConfig from './webpack.config.base';
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
-import LodashModuleReplacementPlugin from 'lodash-webpack-plugin';
 
 export default merge(baseConfig, {
+    mode: 'production',
+
+    target: 'electron-renderer',
 
     entry: ['babel-polyfill', path.join(__dirname, 'src', 'renderer', 'index.jsx')],
 
@@ -101,9 +104,26 @@ export default merge(baseConfig, {
         ]
     },
 
+    optimization: {
+        minimizer: [
+          new UglifyJSPlugin({
+            parallel: true,
+            sourceMap: true
+          }),
+          new OptimizeCSSAssetsPlugin({
+            cssProcessorOptions: {
+              map: {
+                inline: false,
+                annotation: true
+              }
+            }
+          })
+        ]
+      },
+
     plugins: [
 
-        new LodashModuleReplacementPlugin(),
+        // new LodashModuleReplacementPlugin(),
         /**
          * Create global constants which can be configured at compile time.
          *
@@ -118,16 +138,6 @@ export default merge(baseConfig, {
             DEBUG_PROD: 'false'
         }),
 
-        /**
-         * Babli is an ES6+ aware minifier based on the Babel toolchain (beta)
-         */
-        new MinifyPlugin(),
-
-        new UglifyJSPlugin({
-            parallel: true,
-            sourceMap: true
-        }),
-
         new ExtractTextPlugin('style.css'),
 
         /**
@@ -137,9 +147,13 @@ export default merge(baseConfig, {
             filename: '../app.html',
             template: 'src/renderer/app.html',
             inject: false
+        }),
+
+        new BundleAnalyzerPlugin({
+          analyzerMode:
+            process.env.OPEN_ANALYZER === 'true' ? 'server' : 'disabled',
+          openAnalyzer: process.env.OPEN_ANALYZER === 'true'
         })
     ],
-
-    // https://github.com/chentsulin/webpack-target-electron-renderer#how-this-module-works
-    target: 'electron-renderer'
+    
 });

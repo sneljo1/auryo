@@ -1,16 +1,19 @@
 /**
  * Build config for electron 'Main Process' file
  */
-import webpack from "webpack";
+import UglifyJSPlugin from 'uglifyjs-webpack-plugin';
+import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 import merge from "webpack-merge";
-import MinifyPlugin from "babili-webpack-plugin";
 import baseConfig from "./webpack.config.base";
-import path from "path";
 
 export default merge(baseConfig, {
     devtool: 'source-map',
 
-    entry: ['babel-polyfill', './src/main/index'],
+    mode: 'production',
+
+    target: 'electron-main',
+
+    entry: ['./src/main/index'],
 
     // 'main.js' in root
     output: {
@@ -18,28 +21,22 @@ export default merge(baseConfig, {
         filename: './src/main.js'
     },
 
+    optimization: {
+        minimizer: [
+            new UglifyJSPlugin({
+                parallel: true,
+                sourceMap: true
+            })
+        ]
+    },
+
     plugins: [
-        /**
-         * Babli is an ES6+ aware minifier based on the Babel toolchain (beta)
-         */
-        new MinifyPlugin(),
-
-        /**
-         * Create global constants which can be configured at compile time.
-         *
-         * Useful for allowing different behaviour between development builds and
-         * release builds
-         *
-         * NODE_ENV should be production so that modules do not perform certain
-         * development checks
-         */
+        new BundleAnalyzerPlugin({
+            analyzerMode:
+                process.env.OPEN_ANALYZER === 'true' ? 'server' : 'disabled',
+            openAnalyzer: process.env.OPEN_ANALYZER === 'true'
+        }),
     ],
-
-    /**
-     * Set target to Electron specific node.js env.
-     * https://github.com/chentsulin/webpack-target-electron-renderer#how-this-module-works
-     */
-    target: 'electron-main',
 
     /**
      * Disables webpack processing of __dirname and __filename.

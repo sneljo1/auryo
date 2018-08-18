@@ -26,22 +26,20 @@ class SideBarPlaylist extends React.Component {
         return (
             <div>
                 {
-                    playlists.map((playlist, i) => {
-                        return (
-                            <li key={`sidebar-${playlist.id}`}
-                                className={`navItem ${playlist.id === +currentPlaylistId ? 'playing' : null}`}>
-                                <NavLink to={'/playlist/' + playlist.id}
-                                         className="navLink"
-                                         activeClassName="active">
-                                    <TextTruncate
-                                        clamp={1}
-                                    >
-                                        {playlist.title}
-                                    </TextTruncate>
-                                </NavLink>
-                            </li>
-                        )
-                    })
+                    playlists.map((playlist) => (
+                        <div key={`sidebar-${playlist.id}`}
+                            className={`navItem ${playlist.id === +currentPlaylistId ? 'playing' : null}`}>
+                            <NavLink to={`/playlist/${playlist.id}`}
+                                className="navLink"
+                                activeClassName="active">
+                                <TextTruncate
+                                    clamp={1}
+                                >
+                                    {playlist.title}
+                                </TextTruncate>
+                            </NavLink>
+                        </div>
+                    ))
                 }
             </div>
         )

@@ -1,8 +1,7 @@
-import { version } from './package.json'
+import is from "electron-is";
+import { version } from './package.json';
 
 const BASE_URL = 'http://api.auryo.com'
-
-import is from "electron-is";
 
 let downloadPath = "";
 
@@ -28,7 +27,7 @@ export default {
 
     // App
 
-    MAIN_WINDOW: 'file://' + __dirname + '/renderer/app.html',
+    MAIN_WINDOW: `file://${  __dirname  }/renderer/app.html`,
     STREAM_CHECK_INTERVAL: 60000,
     UPDATE_SERVER_HOST: 'https://api.github.com/repos/Superjo149/Auryo/releases/latest',
 
@@ -37,7 +36,7 @@ export default {
     DEFAULT_CONFIG: {
         token: process.env.TOKEN ? process.env.TOKEN : null,
         volume: .5,
-        version: version,
+        version,
         hideReposts: false,
         enableProxy: false,
         proxy: {

@@ -58,7 +58,7 @@ export default class Auryo {
         })
 
         if (shouldQuit) {
-            app.quit()
+            app.exit()
         }
     }
 

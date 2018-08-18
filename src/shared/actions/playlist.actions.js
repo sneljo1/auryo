@@ -1,19 +1,18 @@
-import { SC } from '../utils'
-import { actionTypes, OBJECT_TYPES, PLAYLISTS } from '../constants'
-import { STREAM_CHECK_INTERVAL } from '../../config'
-import { getPlaylist, setObject } from './objectActions'
-import fetchPlaylists from '../api/fetchPlaylists'
-import fetchPlaylist from '../api/fetchPlaylist'
-import fetchTrackList from '../api/fetchTrackList'
-import fetchToJson from '../api/helpers/fetchToJson'
-import { trackSchema } from '../schemas'
-import { normalize, schema } from 'normalizr'
-import { IMAGE_SIZES } from '../constants'
-import { actions as toastrActions, toastr } from 'react-redux-toastr'
-import ReactImageFallback from '../../renderer/modules/_shared/FallbackImage'
-import React from 'react'
-import { Link } from 'react-router-dom'
-import { hide } from 'redux-modal'
+import { normalize, schema } from 'normalizr';
+import React from 'react';
+import { actions as toastrActions, toastr } from 'react-redux-toastr';
+import { Link } from 'react-router-dom';
+import { hide } from 'redux-modal';
+import { STREAM_CHECK_INTERVAL } from '../../config';
+import ReactImageFallback from '../../renderer/modules/_shared/FallbackImage';
+import fetchPlaylist from '../api/fetchPlaylist';
+import fetchPlaylists from '../api/fetchPlaylists';
+import fetchTrackList from '../api/fetchTrackList';
+import fetchToJson from '../api/helpers/fetchToJson';
+import { actionTypes, IMAGE_SIZES, OBJECT_TYPES, PLAYLISTS } from '../constants';
+import { trackSchema } from '../schemas';
+import { SC } from '../utils';
+import { getPlaylist, setObject } from './objectActions';
 
 let updaterInterval
 
@@ -200,7 +199,7 @@ export function togglePlaylistTrack(trackId, playlistId) {
                             showCloseButton: false,
                             component: (
                                 <div>
-                                    {(!add ? 'Added track to ' : 'Removed track from ') + 'playlist '} <Link
+                                    {`Track ${add ? 'added to' : 'removed from'  } playlist `} <Link
                                     onClick={() => {
                                         dispatch(toastrActions.remove(`addtoplaylist-${add}-${playlist_entitity.id}`))
                                         dispatch(hide('addToPlaylist'))
