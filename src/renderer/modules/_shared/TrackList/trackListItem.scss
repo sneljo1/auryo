@@ -64,6 +64,7 @@
       text-overflow: ellipsis;
       border-top: none !important;
       vertical-align: middle;
+      padding: 8px;
     }
 
     td:first-child {
@@ -78,8 +79,8 @@
       position: relative;
       z-index: 1;
       img {
-        width: 50px;
-        height: 50px;
+        width: 40px;
+        height: 40px;
         border-radius: 10px;
         &.shadow {
           position: absolute;

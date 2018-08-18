@@ -1,19 +1,19 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import { connect } from 'react-redux'
-import * as actions from '../../../shared/actions'
-import { CHART_SORT_TYPE, PLAYLISTS } from '../../../shared/constants'
-import TracksGrid from '../_shared/TracksGrid/TracksGrid'
-import Spinner from '../_shared/Spinner/Spinner'
-import CustomScroll from '../_shared/CustomScroll'
-import { withRouter } from 'react-router-dom'
-import { denormalize, schema } from 'normalizr'
-import playlistSchema from '../../../shared/schemas/playlist'
-import trackSchema from '../../../shared/schemas/track'
-import Header from '../app/components/Header/Header'
-import WithHeaderComponent from '../_shared/WithHeaderComponent'
-import cn from 'classnames'
-import PageHeader from '../_shared/PageHeader/PageHeader'
+import cn from 'classnames';
+import { denormalize, schema } from 'normalizr';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
+import * as actions from '../../../shared/actions';
+import { CHART_SORT_TYPE, PLAYLISTS } from '../../../shared/constants';
+import playlistSchema from '../../../shared/schemas/playlist';
+import trackSchema from '../../../shared/schemas/track';
+import Header from '../app/components/Header/Header';
+import CustomScroll from '../_shared/CustomScroll';
+import PageHeader from '../_shared/PageHeader/PageHeader';
+import Spinner from '../_shared/Spinner/Spinner';
+import TracksGrid from '../_shared/TracksGrid/TracksGrid';
+import WithHeaderComponent from '../_shared/WithHeaderComponent';
 
 class PlayListPage extends WithHeaderComponent {
 
@@ -110,16 +110,29 @@ class PlayListPage extends WithHeaderComponent {
                     <h2>{title}</h2>
                 </PageHeader>
 
-                <TracksGrid
-                    followings={followings}
-                    items={items}
-                    player={player}
-                    playlist_name={object_id}
-                    showInfo={showInfo}
-                    entities={entities}
-                    playTrackFunc={playTrack}
-                    fetchPlaylistIfNeededFunc={fetchPlaylistIfNeeded}
-                />
+                {
+                    (!items || !items.length) ? (
+                        <div className="pt-5 mt-5">
+                            <h5 className='text-muted text-center'>That's unfortunate, you don't seem to have any tracks inhere</h5>
+                            <div className="text-center" style={{ fontSize: '5rem' }}>
+                                🧐
+                            </div>
+                        </div>
+                    ) : (
+                            <TracksGrid
+                                followings={followings}
+                                items={items}
+                                player={player}
+                                playlist_name={object_id}
+                                showInfo={showInfo}
+                                entities={entities}
+                                playTrackFunc={playTrack}
+                                fetchPlaylistIfNeededFunc={fetchPlaylistIfNeeded}
+                            />
+                        )
+                }
+
+
             </CustomScroll>
         )
     }

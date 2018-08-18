@@ -37,6 +37,7 @@
     "cleanup": "mop -v"
   },
   "build": {
+    "generateUpdatesFilesForAllChannels": true,
     "productName": "Auryo",
     "files": [
       "dist/**/*",

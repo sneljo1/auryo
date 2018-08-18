@@ -162,14 +162,11 @@ class TrackPage extends WithHeaderComponent {
                     <Row className="trackHeader">
 
 
-                        <Col xs="12" md="4" xl="2">
+                        <Col xs="12" md="4" xl="3">
                             <div className="imageWrapper">
-
                                 <FallbackImage
                                     src={SC.getImageUrl(track, IMAGE_SIZES.LARGE)}
                                     id={track.id} />
-
-
                             </div>
                         </Col>
 
