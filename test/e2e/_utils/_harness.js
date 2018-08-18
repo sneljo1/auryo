@@ -17,9 +17,9 @@ export const harness = (name, fn, handleSignIn = true, handleFirstStart = true) 
         global.app = null;
 
         before(() => {
-            return getToken("2-287042-188992902-5mhQdjiJaVeGHD")
+            return getToken("2-287045-188992902-uEbyRCd1IqvEQ4")
                 .then((token) => {
-                    if(!token){
+                    if (!token) {
                         return Promise.reject("Token not set")
                     }
 
@@ -27,18 +27,19 @@ export const harness = (name, fn, handleSignIn = true, handleFirstStart = true) 
                         path: electron,
                         env: {
                             TOKEN: token,
-                            NODE_ENV: 'development'
+                            NODE_ENV: 'production'
                         },
-                        args: [path.join(__dirname, '..', '..', '..', 'src'),"--dev"],
+                        args: [path.join(__dirname, '..', '..', '..', 'src'),'--dev'],
                     });
 
                     return app.start()
                 }).then(() => {
                     chaiAsPromised.transferPromiseness = app.transferPromiseness;
+                    console.log("app started")
                     return app;
                 })
                 .catch((e) => {
-                    console.log('ERR starting app or getting token: ',e)
+                    console.log('ERR starting app or getting token: ', e)
                     process.exit(1)
                 })
         });

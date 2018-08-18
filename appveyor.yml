@@ -2,28 +2,38 @@ image: Visual Studio 2017
 platform:
   - x64
 
+environment:
+  matrix:
+    - nodejs_version: 8.9
+
 cache:
-  - node_modules
+  - '%LOCALAPPDATA%/Yarn'
+  - node_modules -> package.json
+  - src/node_modules -> src/package.json
   - '%USERPROFILE%\.electron'
 
 init:
   - git config --global core.autocrlf input
 
 install:
-  - ps: Install-Product node 8 x64
-  - npm install
+  - ps: Install-Product node $env:nodejs_version x64
+  - set CI=true
+  - yarn
 
 build_script:
   # Output useful info for debugging.
   - node --version
-  - npm --version
-  - npm run build
+  - yarn --version
+  - yarn run build
   # run tests
-  - npm run test-e2e -- --retries 2
+  - yarn run test-e2e -- --retries 2
 
 deploy_script:
-- cmd: npm run release:win
+- cmd: yarn run release:win
 
 artifacts:
   - path: 'dist\*.exe'
   - path: 'dist\latest.yml'
+
+on_failure:
+- appveyor PushArtifact test/screenshots/*.png

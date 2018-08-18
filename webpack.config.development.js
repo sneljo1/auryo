@@ -14,6 +14,7 @@ const publicPath = `http://localhost:${port}/dist`;
 
 export default merge(baseConfig, {
     devtool: 'inline-source-map',
+    mode:"development",
 
     entry: [
         'react-hot-loader/patch',
