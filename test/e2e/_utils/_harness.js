@@ -7,13 +7,14 @@ import { getToken } from './_getToken';
 require("dotenv").config()
 chai.should();
 chai.use(chaiAsPromised);
+import fs from "fs"
 
 process.on('unhandledRejection', console.error.bind(console));
 process.on('uncaughtException', console.error.bind(console));
 
 export const harness = (name, fn, handleSignIn = true, handleFirstStart = true) => {
     describe('When Auryo launches', function describeWrap() {
-        this.timeout(100000);
+        this.timeout(50000);
         global.app = null;
 
         before(() => {
@@ -29,7 +30,7 @@ export const harness = (name, fn, handleSignIn = true, handleFirstStart = true) 
                             TOKEN: token,
                             NODE_ENV: 'production'
                         },
-                        args: [path.join(__dirname, '..', '..', '..', 'src'),'--dev'],
+                        args: [path.join(__dirname, '..', '..', '..', 'src'), '--dev'],
                     });
 
                     return app.start()
@@ -51,7 +52,6 @@ export const harness = (name, fn, handleSignIn = true, handleFirstStart = true) 
 
         describe(name, fn);
 
-
         after(() => {
             if (app && app.isRunning()) {
                 return app.stop()
@@ -60,9 +60,13 @@ export const harness = (name, fn, handleSignIn = true, handleFirstStart = true) 
 
         afterEach(function () {
             if (this.currentTest.state === 'failed') {
-                app.browserWindow.capturePage().then(function (imageBuffer) {
-                    fs.writeFile(path.join(__dirname, 'screenshots', new Date().getTime() + '.png'), imageBuffer)
-                })
+                app.browserWindow.capturePage()
+                    .then((imageBuffer) => {
+                        fs.writeFile(path.join(__dirname, '..', '..', 'screenshots', new Date().getTime() + '.png'), imageBuffer, (err) => {
+                            if (err) throw err;
+                            console.log("got screenshot", path.join(__dirname, 'screenshots', new Date().getTime() + '.png'))
+                        })
+                    })
 
                 app.client.getMainProcessLogs()
                     .then((logs) => {

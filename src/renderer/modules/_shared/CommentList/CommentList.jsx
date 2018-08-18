@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import ReactList from 'react-list';
 import Spinner from '../Spinner/Spinner';
 import './commentList.scss';
-import CommentListItem from './CommentListItem';
+import CommentListItem from './CommentListitem';
 
 class CommentList extends Component {
 

@@ -11,7 +11,7 @@ harness("artist page", () => {
         await loaded();
 
         const trackArtist = await app.client
-            .waitForExist('.trackWrapper .trackArtist a:not(.repost)', 5000)
+            .waitForExist('.trackWrapper .trackArtist a:not(.repost)', 10000)
             .element('.trackWrapper .trackArtist a:not(.repost)')
             .getText();
 

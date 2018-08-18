@@ -1,7 +1,6 @@
 /**
  * Build config for electron 'Renderer Process' file
  */
-import HtmlWebpackPlugin from 'html-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import OptimizeCSSAssetsPlugin from 'optimize-css-assets-webpack-plugin';
 import path from 'path';
@@ -37,12 +36,12 @@ export default merge(baseConfig, {
                     { loader: 'css-loader', query: { modules: false, sourceMaps: true } },
                     { loader: 'sass-loader', query: { sourceMaps: true } },
                     {
-                      loader: 'sass-resources-loader',
-                      options: {
-                        resources: [
-                          path.join(__dirname, 'src', "renderer","css", "bootstrap.imports.scss")
-                        ]
-                      },
+                        loader: 'sass-resources-loader',
+                        options: {
+                            resources: [
+                                path.join(__dirname, 'src', "renderer", "css", "bootstrap.imports.scss")
+                            ]
+                        },
                     }
                 ]
             },
@@ -90,16 +89,9 @@ export default merge(baseConfig, {
                     }
                 }
             },
+            // Common Image Formats
             {
-                test: /.*\.(gif|png|jpe?g)$/,
-                use: [
-                    {
-                        loader: 'file-loader'
-                    }
-                ]
-            },
-            {
-                test: /\.(?:ico|webp)$/,
+                test: /\.(?:ico|gif|png|jpg|jpeg|webp)$/,
                 use: 'url-loader'
             }
         ]
@@ -107,20 +99,20 @@ export default merge(baseConfig, {
 
     optimization: {
         minimizer: [
-          new UglifyJSPlugin({
-            parallel: true,
-            sourceMap: true
-          }),
-          new OptimizeCSSAssetsPlugin({
-            cssProcessorOptions: {
-              map: {
-                inline: false,
-                annotation: true
-              }
-            }
-          })
+            new UglifyJSPlugin({
+                parallel: true,
+                sourceMap: true
+            }),
+            new OptimizeCSSAssetsPlugin({
+                cssProcessorOptions: {
+                    map: {
+                        inline: false,
+                        annotation: true
+                    }
+                }
+            })
         ]
-      },
+    },
 
     plugins: [
 
@@ -139,22 +131,13 @@ export default merge(baseConfig, {
             DEBUG_PROD: 'false'
         }),
 
-        new ExtractTextPlugin('style.css'),
-
-        /**
-         * Dynamically generate index.html page
-         */
-        new HtmlWebpackPlugin({
-            filename: '../app.html',
-            template: 'src/renderer/app.html',
-            inject: false
-        }),
+        new MiniCssExtractPlugin('style.css'),
 
         new BundleAnalyzerPlugin({
-          analyzerMode:
-            process.env.OPEN_ANALYZER === 'true' ? 'server' : 'disabled',
-          openAnalyzer: process.env.OPEN_ANALYZER === 'true'
+            analyzerMode:
+                process.env.OPEN_ANALYZER === 'true' ? 'server' : 'disabled',
+            openAnalyzer: process.env.OPEN_ANALYZER === 'true'
         })
     ],
-    
+
 });
