@@ -1,15 +1,17 @@
 /**
  * Build config for electron 'Renderer Process' file
  */
-import ExtractTextPlugin from 'extract-text-webpack-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
+import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import OptimizeCSSAssetsPlugin from 'optimize-css-assets-webpack-plugin';
 import path from 'path';
 import webpack from 'webpack';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 import merge from 'webpack-merge';
 import baseConfig from './webpack.config.base';
+
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
+
 
 export default merge(baseConfig, {
     mode: 'production',
@@ -28,22 +30,21 @@ export default merge(baseConfig, {
             // Pipe other styles through css modules and append to style.css
             {
                 test: /\.scss$/,
-                loader: ExtractTextPlugin
-                    .extract({
-                        fallback: 'style-loader',
-                        use: [
-                            { loader: 'css-loader', query: { modules: false, sourceMaps: true } },
-                            { loader: 'sass-loader', query: { sourceMaps: true } },
-                            {
-                              loader: 'sass-resources-loader',
-                              options: {
-                                resources: [
-                                  path.join(__dirname, 'src', "renderer","css", "bootstrap.imports.scss")
-                                ]
-                              },
-                            }
+                use: [
+                    {
+                        loader: MiniCssExtractPlugin.loader
+                    },
+                    { loader: 'css-loader', query: { modules: false, sourceMaps: true } },
+                    { loader: 'sass-loader', query: { sourceMaps: true } },
+                    {
+                      loader: 'sass-resources-loader',
+                      options: {
+                        resources: [
+                          path.join(__dirname, 'src', "renderer","css", "bootstrap.imports.scss")
                         ]
-                    })
+                      },
+                    }
+                ]
             },
             {
                 test: /\.woff(\?v=\d+\.\d+\.\d+)?$/,
