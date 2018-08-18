@@ -36,5 +36,4 @@ artifacts:
   - path: 'dist\latest.yml'
 
 on_failure:
-  - ls
   - ps: $root = Resolve-Path ./test\screenshots; [IO.Directory]::GetFiles($root.Path, '*.png', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName to-publish }
