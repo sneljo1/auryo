@@ -9,7 +9,7 @@
   "scripts": {
     "prebuild": "rebuild-node-sass",
     "build-test": "cross-env NODE_ENV=test BABEL_DISABLE_CACHE=1 npm run build-main && npm run build-renderer",
-    "test": "cross-env NODE_ENV=test BABEL_DISABLE_CACHE=1 mocha --retries 2 --compilers js:babel-register --recursive --require ./test/setup.js test/**/*.spec.js",
+    "test": "cross-env NODE_ENV=test BABEL_DISABLE_CACHE=1 mocha --retries 2 --compilers js:babel-register --recursive --require test/**/*.spec.js",
     "test-watch": "npm test -- --watch",
     "test-e2e": "cross-env NODE_ENV=test BABEL_DISABLE_CACHE=1 mocha test/e2e/**.spec.js test/e2e/**/*.spec.js --compilers js:babel-core/register -R spec-xunit-file --full-trace ",
     "lint": "eslint --cache --format=node_modules/eslint-formatter-pretty .",

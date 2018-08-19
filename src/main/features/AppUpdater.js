@@ -9,19 +9,11 @@ import { registerError } from '../utils/raven';
 import IFeature from './IFeature';
 import { appVersion } from '../../package.json'
 
-console.log(autoUpdater.getDefaultChannelName())
-
 export default class AppUpdater extends IFeature {
 
     cancelUpdate = null;
 
     currentVersion;
-
-    constructor(auryo) {
-        super(auryo);
-
-        autoUpdater.channel = 'beta'
-    }
 
     register() {
         if (!process.env.TOKEN && process.env.NODE_ENV === 'production') {

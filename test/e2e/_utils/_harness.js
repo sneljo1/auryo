@@ -4,7 +4,9 @@ import chaiAsPromised from 'chai-as-promised';
 import path from 'path';
 import electron from "electron";
 import { getToken } from './_getToken';
-require("dotenv").config()
+
+require("dotenv").config({ path: path.resolve(__dirname, '..', '..', '..', 'src', `.env.development`) })
+
 chai.should();
 chai.use(chaiAsPromised);
 import fs from "fs"
@@ -23,14 +25,14 @@ export const harness = (name, fn, handleSignIn = true, handleFirstStart = true) 
                     if (!token) {
                         return Promise.reject("Token not set")
                     }
-
+                    
                     app = new Application({
                         path: electron,
                         env: {
                             TOKEN: token,
                             NODE_ENV: 'production'
                         },
-                        args: [path.join(__dirname, '..', '..', '..', 'src'), '--dev'],
+                        args: [path.join(__dirname, '..', '..', '..', 'src')],
                     });
 
                     return app.start()
