@@ -14,7 +14,10 @@ export const getToken = (hasToken) => {
         form: {
             client_id: process.env.CLIENT_ID_DEV,
             client_secret: process.env.CLIENT_SECRET_DEV,
-            grant_type: 'client_credentials'
+            grant_type: 'password',
+            username: process.env.SC_USER,
+            password: process.env.SC_PASS
+
         }
     }
 

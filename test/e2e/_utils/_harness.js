@@ -18,7 +18,7 @@ export const harness = (name, fn, handleSignIn = true, handleFirstStart = true) 
         global.app = null;
 
         before(() => {
-            return getToken("2-287045-188992902-uEbyRCd1IqvEQ4")
+            return getToken()
                 .then((token) => {
                     if (!token) {
                         return Promise.reject("Token not set")
