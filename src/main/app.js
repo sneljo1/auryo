@@ -4,7 +4,7 @@ import os from 'os';
 import path from 'path';
 import { CONFIG } from '../config';
 import { posCenter } from './utils';
-import {Logger} from './utils/logger';
+import { Logger } from './utils/logger';
 import { groupBy } from './utils/utils';
 
 const Router = require('electron-router')
@@ -127,13 +127,13 @@ export default class Auryo {
                 const { x, y } = props
                 Menu.buildFromTemplate([{
                     label: 'Inspect element',
-                    click() {
+                    click: () => {
                         this.mainWindow.inspectElement(x, y)
                     }
                 },
                 {
                     label: 'Reload',
-                    click() {
+                    click: () => {
                         this.mainWindow.reload()
                     }
                 }

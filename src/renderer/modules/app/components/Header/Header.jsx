@@ -99,7 +99,7 @@ class Header extends React.Component {
                 >
 
                     <div className="navbar-wrapper" ref={(divElement) => this.divElement = divElement}>
-                        <nav className="navbar">
+                        <nav className="navbar justify-content-between">
                             <div className="d-flex flex-nowrap align-items-center">
                                 <div className="control-nav">
                                     <div className="control-nav-inner flex">
