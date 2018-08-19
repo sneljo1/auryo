@@ -14,10 +14,12 @@ import fs from "fs"
 process.on('unhandledRejection', console.error.bind(console));
 process.on('uncaughtException', console.error.bind(console));
 
-export const harness = (name, fn, handleSignIn = true, handleFirstStart = true) => {
+export const harness = (name, fn) => {
     describe('When Auryo launches', function describeWrap() {
         this.timeout(50000);
         global.app = null;
+
+        global.timeout = null;
 
         before(() => {
             return getToken()
@@ -25,7 +27,7 @@ export const harness = (name, fn, handleSignIn = true, handleFirstStart = true) 
                     if (!token) {
                         return Promise.reject("Token not set")
                     }
-                    
+
                     app = new Application({
                         path: electron,
                         env: {
@@ -35,10 +37,21 @@ export const harness = (name, fn, handleSignIn = true, handleFirstStart = true) 
                         args: [path.join(__dirname, '..', '..', '..', 'src')],
                     });
 
+                    timeout = setTimeout(() => {
+                        app.client.getRenderProcessLogs()
+                            .then((logs) => {
+                                console.log('RENDERER')
+                                logs.forEach((log) => {
+                                    console.log(log.level, log.source, log.message)
+                                })
+                            })
+                    }, 15000)
+
                     return app.start()
                 }).then(() => {
                     chaiAsPromised.transferPromiseness = app.transferPromiseness;
                     console.log("app started")
+                    clearTimeout(timeout);
                     return app;
                 })
                 .catch((e) => {
