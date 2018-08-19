@@ -26,6 +26,7 @@ export const getToken = (hasToken) => {
             if (!error && response.statusCode === 200) {
                 body = JSON.parse(body)
                 if (body.access_token) {
+                    console("got access_token")
                     return resolve(body.access_token)
                 } else {
                     return reject(body)

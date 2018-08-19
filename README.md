@@ -6,11 +6,11 @@
 A beautiful SoundCloud app for your desktop. Using the power of [electron](electronjs.org) we are able to integrate this webapp with native features like touchbar and media key support.
 
 ## Table of Contents
-- [Features](#Features)
-- [Installation](#Installation)
-- [Contributing](#Contributing)
-- [Credits](#Credits)
-- [License](#License)
+- [Features](#features)
+- [Installation](#installation)
+- [Contributing](#contributing)
+- [Credits](#credits)
+- [License](#license)
 
 ## Features
 ![alt text](_media/likes.png)
