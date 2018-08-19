@@ -32,7 +32,6 @@ const test = store => next => action => {
 
         } else if (action.payload.response && action.payload.response.status === 401) {
             store.dispatch(logout())
-
         } else if (message) {
             toastr.error('Unable to execute this action', message)
         }

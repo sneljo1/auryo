@@ -62,7 +62,7 @@ export function playTrack(playlistId, trackIdParam, track_playlist, force_set_pl
             promise = dispatch(setCurrentPlaylist(playlistId, force_set_playlist && next_track ? next_track : null))
         }
 
-        return promise.then(() => {
+        promise.then(() => {
             const {
                 objects,
                 player: {
@@ -126,9 +126,9 @@ export function playTrack(playlistId, trackIdParam, track_playlist, force_set_pl
                     const {
                         objects
                     } = getState()
+
                     const playlists = objects[OBJECT_TYPES.PLAYLISTS] || {}
                     const { items: [firstItem] } = playlists[track_playlist.id]
-
 
                     if (!track_playlist_obj.isFetching && !track_playlist_obj.items.length && track_playlist.track_count !== 0) {
                         throw new Error('This playlist is empty or not available via a third party!')

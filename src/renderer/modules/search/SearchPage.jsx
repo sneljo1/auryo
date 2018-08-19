@@ -146,10 +146,14 @@ Search.propTypes = {
     toggleFollowing: PropTypes.func.isRequired,
     playTrack: PropTypes.func.isRequired,
     fetchPlaylistIfNeeded: PropTypes.func.isRequired,
-    playlist_object: PropTypes.object.isRequired,
+    playlist_object: PropTypes.object,
     auth: PropTypes.object.isRequired,
     player: PropTypes.object.isRequired,
     entities: PropTypes.object.isRequired,
+}
+
+Search.defaultProps = {
+    playlist_object: null
 }
 
 

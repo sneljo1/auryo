@@ -59,7 +59,7 @@ class Header extends React.Component {
         })
     }
 
-    goBack() {
+    goBack = () => {
         const { locHistory: { back }, history } = this.props
 
         if (back) {
@@ -67,7 +67,7 @@ class Header extends React.Component {
         }
     }
 
-    goForward() {
+    goForward = () => {
         const { locHistory: { next }, history } = this.props
 
         if (next) {

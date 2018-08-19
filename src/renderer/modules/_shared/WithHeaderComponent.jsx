@@ -34,8 +34,12 @@ class WithHeaderComponent extends React.Component {
 
 WithHeaderComponent.propTypes = {
     location: PropTypes.object.isRequired,
-    scrollTop: PropTypes.number.isRequired,
+    scrollTop: PropTypes.number,
     setScrollPosition: PropTypes.func.isRequired,
+}
+
+WithHeaderComponent.defaultProps = {
+    scrollTop: null,
 }
 
 export default WithHeaderComponent

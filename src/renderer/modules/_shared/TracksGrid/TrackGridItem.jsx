@@ -208,7 +208,7 @@ class TrackGridItem extends React.Component {
                                 id={track.id}
                                 src={image} />
                             {
-                                track.streamable || track.kind === 'playlist' ? this.renderToggleButton() : null
+                                (track.streamable  || (track.policy && track.policy === "ALLOW")) || track.kind === 'playlist' ? this.renderToggleButton() : null
                             }
                         </div>
 

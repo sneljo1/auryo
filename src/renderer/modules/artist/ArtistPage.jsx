@@ -25,7 +25,7 @@ import WithHeaderComponent from '../_shared/WithHeaderComponent';
 import ArtistProfiles from './components/ArtistProfiles/ArtistProfiles';
 import './index.scss';
 
-class ArtistContainer extends WithHeaderComponent {
+class ArtistPage extends WithHeaderComponent {
 
     state = {
         activeTab: '1',
@@ -374,4 +374,4 @@ const mapStateToProps = (state, props) => {
     }
 }
 
-export default withRouter(connect(mapStateToProps, actions)(ArtistContainer))
+export default withRouter(connect(mapStateToProps, actions)(ArtistPage))

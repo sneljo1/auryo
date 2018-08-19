@@ -7,6 +7,9 @@ import { PLAYER_STATUS } from '../../../../../shared/constants';
 
 class Audio extends React.Component {
     componentDidMount() {
+
+        this._isMounted = true;
+
         const { url } = this.props;
         this.startStream(url)
     }
@@ -23,7 +26,7 @@ class Audio extends React.Component {
             this.startStream(nextProps.url)
         }
 
-        if (this.player.getState() === 'playing' && !this.player.isActuallyPlaying()) {
+        if (this.player && this.player.getState() === 'playing' && !this.player.isActuallyPlaying()) {
             this.startStream(nextProps.url)
         }
 
@@ -41,6 +44,7 @@ class Audio extends React.Component {
     }
 
     componentWillUnmount() {
+        this._isMounted = false;
         if (this.player) {
             this.player.pause()
             this.player.kill()
@@ -48,10 +52,7 @@ class Audio extends React.Component {
         this.player = null
     }
 
-    player = null;
-
     repeat = () => {
-
         if (this.player) {
             this.player.pause()
             this.player.seek(0)
@@ -66,14 +67,18 @@ class Audio extends React.Component {
             this.player.pause()
         }
 
+
         if (url) {
             // eslint-disable-next-line
             SC.stream(url)
                 .then((player) => {
 
+                    // if we don't do this, the player will initialize too soon and it won't start playing
+                    if (!this._isMounted) return;
+
                     this.player = player
 
-                    if (playStatus !== PLAYER_STATUS.PLAYING) {
+                    if (playStatus === PLAYER_STATUS.PLAYING && !this.player.isActuallyPlaying()) {
                         this.play()
                     }
 
@@ -121,14 +126,14 @@ class Audio extends React.Component {
         }
     }
 
-    toggleStatus(value) {
+    toggleStatus = (value) => {
 
         if (!this.player) {
             return
         }
 
         if (!this.player.isPlaying() && value === PLAYER_STATUS.PLAYING) {
-            this.play(this.audio)
+            this.play()
         } else if (this.player.isPlaying() && value === PLAYER_STATUS.PAUSED) {
             this.player.pause()
         } else if (value === PLAYER_STATUS.STOPPED) {

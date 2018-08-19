@@ -3,7 +3,7 @@ import React from 'react';
 import { render } from 'react-dom';
 import { AppContainer } from 'react-hot-loader';
 import { version } from '../../package.json';
-import config from '../config';
+import {CONFIG} from '../config';
 import { SC } from '../shared/utils';
 import { configureStore, history } from './configureStore';
 import './css/app.scss';
@@ -18,7 +18,7 @@ if (!process.env.TOKEN && process.env.NODE_ENV === 'production') {
     if (crashReports) {
         const Raven = require('raven-js')
 
-        Raven.config(config.SENTRY_URL).install()
+        Raven.config(CONFIG.SENTRY_URL).install()
     }
 
     if (analytics) {

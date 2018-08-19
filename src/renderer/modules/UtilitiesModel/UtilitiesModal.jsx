@@ -10,13 +10,11 @@ import SettingsTab from './settings/SettingsTab';
 import './UtilitiesModal.scss';
 
 class UtilitiesModal extends Component {
-    constructor() {
+    constructor(props) {
         super();
 
-        const { activeTab } = this.props;
-
         this.state = {
-            activeTab: activeTab || 'about'
+            activeTab: props.activeTab || 'about' // eslint-disable-line
         }
     }
 

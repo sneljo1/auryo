@@ -21,19 +21,14 @@ const initialState = {
     playlist_pos: []
 };
 
-let position;
-
 export default function player(state = initialState, action) {
     const { payload, type } = action;
 
-    let new_state;
-    let next_pos;
-
     switch (type) {
         case actionTypes.PLAYER_SET_TRACK:
-            position = findIndex(state.queue, payload.next_track)
+            const position = findIndex(state.queue, payload.next_track) // eslint-disable-line
 
-            new_state = {
+            let new_state = { // eslint-disable-line
                 ...state,
                 playingTrack: payload.next_track,
                 status: payload.status,
@@ -84,7 +79,7 @@ export default function player(state = initialState, action) {
         case onSuccess(actionTypes.PLAYER_SET_PLAYLIST):
         case actionTypes.PLAYER_SET_PLAYLIST:
 
-            next_pos = findIndex(payload.items, payload.next_track)
+            const next_pos = findIndex(payload.items, payload.next_track) // eslint-disable-line
 
             if (next_pos !== -1 && state.upNext.length > 0) {
 
@@ -110,7 +105,6 @@ export default function player(state = initialState, action) {
             };
         case onSuccess(actionTypes.PLAYER_QUEUE_INSERT):
         case actionTypes.PLAYER_QUEUE_INSERT:
-
             return {
                 ...state,
                 queue: [
@@ -122,7 +116,7 @@ export default function player(state = initialState, action) {
         case actionTypes.PLAYER_ADD_UP_NEXT:
 
             if (payload.remove !== null) {
-                new_state = {
+                let new_state = { // eslint-disable-line
                     ...state,
                     queue: [
                         ...state.queue.slice(0, payload.remove),

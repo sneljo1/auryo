@@ -1,6 +1,6 @@
 import { app } from "electron";
 import os from "os";
-import config from '../../config';
+import {CONFIG} from '../../config';
 import settings from '../settings';
 import { Logger } from './logger';
 
@@ -16,7 +16,7 @@ export const initialize = () => {
 
     if (sendCrashReports && process.env.NODE_ENV === 'production') {
         init({
-            dsn: config.SENTRY_URL,
+            dsn: CONFIG.SENTRY_URL,
             release: app.getVersion(),
             platform: os.platform(),
             platform_version: os.release(),

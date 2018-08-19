@@ -394,10 +394,13 @@ export function getItemsAround(next_index) {
 
         const items_to_fetch = []
 
+        const lowBound = next_index - 3;
+        const highBound = next_index + 3;
+
         // Get playlists
-        for (let i = (next_index - 3); i < (next_index + 3); i + 1) {
+        for (let i = (lowBound < 0 ? 0 : next_index); i < (highBound > queue.length ? queue.length : highBound); i+=1) {
             const n_track = queue[i]
-            if (i > 0 && i < queue.length && n_track && n_track.id) {
+            if (n_track && n_track.id) {
 
                 const playlist = playlist_entities[n_track.playlistId]
 
