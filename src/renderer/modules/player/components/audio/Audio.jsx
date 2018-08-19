@@ -1,34 +1,14 @@
-import React, { Component } from 'react'
-import PropTypes from 'prop-types'
-import { PLAYER_STATUS } from '../../../../shared/constants'
-import throttle from 'lodash/throttle'
+/* eslint-disable promise/always-return */
 
-class Audio extends Component {
+import throttle from 'lodash/throttle';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { PLAYER_STATUS } from '../../../../../shared/constants';
 
-    constructor() {
-        super()
-
-        this.state = {
-            status: PLAYER_STATUS.STOPPED,
-            loading: false
-        }
-
-        // html audio element used for playback
-        this.player = null
-    }
-
+class Audio extends React.Component {
     componentDidMount() {
-        this.startStream(this.props.url)
-        this._isMounted = true
-    }
-
-    componentWillUnmount() {
-        this._isMounted = false
-        if (this.player) {
-            this.player.pause()
-            this.player.kill()
-        }
-        this.player = null
+        const { url } = this.props;
+        this.startStream(url)
     }
 
     componentWillReceiveProps(nextProps) {
@@ -36,7 +16,6 @@ class Audio extends Component {
 
         if (playFromPosition !== nextProps.playFromPosition && nextProps.playFromPosition !== -1 && this.player) {
             this.player.seek(nextProps.playFromPosition)
-            console.log('nextProps.playFromPosition')
             onTimeUpdate()
         }
 
@@ -61,6 +40,16 @@ class Audio extends Component {
 
     }
 
+    componentWillUnmount() {
+        if (this.player) {
+            this.player.pause()
+            this.player.kill()
+        }
+        this.player = null
+    }
+
+    player = null;
+
     repeat = () => {
 
         if (this.player) {
@@ -71,32 +60,26 @@ class Audio extends Component {
     }
 
     startStream = (url) => {
+        const { volume, playStatus } = this.props;
+
         if (this.player) {
             this.player.pause()
         }
 
         if (url) {
-            this.setState({
-                loading: true
-            })
+            // eslint-disable-next-line
             SC.stream(url)
                 .then((player) => {
 
-                    if (!this._isMounted) return
-
-                    this.setState({
-                        loading: false
-                    })
-
                     this.player = player
 
-                    if (this.props.playStatus === PLAYER_STATUS.PLAYING) {
+                    if (playStatus !== PLAYER_STATUS.PLAYING) {
                         this.play()
                     }
 
                     this.setListeners()
 
-                    this.player.setVolume(this.props.volume)
+                    this.player.setVolume(volume)
                 })
                 .catch((e) => {
                     console.error(e)
@@ -105,17 +88,19 @@ class Audio extends Component {
     }
 
     setListeners = () => {
-        let updateTime = () => {
-            this.props.onPlaying(this.player.currentTime())
+        const { onPlaying, onFinishedPlaying, onLoading } = this.props;
+
+        const updateTime = () => {
+            onPlaying(this.player.currentTime())
         }
 
         const throttleUpdateTimeFunc = throttle(updateTime, 500, { trailing: false })
 
         if (this.player) {
-            this.player.on('finish', this.props.onFinishedPlaying)
+            this.player.on('finish', onFinishedPlaying)
             this.player.on('play-start', () => {
                 if (this.player) {
-                    this.props.onLoading(this.player.getDuration())
+                    onLoading(this.player.getDuration())
                 }
             })
             this.player.on('time', throttleUpdateTimeFunc)
@@ -142,13 +127,9 @@ class Audio extends Component {
             return
         }
 
-        console.log('toggleStatus', value, this.player.isPlaying(), this.player.isActuallyPlaying(), this.player.getState())
         if (!this.player.isPlaying() && value === PLAYER_STATUS.PLAYING) {
-            console.log('toggleStatus  plays')
-
             this.play(this.audio)
         } else if (this.player.isPlaying() && value === PLAYER_STATUS.PAUSED) {
-            console.log('try pause')
             this.player.pause()
         } else if (value === PLAYER_STATUS.STOPPED) {
             this.player.pause()
@@ -165,9 +146,8 @@ class Audio extends Component {
 }
 
 Audio.propTypes = {
-    autoplay: PropTypes.bool,
     url: PropTypes.string.isRequired,
-    playStatus: PropTypes.string,
+    playStatus: PropTypes.string.isRequired,
     volume: PropTypes.number.isRequired,
     playFromPosition: PropTypes.number.isRequired,
     muted: PropTypes.bool.isRequired,
@@ -176,9 +156,7 @@ Audio.propTypes = {
     onLoading: PropTypes.func.isRequired,
     onPlaying: PropTypes.func.isRequired,
     onFinishedPlaying: PropTypes.func.isRequired,
-    offline: PropTypes.bool.isRequired,
     onTimeUpdate: PropTypes.func.isRequired,
-    onStatusChange: PropTypes.func.isRequired
 }
 
 export default Audio

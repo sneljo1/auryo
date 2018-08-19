@@ -1,8 +1,7 @@
-import React from "react";
-import { Link } from "react-router-dom"
-import LazyLoad from 'react-lazyload';
-import PropTypes from "prop-types";
 import cn from "classnames";
+import PropTypes from "prop-types";
+import React from "react";
+import { Link } from "react-router-dom";
 
 const ChartGenre = ({ genre, img }) => (
     <Link to={`/charts/${genre.key}`}>
@@ -10,7 +9,7 @@ const ChartGenre = ({ genre, img }) => (
             <h1>{genre.name}</h1>
             {
                 img && (
-                    <LazyLoad><img src={img} alt={genre.key} /></LazyLoad>
+                    <img src={img} alt={genre.key} />
                 )
             }
 
@@ -26,6 +25,10 @@ const ChartGenre = ({ genre, img }) => (
 ChartGenre.propTypes = {
     genre: PropTypes.object.isRequired,
     img: PropTypes.string
+}
+
+ChartGenre.defaultProps = {
+    img: null
 }
 
 

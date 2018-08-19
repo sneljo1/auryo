@@ -1,13 +1,13 @@
 import React from 'react';
 import './user.scss';
+import PropTypes from "prop-types";
+import { Link } from "react-router-dom";
 
-export const AuthUser = ({ me, push }) => (
+export const AuthUser = ({ me }) => (
     <div className="user">
         {
             me ? (
-                <a className="userPofile" href="javascript:void(0)" onClick={() => {
-                    push('/user/' + me.id);
-                }}>
+                <Link className="userPofile" to={`/user/${me.id}`}>
                     <div className="d-flex align-items-center">
                         <div className="userName">
                             {me.username}
@@ -16,10 +16,14 @@ export const AuthUser = ({ me, push }) => (
                             <img src={me.avatar_url} />
                         </div>
                     </div>
-                </a>
+                </Link>
             ) : null
         }
     </div>
 );
+
+AuthUser.propTypes = {
+    me: PropTypes.object.isRequired
+}
 
 export default AuthUser;

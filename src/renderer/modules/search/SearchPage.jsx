@@ -1,30 +1,21 @@
-import React from 'react'
-import * as actions from '../../../shared/actions'
-import { OBJECT_TYPES, SEARCH_SUFFIX } from '../../../shared/constants'
-import { connect } from 'react-redux'
-import './search.scss'
-import TracksGrid from '../_shared/TracksGrid/TracksGrid'
-import Spinner from '../_shared/Spinner/Spinner'
-import { denormalize, schema } from 'normalizr'
-import playlistSchema from '../../../shared/schemas/playlist'
-import trackSchema from '../../../shared/schemas/track'
-import { userSchema } from '../../../shared/schemas'
-import isEqual from 'lodash/isEqual'
+import isEqual from 'lodash/isEqual';
+import { denormalize, schema } from 'normalizr';
+import PropTypes from "prop-types";
+import React from 'react';
+import { connect } from 'react-redux';
+import * as actions from '../../../shared/actions';
+import { OBJECT_TYPES, SEARCH_SUFFIX } from '../../../shared/constants';
+import { userSchema } from '../../../shared/schemas';
+import playlistSchema from '../../../shared/schemas/playlist';
+import trackSchema from '../../../shared/schemas/track';
+import Spinner from '../_shared/Spinner/Spinner';
+import TracksGrid from '../_shared/TracksGrid/TracksGrid';
+import './search.scss';
 
 class Search extends React.Component {
 
     state = {
         loading: false
-    }
-
-    shouldComponentUpdate(nextProps, nextState) {
-        if (!isEqual(nextProps.query, this.props.query) ||
-            !isEqual(nextProps.playlist_object, this.props.playlist_object) ||
-            !isEqual(nextState.loading, this.state.loading)) {
-            return true
-        }
-        return false
-
     }
 
     componentDidMount() {
@@ -36,7 +27,7 @@ class Search extends React.Component {
                 loading: true
             })
 
-            searchAll(query, 40)
+            return searchAll(query, 40)
                 .then(() => {
                     this.setState({
                         loading: false
@@ -53,7 +44,7 @@ class Search extends React.Component {
                 loading: true
             })
 
-            searchAll(nextProps.query, 40)
+            return searchAll(nextProps.query, 40)
                 .then(() => {
                     this.setState({
                         loading: false
@@ -62,15 +53,30 @@ class Search extends React.Component {
         }
     }
 
+    shouldComponentUpdate(nextProps, nextState) {
+        const { query, playlist_object } = this.props;
+        const { loading } = this.state;
+
+        if (!isEqual(nextProps.query, query) ||
+            !isEqual(nextProps.playlist_object, playlist_object) ||
+            !isEqual(nextState.loading, loading)) {
+            return true
+        }
+        return false
+
+    }
+
     hasMore = () => {
-        return this.props.canFetchMoreOf(this.props.object_id, OBJECT_TYPES.PLAYLISTS)
+        const { canFetchMoreOf, object_id } = this.props;
+
+        return canFetchMoreOf(object_id, OBJECT_TYPES.PLAYLISTS)
     }
 
     loadMore = () => {
-        const { object_id } = this.props;
+        const { canFetchMoreOf, fetchMore, object_id } = this.props;
 
-        if (this.props.canFetchMoreOf(object_id, OBJECT_TYPES.PLAYLISTS)) {
-            this.props.fetchMore(object_id, OBJECT_TYPES.PLAYLISTS)
+        if (canFetchMoreOf(object_id, OBJECT_TYPES.PLAYLISTS)) {
+            fetchMore(object_id, OBJECT_TYPES.PLAYLISTS)
         }
     }
 
@@ -84,10 +90,13 @@ class Search extends React.Component {
             toggleFollowing,
             playTrack,
             playlist_object,
-            object_id
+            object_id,
+            query
         } = this.props
 
-        if (this.state.loading) {
+        const { loading } = this.state;
+
+        if (loading) {
             return (
                 <div className="pt-5 mt-5">
                     <Spinner contained />
@@ -98,9 +107,9 @@ class Search extends React.Component {
         if (!results || !results.length && (playlist_object && !playlist_object.isFetching)) {
             return (
                 <div className="pt-5 mt-5">
-                    <h5 className='text-muted text-center'>{this.props.query ? `No results for "${this.props.query}"` : 'Search for people, tracks and albums'}</h5>
+                    <h5 className='text-muted text-center'>{query ? `No results for "${query}"` : 'Search for people, tracks and albums'}</h5>
                     <div className="text-center" style={{ fontSize: '5rem' }}>
-                        {this.props.query ? '😭' : '🕵️‍'}
+                        {query ? '😭' : '🕵️‍'}
                     </div>
                 </div>
             )
@@ -125,6 +134,22 @@ class Search extends React.Component {
             </div>
         )
     }
+}
+
+Search.propTypes = {
+    query: PropTypes.string.isRequired,
+    results: PropTypes.array.isRequired,
+    object_id: PropTypes.string.isRequired,
+    searchAll: PropTypes.func.isRequired,
+    canFetchMoreOf: PropTypes.func.isRequired,
+    fetchMore: PropTypes.func.isRequired,
+    toggleFollowing: PropTypes.func.isRequired,
+    playTrack: PropTypes.func.isRequired,
+    fetchPlaylistIfNeeded: PropTypes.func.isRequired,
+    playlist_object: PropTypes.object.isRequired,
+    auth: PropTypes.object.isRequired,
+    player: PropTypes.object.isRequired,
+    entities: PropTypes.object.isRequired,
 }
 
 

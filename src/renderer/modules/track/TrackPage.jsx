@@ -1,3 +1,4 @@
+/* eslint-disable react/no-this-in-sfc */
 import { Menu, MenuDivider, MenuItem, Popover, Position } from '@blueprintjs/core';
 import cn from 'classnames';
 import moment from 'moment';
@@ -42,10 +43,10 @@ class TrackPage extends WithHeaderComponent {
     }
 
     componentWillReceiveProps(nextProps) {
-        const { fetchTrackIfNeeded, params: { songId } } = this.props
+        const { fetchTrackIfNeeded, params: { songId } } = nextProps
 
         // if (songId !== nextProps.params.songId) {
-        fetchTrackIfNeeded(nextProps.params.songId)
+        fetchTrackIfNeeded(songId)
         // }
     }
 
@@ -55,25 +56,6 @@ class TrackPage extends WithHeaderComponent {
                 activeTab: tab
             })
         }
-    }
-
-    renderToggleButton = () => {
-        const { params: { songId }, playTrack, object_id, player: { queue, playingTrack } } = this.props
-
-        if (playingTrack.id !== null && (playingTrack.id === +songId)) {
-            return <TogglePlay className="c_btn round playButton" />
-        }
-
-        const playTrackFunc = playTrack.bind(null, object_id, +songId, null)
-
-        const icon = (playingTrack.id === songId) ? 'pause' : 'play_arrow'
-
-        return (
-
-            <a href="javascript:void(0)" className="c_btn round playButton" onClick={playTrackFunc}>
-                <i className={`icon-${icon}`} />
-            </a>
-        )
     }
 
     toggleRepost = (trackID, e) => {
@@ -98,6 +80,25 @@ class TrackPage extends WithHeaderComponent {
         }
 
         return false
+    }
+
+    renderToggleButton = () => {
+        const { params: { songId }, playTrack, object_id, player: { playingTrack } } = this.props
+
+        if (playingTrack.id !== null && (playingTrack.id === +songId)) {
+            return <TogglePlay className="c_btn round playButton" />
+        }
+
+        const playTrackFunc = playTrack.bind(null, object_id, +songId, null)
+
+        const icon = (playingTrack.id === songId) ? 'pause' : 'play_arrow'
+
+        return (
+
+            <a href="javascript:void(0)" className="c_btn round playButton" onClick={playTrackFunc}>
+                <i className={`icon-${icon}`} />
+            </a>
+        )
     }
 
     render() {
@@ -354,7 +355,7 @@ TrackPage.defaultProps = {
 }
 
 const mapStateToProps = (state, props) => {
-    const { location } = props
+    const { location, history } = props
     const { songId } = props.match.params
     const { entities, player, objects, auth, ui } = state
     const playlist_objects = objects[OBJECT_TYPES.PLAYLISTS] || {}

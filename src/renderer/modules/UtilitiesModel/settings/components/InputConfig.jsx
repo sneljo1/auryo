@@ -5,48 +5,38 @@ import cn from "classnames";
 
 class InputConfig extends React.PureComponent {
 
-    static propTypes = {
-        config: PropTypes.object,
-        setConfigKey: PropTypes.func,
-        configKey: PropTypes.string,
-        name: PropTypes.string,
-        type: PropTypes.string,
-        className: PropTypes.string,
-        onChange: PropTypes.func,
-        usePlaceholder: PropTypes.bool,
-        invalid: PropTypes.bool
-    }
-
-    static defaultProps = {
-        className: "",
-        invalid: false
-    }
-
     constructor() {
         super()
 
-        this.state = {
-            isChecked: null
-        }
+        this.saveDebounced = debounce(this.handleChange.bind(this), 50)
+    }
 
-        this.saveDebounced = debounce(this._handleChange.bind(this), 50)
+    handleChange = () => {
+        const { configKey, onChange, setConfigKey } = this.props
+
+        if (onChange) {
+            onChange(this.input.value, setConfigKey.bind(this, configKey, this.input.value))
+        } else {
+            setConfigKey(configKey, this.input.value)
+        }
     }
 
 
     render() {
-        const { configKey, name, config, type, className, usePlaceholder } = this.props
+        const { configKey, name, config, type, className, usePlaceholder, invalid } = this.props
 
         const value = configKey.split('.').reduce((o, i) => o[i], config)
 
         return (
             <div className={`setting${className}`}>
                 {
-                    !usePlaceholder && <label>{name}</label>
+                    !usePlaceholder && <label htmlFor={name}>{name}</label>
                 }
                 <input type={type || 'text'}
                     className={cn("form-control form-control-sm ", {
-                        "is-invalid": this.props.invalid
+                        "is-invalid": invalid
                     })}
+                    name={name}
                     onChange={this.saveDebounced}
                     ref={r => this.input = r}
                     placeholder={usePlaceholder ? name : undefined}
@@ -55,17 +45,25 @@ class InputConfig extends React.PureComponent {
         )
     }
 
-    _handleChange(e, v) {
-        const { configKey } = this.props
-
-        if (this.props.onChange) {
-            this.props.onChange(this.input.value, this.props.setConfigKey.bind(this, configKey, this.input.value))
-        } else {
-            this.props.setConfigKey(configKey, this.input.value)
-        }
-    }
-
 }
 
+InputConfig.propTypes = {
+    config: PropTypes.object.isRequired,
+    setConfigKey: PropTypes.func.isRequired,
+    configKey: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    className: PropTypes.string,
+    type: PropTypes.string,
+    onChange: PropTypes.func,
+    usePlaceholder: PropTypes.bool,
+    invalid: PropTypes.bool,
+}
+InputConfig.defaultProps = {
+    type: null,
+    onChange: null,
+    usePlaceholder: false,
+    className: "",
+    invalid: false
+}
 
 export default InputConfig

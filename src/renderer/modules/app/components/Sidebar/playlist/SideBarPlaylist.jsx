@@ -1,30 +1,24 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import TextTruncate from 'react-dotdotdot'
-import { NavLink, withRouter } from 'react-router-dom'
-import isEqual from 'lodash/isEqual'
+import isEqual from 'lodash/isEqual';
+import PropTypes from 'prop-types';
+import React from 'react';
+import TextTruncate from 'react-dotdotdot';
+import { NavLink, withRouter } from 'react-router-dom';
 
 class SideBarPlaylist extends React.Component {
-    static propTypes = {
-        playlists: PropTypes.array.isRequired,
-        currentPlaylistId: PropTypes.string
-    }
 
-    static defaultProps = {
-        playlists: []
-    }
+    shouldComponentUpdate(nextProps) {
+        const { playlists, location, currentPlaylistId } = this.props;
 
-    shouldComponentUpdate(nextProps, nextState, nextContext) {
-        return !isEqual(this.props.playlists.length, nextProps.playlists.length) ||
-            !isEqual(this.props.location, nextProps.location) ||
-            !isEqual(this.props.currentPlaylistId, nextProps.currentPlaylistId)
+        return !isEqual(playlists.length, nextProps.playlists.length) ||
+            !isEqual(location, nextProps.location) ||
+            !isEqual(currentPlaylistId, nextProps.currentPlaylistId)
     }
 
     render() {
         const { playlists, currentPlaylistId } = this.props
 
         return (
-            <div>
+            <React.Fragment>
                 {
                     playlists.map((playlist) => (
                         <div key={`sidebar-${playlist.id}`}
@@ -41,9 +35,18 @@ class SideBarPlaylist extends React.Component {
                         </div>
                     ))
                 }
-            </div>
+            </React.Fragment>
         )
     }
 }
 
+SideBarPlaylist.propTypes = {
+    playlists: PropTypes.array.isRequired,
+    location: PropTypes.object.isRequired,
+    currentPlaylistId: PropTypes.string
+}
+
+SideBarPlaylist.defaultProps = {
+    currentPlaylistId: null
+}
 export default withRouter(SideBarPlaylist)

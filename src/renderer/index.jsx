@@ -1,17 +1,13 @@
-import React from 'react'
-import { render } from 'react-dom'
-import { configureStore, history } from './configureStore'
-import Root from './Root'
-import { AppContainer } from 'react-hot-loader'
-import { SC } from '../shared/utils'
-import './css/app.scss'
-import { version } from '../../package.json'
-import config from '../config'
-
-if (process.env.NODE_ENV !== 'production') {
-    //const { whyDidYouUpdate } = require('why-did-you-update')
-    //whyDidYouUpdate(React)
-}
+/* eslint-disable global-require */
+import React from 'react';
+import { render } from 'react-dom';
+import { AppContainer } from 'react-hot-loader';
+import { version } from '../../package.json';
+import config from '../config';
+import { SC } from '../shared/utils';
+import { configureStore, history } from './configureStore';
+import './css/app.scss';
+import Root from './Root';
 
 const store = configureStore()
 
@@ -30,7 +26,7 @@ if (!process.env.TOKEN && process.env.NODE_ENV === 'production') {
 
         ua().set('version', version)
 
-        history.listen(function (location) {
+        history.listen((location) => {
             ua().pv(location.pathname).send()
         })
     }

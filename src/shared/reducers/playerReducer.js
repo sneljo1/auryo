@@ -1,6 +1,6 @@
-import { actionTypes, PLAYER_STATUS } from "../../../shared/constants";
-import { onSuccess } from "../../../shared/utils/reduxUtils";
 import { findIndex } from "lodash";
+import { actionTypes, PLAYER_STATUS } from "../constants";
+import { onSuccess } from "../utils/reduxUtils";
 
 const initialState = {
     status: PLAYER_STATUS.STOPPED,
@@ -26,11 +26,14 @@ let position;
 export default function player(state = initialState, action) {
     const { payload, type } = action;
 
+    let new_state;
+    let next_pos;
+
     switch (type) {
         case actionTypes.PLAYER_SET_TRACK:
             position = findIndex(state.queue, payload.next_track)
 
-            let new_state = {
+            new_state = {
                 ...state,
                 playingTrack: payload.next_track,
                 status: payload.status,
@@ -81,7 +84,7 @@ export default function player(state = initialState, action) {
         case onSuccess(actionTypes.PLAYER_SET_PLAYLIST):
         case actionTypes.PLAYER_SET_PLAYLIST:
 
-            const next_pos = findIndex(payload.items, payload.next_track)
+            next_pos = findIndex(payload.items, payload.next_track)
 
             if (next_pos !== -1 && state.upNext.length > 0) {
 
@@ -119,7 +122,7 @@ export default function player(state = initialState, action) {
         case actionTypes.PLAYER_ADD_UP_NEXT:
 
             if (payload.remove !== null) {
-                let new_state = {
+                new_state = {
                     ...state,
                     queue: [
                         ...state.queue.slice(0, payload.remove),
@@ -167,7 +170,7 @@ export default function player(state = initialState, action) {
             };
 
         case actionTypes.APP_RESET_STORE:
-            state = initialState
+            return initialState
         default:
             return state
     }

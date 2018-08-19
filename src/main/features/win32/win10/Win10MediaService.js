@@ -1,20 +1,12 @@
+/* eslint-disable global-require */
 import IWindowsFeature from '../IWindowsFeature'
 import { EVENTS } from '../../../../shared/constants/events'
 import { PLAYER_STATUS } from '../../../../shared/constants'
-import { CHANGE_TYPES } from '../../../../renderer/modules/player/constants/player'
+import { CHANGE_TYPES } from '../../../../shared/constants/player'
 import * as SC from '../../../../shared/utils/soundcloudUtils'
 import { IMAGE_SIZES } from '../../../../shared/constants/Soundcloud'
 
-// TODO setup windows builds
 export default class Win10MediaService extends IWindowsFeature {
-
-    shouldRun() {
-        return false
-    }
-
-    constructor(app) {
-        super(app)
-    }
 
     register() {
         const { MediaPlaybackStatus, MediaPlaybackType, SystemMediaTransportControlsButton } = require('@nodert-win10/windows.media')
@@ -79,10 +71,11 @@ export default class Win10MediaService extends IWindowsFeature {
                 })
 
                 this.on(EVENTS.PLAYER.TRACK_CHANGED, () => {
-                    const { entities: { track_entities }, player: { playingTrack } } = this.store.getState()
+                    const { entities: { track_entities, user_entities }, player: { playingTrack } } = this.store.getState()
 
                     const trackID = playingTrack.id
                     const track = track_entities[trackID]
+                    const user = user_entities[track.user || track.user_id]
 
                     Controls.displayUpdater.musicProperties.title = track.title
                     Controls.displayUpdater.musicProperties.artist = (user && user.username ? user.username : 'Unknown artist')
@@ -95,7 +88,7 @@ export default class Win10MediaService extends IWindowsFeature {
         })
     }
 
-    togglePlay(new_status) {
+    togglePlay = (new_status) => {
         const { player: { status } } = this.store.getState()
 
         if (status !== new_status) {
@@ -103,11 +96,7 @@ export default class Win10MediaService extends IWindowsFeature {
         }
     }
 
-    changeTrack(change_type) {
+    changeTrack = (change_type) => {
         this.router.send(EVENTS.PLAYER.CHANGE_TRACK, change_type)
-    }
-
-    unregister() {
-        super.unregister()
     }
 }

@@ -1,21 +1,24 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import './queue.scss'
-import cn from 'classnames'
-import FallbackImage from '../../../_shared/FallbackImage'
-import TextTruncate from 'react-dotdotdot'
-import * as SC from '../../../../../shared/utils/soundcloudUtils'
-import { IMAGE_SIZES } from '../../../../../shared/constants/Soundcloud'
-import { Link } from 'react-router-dom'
-import ActionsDropdown from '../../../_shared/ActionsDropdown'
-import { isEqual } from 'lodash'
+/* eslint-disable jsx-a11y/click-events-have-key-events */
+import cn from 'classnames';
+import { isEqual } from 'lodash';
+import PropTypes from 'prop-types';
+import React from 'react';
+import TextTruncate from 'react-dotdotdot';
+import { Link } from 'react-router-dom';
+import { IMAGE_SIZES } from '../../../../../shared/constants/Soundcloud';
+import * as SC from '../../../../../shared/utils/soundcloudUtils';
+import ActionsDropdown from '../../../_shared/ActionsDropdown';
+import FallbackImage from '../../../_shared/FallbackImage';
+import './queue.scss';
 
 class QueueItem extends React.Component {
 
-    shouldComponentUpdate(nextProps, nextState, nextContext) {
-        return !isEqual(nextProps.track, this.props.track) ||
-            !isEqual(nextProps.playing, this.props.playing) ||
-            !isEqual(nextProps.played, this.props.played)
+    shouldComponentUpdate(nextProps) {
+        const { track, playing, played } = this.props;
+
+        return !isEqual(nextProps.track, track) ||
+            !isEqual(nextProps.playing, playing) ||
+            !isEqual(nextProps.played, played)
     }
 
     render() {
@@ -31,13 +34,11 @@ class QueueItem extends React.Component {
             // Functions
             playTrack,
 
-            style
         } = this.props
 
 
         if (!track || !track.user || (track && track.loading && !track.title)) return (
-            <div style={style}
-                 className="track d-flex flex-nowrap align-items-center">
+            <div className="track d-flex flex-nowrap align-items-center">
                 <div className="image-wrap">
                     <svg width="40" height="40">
                         <rect width="40" height="40" style={{ fill: '#eeeeee' }} />
@@ -64,12 +65,12 @@ class QueueItem extends React.Component {
 
 
         return (
-            <div style={style}>
-                <div className={cn('track d-flex flex-nowrap align-items-center', {
+            <div>
+                <div role="button" tabIndex={0} className={cn('track d-flex flex-nowrap align-items-center', {
                     played,
                     playing
                 })} onClick={(e) => {
-                    if(e.target.className !== "icon-more_horiz"){
+                    if (e.target.className !== "icon-more_horiz") {
                         playTrack(currentPlaylist, trackData)
                     }
                 }}>
@@ -86,7 +87,7 @@ class QueueItem extends React.Component {
                                 e.stopPropagation()
                                 e.nativeEvent.stopImmediatePropagation()
                             }}
-                                  to={'/track/' + track.id}>
+                                to={`/track/${track.id}`}>
                                 <TextTruncate
                                     clamp={1}
                                 >
@@ -100,7 +101,7 @@ class QueueItem extends React.Component {
                                 e.stopPropagation()
                                 e.nativeEvent.stopImmediatePropagation()
                             }}
-                                  to={'/user/' + track.user.id}>{track.user.username}</Link>
+                                to={`/user/${track.user.id}`}>{track.user.username}</Link>
                         </div>
                     </div>
                     <div className="no-shrink pl-2">
@@ -124,7 +125,10 @@ QueueItem.propTypes = {
     playing: PropTypes.bool.isRequired,
 
     playTrack: PropTypes.func.isRequired,
+}
 
+QueueItem.defaultProps = {
+    currentPlaylist: null
 }
 
 export default QueueItem

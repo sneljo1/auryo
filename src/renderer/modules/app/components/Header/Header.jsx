@@ -1,14 +1,14 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import { browserHistory, withRouter } from 'react-router'
-import { connect } from 'react-redux'
-import './header.scss'
-import User from './User/AuthUser'
-import SearchBox from './Search/SearchBox'
-import { ButtonDropdown, DropdownItem, DropdownMenu, DropdownToggle } from 'reactstrap'
-import Sticky from '../../../_shared/Sticky'
-import isEqual from 'lodash/isEqual'
-import * as actions from '../../../../../shared/actions/index'
+import isEqual from 'lodash/isEqual';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
+import { withRouter } from 'react-router';
+import { ButtonDropdown, DropdownItem, DropdownMenu, DropdownToggle } from 'reactstrap';
+import * as actions from '../../../../../shared/actions/index';
+import Sticky from '../../../_shared/Sticky';
+import './header.scss';
+import SearchBox from './Search/SearchBox';
+import User from './User/AuthUser';
 
 class Header extends React.Component {
 
@@ -18,40 +18,50 @@ class Header extends React.Component {
     }
 
     componentDidMount() {
+        const { focus } = this.props;
+
         this.setState({
             height: this.divElement.clientHeight
         })
 
-        if (this.props.focus) {
+        if (focus) {
             this.search.focus()
         }
     }
 
-    shouldComponentUpdate(nextProps, nextState, nextContext) {
-        return this.state.dropdownOpen !== nextState.dropdownOpen ||
-            !isEqual(this.props.location.pathname, nextProps.location.pathname) ||
-            !isEqual(this.props.locHistory, nextProps.locHistory) ||
-            this.props.me !== nextProps.me ||
-            nextState.height !== this.divElement.clientHeight ||
-            (this.props.scrollTop < 52 && nextProps.scrollTop > 52) || (this.props.scrollTop > 52 && nextProps.scrollTop < 52)
-    }
-
-    componentWillReceiveProps(nextProps){
-        if(this.state.height !== this.divElement.clientHeight){
+    componentWillReceiveProps() {
+        const { height } = this.state;
+        if (height !== this.divElement.clientHeight) {
             this.setState({
                 height: this.divElement.clientHeight
             })
         }
     }
 
+    shouldComponentUpdate(nextProps, nextState) {
+        const { dropdownOpen } = this.state;
+        const { scrollTop, location, locHistory, me } = this.props;
+
+        return dropdownOpen !== nextState.dropdownOpen ||
+            !isEqual(location.pathname, nextProps.location.pathname) ||
+            !isEqual(locHistory, nextProps.locHistory) ||
+            me !== nextProps.me ||
+            nextState.height !== this.divElement.clientHeight ||
+            (scrollTop < 52 && nextProps.scrollTop > 52) ||
+            (scrollTop > 52 && nextProps.scrollTop < 52)
+    }
+
     toggle = () => {
+        const { dropdownOpen } = this.state;
+
         this.setState({
-            dropdownOpen: !this.state.dropdownOpen
+            dropdownOpen: !dropdownOpen
         })
     }
 
     goBack() {
         const { locHistory: { back }, history } = this.props
+
         if (back) {
             history.goBack()
         }
@@ -59,13 +69,16 @@ class Header extends React.Component {
 
     goForward() {
         const { locHistory: { next }, history } = this.props
+
         if (next) {
             history.goForward()
         }
     }
 
     showUtilitiesModal = (activeTab) => {
-        this.props.show('utilities', {
+        const { show } = this.props;
+
+        show('utilities', {
             activeTab
         })
 
@@ -73,13 +86,14 @@ class Header extends React.Component {
     }
 
     render() {
-        const { locHistory: { next, back }, push, me, logout, scrollTop, replace, className } = this.props
+        const { locHistory: { next, back }, push, me, logout, scrollTop, replace, className, query, children } = this.props
+        const { height, dropdownOpen } = this.state;
 
         return (
-            <div className={`header-wrapper ${  className}` || ""} style={{ minHeight: this.state.height }}>
+            <div className={`header-wrapper ${className}` || ""} style={{ minHeight: height }}>
                 <Sticky
                     className="stickymaker"
-                    activeClassName={`sticky sticky-3`}
+                    activeClassName="sticky sticky-3"
                     stickyWidth={`calc(100% - ${260}px)`}
                     isSticky={scrollTop - 52 > 0}
                 >
@@ -90,32 +104,32 @@ class Header extends React.Component {
                                 <div className="control-nav">
                                     <div className="control-nav-inner flex">
                                         <a className={!back ? 'disabled' : null}
-                                           href="javascript:void(0)"
-                                           onClick={this.goBack.bind(this)}>
+                                            href="javascript:void(0)"
+                                            onClick={this.goBack.bind(this)}>
                                             <i className="icon-keyboard_arrow_left" />
                                         </a>
                                         <a className={!next ? 'disabled' : null}
-                                           href="javascript:void(0)"
-                                           onClick={this.goForward.bind(this)}>
+                                            href="javascript:void(0)"
+                                            onClick={this.goForward.bind(this)}>
                                             <i className="icon-keyboard_arrow_right" />
                                         </a>
                                     </div>
                                 </div>
-                                <SearchBox ref={r => this.search = r} initialValue={this.props.query}
-                                           handleSearch={(prev, query) => {
-                                               if (prev) {
-                                                   replace(`/search/${query}`)
-                                               } else {
-                                                   push(`/search/${query}`)
-                                               }
-                                           }} />
+                                <SearchBox ref={r => this.search = r} initialValue={query}
+                                    handleSearch={(prev, searchQuery) => {
+                                        if (prev) {
+                                            replace(`/search/${searchQuery}`)
+                                        } else {
+                                            push(`/search/${searchQuery}`)
+                                        }
+                                    }} />
                             </div>
 
                             <div className="d-flex align-items-center justify-content-between">
-                                <User me={me} push={push} />
+                                <User me={me} />
 
-                                <ButtonDropdown isOpen={this.state.dropdownOpen} toggle={this.toggle}
-                                                className="d-flex align-items-center">
+                                <ButtonDropdown isOpen={dropdownOpen} toggle={this.toggle}
+                                    className="d-flex align-items-center">
                                     <DropdownToggle tag="a" className="toggle" href="javascript:void(0)">
                                         <i className="icon-more-vertical" />
                                     </DropdownToggle>
@@ -123,13 +137,16 @@ class Header extends React.Component {
 
 
                                         <a href="javascript:void(0)" className="dropdown-item"
-                                           onClick={this.showUtilitiesModal.bind(this, 'about')}>About</a>
+                                            onClick={this.showUtilitiesModal.bind(this, 'about')}>About</a>
 
                                         <a href="javascript:void(0)" className="dropdown-item"
-                                           onClick={this.showUtilitiesModal.bind(this, 'settings')}>Settings</a>
+                                            onClick={this.showUtilitiesModal.bind(this, 'settings')}>Settings</a>
 
                                         <DropdownItem divider />
 
+                                        <a href="https://github.com/Superjo149/auryo/" className="dropdown-item">
+                                            Contribute
+                                        </a>
                                         <a href="https://github.com/Superjo149/auryo/issues" className="dropdown-item">
                                             Report an issue
                                         </a>
@@ -143,12 +160,12 @@ class Header extends React.Component {
                                         <DropdownItem divider />
 
                                         <a href="javascript:void(0)" className="dropdown-item"
-                                           onClick={() => logout()}>Logout</a>
+                                            onClick={() => logout()}>Logout</a>
                                     </DropdownMenu>
                                 </ButtonDropdown>
                             </div>
                         </nav>
-                        <div>{this.props.children && this.props.children}</div>
+                        <div>{children && children}</div>
                     </div>
                 </Sticky>
             </div>
@@ -157,7 +174,10 @@ class Header extends React.Component {
 }
 
 Header.propTypes = {
+    children: PropTypes.any,
     history: PropTypes.object.isRequired,
+    location: PropTypes.object.isRequired,
+    locHistory: PropTypes.object.isRequired,
     className: PropTypes.string,
     push: PropTypes.func.isRequired,
     replace: PropTypes.func.isRequired,
@@ -165,12 +185,15 @@ Header.propTypes = {
     logout: PropTypes.func.isRequired,
     show: PropTypes.func.isRequired,
     scrollTop: PropTypes.number.isRequired,
-    query: PropTypes.string
+    query: PropTypes.string,
+    focus: PropTypes.bool
 }
 
 Header.defaultProps = {
-    scrollTop: 0,
-    query: ''
+    className: '',
+    query: '',
+    focus: false,
+    children: null
 }
 
 const mapStateToProps = (state) => {

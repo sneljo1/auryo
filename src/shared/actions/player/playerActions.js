@@ -1,25 +1,23 @@
-import { actionTypes, OBJECT_TYPES, PLAYER_STATUS } from '../../../shared/constants'
+import flattenDeep from 'lodash/flattenDeep';
+import React from 'react';
+import { toastr } from 'react-redux-toastr';
+import ReactImageFallback from '../../../renderer/modules/_shared/FallbackImage';
+import { actionTypes, IMAGE_SIZES, OBJECT_TYPES, PLAYER_STATUS } from '../../constants';
+import { EVENTS } from '../../constants/events';
+import { PLAYLISTS } from '../../constants/playlist';
+import { SC } from '../../utils';
+import { getCurrentPosition } from '../../utils/playerUtils';
+import { windowRouter } from '../../utils/router';
+import { fetchPlaylistIfNeeded } from '../index';
+import { fetchMore } from '../objectActions';
+import { fetchPlaylistTracks, fetchTracks } from '../playlist.actions';
+import { playTrack } from './playTrack.actions';
 
-import { fetchPlaylistIfNeeded } from '../../../shared/actions'
-import { fetchPlaylistTracks, fetchTracks } from '../../../shared/actions/playlist.actions'
-import flattenDeep from 'lodash/flattenDeep'
-import { fetchMore } from '../../../shared/actions/objectActions'
-import { playTrack } from '../../../shared/actions/player/playTrack.actions'
-import { PLAYLISTS } from '../../../shared/constants/playlist'
-import { getCurrentPosition } from '../../../shared/utils/playerUtils'
-import { windowRouter } from '../../../shared/utils/router'
-import { EVENTS } from '../../../shared/constants/events'
-import { schema } from 'normalizr'
-import { IMAGE_SIZES } from '../../../shared/constants'
-import { toastr } from 'react-redux-toastr'
-import { SC } from '../../../shared/utils'
-import ReactImageFallback from '../_shared/FallbackImage'
-import React from 'react'
 
 const obj_type = OBJECT_TYPES.PLAYLISTS
 
-export * from '../../../shared/actions/player/playTrack.actions'
-export * from '../../../shared/actions/player/changeTrack.actions'
+export * from './changeTrack.actions';
+export * from './playTrack.actions';
 
 /**
  * Get playlist from ID if needed
@@ -38,7 +36,7 @@ export function getPlaylistObject(playlistId, position) {
             }
         } = getState()
 
-        const playlists = objects[obj_type] || {}
+        let playlists = objects[obj_type] || {}
         const track_playlist_obj = playlists[playlistId]
 
 
@@ -47,13 +45,14 @@ export function getPlaylistObject(playlistId, position) {
             return dispatch(fetchPlaylistIfNeeded(playlistId))
                 .then((result) => {
                     const {
+                        // eslint-disable-next-line
                         objects,
                         entities: {
                             playlist_entities
                         }
                     } = getState()
 
-                    const playlists = objects[obj_type] || {}
+                    playlists = objects[obj_type] || {}
                     const current_playlist = playlists[playlistId]
                     const current_playlist_ent = playlist_entities[playlistId]
 
@@ -70,23 +69,23 @@ export function getPlaylistObject(playlistId, position) {
                 })
 
 
-        } else {
+        }
 
-            const playlist = playlist_pos.find(p => position > p.start && position < p.end)
+        const playlist = playlist_pos.find(p => position > p.start && position < p.end)
 
-            if (playlist) {
-                const playlist_obj = playlists[playlistId]
-                if (playlist_obj) {
-                    /**
-                     * If amount of fetched items - 25 is in the visible queue, fetch more tracks
-                     */
+        if (playlist) {
+            const playlist_obj = playlists[playlistId]
+            if (playlist_obj) {
+                /**
+                 * If amount of fetched items - 25 is in the visible queue, fetch more tracks
+                 */
 
-                    if (position > (playlist.start + playlist_obj.fetchedItems - 25) && !playlist_obj.isFetching) {
-                        dispatch(fetchPlaylistTracks(playlist.id, 50))
-                    }
+                if (position > (playlist.start + playlist_obj.fetchedItems - 25) && !playlist_obj.isFetching) {
+                    dispatch(fetchPlaylistTracks(playlist.id, 50))
                 }
             }
         }
+
 
         return Promise.resolve()
 
@@ -146,7 +145,7 @@ export function setDuration(time) {
  * @param new_status
  * @returns {{type, playing: *}}
  */
-export function toggleStatus(new_status) {
+export function toggleStatus(statusParam) {
     return (dispatch, getState) => {
         const {
             player: {
@@ -155,6 +154,8 @@ export function toggleStatus(new_status) {
             },
             objects
         } = getState()
+
+        let new_status = statusParam;
 
         const playlists = objects[OBJECT_TYPES.PLAYLISTS] || {}
         const stream_playlist = playlists[PLAYLISTS.STREAM]
@@ -203,10 +204,10 @@ export function setCurrentPlaylist(playlistId, next_track) {
         } = getState()
 
         const playlists = objects[obj_type] || {}
-        let playlist_object = playlists[playlistId]
+        const playlist_object = playlists[playlistId]
         const { playlist_entities } = entities
 
-        let playlist_pos = []
+        const playlist_pos = []
 
         if ((playlist_object && playlistId !== currentPlaylistId) || next_track) {
             return dispatch({
@@ -227,12 +228,10 @@ export function setCurrentPlaylist(playlistId, next_track) {
                                         end: i + playlist.tracks.length
                                     })
 
-                                    return playlist.tracks.map(trackId => {
-                                        return {
-                                            id: trackId,
-                                            playlistId: id
-                                        }
-                                    })
+                                    return playlist.tracks.map(trackId => ({
+                                        id: trackId,
+                                        playlistId: id
+                                    }))
                                 }
 
                                 return {
@@ -247,9 +246,9 @@ export function setCurrentPlaylist(playlistId, next_track) {
                 }
             })
 
-        } else {
-            return Promise.resolve()
         }
+        return Promise.resolve()
+
 
 
     }
@@ -262,7 +261,7 @@ export function setCurrentPlaylist(playlistId, next_track) {
  * @param position
  */
 export function setPlayingTrack(next_track, position) {
-    return (dispatch, getState) => {
+    return (dispatch) => {
 
         dispatch({
             type: actionTypes.PLAYER_SET_TRACK,
@@ -286,7 +285,7 @@ export function setPlayingTrack(next_track, position) {
  * @param track_playlist
  * @param remove
  */
-export function addUpNext(trackId, track_playlist, remove = null) {
+export function addUpNext(trackIdParam, track_playlist, remove = null) {
     return (dispatch, getState) => {
         const {
             player: {
@@ -301,7 +300,9 @@ export function addUpNext(trackId, track_playlist, remove = null) {
             }
         } = getState()
 
-        let next_track, next_list
+        let trackId = trackIdParam;
+
+        let next_track; let next_list;
 
         if (typeof trackId === 'object') {
             next_track = trackId
@@ -358,7 +359,6 @@ export function updateQueue(range) {
 
         const {
             player,
-            objects
         } = getState()
         const {
             queue,
@@ -369,13 +369,13 @@ export function updateQueue(range) {
             dispatch(fetchMore(currentPlaylistId, OBJECT_TYPES.PLAYLISTS))
         }
 
-        dispatch(getItemsAround(range[1], true))
+        dispatch(getItemsAround(range[1]))
 
 
     }
 }
 
-export function getItemsAround(next_index, play) {
+export function getItemsAround(next_index) {
     return (dispatch, getState) => {
         const {
             player: {
@@ -392,10 +392,10 @@ export function getItemsAround(next_index, play) {
         const playlists = objects[OBJECT_TYPES.PLAYLISTS] || {}
         const currentPlaylist = playlists[currentPlaylistId]
 
-        let items_to_fetch = []
+        const items_to_fetch = []
 
         // Get playlists
-        for (let i = (next_index - 3); i < (next_index + 3); i++) {
+        for (let i = (next_index - 3); i < (next_index + 3); i + 1) {
             const n_track = queue[i]
             if (i > 0 && i < queue.length && n_track && n_track.id) {
 

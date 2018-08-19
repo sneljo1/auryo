@@ -1,56 +1,47 @@
-import IFeature from './IFeature'
-import { app, Menu, shell } from 'electron'
-import { CHANGE_TYPES, PLAYER_STATUS, VOLUME_TYPES } from '../../renderer/modules/player/constants/player'
-import * as SC from '../../shared/utils/soundcloudUtils'
-import { EVENTS } from '../../shared/constants/events'
+import { app, Menu, shell } from 'electron';
+import { EVENTS } from '../../shared/constants/events';
+import { CHANGE_TYPES, PLAYER_STATUS, VOLUME_TYPES } from '../../shared/constants/player';
+import * as SC from '../../shared/utils/soundcloudUtils';
+import IFeature from './IFeature';
 
 export default class ApplicationMenu extends IFeature {
 
-    constructor(app) {
-        super(app)
-
-        this.buildMenu = this.buildMenu.bind(this)
-    }
-
     register() {
         this.buildMenu()
-
-        const store = this.store
 
         this.on(EVENTS.APP.READY, () => {
 
             this.subscribe(['player', 'playingTrack'], () => {
 
-                const { player } = store.getState()
+                const { player } = this.store.getState()
                 this.buildMenu(player)
 
             })
 
             this.subscribe(['player', 'status'], () => {
 
-                const { player } = store.getState()
+                const { player } = this.store.getState()
                 this.buildMenu(player)
 
             })
 
             this.on(EVENTS.TRACK.LIKED, () => {
 
-                const { player } = store.getState()
+                const { player } = this.store.getState()
                 this.buildMenu(player)
 
             })
 
             this.on(EVENTS.TRACK.REPOSTED, () => {
 
-                const { player } = store.getState()
+                const { player } = this.store.getState()
                 this.buildMenu(player)
 
             })
         })
     }
 
-    buildMenu(player) {
-        const _this = this
+    buildMenu = (player) => {
 
         const template = [
             {
@@ -79,7 +70,7 @@ export default class ApplicationMenu extends IFeature {
                     {
                         label: 'Search',
                         accelerator: 'CmdOrCtrl+F',
-                        click: () => _this.win.webContents.send('keydown:search')
+                        click: () => this.win.webContents.send('keydown:search')
                     }
                 ]
             },
@@ -90,7 +81,7 @@ export default class ApplicationMenu extends IFeature {
                     {
                         label: !player || player.status !== PLAYER_STATUS.PLAYING ? 'Play' : 'Pause',
                         accelerator: 'CmdOrCtrl+Shift+Space',
-                        click: () => _this.router.send(EVENTS.PLAYER.TOGGLE_STATUS)
+                        click: () => this.router.send(EVENTS.PLAYER.TOGGLE_STATUS)
                     },
                     {
                         type: 'separator'
@@ -98,12 +89,12 @@ export default class ApplicationMenu extends IFeature {
                     {
                         label: 'Next',
                         accelerator: 'CmdOrCtrl+Right',
-                        click: () => _this.router.send(EVENTS.PLAYER.CHANGE_TRACK, CHANGE_TYPES.NEXT)
+                        click: () => this.router.send(EVENTS.PLAYER.CHANGE_TRACK, CHANGE_TYPES.NEXT)
                     },
                     {
                         label: 'Previous',
                         accelerator: 'CmdOrCtrl+Left',
-                        click: () => _this.router.send(EVENTS.PLAYER.CHANGE_TRACK, CHANGE_TYPES.PREV)
+                        click: () => this.router.send(EVENTS.PLAYER.CHANGE_TRACK, CHANGE_TYPES.PREV)
                     },
                     {
                         type: 'separator'
@@ -111,12 +102,12 @@ export default class ApplicationMenu extends IFeature {
                     {
                         label: 'Volume up',
                         accelerator: 'CmdOrCtrl+Up',
-                        click: () => _this.router.send(EVENTS.PLAYER.CHANGE_VOLUME, VOLUME_TYPES.UP)
+                        click: () => this.router.send(EVENTS.PLAYER.CHANGE_VOLUME, VOLUME_TYPES.UP)
                     },
                     {
                         label: 'Volume down',
                         accelerator: 'CmdOrCtrl+Down',
-                        click: () => _this.router.send(EVENTS.PLAYER.CHANGE_VOLUME, VOLUME_TYPES.DOWN)
+                        click: () => this.router.send(EVENTS.PLAYER.CHANGE_VOLUME, VOLUME_TYPES.DOWN)
                     }
                 ]
             },
@@ -127,13 +118,13 @@ export default class ApplicationMenu extends IFeature {
                     {
                         label: 'Like',
                         accelerator: 'CmdOrCtrl+L',
-                        click: () => _this.router.send(EVENTS.TRACK.LIKE, playingTrack.id),
+                        click: () => this.router.send(EVENTS.TRACK.LIKE, playingTrack.id),
                         enabled: false
                     },
                     {
                         label: 'Repost',
                         accelerator: 'CmdOrCtrl+S',
-                        click: () => _this.router.send(EVENTS.TRACK.REPOST, playingTrack.id),
+                        click: () => this.router.send(EVENTS.TRACK.REPOST, playingTrack.id),
                         enabled: false
                     }
                 ]
@@ -197,15 +188,13 @@ export default class ApplicationMenu extends IFeature {
                         accelerator: 'CmdOrCtrl+,',
                         role: 'preferences',
                         click: () => {
-
-                            _this.win.webContents.send('navigate', {
+                            this.win.webContents.send('navigate', {
                                 pathname: '/settings',
                                 search: '',
                                 hash: '',
                                 action: 'PUSH',
                                 key: 'settings'
                             })
-
                         }
                     },
                     { type: 'separator' },
@@ -252,15 +241,16 @@ export default class ApplicationMenu extends IFeature {
                 template[index].submenu[1].enabled = true
 
             } else {
-                template[index].submenu.forEach(s => s.enabled = false)
+                template[index].submenu.map(s => {
+                    s.enabled = false; // eslint-disable-line
+
+                    return s
+                })
             }
         }
 
         const menu = Menu.buildFromTemplate(template)
         Menu.setApplicationMenu(menu)
-    }
-
-    unregister() {
     }
 
 }

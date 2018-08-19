@@ -1,6 +1,5 @@
-import { schema } from 'normalizr'
-import userSchema from './user'
-import { trackInfoSchema } from '.'
+import { schema } from 'normalizr';
+import userSchema from './user';
 
 const trackSchema = new schema.Entity('track_entities', {
     user: userSchema

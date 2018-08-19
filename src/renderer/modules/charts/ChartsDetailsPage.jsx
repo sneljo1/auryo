@@ -1,11 +1,11 @@
-import React from 'react'
-import { OBJECT_TYPES } from '../../../shared/constants/global'
-import PlaylistPage from '../playlists/Playlist'
-import { AUDIO_GENRES, CHART_SORT_TYPE, MUSIC_GENRES } from '../../../shared/constants'
-import { GENRE_IMAGES } from './ChartsPage'
+import PropTypes from "prop-types";
+import React from 'react';
+import { AUDIO_GENRES, CHART_SORT_TYPE, MUSIC_GENRES } from '../../../shared/constants';
+import { OBJECT_TYPES } from '../../../shared/constants/global';
+import PlaylistPage from '../playlists/Playlist';
+import { GENRE_IMAGES } from './ChartsPage';
 
 class ChartsDetailsPage extends React.Component {
-
 
     state = {
         sort: CHART_SORT_TYPE.TOP
@@ -18,8 +18,8 @@ class ChartsDetailsPage extends React.Component {
     }
 
     render() {
-        const { match } = this.props
-        const { params: { genre } } = match
+        const { match: { params: { genre } } } = this.props
+        const { sort } = this.state;
 
         let selectedGenre = MUSIC_GENRES.find(g => g.key === genre)
 
@@ -27,7 +27,7 @@ class ChartsDetailsPage extends React.Component {
             selectedGenre = AUDIO_GENRES.find(g => g.key === genre)
         }
 
-        const object_id = `${genre}_${this.state.sort}`
+        const object_id = `${genre}_${sort}`
 
         return <PlaylistPage
             showInfo
@@ -36,11 +36,15 @@ class ChartsDetailsPage extends React.Component {
             gradient={selectedGenre.gradient}
             title={selectedGenre.name}
             object_id={object_id}
-            sortType={this.state.sort}
+            sortType={sort}
             sortTypeChange={this.sortTypeChange}
             object_type={OBJECT_TYPES.PLAYLISTS}
         />
     }
+}
+
+ChartsDetailsPage.propTypes = {
+    match: PropTypes.object.isRequired
 }
 
 export default ChartsDetailsPage

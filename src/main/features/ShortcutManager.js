@@ -26,11 +26,12 @@ export default class Shortcut extends IFeature {
         });
     }
 
+    // eslint-disable-next-line
     unregister() {
         globalShortcut.unregisterAll();
     }
 
-    changeTrack(changeType) {
+    changeTrack = (changeType) => {
         this.router.send(EVENTS.PLAYER.CHANGE_TRACK, changeType);
     }
 }

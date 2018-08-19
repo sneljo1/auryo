@@ -1,16 +1,13 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import './queue.scss'
-import QueueItem from './QueueItem'
-import { getCurrentPosition } from '../../../../../shared/utils/playerUtils'
-import cn from 'classnames'
-import * as SC from '../../../../../shared/utils/soundcloudUtils'
-import CustomScroll from '../../../_shared/CustomScroll'
-import ReactList from 'react-list'
-import Spinner from '../../../_shared/Spinner/Spinner'
-import debounce from 'lodash/debounce'
-
-const enhanceWithClickOutside = require('react-click-outside')
+import cn from 'classnames';
+import debounce from 'lodash/debounce';
+import PropTypes from 'prop-types';
+import React from 'react';
+import ReactList from 'react-list';
+import { getCurrentPosition } from '../../../../../shared/utils/playerUtils';
+import CustomScroll from '../../../_shared/CustomScroll';
+import Spinner from '../../../_shared/Spinner/Spinner';
+import './queue.scss';
+import QueueItem from './QueueItem';
 
 class Queue extends React.Component {
 
@@ -28,8 +25,10 @@ class Queue extends React.Component {
         }
     }
 
-    componentWillReceiveProps(nextProps, nextContext) {
-        if (this.props.showQueue !== nextProps.showQueue && nextProps.showQueue === true) {
+    componentWillReceiveProps(nextProps) {
+        const { showQueue } = this.props;
+
+        if (showQueue !== nextProps.showQueue && nextProps.showQueue === true) {
             const { player: { currentIndex, playingTrack } } = nextProps
 
             if (playingTrack.id && this.list) {
@@ -39,16 +38,49 @@ class Queue extends React.Component {
     }
 
     handleClickOutside = () => {
-        if (this.props.showQueue) {
-            this.props.toggleQueue(false)
+        const { showQueue, toggleQueue } = this.props;
+        if (showQueue) {
+            toggleQueue(false)
         }
     }
 
     onScroll = () => {
+        const { updateQueue } = this.props;
+
         const range = this.list.getVisibleRange()
 
-        this.props.updateQueue(range)
+        updateQueue(range)
+    }
 
+    renderTrack = (index, key) => {
+        const {
+            // Vars
+            player,
+            items,
+
+            // Functions
+            playTrack,
+        } = this.props
+
+        const { queue, playingTrack, currentPlaylistId, currentIndex } = player
+
+        const trackData = queue[index]
+
+        const track = items[index]
+
+        const current_pos = getCurrentPosition(queue, trackData)
+
+        return <QueueItem key={key}
+            index={index}
+            track={track}
+            currentPlaylist={currentPlaylistId}
+            playingTrack={playingTrack}
+            trackData={trackData}
+
+            played={current_pos < currentIndex}
+            playing={current_pos === currentIndex}
+
+            playTrack={playTrack} />
     }
 
     render() {
@@ -72,16 +104,16 @@ class Queue extends React.Component {
                     {
                         showQueue && (
                             <CustomScroll heightRelativeToParent="100%"
-                                          allowOuterScroll={true}
-                                          onScroll={this.updateQueueDebounced}
-                                          loader={<Spinner />}>
+                                allowOuterScroll
+                                onScroll={this.updateQueueDebounced}
+                                loader={<Spinner />}>
                                 <ReactList
                                     ref={r => this.list = r}
                                     pageSize={8}
                                     type="uniform"
                                     initialIndex={currentIndex}
                                     length={queue.length}
-                                    useTranslate3d={true}
+                                    useTranslate3d
                                     itemRenderer={this.renderTrack}
                                 />
                             </CustomScroll>
@@ -90,37 +122,6 @@ class Queue extends React.Component {
                 </div>
             </aside>
         )
-    }
-
-    renderTrack = (index, key) => {
-        const {
-            // Vars
-            player,
-            items,
-
-            // Functions
-            playTrack,
-        } = this.props
-
-        const { queue, playingTrack, currentPlaylistId, currentIndex } = player
-
-        const trackData = queue[index]
-
-        const track = items[index]
-
-        const current_pos = getCurrentPosition(queue, trackData)
-
-        return <QueueItem key={key}
-                          index={index}
-                          track={track}
-                          currentPlaylist={currentPlaylistId}
-                          playingTrack={playingTrack}
-                          trackData={trackData}
-
-                          played={current_pos < currentIndex}
-                          playing={current_pos === currentIndex}
-
-                          playTrack={playTrack}/>
     }
 
 }
@@ -133,7 +134,10 @@ Queue.propTypes = {
     toggleQueue: PropTypes.func.isRequired,
     updateQueue: PropTypes.func.isRequired,
     playTrack: PropTypes.func.isRequired,
+}
 
+Queue.defaultProps = {
+    showQueue: false
 }
 
 export default Queue

@@ -1,17 +1,17 @@
-import React from 'react'
-import { Nav } from 'reactstrap'
-import { Route, Switch, withRouter } from 'react-router'
-import './search.scss'
-import SearchPage from './SearchPage'
-import SearchCategoryPage from './Category/SearchCategoryPage'
-import { NavLink } from 'react-router-dom'
-import { connect } from 'react-redux'
-import { push, replace } from 'react-router-redux'
-import CustomScroll from '../_shared/CustomScroll'
-import { setScrollPosition } from '../../../shared/actions'
-import Spinner from '../_shared/Spinner/Spinner'
-import WithHeaderComponent from '../_shared/WithHeaderComponent'
-import Header from '../app/components/Header/Header'
+import React from 'react';
+import { connect } from 'react-redux';
+import { Route, Switch, withRouter } from 'react-router';
+import { NavLink } from 'react-router-dom';
+import { push, replace } from 'react-router-redux';
+import { Nav } from 'reactstrap';
+import { setScrollPosition } from '../../../shared/actions';
+import Header from '../app/components/Header/Header';
+import CustomScroll from '../_shared/CustomScroll';
+import Spinner from '../_shared/Spinner/Spinner';
+import WithHeaderComponent from '../_shared/WithHeaderComponent';
+import SearchCategoryPage from './Category/SearchCategoryPage';
+import './search.scss';
+import SearchPage from './SearchPage';
 
 class SearchWrapper extends WithHeaderComponent {
 
@@ -56,13 +56,13 @@ class SearchWrapper extends WithHeaderComponent {
                         scrollTop={this.state.scrollTop}>
 
                         <Nav className="search-tabs">
-                            <NavLink exact className="nav-link" to={'/search/' + query}
+                            <NavLink exact className="nav-link" to={`/search/${query}`}
                                 activeClassName="active">All</NavLink>
-                            <NavLink className="nav-link" to={'/search/' + query + '/user'}
+                            <NavLink className="nav-link" to={`/search/${query}/user`}
                                 activeClassName="active">Users</NavLink>
-                            <NavLink className="nav-link" to={'/search/' + query + '/track'}
+                            <NavLink className="nav-link" to={`/search/${query}/track`}
                                 activeClassName="active">Tracks</NavLink>
-                            <NavLink className="nav-link" to={'/search/' + query + '/playlist'}
+                            <NavLink className="nav-link" to={`/search/${query}/playlist`}
                                 activeClassName="active">Playlist</NavLink>
                         </Nav>
                     </Header>
@@ -86,14 +86,14 @@ class SearchWrapper extends WithHeaderComponent {
 
 const mapStateToProps = (state, props) => {
     const { ui } = state
-    const { location } = props
+    const { location, history } = props
     return {
         scrollTop: history.action === 'POP' ? ui.scrollPosition[location.pathname] : undefined
     }
 }
 
 export default withRouter(connect(mapStateToProps, {
-    push: push,
-    replace: replace,
-    setScrollPosition: setScrollPosition
+    push,
+    replace,
+    setScrollPosition
 })(SearchWrapper))

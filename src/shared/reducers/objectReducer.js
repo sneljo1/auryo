@@ -1,7 +1,7 @@
-import { actionTypes, OBJECT_TYPES, PLAYLISTS } from '../constants'
-import { isLoading, onError, onSuccess } from '../utils/reduxUtils'
-import uniqWith from 'lodash/uniqWith'
-import isEqual from 'lodash/isEqual'
+import isEqual from 'lodash/isEqual';
+import uniqWith from 'lodash/uniqWith';
+import { actionTypes, OBJECT_TYPES, PLAYLISTS } from '../constants';
+import { isLoading, onError, onSuccess } from '../utils/reduxUtils';
 
 const initialObjectsState = {
     isFetching: false,
@@ -16,6 +16,10 @@ const initialObjectsState = {
 
 function objects(state = initialObjectsState, action) {
     const { type, payload } = action
+
+    let new_items;
+    let result;
+    let items;
 
     switch (type) {
         case isLoading(actionTypes.OBJECT_SET):
@@ -39,10 +43,9 @@ function objects(state = initialObjectsState, action) {
             return initialObjectsState
         case actionTypes.OBJECT_SET:
         case onSuccess(actionTypes.OBJECT_SET):
-            let new_items
 
-            const result = payload.result || []
-            const items = state.items || []
+            result = payload.result || []
+            items = state.items || []
 
             if (payload.refresh) {
                 new_items = uniqWith([...result], isEqual)
@@ -85,6 +88,8 @@ function objects(state = initialObjectsState, action) {
                 ...state,
                 items: state.items.filter((key) => payload.trackId !== key)
             }
+        default:
+            break;
 
     }
     return state
@@ -94,6 +99,8 @@ const initialObjectGroupState = {}
 
 function objectgroup(state = initialObjectGroupState, action) {
     const { type, payload } = action
+
+    const playlistName = payload.playlist ? PLAYLISTS.PLAYLISTS : PLAYLISTS.LIKES
 
     switch (type) {
         case isLoading(actionTypes.OBJECT_SET):
@@ -110,11 +117,12 @@ function objectgroup(state = initialObjectGroupState, action) {
                 [payload.object_id]: objects(state[payload.object_id], action)
             }
         case onSuccess(actionTypes.AUTH_SET_LIKE):
-            let playlistName = payload.playlist ? PLAYLISTS.PLAYLISTS : PLAYLISTS.LIKES
             return {
                 ...state,
                 [playlistName]: objects(state[playlistName], action)
             }
+        default:
+            break;
 
     }
     return state
@@ -149,7 +157,7 @@ export default function objectsgroups(state = initialState, action) {
                 [OBJECT_TYPES.PLAYLISTS]: objectgroup(state[OBJECT_TYPES.PLAYLISTS], action)
             }
         case actionTypes.APP_RESET_STORE:
-            state = initialState
+            return initialState
         default:
             return state
     }

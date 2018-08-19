@@ -1,32 +1,18 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import { Col } from 'reactstrap'
-import cn from 'classnames'
-import { IMAGE_SIZES } from '../../../../shared/constants'
-import { abbreviate_number, SC } from '../../../../shared/utils'
-import TogglePlayButton from '../TogglePlayButton'
-import FallbackImage from '../FallbackImage'
-import './trackGridItem.scss'
-import TextTruncate from 'react-dotdotdot'
-import ActionsDropdown from '../ActionsDropdown'
-import { getReadableTime } from '../../../../shared/utils/appUtils'
-import { Link } from 'react-router-dom'
+import cn from 'classnames';
+import PropTypes from 'prop-types';
+import React from 'react';
+import TextTruncate from 'react-dotdotdot';
+import { Link } from 'react-router-dom';
+import { Col } from 'reactstrap';
+import { IMAGE_SIZES } from '../../../../shared/constants';
+import { abbreviate_number, SC } from '../../../../shared/utils';
+import { getReadableTime } from '../../../../shared/utils/appUtils';
+import ActionsDropdown from '../ActionsDropdown';
+import FallbackImage from '../FallbackImage';
+import TogglePlayButton from '../TogglePlayButton';
+import './trackGridItem.scss';
 
 class TrackGridItem extends React.Component {
-
-    shouldComponentUpdate(nextProps, nextState, nextContext) {
-
-        if (nextProps.track.id !== this.props.track.id) {
-            return true
-        }
-
-        if (nextProps.isPlaying !== this.props.isPlaying) {
-            return true
-        }
-
-        return false
-
-    }
 
     componentDidMount() {
         const { track, playlist, playlist_exists, fetchPlaylistIfNeededFunc } = this.props
@@ -36,7 +22,7 @@ class TrackGridItem extends React.Component {
         }
     }
 
-    componentWillReceiveProps(nextProps, nextContext) {
+    componentWillReceiveProps(nextProps) {
         const { track, fetchPlaylistIfNeededFunc } = this.props
 
         if (nextProps.track.id !== track.id) {
@@ -45,6 +31,21 @@ class TrackGridItem extends React.Component {
                 fetchPlaylistIfNeededFunc(nextProps.track.id)
             }
         }
+    }
+
+    shouldComponentUpdate(nextProps) {
+        const { track, isPlaying } = this.props
+
+        if (nextProps.track.id !== track.id) {
+            return true
+        }
+
+        if (nextProps.isPlaying !== isPlaying) {
+            return true
+        }
+
+        return false
+
     }
 
     renderArtist = () => {
@@ -86,8 +87,7 @@ class TrackGridItem extends React.Component {
         const icon = isPlaying ? 'pause' : 'play_arrow'
 
         return (
-
-            <a className="toggleButton minimal" onClick={playTrackFunc}>
+            <a href="javascript:void(0)" className="toggleButton minimal" onClick={playTrackFunc}>
                 <i className={`icon-${icon}`} />
             </a>
         )
@@ -131,7 +131,7 @@ class TrackGridItem extends React.Component {
     renderInfo() {
         const { playlist, track } = this.props
 
-        let object_url = (playlist ? '/playlist/' : '/track/') + track.id
+        const object_url = (playlist ? '/playlist/' : '/track/') + track.id
 
         if (track.info && track.info.type.indexOf('like') !== -1) {
             return (
@@ -234,13 +234,20 @@ class TrackGridItem extends React.Component {
 
 TrackGridItem.propTypes = {
     playTrackFunc: PropTypes.func.isRequired,
-    isPlaying: PropTypes.bool,
+    isPlaying: PropTypes.bool.isRequired,
     showInfo: PropTypes.bool,
     playlist: PropTypes.bool,
     repost: PropTypes.bool,
     playlist_exists: PropTypes.bool,
     track: PropTypes.object.isRequired,
     fetchPlaylistIfNeededFunc: PropTypes.func.isRequired
+}
+
+TrackGridItem.defaultProps = {
+    showInfo: false,
+    playlist: false,
+    repost: false,
+    playlist_exists: false,
 }
 
 export default TrackGridItem

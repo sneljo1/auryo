@@ -1,12 +1,11 @@
-import { actionTypes } from '../../constants'
-import { SC } from '../../utils'
-import fetchToObject from '../../api/helpers/fetchToObject'
-import { EVENTS } from '../../constants/events'
-import { windowRouter } from '../../utils/router'
-import { IMAGE_SIZES } from '../../constants'
-import { toastr } from 'react-redux-toastr'
-import ReactImageFallback from '../../../renderer/modules/_shared/FallbackImage'
-import React from 'react'
+import React from 'react';
+import { toastr } from 'react-redux-toastr';
+import ReactImageFallback from '../../../renderer/modules/_shared/FallbackImage';
+import fetchToObject from '../../api/helpers/fetchToObject';
+import { actionTypes, IMAGE_SIZES } from '../../constants';
+import { EVENTS } from '../../constants/events';
+import { SC } from '../../utils';
+import { windowRouter } from '../../utils/router';
 
 /**
  * Get and save auth reposts
@@ -28,9 +27,11 @@ export function getAuthReposts() {
  * @returns {function(*, *)}
  */
 
-export function toggleRepost(trackId, playlist) {
+export function toggleRepost(trackId, playlistParam) {
     return (dispatch, getState) => {
-        const { auth: { reposts, me } } = getState()
+        const { auth: { reposts } } = getState()
+
+        let playlist = playlistParam
 
         if (typeof playlist !== 'boolean') {
             playlist = false
@@ -42,34 +43,30 @@ export function toggleRepost(trackId, playlist) {
 
         const reposted = !((trackId in reposts) ? reposts[trackId] : 0)
 
-        dispatch({
+        return dispatch({
             type: actionTypes.AUTH_SET_REPOST,
             payload: fetch(playlist ? null : SC.updateRepostUrl(trackId), {
                 method: (reposted) ? 'PUT' : 'DELETE'
-            }).then(res => {
-
-                const { entities: { track_entities, playlist_entities } } = getState()
-                let obj
+            }).then(() => {
+                const { entities: { track_entities, playlist_entities } } = getState();
+                let obj;
                 if (playlist) {
-                    obj = playlist_entities[trackId]
-                } else {
-                    obj = track_entities[trackId]
+                    obj = playlist_entities[trackId];
                 }
-
+                else {
+                    obj = track_entities[trackId];
+                }
                 if (reposted) {
                     toastr.info(obj.title, 'Reposted track', {
-                        icon: (
-                            <ReactImageFallback src={SC.getImageUrl(obj, IMAGE_SIZES.MEDIUM)} />
-                        ),
+                        icon: (<ReactImageFallback src={SC.getImageUrl(obj, IMAGE_SIZES.MEDIUM)} />),
                         showCloseButton: false
-                    })
+                    });
                 }
-
                 return {
                     trackId,
                     reposted,
                     playlist
-                }
+                };
             })
         })
             .then(() => {

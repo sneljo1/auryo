@@ -1,3 +1,9 @@
+
+import { actionTypes } from "../../constants";
+import { initApp } from "./app.actions";
+
+let interval;
+
 /**
  * Add a function from a failed request to the queue. If already exists, do nothing.
  *
@@ -5,19 +11,14 @@
  * @param args  - Arguments for this function
  * @returns {function(*, *)}
  */
-import {actionTypes} from "../../constants";
-import {initApp, setLoaded} from "./app.actions";
-
-let interval;
-
 export function addQueuedFunction(func, args) {
     return (dispatch, getState) => {
-        const {app} = getState();
+        const { app } = getState();
 
         dispatch(isOnline(() => {
             const key = func.name + Array.prototype.slice.call(args).join('|');
 
-            if (app.queued_items.indexOf(key) == -1) {
+            if (app.queued_items.indexOf(key) === -1) {
                 dispatch(addFunction(func, key));
             }
 
@@ -115,9 +116,9 @@ function initCheckOnline() {
  */
 function checkOnline() {
     return (dispatch, getState) => {
-        const {app} = getState();
+        const { app } = getState();
 
-        if (!app.offline && app.queued_items.length == 0) {
+        if (!app.offline && app.queued_items.length === 0) {
             clearInterval(interval);
             interval = null;
             dispatch(clearFunctions);
@@ -130,16 +131,16 @@ function checkOnline() {
 
         if ((cur_time - app.last_checked) > 5000) {
             fetch("http://google.com")
-                .then(res => {
+                .then(() => {
                     dispatch(toggleOffline(false));
 
-                    app.queued_items.forEach(function (key) {
+                    app.queued_items.forEach((key) => {
                         const func = app.queued_functions[key];
                         dispatch(removeFunction(key));
                         dispatch(func());
                     })
                 })
-                .catch(err => {
+                .catch(() => {
                     dispatch(toggleOffline(true));
                 })
         }
@@ -156,10 +157,10 @@ function checkOnline() {
 export function isOnline(func, disp) {
     return (dispatch) => {
         fetch("https://google.com")
-            .then(res => {
+            .then(() => {
                 dispatch(toggleOffline(false));
             })
-            .catch(err => {
+            .catch(() => {
                 dispatch(toggleOffline(true));
 
                 if (func) {

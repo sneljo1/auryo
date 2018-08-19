@@ -4,24 +4,15 @@ import { Switch } from '@blueprintjs/core';
 
 class CheckboxConfig extends React.PureComponent {
 
-    static propTypes = {
-        config: PropTypes.object,
-        setConfigKey: PropTypes.func,
-        configKey: PropTypes.string,
-        name: PropTypes.string,
-        onChange: PropTypes.func
-    };
+    handleChange = (e) => {
+        const { configKey, setConfigKey, onChange } = this.props;
 
-    constructor() {
-        super();
+        setConfigKey(configKey, e.target.checked);
 
-        this.state = {
-            isChecked: null
-        };
-
-        this._handleChange = this._handleChange.bind(this);
+        if (onChange) {
+            onChange(e.target.checked);
+        }
     }
-
 
     render() {
         const { configKey, name, config } = this.props;
@@ -30,22 +21,22 @@ class CheckboxConfig extends React.PureComponent {
 
         return (
             <div className="setting">
-                <Switch inline large label={name} checked={value} onChange={this._handleChange} />
+                <Switch inline large label={name} checked={value} onChange={this.handleChange} />
             </div>
         );
     }
 
+}
 
-    _handleChange(e) {
-        const { configKey } = this.props;
-
-        this.props.setConfigKey(configKey, e.target.checked);
-
-        if (this.props.onChange) {
-            this.props.onChange(e.target.checked);
-        }
-    }
-
+CheckboxConfig.propTypes = {
+    config: PropTypes.object.isRequired,
+    setConfigKey: PropTypes.func.isRequired,
+    configKey: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    onChange: PropTypes.func,
+}
+CheckboxConfig.defaultProps = {
+    onChange: null,
 }
 
 

@@ -1,4 +1,4 @@
-import { actionTypes } from '../../constants'
+import { actionTypes } from '../../constants';
 
 export function toggleQueue(toggle) {
     return (dispatch, getState) => {

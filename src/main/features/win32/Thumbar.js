@@ -1,8 +1,8 @@
-import { nativeImage } from 'electron'
-import { CHANGE_TYPES, PLAYER_STATUS } from '../../../shared/constants/index'
-import path from 'path'
-import IWindowsFeature from './IWindowsFeature'
-import { EVENTS } from '../../../shared/constants/events'
+import { nativeImage } from 'electron';
+import path from 'path';
+import { EVENTS } from '../../../shared/constants/events';
+import { CHANGE_TYPES, PLAYER_STATUS } from '../../../shared/constants/index';
+import IWindowsFeature from './IWindowsFeature';
 
 let iconsDirectory
 
@@ -87,36 +87,37 @@ export default class Thumbar extends IWindowsFeature {
         })
     }
 
-    setThumbarButtons() {
+    setThumbarButtons = () => {
         const { player: { status, queue, currentIndex } } = this.store.getState()
-        const _this = this
 
         switch (status) {
             case PLAYER_STATUS.PLAYING:
                 this.win.setThumbarButtons([
-                    (queue.length > 0 || currentIndex > 0) ? _this.thumbarButtons.prev : _this.thumbarButtons.prevDisabled,
-                    _this.thumbarButtons.pause,
-                    (queue.length > 0 && (currentIndex + 1 <= queue.length)) ? _this.thumbarButtons.next : _this.thumbarButtons.nextDisabled
+                    (queue.length > 0 || currentIndex > 0) ? this.thumbarButtons.prev : this.thumbarButtons.prevDisabled,
+                    this.thumbarButtons.pause,
+                    (queue.length > 0 && (currentIndex + 1 <= queue.length)) ? this.thumbarButtons.next : this.thumbarButtons.nextDisabled
                 ])
                 break
             case PLAYER_STATUS.PAUSED:
                 this.win.setThumbarButtons([
-                    (queue.length > 0 || currentIndex > 0) ? _this.thumbarButtons.prev : _this.thumbarButtons.prevDisabled,
-                    _this.thumbarButtons.play,
-                    (queue.length > 0 && (currentIndex + 1 <= queue.length)) ? _this.thumbarButtons.next : _this.thumbarButtons.nextDisabled
+                    (queue.length > 0 || currentIndex > 0) ? this.thumbarButtons.prev : this.thumbarButtons.prevDisabled,
+                    this.thumbarButtons.play,
+                    (queue.length > 0 && (currentIndex + 1 <= queue.length)) ? this.thumbarButtons.next : this.thumbarButtons.nextDisabled
                 ])
                 break
             case PLAYER_STATUS.STOPPED:
                 this.win.setThumbarButtons([
-                    _this.thumbarButtons.prevDisabled,
-                    _this.thumbarButtons.playDisabled,
-                    _this.thumbarButtons.nextDisabled
+                    this.thumbarButtons.prevDisabled,
+                    this.thumbarButtons.playDisabled,
+                    this.thumbarButtons.nextDisabled
                 ])
-                break
+                break;
+            default:
+                break;
         }
     }
 
-    togglePlay(new_status) {
+    togglePlay = (new_status) => {
         const { player: { status } } = this.store.getState()
 
         if (status !== new_status) {
@@ -124,11 +125,7 @@ export default class Thumbar extends IWindowsFeature {
         }
     }
 
-    changeTrack(change_type) {
+    changeTrack = (change_type) => {
         this.router.send(EVENTS.PLAYER.CHANGE_TRACK, change_type)
-    }
-
-    unregister() {
-        super.unregister()
     }
 }

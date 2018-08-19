@@ -1,15 +1,14 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import cn from 'classnames'
-import { getReadableTime, SC } from '../../../../shared/utils'
-import TogglePlayButton from '../TogglePlayButton'
-import './trackListItem.scss'
-import TextTruncate from 'react-dotdotdot'
-import ActionsDropdown from '../ActionsDropdown'
-import { Link } from 'react-router-dom'
-import FallbackImage from '../FallbackImage'
-import { IMAGE_SIZES } from '../../../../shared/constants'
-import { abbreviate_number } from '../../../../shared/utils'
+import cn from 'classnames';
+import PropTypes from 'prop-types';
+import React from 'react';
+import TextTruncate from 'react-dotdotdot';
+import { Link } from 'react-router-dom';
+import { IMAGE_SIZES } from '../../../../shared/constants';
+import { abbreviate_number, getReadableTime, SC } from '../../../../shared/utils';
+import ActionsDropdown from '../ActionsDropdown';
+import FallbackImage from '../FallbackImage';
+import TogglePlayButton from '../TogglePlayButton';
+import './trackListItem.scss';
 
 class trackListItem extends React.Component {
 
@@ -17,21 +16,23 @@ class trackListItem extends React.Component {
         dropdownOpen: false
     }
 
-    shouldComponentUpdate(nextProps, nextState, nextContext) {
+    shouldComponentUpdate(nextProps) {
 
-        if (nextProps.track.id !== this.props.track.id) {
+        const { track, liked, isPlaying, reposted } = this.props
+
+        if (nextProps.track.id !== track.id) {
             return true
         }
 
-        if (nextProps.isPlaying !== this.props.isPlaying) {
+        if (nextProps.isPlaying !== isPlaying) {
             return true
         }
 
-        if (nextProps.liked !== this.props.liked) {
+        if (nextProps.liked !== liked) {
             return true
         }
 
-        if (nextProps.reposted !== this.props.reposted) {
+        if (nextProps.reposted !== reposted) {
             return true
         }
 
@@ -40,8 +41,10 @@ class trackListItem extends React.Component {
     }
 
     toggle = () => {
+        const { dropdownOpen } = this.state;
+
         this.setState({
-            dropdownOpen: !this.state.dropdownOpen
+            dropdownOpen: !dropdownOpen
         })
     }
 
@@ -79,7 +82,7 @@ class trackListItem extends React.Component {
         if (!track.title) return null
 
         return (
-            <tr className={cn('trackItem', { isPlaying: isPlaying })} onDoubleClick={playTrackFunc.bind(null, false)}>
+            <tr className={cn('trackItem', { isPlaying })} onDoubleClick={playTrackFunc.bind(null, false)}>
                 <td>
                     <div className="img-with-shadow">
                         <FallbackImage src={SC.getImageUrl(track, IMAGE_SIZES.XSMALL)} />
@@ -110,7 +113,7 @@ class trackListItem extends React.Component {
                 </td>
 
                 <td className="trackArtist">
-                    <Link to={'/user/' + track.user_id}>
+                    <Link to={`/user/${track.user_id}`}>
                         {track.user.username}
                     </Link>
                 </td>
@@ -118,9 +121,6 @@ class trackListItem extends React.Component {
                     {getReadableTime(track.duration, true, true)}
                 </td>
                 <td className="trackitemActions">
-                    {/*<i className="icon-retweet"/>
-                     <i className="icon-playlist_add"/>*/}
-
                     <ActionsDropdown
                         toggleLike={likeFunc}
                         toggleRepost={toggleRepost}

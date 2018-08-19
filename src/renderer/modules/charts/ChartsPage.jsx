@@ -1,17 +1,18 @@
-import React from 'react'
-import { connect } from 'react-redux'
-import * as actions from '../../../shared/actions'
-import CustomScroll from '../_shared/CustomScroll'
-import { Link, withRouter } from 'react-router-dom'
-import Header from '../app/components/Header/Header'
-import WithHeaderComponent from '../_shared/WithHeaderComponent'
-import './ChartsPage.scss'
-import Masonry from 'react-masonry-css'
-import { AUDIO_GENRES, MUSIC_GENRES } from '../../../shared/constants'
-import { Nav, NavLink, TabContent, TabPane } from 'reactstrap'
-import cn from 'classnames'
-import LazyLoad from 'react-lazyload';
-import PageHeader from '../_shared/PageHeader/PageHeader'
+/* eslint-disable global-require */
+
+import cn from 'classnames';
+import React from 'react';
+import Masonry from 'react-masonry-css';
+import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
+import { Nav, NavLink, TabContent, TabPane } from 'reactstrap';
+import * as actions from '../../../shared/actions';
+import { AUDIO_GENRES, MUSIC_GENRES } from '../../../shared/constants';
+import Header from '../app/components/Header/Header';
+import CustomScroll from '../_shared/CustomScroll';
+import PageHeader from '../_shared/PageHeader/PageHeader';
+import WithHeaderComponent from '../_shared/WithHeaderComponent';
+import './ChartsPage.scss';
 import ChartGenre from './components/ChartGenre';
 
 export const GENRE_IMAGES = {
@@ -77,7 +78,7 @@ class ChartsPage extends WithHeaderComponent {
         return (
             <CustomScroll heightRelativeToParent="100%"
                 heightMargin={35}
-                allowOuterScroll={true}
+                allowOuterScroll
                 threshold={300}
                 isFetching={false}
                 ref={r => this.scroll = r}
@@ -128,8 +129,6 @@ class ChartsPage extends WithHeaderComponent {
                         </TabPane>
                     </TabContent>
                 </div>
-
-
             </CustomScroll>
         )
     }

@@ -1,14 +1,14 @@
-import io from 'socket.io-client';
+import { app, clipboard, ipcMain, shell } from 'electron';
 import { download } from 'electron-dl';
-import _ from 'lodash';
-import { ipcMain, shell, app, clipboard } from 'electron';
 import fs from 'fs';
-import IFeature from './IFeature';
-import { setToken } from '../../shared/actions/config.actions';
-import { BASE_URL, getConnectUrl } from '../../config';
-import { registerError } from '../utils/raven';
+import _ from 'lodash';
+import io from 'socket.io-client';
+import { CONFIG } from '../../config';
 import { setLoginError, setLoginLoading } from '../../shared/actions/auth/auth.actions';
+import { setToken } from '../../shared/actions/config.actions';
 import { EVENTS } from '../../shared/constants/events';
+import { registerError } from '../utils/raven';
+import IFeature from './IFeature';
 
 export default class IPCManager extends IFeature {
 
@@ -39,13 +39,9 @@ export default class IPCManager extends IFeature {
 
             const downloadSettings = {};
 
-            console.log(url)
-
             if (!_.isEmpty(_.get(config, 'app.downloadPath'))) {
                 downloadSettings.directory = config.app.downloadPath;
             }
-
-            console.log(downloadSettings.directory)
 
             download(this.win, url, downloadSettings)
                 .then(dl => console.log(dl.getSavePath()))
@@ -58,12 +54,13 @@ export default class IPCManager extends IFeature {
             try {
                 error = JSON.parse(error);
             } catch (e) {
-
+                console.log(e)
             }
+
             registerError(error, true);
         });
 
-        ipcMain.on('login', (event) => {
+        ipcMain.on('login', () => {
             this.store.dispatch(setLoginLoading());
 
             this.startLoginSocket();
@@ -94,14 +91,14 @@ export default class IPCManager extends IFeature {
     }
 
     login = () => {
-        shell.openExternal(getConnectUrl(this.socket.id));
+        shell.openExternal(CONFIG.getConnectUrl(this.socket.id));
         this.store.dispatch(setLoginLoading(false));
         this.socket.removeListener('connect', this.login);
     }
 
     startLoginSocket = () => {
         if (!this.socket) {
-            this.socket = io(BASE_URL);
+            this.socket = io(CONFIG.BASE_URL);
 
             this.socket.on('token', (data) => {
                 this.store.dispatch(setToken(data));

@@ -1,6 +1,6 @@
-import PlaylistPage from './Playlist'
-import { OBJECT_TYPES } from '../../../shared/constants/global'
-import React from 'react'
+import React from 'react';
+import { OBJECT_TYPES } from '../../../shared/constants/global';
+import PlaylistPage from './Playlist';
 
 const playlistPage = (name, object_id, showInfo = true) => {
     return () => (

@@ -1,59 +1,62 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import autolinker from 'autolinker'
+/* eslint-disable react/no-danger */
+import autolinker from 'autolinker';
+import PropTypes from 'prop-types';
+import React from 'react';
 
-class Linkify extends React.PureComponent {
+const Linkify = ({ text }) => {
+    if (text === null || (text && !text.length)) return null
 
-    static propTypes = {
-        text: PropTypes.string
-    }
+    let tag = null;
+    let a = null;
 
-    render() {
-        const { text } = this.props
+    return (
+        <div>
+            <div dangerouslySetInnerHTML={{
+                __html: autolinker.link(text.replace(/\n/g, '</br>'), {
+                    mention: 'twitter', // TODO change to souncloud
+                    replaceFn: (match) => {
+                        switch (match.getType()) {
+                            case 'url':
+                                if (/https?:\/\/(www.)?soundcloud\.com\//g.exec(match.getUrl()) !== null) {
 
-        if (text === null || (text && !text.length)) return null
-
-        return (
-            <div>
-                <div dangerouslySetInnerHTML={{
-                    __html: autolinker.link((text ? text : ' ').replace(/\n/g, '</br>'), {
-                        mention: 'twitter', // TODO change to souncloud
-                        replaceFn: (match) => {
-                            switch (match.getType()) {
-                                case 'url':
-                                    if (/https?:\/\/(www.)?soundcloud\.com\//g.exec(match.getUrl()) !== null) {
-
-                                        let tag = match.buildTag()
-                                        tag.setAttr('target', '_self')
-
-                                        return tag
-                                    }
-
-                                    return true
-
-                                case 'mention':
-                                    let tag = match.buildTag()
-                                    tag.setAttr('href', 'https://soundcloud.com/' + match.getMention())
+                                    tag = match.buildTag()
                                     tag.setAttr('target', '_self')
 
                                     return tag
+                                }
 
-                                case 'email':
-                                    let a = match.buildTag()
+                                return true
 
-                                    a.setAttr('target', '_self')
+                            case 'mention':
+                                tag = match.buildTag()
+                                tag.setAttr('href', `https://soundcloud.com/${match.getMention()}`)
+                                tag.setAttr('target', '_self')
 
-                                    return a
-                                default:
-                                    return false
+                                return tag
 
-                            }
+                            case 'email':
+                                a = match.buildTag()
+
+                                a.setAttr('target', '_self')
+
+                                return a
+                            default:
+                                return false
+
                         }
-                    })
-                }} />
-            </div>
-        )
-    }
+                    }
+                })
+            }} />
+        </div>
+    )
+}
+
+Linkify.propTypes = {
+    text: PropTypes.string
+}
+
+Linkify.defaultProps = {
+    text: ""
 }
 
 export default Linkify

@@ -1,5 +1,5 @@
-import {screen} from "electron";
-import path from "path";
+/* eslint-disable no-param-reassign */
+import { screen } from "electron";
 
 export function posCenter(options) {
 
@@ -22,12 +22,10 @@ export async function installExtensions() {
         'REDUX_DEVTOOLS'
     ];
     const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
-    for (const name of extensions) {
-        try {
-            await installer.default(installer[name], forceDownload);
-        } catch (e) {
-        } // eslint-disable-line
-    }
+
+    extensions.forEach(async (name) => {
+        await installer.default(installer[name], forceDownload);
+    })
 
 }
 

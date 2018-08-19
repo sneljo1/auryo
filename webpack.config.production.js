@@ -7,7 +7,6 @@ import path from 'path';
 import webpack from 'webpack';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 import merge from 'webpack-merge';
-import HtmlWebpackPlugin from "html-webpack-plugin";
 import baseConfig from './webpack.config.base';
 
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin')

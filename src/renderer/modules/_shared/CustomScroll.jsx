@@ -1,4 +1,5 @@
-'use strict'
+/* eslint-disable */
+
 const React = require('react')
 const reactDOM = require('react-dom')
 

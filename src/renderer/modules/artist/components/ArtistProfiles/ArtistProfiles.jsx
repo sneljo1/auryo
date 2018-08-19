@@ -1,7 +1,7 @@
-import {PROFILE_SERVICES} from "../../../../../shared/constants";
-import "./artistProfiles.scss";
-import React, {Component} from "react";
 import PropTypes from "prop-types";
+import React, { Component } from "react";
+import { PROFILE_SERVICES } from "../../../../../shared/constants";
+import "./artistProfiles.scss";
 
 class ArtistProfiles extends Component {
 
@@ -38,27 +38,29 @@ class ArtistProfiles extends Component {
     }
 
     render() {
-        const {profiles, className} = this.props;
+        const { profiles, className } = this.props;
 
         if (!profiles || !profiles.length) return null;
 
         return (
             <div id="web-profiles" className={className}>
                 {
-                    profiles.map(function (profile) {
+                    profiles.map((p) => {
+
+                        const profile = p;
 
                         const title = ArtistProfiles.getTitle(profile.title);
-                        if (profile.service == "personal" && title) {
+                        if (profile.service === "personal" && title) {
                             profile.service = title;
                         }
 
-                        const icon = "icon-" + ArtistProfiles.getIcon(profile.service);
+                        const icon = `icon-${ArtistProfiles.getIcon(profile.service)}`;
 
                         return (
                             <a href={profile.url}
-                               className={"profile " + (profile.service && profile.service != null ? profile.service.toLowerCase() : "")}
-                               key={profile.id}>
-                                <i className={icon}/>
+                                className={`profile ${profile.service && profile.service != null ? profile.service.toLowerCase() : ""}`}
+                                key={profile.id}>
+                                <i className={icon} />
                                 <span>{profile.title ? profile.title : profile.service}</span>
                             </a>
                         )
@@ -73,5 +75,10 @@ ArtistProfiles.propTypes = {
     profiles: PropTypes.array,
     className: PropTypes.string
 };
+
+ArtistProfiles.defaultProps = {
+    profiles: [],
+    className: ""
+}
 
 export default ArtistProfiles;

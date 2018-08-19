@@ -1,35 +1,34 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import { connect } from 'react-redux'
-import cn from 'classnames'
-import PlayerContainer from '../player/Player'
-import IsOffline from './components/Offline/Offline'
-import SideBar from './components/Sidebar/Sidebar'
-import Spinner from '../_shared/Spinner/Spinner'
-import * as actions from '../../../shared/actions'
-import ReduxToastr from 'react-redux-toastr'
-import { hashHistory, Route, Switch, withRouter } from 'react-router'
-import Queue from './components/Queue/Queue'
-import { OBJECT_TYPES } from '../../../shared/constants/global'
-import AddToPlaylistModal from '../_shared/AddToPlaylistModal/AddToPlaylistModal'
-import ResizeAware from 'react-resize-aware'
-import debounce from 'lodash/debounce'
-import { denormalize, schema } from 'normalizr'
-import playlistSchema from '../../../shared/schemas/playlist'
-import AppError from './components/AppError/AppError'
-import FeedPlaylistPage from '../playlists/FeedPlaylistPage'
-import LikesPlaylistPage from '../playlists/LikesPlaylistPage'
-import MyTracksPage from '../playlists/MyTracksPage'
-import MyPlaylistsPage from '../playlists/MyPlaylistsPage'
-import TrackPage from '../track/TrackPage'
-import ArtistPage from '../artist/ArtistPage'
-import PlaylistPage from '../playlist/PlaylistPage'
-import SearchWrapper from '../search/SearchWrapper'
-import UtilitiesModal from '../UtilitiesModel/UtilitiesModal'
-import trackSchema from '../../../shared/schemas/track'
-import ChartsPage from '../charts/ChartsPage'
-import ChartsDetailsPage from '../charts/ChartsDetailsPage'
-import { actions as toastrActions } from 'react-redux-toastr'
+import cn from 'classnames';
+import debounce from 'lodash/debounce';
+import { denormalize, schema } from 'normalizr';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
+import ReduxToastr, { actions as toastrActions } from 'react-redux-toastr';
+import ResizeAware from 'react-resize-aware';
+import { Route, Switch, withRouter } from 'react-router';
+import * as actions from '../../../shared/actions';
+import { OBJECT_TYPES } from '../../../shared/constants/global';
+import playlistSchema from '../../../shared/schemas/playlist';
+import trackSchema from '../../../shared/schemas/track';
+import ArtistPage from '../artist/ArtistPage';
+import ChartsDetailsPage from '../charts/ChartsDetailsPage';
+import ChartsPage from '../charts/ChartsPage';
+import PlayerContainer from '../player/Player';
+import PlaylistPage from '../playlist/PlaylistPage';
+import FeedPlaylistPage from '../playlists/FeedPlaylistPage';
+import LikesPlaylistPage from '../playlists/LikesPlaylistPage';
+import MyPlaylistsPage from '../playlists/MyPlaylistsPage';
+import MyTracksPage from '../playlists/MyTracksPage';
+import SearchWrapper from '../search/SearchWrapper';
+import TrackPage from '../track/TrackPage';
+import UtilitiesModal from '../UtilitiesModel/UtilitiesModal';
+import AddToPlaylistModal from '../_shared/AddToPlaylistModal/AddToPlaylistModal';
+import Spinner from '../_shared/Spinner/Spinner';
+import AppError from './components/AppError/AppError';
+import IsOffline from './components/Offline/Offline';
+import Queue from './components/Queue/Queue';
+import SideBar from './components/Sidebar/Sidebar';
 
 class App extends React.Component {
 
@@ -40,7 +39,9 @@ class App extends React.Component {
     }
 
     componentDidMount() {
-        this.props.initApp()
+        const { initApp } = this.props;
+
+        initApp()
 
         window.addEventListener('online', this.setOnlineStatus)
         window.addEventListener('offline', this.setOnlineStatus)
@@ -48,7 +49,7 @@ class App extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        const { app, add,remove } = this.props
+        const { app, add, remove } = this.props
 
         if (app.offline !== nextProps.app.offline && nextProps.app.offline === true) {
             add({
@@ -66,7 +67,9 @@ class App extends React.Component {
     }
 
     componentWillUnmount() {
-        this.props.cleanApp()
+        const { cleanApp } = this.props;
+
+        cleanApp()
 
         window.removeEventListener('online', this.setOnlineStatus)
         window.removeEventListener('offline', this.setOnlineStatus)
@@ -105,7 +108,9 @@ class App extends React.Component {
 
     handleResize = ({ width, height }) => {
 
-        this.props.setDimensions({
+        const { setDimensions } = this.props;
+
+        setDimensions({
             height,
             width
         })
@@ -116,30 +121,20 @@ class App extends React.Component {
             // Vars
             auth,
             app,
-            playlists_ent,
-            logout,
-            push,
-            replace,
+            entities,
             ui,
             player,
-            track_entities,
-            toggleQueue,
-            scrollTop,
-
+            playlists_objs,
             // Functions
             playTrack,
             togglePlaylistTrack,
-            playlists_objs,
-            toggleLike,
-            toggleRepost,
-            show,
-            addUpNext,
             updateQueue,
-            entities,
+            toggleQueue,
             initApp
         } = this.props
 
-        const { me, playlists, likes, reposts } = auth
+        const { playlist_entities, track_entities } = entities;
+        const { playlists } = auth
 
 
         const p = denormalize({ playlists }, { playlists: [playlistSchema] }, entities)
@@ -199,7 +194,7 @@ class App extends React.Component {
                         <PlayerContainer />
                     </footer>
 
-                    <AddToPlaylistModal playlist_entities={playlists_ent}
+                    <AddToPlaylistModal playlist_entities={playlist_entities}
                         playlist_objects={playlists_objs}
                         playlists={playlists}
                         togglePlaylistTrackFunc={togglePlaylistTrack}
@@ -213,35 +208,35 @@ class App extends React.Component {
 }
 
 App.propTypes = {
-    playlists_ids: PropTypes.array,
-    playlists_ent: PropTypes.object,
-    me: PropTypes.object,
+    entities: PropTypes.object.isRequired,
+    auth: PropTypes.object.isRequired,
+    ui: PropTypes.object.isRequired,
+    player: PropTypes.object.isRequired,
+    app: PropTypes.object.isRequired,
+    playlists_objs: PropTypes.object.isRequired,
 
     initApp: PropTypes.func.isRequired,
-    logout: PropTypes.func.isRequired,
-    push: PropTypes.func.isRequired,
     toggleOffline: PropTypes.func.isRequired,
-    app: PropTypes.object.isRequired
-}
-
-App.defaultProps = {
-    playlists_ids: [],
-    playlists_ent: {}
+    cleanApp: PropTypes.func.isRequired,
+    add: PropTypes.func.isRequired,
+    remove: PropTypes.func.isRequired,
+    setDimensions: PropTypes.func.isRequired,
+    toggleQueue: PropTypes.func.isRequired,
+    updateQueue: PropTypes.func.isRequired,
+    togglePlaylistTrack: PropTypes.func.isRequired,
+    playTrack: PropTypes.func.isRequired
 }
 
 const mapStateToProps = (state, props) => {
-    const { auth, app, objects, player, entities: { playlist_entities, track_entities, user_entities }, ui } = state
+    const { auth, app, objects, player, entities, ui } = state
     const { location } = props
 
     return {
         auth,
         player,
         app,
-        playlists_ent: playlist_entities,
-        entities: state.entities,
+        entities,
         ui,
-        track_entities,
-        user_entities,
         playlists_objs: objects[OBJECT_TYPES.PLAYLISTS] || {},
         scrollTop: ui.scrollPosition[location.pathname]
     }

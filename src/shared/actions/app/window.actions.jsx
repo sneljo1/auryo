@@ -1,22 +1,21 @@
-import { ipcRenderer } from 'electron'
-import is from 'electron-is'
-import React from 'react'
-import { toastr } from 'react-redux-toastr'
-import * as actionTypes from '../../constants/actionTypes'
-import { SC } from '../../utils'
-import fetchToJson from '../../api/helpers/fetchToJson'
-import { isOnline } from './offline.actions'
-import { toggleLike } from '../track/like.actions'
-import { changeTrack, toggleStatus } from '../../../renderer/modules/player/player.actions'
-import moment from 'moment'
-import { push, replace } from 'react-router-redux'
-import { PLAYER_STATUS, VOLUME_TYPES } from '../../../renderer/modules/player/constants/player'
-import { setConfigKey } from '../config.actions'
-import { EVENTS } from '../../constants/events'
-
-import { windowRouter } from '../../utils/router'
-import { toggleRepost } from '../track/reposts.actions'
-import { Redirect } from "react-router-dom"
+/* eslint-disable global-require */
+import { ipcRenderer } from 'electron';
+import is from 'electron-is';
+import moment from 'moment';
+import React from 'react';
+import { toastr } from 'react-redux-toastr';
+import { push } from 'react-router-redux';
+import fetchToJson from '../../api/helpers/fetchToJson';
+import * as actionTypes from '../../constants/actionTypes';
+import { EVENTS } from '../../constants/events';
+import { PLAYER_STATUS, VOLUME_TYPES } from '../../constants/player';
+import { SC } from '../../utils';
+import { windowRouter } from '../../utils/router';
+import { setConfigKey } from '../config.actions';
+import { changeTrack, toggleStatus } from '../player/playerActions';
+import { toggleLike } from '../track/like.actions';
+import { toggleRepost } from '../track/reposts.actions';
+import { isOnline } from './offline.actions';
 
 export function openExternal(url) {
     ipcRenderer.send('open_external', url)
@@ -75,7 +74,9 @@ export function initWatchers() {
 
             listeners.push({
                 event: EVENTS.PLAYER.TOGGLE_STATUS,
-                handler: (newStatus) => {
+                handler: (arg) => {
+
+                    let newStatus = arg;
 
                     const { player: { status } } = getState()
 
@@ -106,7 +107,7 @@ export function initWatchers() {
 
             listeners.push({
                 event: 'stream-request',
-                handler: (event, data) => {
+                handler: () => {
 
                     const { config: { app: { analytics } } } = getState()
 
@@ -121,10 +122,10 @@ export function initWatchers() {
                 event: 'new-version',
                 handler: (data) => {
                     // TODO show modal
-                    toastr.success('Auryo has updated to version ' + data, {
+                    toastr.success(`Auryo has updated to version ${data}`, {
                         component: (
                             <div className='notification-children'>
-                                <a href={'https://github.com/Superjo149/auryo/releases/tag/v' + data}
+                                <a href={`https://github.com/Superjo149/auryo/releases/tag/v${data}`}
                                     className='notification-action-button'>View changelog</a>
                             </div>
                         )
@@ -136,43 +137,35 @@ export function initWatchers() {
                 event: 'stream-error',
                 handler: (data) => {
                     console.log('stream-error')
+                    const { app: { offline }, config: { app: { analytics } } } = getState()
                     switch (data) {
                         case -1:
-                            const { app: { offline } } = getState()
-
                             if (!offline) {
                                 dispatch(isOnline())
                             }
-
                             break
                         case 404:
                             toastr.error('Not found!', 'This track might not exists anymore')
                             break
                         case 429:
-
-
-                            const { config: { app: { analytics } } } = getState()
-
-                            fetchToJson(url)
+                            return fetchToJson(url)
                                 .then((json) => {
                                     if (json.errors.length > 0) {
                                         const error = json.errors[0]
 
-                                        if (error.meta['rate_limit']) {
+                                        if (error.meta.rate_limit) {
 
-                                            toastr.error('Stream limit reached!', 'Unfortunately the API enforces a 15K plays/hour limit. this limit will expire in ' + moment(error.meta.reset_time).toNow())
+                                            toastr.error('Stream limit reached!', `Unfortunately the API enforces a 15K plays/hour limit. this limit will expire in ${moment(error.meta.reset_time).toNow()}`)
 
                                             if (process.env.NODE_ENV === 'production' && analytics) {
                                                 const ua = require('../../utils/universalAnalytics')
                                                 ua().event('SoundCloud', 'Rate limit reached').send()
                                             }
-
-
                                         }
-
                                     }
                                 })
-                            break
+                        default:
+                            break;
                     }
                 }
             })
@@ -198,7 +191,7 @@ export function initWatchers() {
                         }
                     }
 
-                    toastr.success('Update available v' + data.version, 'Current version: ' + data.current_version, options)
+                    toastr.success(`Update available v${data.version}`, `Current version: ${data.current_version}`, options)
 
                 }
             })
@@ -211,7 +204,7 @@ export function initWatchers() {
 }
 
 export function stopWatchers() {
-    return dispatch => {
+    return () => {
         listeners.forEach(l => {
             windowRouter.removeListener(l.event, l.handler)
         })
@@ -240,21 +233,19 @@ export function resolveUrl(url, history) {
     if (is.renderer()) {
         fetchToJson(SC.resolveUrl(url))
             .then(json => {
-                console.log("response",json)
+                console.log("response", json)
                 switch (json.kind) {
                     case 'track':
-                        history.replace('/track/' + json.id)
+                        return history.replace(`/track/${json.id}`)
                     case 'user':
-                        return history.replace('/user/' + json.id)
+                        return history.replace(`/user/${json.id}`)
                     default:
                         throw Error('Not implemented')
                 }
             })
-            .catch(err => {
+            .catch(() => {
                 history.goBack()
-
                 ipcRenderer.send('open_external', unescape(url))
-
             })
 
     }

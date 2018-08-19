@@ -9,29 +9,31 @@ import './sidebar.scss';
 
 class SideBar extends React.Component {
 
-    shouldComponentUpdate(nextProps, nextState, nextContext) {
-        return !isEqual(this.props.playing, nextProps.playing) ||
-            !isEqual(this.props.playlists, nextProps.playlists) ||
-            !isEqual(this.props.location, nextProps.location) ||
-            !isEqual(this.props.currentPlaylistId, nextProps.currentPlaylistId)
+    shouldComponentUpdate(nextProps) {
+        const { playing, playlists, location, currentPlaylistId } = this.props;
+
+        return !isEqual(playing, nextProps.playing) ||
+            !isEqual(playlists, nextProps.playlists) ||
+            !isEqual(location, nextProps.location) ||
+            !isEqual(currentPlaylistId, nextProps.currentPlaylistId)
     }
 
     render() {
-        const { playlists, playing,currentPlaylistId } = this.props
+        const { playlists, playing, currentPlaylistId } = this.props
 
         return (
 
             <aside id="sidebar"
-                   role="navigation"
-                   className={cn('sidebar-offcanvas d-flex flex-column', {
-                       'test': process.env.TOKEN,
-                       'playing': playing
-                   })}>
+                role="navigation"
+                className={cn('sidebar-offcanvas d-flex flex-column', {
+                    'test': process.env.TOKEN,
+                    playing
+                })}>
 
                 <div className="drag-strip" />
 
                 <CustomScroll heightRelativeToParent="100%"
-                              allowOuterScroll>
+                    allowOuterScroll>
                     <div key="sidebar-menu" id="sidebar-menu">
                         <h2>Discover</h2>
                         <ul className="nav flex-column">
@@ -67,7 +69,7 @@ class SideBar extends React.Component {
                         </ul>
                         <h2>Playlists</h2>
                         <div id="playlists" className="nav flex-column">
-                            <SideBarPlaylist playlists={playlists} currentPlaylistId={currentPlaylistId}/>
+                            <SideBarPlaylist playlists={playlists} currentPlaylistId={currentPlaylistId} />
                         </div>
                     </div>
                 </CustomScroll>
@@ -78,12 +80,13 @@ class SideBar extends React.Component {
 
 SideBar.propTypes = {
     playlists: PropTypes.array.isRequired,
+    location: PropTypes.object.isRequired,
     playing: PropTypes.bool,
     currentPlaylistId: PropTypes.string
 }
-
 SideBar.defaultProps = {
-    playlists: []
+    playing: false,
+    currentPlaylistId: ""
 }
 
 export default withRouter(SideBar)

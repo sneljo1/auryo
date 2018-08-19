@@ -7,25 +7,7 @@ import CommentListItem from './CommentListitem';
 
 class CommentList extends Component {
 
-    static propTypes = {
-        comments: PropTypes.object.isRequired,
-        comment_entities: PropTypes.object.isRequired,
-        user_entities: PropTypes.object.isRequired
-    }
-
-    static defaultProps = {
-        comments: {
-            items: []
-        }
-    }
-
-    constructor() {
-        super()
-
-        this.renderItem = this.renderItem.bind(this)
-    }
-
-    renderItem(index, key) {
+    renderItem = (index) => {
         const { comments, comment_entities, user_entities } = this.props
 
         const commentId = comments.items[index]
@@ -50,13 +32,19 @@ class CommentList extends Component {
                     type="uniform"
                     length={items.length}
                     itemRenderer={this.renderItem}
-                    useTranslate3d={true}
-                    useStaticSize={true}
+                    useTranslate3d
+                    useStaticSize
                 />
                 {(comments.isFetching) ? <Spinner /> : null}
             </div>
         )
     }
+}
+
+CommentList.propTypes = {
+    comments: PropTypes.object.isRequired,
+    comment_entities: PropTypes.object.isRequired,
+    user_entities: PropTypes.object.isRequired
 }
 
 export default CommentList

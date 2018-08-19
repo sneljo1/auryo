@@ -1,20 +1,22 @@
-import React from 'react'
-import { Route, Switch } from 'react-router'
-import App from './modules/app/App'
-import Login from './modules/login/Login'
-import { resolveUrl } from '../shared/actions/app/window.actions'
+/* eslint-disable react/prop-types */
+import React from 'react';
+import { Route, Switch } from 'react-router';
 import { Redirect } from 'react-router-dom';
+import { resolveUrl } from '../shared/actions/app/window.actions';
+import App from './modules/app/App';
+import Login from './modules/login/Login';
 import Spinner from './modules/_shared/Spinner/Spinner';
 
 const Routes = () => (
     <Switch>
         <Route name="Login" path="/login" component={Login} />
         <Route name="Resolve" path="/resolve" render={(props) => {
-            if (!props.location.query) {
+            const { location: { query },history } = props
+            if (!query) {
                 return <Redirect to="/" />
             }
 
-            resolveUrl(props.location.query.url, props.history)
+            resolveUrl(query.url, history)
 
             return <Spinner full />
         }} />

@@ -13,14 +13,11 @@ import './commentList.scss';
 
 class CommentListItem extends React.Component {
 
-    static propTypes = {
-        comment: PropTypes.object.isRequired,
-        user: PropTypes.object.isRequired
-    }
+    shouldComponentUpdate(nextProps) {
+        const { comment, user } = this.props
 
-    shouldComponentUpdate(nextProps, nextState) {
-        if (!isEqual(this.props.comment, nextProps.comment) ||
-            !isEqual(this.props.user, nextProps.user)) {
+        if (!isEqual(comment, nextProps.comment) ||
+            !isEqual(user, nextProps.user)) {
             return true
         }
         return false
@@ -34,7 +31,7 @@ class CommentListItem extends React.Component {
         return (
             <Row className="comment">
                 <div className="comment-user col-xs no-grow">
-                    <FallbackImage width={50} height={50} src={img} fallbackImage={fallback_url} />
+                    <FallbackImage id={comment.user_id} width={50} height={50} src={img} fallbackImage={fallback_url} />
                 </div>
                 <Col xs="8" className="comment-main">
                     <div className="info flex">
@@ -53,6 +50,11 @@ class CommentListItem extends React.Component {
             </Row>
         )
     }
+}
+
+CommentListItem.propTypes = {
+    comment: PropTypes.object.isRequired,
+    user: PropTypes.object.isRequired
 }
 
 export default CommentListItem

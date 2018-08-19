@@ -1,7 +1,6 @@
-import React, { Component } from 'react'
-import PropTypes from 'prop-types'
-import ReactDOM from 'react-dom'
-import cn from 'classnames'
+import cn from 'classnames';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 
 class ToggleMore extends Component {
     constructor(props) {
@@ -17,7 +16,7 @@ class ToggleMore extends Component {
     }
 
     componentDidMount() {
-        const height = ReactDOM.findDOMNode(this.refs.overflow).clientHeight
+        const height = this.overflow.clientHeight
         const { overflow, check_height } = this.state
 
         if (height > check_height && !overflow) {
@@ -40,26 +39,26 @@ class ToggleMore extends Component {
 
     render() {
         const { overflow, open, current_height } = this.state
-        const { className } = this.props
+        const { className, children } = this.props
 
         if (!overflow) {
             return (
-                <div ref="overflow" className={className}>
-                    {this.props.children}
+                <div ref={r => this.overflow = r} className={className}>
+                    {children}
                 </div>
             )
         }
 
         return (
-            <div className={cn('overflow-container', className, { open: open })}>
-                <div className="overflow-div" ref="overflow" style={{
+            <div className={cn('overflow-container', className, { open })}>
+                <div className="overflow-div" ref={r => this.overflow = r} style={{
                     height: current_height
                 }}>
-                    {this.props.children}
+                    {children}
                 </div>
                 <div className="overflow-bottom">
                     <a className="overflow-button" href="javascript:void(0)" onClick={this.toggleOpen.bind(this)}>
-                        <i className={'icon-' + (open ? 'keyboard_arrow_up' : 'keyboard_arrow_down')} />
+                        <i className={`icon-${open ? 'keyboard_arrow_up' : 'keyboard_arrow_down'}`} />
                     </a>
                 </div>
             </div>
@@ -70,10 +69,13 @@ class ToggleMore extends Component {
 
 ToggleMore.propTypes = {
     height: PropTypes.number,
-    className: PropTypes.string
+    className: PropTypes.string,
+    children: PropTypes.any,
 }
 ToggleMore.defaultProps = {
-    className: ''
+    className: '',
+    height: 200,
+    children: null
 }
 
 export default ToggleMore

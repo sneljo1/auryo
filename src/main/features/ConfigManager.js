@@ -1,16 +1,16 @@
-import settings from '../settings'
-import IFeature from './IFeature'
-import { DEFAULT_CONFIG } from '../../config'
-import { setConfig } from '../../shared/actions/config.actions'
-import { version } from '../../package.json'
-import semver from 'semver'
-import debounce from 'lodash/debounce'
-import defaultsDeep from 'lodash/defaultsDeep'
-import { EVENTS } from '../../shared/constants/events'
-import { canGoInHistory } from '../../shared/actions/app/app.actions'
-import { session } from 'electron'
-import { getProxyUrlFromConfig } from '../utils/utils'
-import { Logger } from '../utils/logger'
+import { session } from 'electron';
+import debounce from 'lodash/debounce';
+import defaultsDeep from 'lodash/defaultsDeep';
+import semver from 'semver';
+import { CONFIG } from '../../config';
+import { version } from '../../package.json';
+import { canGoInHistory } from '../../shared/actions/app/app.actions';
+import { setConfig } from '../../shared/actions/config.actions';
+import { EVENTS } from '../../shared/constants/events';
+import settings from '../settings';
+import { Logger } from '../utils/logger';
+import { getProxyUrlFromConfig } from '../utils/utils';
+import IFeature from './IFeature';
 
 export default class ConfigManager extends IFeature {
 
@@ -18,8 +18,6 @@ export default class ConfigManager extends IFeature {
 
     constructor(app) {
         super(app)
-
-        this._checkCanGo = this._checkCanGo.bind(this)
 
         this.writetoConfig = debounce(config => settings.setAll(config), 5000)
 
@@ -29,7 +27,7 @@ export default class ConfigManager extends IFeature {
         try {
             this.config = settings.getAll()
         } catch (e) {
-            this.config = DEFAULT_CONFIG
+            this.config = CONFIG.DEFAULT_CONFIG
         }
 
         if (typeof this.config.version === 'undefined') {
@@ -40,11 +38,10 @@ export default class ConfigManager extends IFeature {
         }
 
         // fill out default values if config is incomplete
-        this.config = defaultsDeep(this.config, DEFAULT_CONFIG)
+        this.config = defaultsDeep(this.config, CONFIG.DEFAULT_CONFIG)
 
         if (this.config.enableProxy) {
             Logger.info('Enabling proxy')
-            console.log(getProxyUrlFromConfig(this.config.proxy))
             session.defaultSession.setProxy({
                 proxyRules: getProxyUrlFromConfig(this.config.proxy)
             }, () => {
@@ -63,18 +60,18 @@ export default class ConfigManager extends IFeature {
 
         this.store.dispatch(setConfig(this.config))
 
-        this.subscribe(['app', 'loaded'], this._notifyNewVersion)
+        this.subscribe(['app', 'loaded'], this.notifyNewVersion)
 
         this.on(EVENTS.APP.READY, () => {
-            this.on('GO', this._checkCanGo)
-            this.subscribe('config', this._updateConfig)
+            this.on('GO', this.checkCanGo)
+            this.subscribe('config', this.updateConfig)
         })
     }
 
     /**
      * Write new values to the config file
      */
-    _updateConfig = ({ currentValue }) => {
+    updateConfig = ({ currentValue }) => {
 
         this.writetoConfig(currentValue)
     }
@@ -84,7 +81,7 @@ export default class ConfigManager extends IFeature {
      */
 
 
-    _checkCanGo() {
+    checkCanGo = () => {
 
         if (this.win && this.win.webContents) {
 
@@ -100,19 +97,13 @@ export default class ConfigManager extends IFeature {
     /**
      * If version doesn't match config version, send update to frontend on app loaded
      */
-    _notifyNewVersion = () => {
-        const _this = this
-
+    notifyNewVersion = () => {
         if (this.is_new_version) {
             setTimeout(() => {
-                _this.router.send(EVENTS.APP.NEW_VERSION, version)
+                this.router.send(EVENTS.APP.NEW_VERSION, version)
                 super.unregister(['app', 'loaded'])
             }, 1000)
         }
-    }
-
-    unregister() {
-        super.unregister()
     }
 
 }

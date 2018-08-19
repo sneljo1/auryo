@@ -11,8 +11,15 @@
   },
   "rules": {
     "arrow-parens": ["off"],
-    "compat/compat": "error",
+    "compat/compat": "off",
+    "import/no-cycle": "off",
     "consistent-return": "off",
+    "import/prefer-default-export": "off",
+    "jsx-a11y/label-has-for": "off",
+    "camelcase": "off",
+    "no-script-url": "off",
+    "jsx-a11y/alt-text": "off",
+    "react/forbid-prop-types": "off",
     "comma-dangle": "off",
     "generator-star-spacing": "off",
     "import/no-unresolved": "error",
@@ -22,9 +29,10 @@
     "no-use-before-define": "off",
     "no-multi-assign": "off",
     "promise/param-names": "error",
-    "promise/always-return": "error",
     "promise/catch-or-return": "error",
     "promise/no-native": "off",
+    "no-return-assign": "off",
+    "promise/always-return": "off",
     "react/sort-comp": [
       "error",
       {
@@ -49,7 +57,7 @@
   "settings": {
     "import/resolver": {
       "webpack": {
-        "config": "webpack.config.eslint.js"
+        "config": "../webpack.config.eslint.js"
       }
     }
   }

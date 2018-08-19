@@ -6,20 +6,19 @@ const BASE_URL = 'http://api.auryo.com'
 let downloadPath = "";
 
 if (!is.renderer()) {
+    // eslint-disable-next-line
     const { app } = require('electron')
     downloadPath = app.getPath('downloads')
 }
 
-export default {
+export const CONFIG = {
     // SoundCloud
     BASE_URL,
     CLIENT_ID: process.env.CLIENT_ID,
     SENTRY_URL: process.env.SENTRY_URL,
     FB_APP_ID: process.env.FB_APP_ID,
 
-    getConnectUrl: (socketID) => {
-        return `${BASE_URL}/connect?state=${socketID}&env=${process.env.NODE_ENV}`
-    },
+    getConnectUrl: (socketID) => `${BASE_URL}/connect?state=${socketID}&env=${process.env.NODE_ENV}`,
 
     // Google
 
@@ -27,7 +26,7 @@ export default {
 
     // App
 
-    MAIN_WINDOW: `file://${  __dirname  }/renderer/app.html`,
+    MAIN_WINDOW: `file://${__dirname}/renderer/app.html`,
     STREAM_CHECK_INTERVAL: 60000,
     UPDATE_SERVER_HOST: 'https://api.github.com/repos/Superjo149/Auryo/releases/latest',
 

@@ -10,9 +10,11 @@ import './TrackGridUser.scss';
 
 class TrackGridUser extends React.Component {
 
-    shouldComponentUpdate(nextProps, nextState) {
-        if (!isEqual(this.props.user, nextProps.user) ||
-            this.props.following !== nextProps.following) {
+    shouldComponentUpdate(nextProps) {
+        const { user, following } = this.props
+
+        if (!isEqual(user, nextProps.user) ||
+            following !== nextProps.following) {
             return true
         }
         return false
@@ -38,7 +40,7 @@ class TrackGridUser extends React.Component {
                             <FallbackImage src={img_url} width={90} height={90} />
                         </div>
                         <div className="user-info">
-                            <Link to={'/user/' + id} className="user-title">{username}</Link>
+                            <Link to={`/user/${id}`} className="user-title">{username}</Link>
 
                             {
                                 withStats && <div className="d-flex stats">
@@ -50,7 +52,7 @@ class TrackGridUser extends React.Component {
                                     </div>
                                 </div>
                             }
-                            <a href="javascript:void(0)" className={cn('c_btn outline', { following: following })}
+                            <a href="javascript:void(0)" className={cn('c_btn outline', { following })}
                                 onClick={toggleFollowingFunc}>
                                 {following ? <i className="icon-check" /> : <i className="icon-add" />}
                                 <span>{following ? 'Following' : 'Follow'}</span>
@@ -68,6 +70,11 @@ TrackGridUser.propTypes = {
     toggleFollowingFunc: PropTypes.func.isRequired,
     following: PropTypes.bool,
     withStats: PropTypes.bool
+}
+
+TrackGridUser.defaultProps = {
+    following: false,
+    withStats: false
 }
 
 export default TrackGridUser

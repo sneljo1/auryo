@@ -1,16 +1,15 @@
-import React, { Component } from 'react'
-import PropTypes from 'prop-types'
-import ReactList from 'react-list'
-import TrackGridItem from './TrackGridItem'
-import cn from 'classnames'
-import * as SC from '../../../../shared/utils/soundcloudUtils'
-import TrackGridUser from './TrackGridUser'
-import { Col } from 'reactstrap'
+import cn from 'classnames';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import ReactList from 'react-list';
+import { Col } from 'reactstrap';
+import * as SC from '../../../../shared/utils/soundcloudUtils';
+import TrackGridItem from './TrackGridItem';
+import TrackGridUser from './TrackGridUser';
 
 class TracksGrid extends Component {
 
-    renderItem = (index, key) => {
-
+    renderItem = (index) => {
         const {
             // Vars
             entities: { playlist_entities },
@@ -33,7 +32,7 @@ class TracksGrid extends Component {
             return null
         }
 
-        let obj = item
+        const obj = item
 
         let repost = false
 
@@ -49,9 +48,9 @@ class TracksGrid extends Component {
 
         }
 
-        let newplayTrackFunc = playTrackFunc.bind(null, playlist_name, obj.id, obj.kind === 'playlist' ? obj : null, true)
+        const newplayTrackFunc = playTrackFunc.bind(null, playlist_name, obj.id, obj.kind === 'playlist' ? obj : null, true)
 
-        let isPlaying
+        let isPlaying = false;
 
         if (obj.kind === 'playlist') {
             isPlaying = player.playingTrack.playlistId === obj.id
@@ -64,8 +63,8 @@ class TracksGrid extends Component {
 
             return (
                 <Col key={`grid-item-${obj.kind}-${obj.id}`}
-                     xs="12" sm="6" lg="4"
-                     className="userWrapper">
+                    xs="12" sm="6" lg="4"
+                    className="userWrapper">
                     <TrackGridUser
                         withStats
                         following={following}
@@ -93,9 +92,9 @@ class TracksGrid extends Component {
         )
     }
 
-    renderWrapper(items, ref) {
-        return <div className="row" ref={ref}>{items}</div>
-    }
+    renderWrapper = (items, ref) => (
+        <div className="row" ref={ref}>{items}</div>
+    )
 
     render() {
 
@@ -109,7 +108,7 @@ class TracksGrid extends Component {
                     length={items.length}
                     itemsRenderer={this.renderWrapper}
                     itemRenderer={this.renderItem}
-                    useTranslate3d={true}
+                    useTranslate3d
                     threshold={400}
                 />
             </div>
@@ -119,13 +118,11 @@ class TracksGrid extends Component {
 
 TracksGrid.propTypes = {
     showInfo: PropTypes.bool,
-    noPadding: PropTypes.bool,
-    sort: PropTypes.bool,
     entities: PropTypes.object.isRequired,
     items: PropTypes.array,
     player: PropTypes.object.isRequired,
     followings: PropTypes.object,
-    playlist_name: PropTypes.oneOfType([PropTypes.string.isRequired, PropTypes.number.isRequired]),
+    playlist_name: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
 
     playTrackFunc: PropTypes.func.isRequired,
     fetchPlaylistIfNeededFunc: PropTypes.func.isRequired,
@@ -133,7 +130,10 @@ TracksGrid.propTypes = {
 }
 
 TracksGrid.defaultProps = {
-    items: []
+    items: [],
+    showInfo: false,
+    followings: {},
+    toggleFollowing: ()=>{},
 }
 
 export default TracksGrid

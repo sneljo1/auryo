@@ -4,8 +4,10 @@ import './AppError.scss';
 
 class AppError extends React.Component {
 
-    shouldComponentUpdate(nextProps, nextState, nextContext) {
-        return this.props.error !== nextProps.error;
+    shouldComponentUpdate(nextProps) {
+        const { error } = this.props;
+
+        return error !== nextProps.error;
     }
 
     render() {
@@ -17,9 +19,7 @@ class AppError extends React.Component {
             <div className="full-width-center">
                 <div>
                     <h2>Oops</h2>
-
                     <p className="alert alert-danger">{error}</p>
-
                     <a href="javascript:void(0)" className="btn btn-primary" onClick={initApp}>Retry</a>
                 </div>
             </div>

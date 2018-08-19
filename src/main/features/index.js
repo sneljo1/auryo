@@ -1,15 +1,15 @@
-import AppUpdater from './AppUpdater'
-import Thumbar from './win32/Thumbar'
-import IPCManager from './IPCManager'
-import PowerMonitor from './PowerMonitor'
-import ShortcutManager from './ShortcutManager'
-import ExceptionManager from './ExceptionManager'
-import ConfigManager from './ConfigManager'
-import ApplicationMenu from './ApplicationMenu'
-import TouchBarManager from './mac/TouchBarManager.js'
-import MprisService from './linux/MprisService'
-import Win10MediaService from './win32/win10/Win10MediaService'
-import MediaServiceManager from './mac/MediaServiceManager'
+import ApplicationMenu from './ApplicationMenu';
+import AppUpdater from './AppUpdater';
+import ConfigManager from './ConfigManager';
+import ExceptionManager from './ExceptionManager';
+import IPCManager from './IPCManager';
+import MprisService from './linux/MprisService';
+import MediaServiceManager from './mac/MediaServiceManager';
+import TouchBarManager from './mac/TouchBarManager';
+import PowerMonitor from './PowerMonitor';
+import ShortcutManager from './ShortcutManager';
+import Thumbar from './win32/Thumbar';
+import Win10MediaService from './win32/win10/Win10MediaService';
 
 export const tools = [
     AppUpdater,
@@ -26,7 +26,5 @@ export const tools = [
     Win10MediaService
 ]
 
-export const getTools = (app) => {
-    return tools.map(feature => new feature(app))
-        .filter(o => o.shouldRun())
-}
+export const getTools = (app) => tools.map(Feature => new Feature(app))
+    .filter(o => o.shouldRun())

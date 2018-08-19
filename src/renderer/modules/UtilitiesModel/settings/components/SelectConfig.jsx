@@ -1,27 +1,16 @@
-import React from 'react'
-import PropTypes from 'prop-types'
+import PropTypes from 'prop-types';
+import React from 'react';
 
 class SelectConfig extends React.Component {
 
-    static propTypes = {
-        config: PropTypes.object,
-        setConfigKey: PropTypes.func,
-        configKey: PropTypes.string,
-        name: PropTypes.string,
-        data: PropTypes.array,
-        className: PropTypes.string,
-        onChange: PropTypes.func,
-        usePlaceholder: PropTypes.bool
-    }
+    handleChange = (e) => {
+        const { configKey, setConfigKey, onChange } = this.props
 
-    constructor() {
-        super()
+        setConfigKey(configKey, e.target.value)
 
-        this.state = {
-            isChecked: null
+        if (onChange) {
+            onChange(e.target.value)
         }
-
-        this._handleChange = this._handleChange.bind(this)
     }
 
 
@@ -35,10 +24,10 @@ class SelectConfig extends React.Component {
                 {
                     !usePlaceholder && <span>{name}</span>
                 }
-                <select className="form-control form-control-sm" onChange={this._handleChange} defaultValue={value || ''}>
+                <select className="form-control form-control-sm" onChange={this.handleChange} defaultValue={value || ''}>
                     {
-                        data.map(({ key, value }) => (
-                            <option value={value}>{key}</option>
+                        data.map(({ k, v }) => (
+                            <option value={v}>{k}</option>
                         ))
                     }
                 </select>
@@ -46,18 +35,23 @@ class SelectConfig extends React.Component {
         )
     }
 
-
-    _handleChange(e) {
-        const { configKey } = this.props
-
-        this.props.setConfigKey(configKey, e.target.value)
-
-        if (this.props.onChange) {
-            this.props.onChange(e.target.value)
-        }
-    }
-
 }
 
+SelectConfig.propTypes = {
+    config: PropTypes.object.isRequired,
+    setConfigKey: PropTypes.func.isRequired,
+    configKey: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    data: PropTypes.array,
+    className: PropTypes.string,
+    onChange: PropTypes.func,
+    usePlaceholder: PropTypes.bool
+}
+SelectConfig.defaultProps = {
+    onChange: null,
+    usePlaceholder: false,
+    className: "",
+    data:[]
+}
 
 export default SelectConfig

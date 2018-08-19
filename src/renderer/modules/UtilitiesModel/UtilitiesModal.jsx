@@ -1,21 +1,29 @@
-import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import { connectModal } from 'redux-modal'
-import { Modal, ModalBody, Nav, NavItem, NavLink, TabContent, TabPane } from 'reactstrap'
-import cn from 'classnames'
-import AboutTab from './about/AboutTab'
-import SettingsTab from './settings/SettingsTab'
-import './UtilitiesModal.scss'
-import PropTypes from 'prop-types'
-import * as actions from '../../../shared/actions/config.actions'
+import cn from 'classnames';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { Modal, ModalBody, Nav, NavItem, NavLink, TabContent, TabPane } from 'reactstrap';
+import { connectModal } from 'redux-modal';
+import * as actions from '../../../shared/actions/config.actions';
+import AboutTab from './about/AboutTab';
+import SettingsTab from './settings/SettingsTab';
+import './UtilitiesModal.scss';
 
 class UtilitiesModal extends Component {
-    state = {
-        activeTab: this.props.activeTab || 'about'
+    constructor() {
+        super();
+
+        const { activeTab } = this.props;
+
+        this.state = {
+            activeTab: activeTab || 'about'
+        }
     }
 
     toggle = (tab) => {
-        if (this.state.activeTab !== tab) {
+        const { activeTab } = this.state;
+
+        if (activeTab !== tab) {
             this.setState({
                 activeTab: tab
             })
@@ -24,7 +32,8 @@ class UtilitiesModal extends Component {
 
     render() {
         const { show, handleHide } = this.props
-        
+        const { activeTab } = this.state;
+
         return (
             <Modal isOpen={show} toggle={handleHide} className="utilities">
                 <ModalBody>
@@ -34,7 +43,7 @@ class UtilitiesModal extends Component {
                     <Nav tabs>
                         <NavItem>
                             <NavLink
-                                className={cn({ active: this.state.activeTab === 'about' })}
+                                className={cn({ active: activeTab === 'about' })}
                                 onClick={() => {
                                     this.toggle('about')
                                 }}
@@ -45,7 +54,7 @@ class UtilitiesModal extends Component {
                         </NavItem>
                         <NavItem>
                             <NavLink
-                                className={cn({ active: this.state.activeTab === 'settings' })}
+                                className={cn({ active: activeTab === 'settings' })}
                                 onClick={() => {
                                     this.toggle('settings')
                                 }}
@@ -55,7 +64,7 @@ class UtilitiesModal extends Component {
                             </NavLink>
                         </NavItem>
                     </Nav>
-                    <TabContent activeTab={this.state.activeTab}>
+                    <TabContent activeTab={activeTab}>
                         <TabPane tabId="about">
                             <AboutTab />
                         </TabPane>
@@ -70,11 +79,16 @@ class UtilitiesModal extends Component {
 }
 
 UtilitiesModal.propTypes = {
-    authenticated: PropTypes.bool
+    show: PropTypes.bool,
+    handleHide: PropTypes.func.isRequired,
+}
+
+UtilitiesModal.defaultProps = {
+    show: false
 }
 
 
-const mapStateToProps = (state, props) => {
+const mapStateToProps = (state) => {
     const { config } = state
 
     return {

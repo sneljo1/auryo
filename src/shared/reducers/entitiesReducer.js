@@ -1,5 +1,5 @@
 import merge from "lodash/merge";
-import {actionTypes} from "../constants";
+import { actionTypes } from "../constants";
 
 const initialState = {
     playlist_entities: {},
@@ -10,14 +10,14 @@ const initialState = {
 };
 
 export default function entities(state = initialState, action) {
-    const {payload, type} = action;
+    const { payload, type } = action;
 
     if (payload && payload.entities) {
         return merge({}, state, payload.entities);
     }
 
-    if(type === actionTypes.APP_RESET_STORE){
-        state = initialState;
+    if (type === actionTypes.APP_RESET_STORE) {
+        return initialState;
     }
 
     return state;

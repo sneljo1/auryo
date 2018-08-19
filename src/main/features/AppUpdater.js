@@ -3,8 +3,8 @@ import is from 'electron-is';
 import { autoUpdater } from 'electron-updater';
 import request from 'request';
 import { gt as isVersionGreaterThan, valid as parseVersion } from 'semver';
-import { UPDATE_SERVER_HOST } from '../../config';
-import Logger from '../utils/logger';
+import { CONFIG } from '../../config';
+import { Logger } from '../utils/logger';
 import { registerError } from '../utils/raven';
 import IFeature from './IFeature';
 import { appVersion } from '../../package.json'
@@ -29,12 +29,11 @@ export default class AppUpdater extends IFeature {
         }
     }
 
-    update() {
+    update = () => {
 
         function getVersion(version) {
             const regex = /[0-9]+\.[0-9]+\.[0-9]+/g;
             return regex.exec(version)[0];
-
         }
 
         this.currentVersion = parseVersion(getVersion(appVersion));
@@ -70,7 +69,7 @@ export default class AppUpdater extends IFeature {
             });
 
             if (this.platform === 'darwin') {
-                autoUpdater.setFeedURL(`https://${UPDATE_SERVER_HOST}/update/darwin?version=${this.currentVersion}`);
+                autoUpdater.setFeedURL(`https://${CONFIG.UPDATE_SERVER_HOST}/update/darwin?version=${this.currentVersion}`);
             }
 
             autoUpdater.checkForUpdates();
@@ -86,9 +85,9 @@ export default class AppUpdater extends IFeature {
 
     }
 
-    updateLinux() {
+    updateLinux = () => {
         request({
-            url: UPDATE_SERVER_HOST, headers: {
+            url: CONFIG.UPDATE_SERVER_HOST, headers: {
                 'User-Agent': 'request'
             }
         }, (error, response, body) => {

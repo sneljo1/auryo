@@ -1,13 +1,13 @@
-import React, {Component} from "react";
-import PropTypes from "prop-types";
 import cn from "classnames";
-import {SC} from "../../../../shared/utils/index";
-import {IMAGE_SIZES} from "../../../../shared/constants/index";
+import PropTypes from "prop-types";
+import React from "react";
+import { Link } from 'react-router-dom';
+import { IMAGE_SIZES } from "../../../../shared/constants/index";
+import { SC } from "../../../../shared/utils/index";
 import FallbackImage from "../FallbackImage";
 import "./userCard.scss";
-import { Link } from 'react-router-dom'
 
-const UserCard = ({user, followings, toggleFollowingFunc}) => {
+const UserCard = ({ user, followings, toggleFollowingFunc }) => {
     const following = SC.hasID(user.id, followings);
 
     return (
@@ -16,18 +16,18 @@ const UserCard = ({user, followings, toggleFollowingFunc}) => {
 
                 <FallbackImage
                     src={SC.getImageUrl(user.avatar_url, IMAGE_SIZES.MEDIUM)}
-                    className="imgShadow"/>
+                    className="imgShadow" />
 
             </div>
             <div className="user_info">
                 <div className="user_username">
-                    <Link to={"/user/" + user.id}>
+                    <Link to={`/user/${user.id}`}>
                         {user.username}
                     </Link>
                 </div>
-                <a href="javascript:void(0)" className={cn("c_btn outline", {following: following})}
-                   onClick={toggleFollowingFunc}>
-                    {following ? <i className="icon-check"/> : <i className="icon-add"/>}
+                <a href="javascript:void(0)" className={cn("c_btn outline", { following })}
+                    onClick={toggleFollowingFunc}>
+                    {following ? <i className="icon-check" /> : <i className="icon-add" />}
                     <span>{following ? "Following" : "Follow"}</span>
                 </a>
             </div>

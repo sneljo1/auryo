@@ -24,7 +24,8 @@ OnScrollComponent.propTypes = {
 }
 
 OnScrollComponent.defaultProps = {
-    hasMore: true
+    hasMore: true,
+    onScroll: undefined
 }
 
 export default OnScrollComponent

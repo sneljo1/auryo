@@ -10,18 +10,16 @@ import { getPlaylist } from "../objectActions";
  */
 
 export function getAuthLikeIds() {
-    return dispatch => {
-        return Promise.all([
-            dispatch({
-                type: actionTypes.AUTH_SET_LIKES,
-                payload: fetchToObject(SC.getLikeIdsUrl())
-            }),
-            dispatch({
-                type: actionTypes.AUTH_SET_PLAYLIST_LIKES,
-                payload: fetchToObject(SC.getPlaylistLikeIdsUrl())
-            }),
-        ]);
-    }
+    return dispatch => Promise.all([
+        dispatch({
+            type: actionTypes.AUTH_SET_LIKES,
+            payload: fetchToObject(SC.getLikeIdsUrl())
+        }),
+        dispatch({
+            type: actionTypes.AUTH_SET_PLAYLIST_LIKES,
+            payload: fetchToObject(SC.getPlaylistLikeIdsUrl())
+        }),
+    ])
 }
 
 /**

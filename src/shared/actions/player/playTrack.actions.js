@@ -1,14 +1,10 @@
-import { getCurrentPosition } from '../../utils/playerUtils'
-import {
-    getItemsAround,
-    getPlaylistObject,
-    setCurrentPlaylist,
-    setPlayingTrack
-} from '../../../renderer/modules/player/player.actions'
-import { fetchMore } from '../objectActions'
-import { OBJECT_TYPES } from '../../constants'
-import { windowRouter } from '../../utils/router'
-import { EVENTS } from '../../constants/events'
+/* eslint-disable promise/catch-or-return,no-shadow */
+import { OBJECT_TYPES } from '../../constants';
+import { EVENTS } from '../../constants/events';
+import { getCurrentPosition } from '../../utils/playerUtils';
+import { windowRouter } from '../../utils/router';
+import { fetchMore } from '../objectActions';
+import { getItemsAround, getPlaylistObject, setCurrentPlaylist, setPlayingTrack } from "./playerActions";
 
 export function playTrackFromIndex(playlistId, trackIndex, trackPlaylist, forceSetPlaylist) {
     return (dispatch, getState) => {
@@ -35,7 +31,7 @@ export function playTrackFromIndex(playlistId, trackIndex, trackPlaylist, forceS
  * @param force_set_playlist
  * @returns {function(*, *)}
  */
-export function playTrack(playlistId, trackId, track_playlist, force_set_playlist) {
+export function playTrack(playlistId, trackIdParam, track_playlist, force_set_playlist) {
     return (dispatch, getState) => {
 
         const {
@@ -45,6 +41,7 @@ export function playTrack(playlistId, trackId, track_playlist, force_set_playlis
         } = getState()
 
         let next_track
+        let trackId = trackIdParam;
 
         if (typeof trackId === 'object') {
             next_track = trackId
@@ -65,7 +62,7 @@ export function playTrack(playlistId, trackId, track_playlist, force_set_playlis
             promise = dispatch(setCurrentPlaylist(playlistId, force_set_playlist && next_track ? next_track : null))
         }
 
-        promise.then(() => {
+        return promise.then(() => {
             const {
                 objects,
                 player: {
@@ -114,11 +111,11 @@ export function playTrack(playlistId, trackId, track_playlist, force_set_playlis
                                 } = getState()
 
                                 const playlists = objects[OBJECT_TYPES.PLAYLISTS] || {}
-                                const track_playlist_obj = playlists[track_playlist.id]
+                                const { items: [firstItem] } = playlists[track_playlist.id]
 
-                                next_track.id = track_playlist_obj.items[0]
+                                next_track.id = firstItem
 
-                                let position = getCurrentPosition(queue, next_track)
+                                const position = getCurrentPosition(queue, next_track)
 
                                 dispatch(setPlayingTrack(next_track, position))
 
@@ -130,7 +127,7 @@ export function playTrack(playlistId, trackId, track_playlist, force_set_playlis
                         objects
                     } = getState()
                     const playlists = objects[OBJECT_TYPES.PLAYLISTS] || {}
-                    const track_playlist_obj = playlists[track_playlist.id]
+                    const { items: [firstItem] } = playlists[track_playlist.id]
 
 
                     if (!track_playlist_obj.isFetching && !track_playlist_obj.items.length && track_playlist.track_count !== 0) {
@@ -139,7 +136,7 @@ export function playTrack(playlistId, trackId, track_playlist, force_set_playlis
                         // If queue doesn't contain playlist yet
 
                         if (force_set_playlist) {
-                            next_track.id = track_playlist_obj.items[0]
+                            next_track.id = firstItem
                             position = getCurrentPosition(queue, next_track)
 
                         } else {
@@ -155,8 +152,8 @@ export function playTrack(playlistId, trackId, track_playlist, force_set_playlis
 
             }
 
+            windowRouter.send(EVENTS.PLAYER.STATUS_CHANGED)
         })
 
-        windowRouter.send(EVENTS.PLAYER.STATUS_CHANGED)
     }
 }

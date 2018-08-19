@@ -1,9 +1,9 @@
-export * from './like.actions'
-
 import { SC } from '../../utils'
 import fetchTrack from '../../api/fetchTrack'
 import { actionTypes, OBJECT_TYPES, RELATED_PLAYLIST_SUFFIX } from '../../constants'
 import { getComments, getRelatedPlaylist } from '../objectActions'
+
+export * from './like.actions'
 
 /**
  * Check if track exists and has comments and related tracks. If not fetch those.
@@ -44,40 +44,36 @@ export function fetchTrackIfNeeded(trackID) {
  * @returns {function(*)}
  */
 function getTrack(trackID) {
-    return dispatch => {
-        return dispatch({
-            type: actionTypes.TRACK_ADD,
-            payload: {
-                promise: fetchTrack(trackID)
-                    .then(({ normalized }) => {
+    return dispatch => dispatch({
+        type: actionTypes.TRACK_ADD,
+        payload: {
+            promise: fetchTrack(trackID)
+                .then(({ normalized: { entities } }) => {
+                    // eslint-disable-next-line
+                    entities.track_entities[trackID].loading = false;
 
-                        let entities = normalized.entities
-
-                        entities.track_entities[trackID].loading = false;
-
-                        return {
-                            entities
-                        }
-                    })
-                    .catch(() => ({
-                        entities: {
-                            track_entities: {
-                                [trackID]: {
-                                    loading: false
-                                }
-                            }
-                        }
-                    })),
-                data: {
+                    return {
+                        entities
+                    }
+                })
+                .catch(() => ({
                     entities: {
                         track_entities: {
                             [trackID]: {
-                                loading: true
+                                loading: false
                             }
+                        }
+                    }
+                })),
+            data: {
+                entities: {
+                    track_entities: {
+                        [trackID]: {
+                            loading: true
                         }
                     }
                 }
             }
-        })
-    }
+        }
+    })
 }

@@ -1,91 +1,80 @@
-import React, { Component } from 'react'
-import PropTypes from 'prop-types'
-import cn from 'classnames'
-import { Link } from 'react-router-dom'
-import { getReadableTime, SC } from '../../../../shared/utils'
-import { CHANGE_TYPES, IMAGE_SIZES, PLAYER_STATUS } from '../../../../shared/constants'
-import Audio from '../audio/Audio'
-import FallbackImage from '../../_shared/FallbackImage'
-import TextTruncate from 'react-dotdotdot'
-import { ipcRenderer } from 'electron'
-import Slider from 'rc-slider'
-import { isEqual } from 'lodash'
+import cn from 'classnames';
+import { ipcRenderer } from 'electron';
+import { isEqual } from 'lodash';
+import PropTypes from 'prop-types';
+import Slider from 'rc-slider';
+import React from 'react';
+import TextTruncate from 'react-dotdotdot';
+import { Link } from 'react-router-dom';
+import { CHANGE_TYPES, IMAGE_SIZES, PLAYER_STATUS } from '../../../../shared/constants';
+import { getReadableTime, SC } from '../../../../shared/utils';
+import FallbackImage from '../../_shared/FallbackImage';
+import Audio from './audio/Audio';
 
-class Player extends Component {
+class Player extends React.Component {
 
-    constructor() {
-        super()
-
-        this.state = {
-            nextTime: 0,
-            duration: 0,
-            isSeeking: false,
-            isVolumeSeeking: false,
-            muted: false,
-            repeat: false,
-            shuffle: false,
-            offline: false
-        }
-
-        this.changeSong = this.changeSong.bind(this)
-
-        this.onLoad = this.onLoad.bind(this)
-        this.onPlaying = this.onPlaying.bind(this)
-        this.onFinishedPlaying = this.onFinishedPlaying.bind(this)
-
-        this.toggleMute = this.toggleMute.bind(this)
-        this.togglePlay = this.togglePlay.bind(this)
-        this.toggleRepeat = this.toggleRepeat.bind(this)
-        this.toggleShuffle = this.toggleShuffle.bind(this)
-
-    }
-
-    shouldComponentUpdate(nextProps, nextState, nextContext) {
-        return !isEqual(nextState, this.state) ||
-            !isEqual(nextProps.player.playingTrack.id, this.props.player.playingTrack.id) ||
-            !isEqual(nextProps.player.currentTime, this.props.player.currentTime) ||
-            !isEqual(nextProps.player.status, this.props.player.status) ||
-            !isEqual(nextProps.config.volume, this.props.config.volume)
+    state = {
+        nextTime: 0,
+        duration: 0,
+        isSeeking: false,
+        isVolumeSeeking: false,
+        muted: false,
+        repeat: false,
+        shuffle: false,
+        offline: false
     }
 
     componentDidMount() {
         const {
             updateTime
         } = this.props
-        const _this = this
+
+        const { isSeeking } = this.state;
 
         let stopSeeking
 
         ipcRenderer.on('seek', (event, to) => {
-            if (!_this.state.isSeeking) {
-                _this.setState({
+            if (!isSeeking) {
+                this.setState({
                     isSeeking: true
                 })
             }
             clearTimeout(stopSeeking)
 
-            _this.setState({
+            this.setState({
                 nextTime: to
             })
 
             stopSeeking = setTimeout(() => {
                 updateTime(to)
-                _this.setState({
+                this.setState({
                     isSeeking: false
                 })
             }, 100)
         })
     }
 
+    shouldComponentUpdate(nextProps, nextState) {
+        const { player, config } = this.props;
+
+        return !isEqual(nextState, this.state) ||
+            !isEqual(nextProps.player.playingTrack.id, player.playingTrack.id) ||
+            !isEqual(nextProps.player.currentTime, player.currentTime) ||
+            !isEqual(nextProps.player.status, player.status) ||
+            !isEqual(nextProps.config.volume, config.volume)
+    }
+
     componentWillUnmount() {
         ipcRenderer.removeAllListeners(['seek'])
     }
 
-    changeSong(changeType) {
-        this.props.changeTrack(changeType)
+    changeSong = (changeType) => {
+        const { changeTrack } = this.props;
+
+        changeTrack(changeType)
     }
 
-    togglePlay() {
+    togglePlay = () => {
         const {
             player,
             toggleStatus
@@ -101,23 +90,30 @@ class Player extends Component {
         }
     }
 
-    toggleShuffle() {
+    toggleShuffle = () => {
+        const { shuffle } = this.state;
+
         this.setState({
-            shuffle: !this.state.shuffle
+            shuffle: !shuffle
         })
 
     }
 
-    toggleRepeat() {
+    toggleRepeat = () => {
+        const { repeat } = this.state;
+
         this.setState({
-            repeat: !this.state.repeat
+            repeat: !repeat
         })
     }
 
-    toggleMute() {
-        const new_muted_state = !this.state.muted
+    toggleMute = () => {
+        const { muted } = this.state;
+        const { config } = this.props
 
-        if (!new_muted_state && this.props.config.volume === 0) {
+        const new_muted_state = !muted
+
+        if (!new_muted_state && config.volume === 0) {
             this.volumeChange(.5)
         } else {
             this.volumeChange(0)
@@ -167,9 +163,11 @@ class Player extends Component {
 
 
     seekChange = (val) => {
+        const { setCurrentTime } = this.props;
+
         // TODO perhaps debounce this
 
-        this.props.setCurrentTime(val)
+        setCurrentTime(val)
 
         this.setState({
             nextTime: val
@@ -177,7 +175,9 @@ class Player extends Component {
     }
 
     volumeChange = (value) => {
-        this.props.setConfigKey('volume', value)
+        const { setConfigKey } = this.props;
+
+        setConfigKey('volume', value)
 
         this.setState({
             volume: value
@@ -186,28 +186,29 @@ class Player extends Component {
 
     // PLAYER LISTENERS
 
-    onLoad(duration) {
+    onLoad = (duration) => {
         const {
             setDuration
         } = this.props
 
         this.setState({
             currentTime: 0,
-            duration: duration
+            duration
         })
 
         setDuration(duration)
     }
 
-    onPlaying(position) {
+    onPlaying = (position) => {
         const {
             player: {
                 status
             },
             setCurrentTime
         } = this.props
+        const { isSeeking } = this.state;
 
-        if (this.state.isSeeking) return
+        if (isSeeking) return
 
         if (status === PLAYER_STATUS.PLAYING) {
 
@@ -217,11 +218,14 @@ class Player extends Component {
 
     }
 
-    onFinishedPlaying() {
-        if (this.state.repeat) {
+    onFinishedPlaying = () => {
+        const { repeat, shuffle } = this.state;
+        const { changeTrack } = this.props;
+
+        if (repeat) {
             this.audio.repeat()
         } else {
-            this.props.changeTrack(this.state.shuffle ? CHANGE_TYPES.SHUFFLE : CHANGE_TYPES.NEXT)
+            changeTrack(shuffle ? CHANGE_TYPES.SHUFFLE : CHANGE_TYPES.NEXT)
         }
     }
 
@@ -235,10 +239,13 @@ class Player extends Component {
             track_entities,
             app,
             toggleQueue,
+            toggleStatus,
             updateTime,
-            config: { volume },
-            ui
+            config: { volume }
         } = this.props
+
+        const { shuffle, muted, nextTime, repeat, isVolumeSeeking, duration } = this.state
+
         const {
             status,
             currentTime,
@@ -251,25 +258,31 @@ class Player extends Component {
         /**
          * If Track ID is empty, just exit here
          */
-        if (playingTrack.id === null || !track || !trackID  || (track && track.loading)) return null
+        if (playingTrack.id === null || !track || !trackID || (track && track.loading)) return null
 
         track.user = user_entities[track.user_id || track.user]
 
         if ((track.loading && !track.title) || !track.user) return <div>Loading</div>
 
-
         const prevFunc = this.changeSong.bind(this, CHANGE_TYPES.PREV)
         const nextFunc = this.changeSong.bind(
             this,
-            this.state.shuffle ? CHANGE_TYPES.SHUFFLE : CHANGE_TYPES.NEXT
+            shuffle ? CHANGE_TYPES.SHUFFLE : CHANGE_TYPES.NEXT
         )
 
-        let overlay_image = SC.getImageUrl(track, IMAGE_SIZES.XSMALL)
+        const overlay_image = SC.getImageUrl(track, IMAGE_SIZES.XSMALL)
 
         const toggle_play_icon = status === PLAYER_STATUS.PLAYING ? 'pause' : 'play_arrow'
-        const volume_icon = this.state.muted || this.props.config.volume === 0 ? 'volume_off' : (this.props.config.volume === 1) ? 'volume_up' : 'volume_down'
 
-        const url = '/tracks/' + track.id
+        let volume_icon = "volume_up";
+
+        if (muted || volume === 0) {
+            volume_icon = "volume_off"
+        } else if (volume !== 1) {
+            volume_icon = "volume_down"
+        }
+
+        const url = `/tracks/${track.id}`
 
         return (
             <div className="player">
@@ -281,16 +294,16 @@ class Player extends Component {
                     ref={ref => this.audio = ref}
                     url={url}
                     playStatus={status}
-                    volume={this.props.config.volume}
-                    playFromPosition={this.state.nextTime}
-                    muted={this.state.muted}
+                    volume={volume}
+                    playFromPosition={nextTime}
+                    muted={muted}
                     id={playingTrack.id}
                     offline={app.offline}
                     onLoading={this.onLoad}
                     onPlaying={this.onPlaying}
                     onFinishedPlaying={this.onFinishedPlaying}
                     onStatusChange={(newStatus) => {
-                        this.props.toggleStatus(newStatus)
+                        toggleStatus(newStatus)
                     }}
                     onTimeUpdate={() => {
                         updateTime(-1)
@@ -300,8 +313,8 @@ class Player extends Component {
                 <div className="d-flex playerInner">
                     <div className="playerAlbum">
                         <FallbackImage offline={app.offline}
-                                       track_id={track.id}
-                                       src={overlay_image} />
+                            track_id={track.id}
+                            src={overlay_image} />
                     </div>
                     <div className="trackInfo">
                         <div className="trackTitle" title={track.title}>
@@ -322,7 +335,7 @@ class Player extends Component {
 
                     <div className="d-flex flex-xs-middle playerControls">
                         <a href="javascript:void(0)"
-                           onClick={prevFunc}>
+                            onClick={prevFunc}>
                             <i className="icon-skip_previous" />
                         </a>
                         <a href="javascript:void(0)" onClick={this.togglePlay}>
@@ -335,10 +348,10 @@ class Player extends Component {
 
                     <div className="action-group pr-4">
                         <a href="javascript:void(0)"
-                           className={cn({ active: this.state.repeat })}
-                           onClick={() => {
-                               this.setState({ repeat: !this.state.repeat })
-                           }}>
+                            className={cn({ active: repeat })}
+                            onClick={() => {
+                                this.setState({ repeat: !repeat })
+                            }}>
                             <i className="icon-repeat" />
                         </a>
                     </div>
@@ -348,15 +361,18 @@ class Player extends Component {
                             <div className="d-flex align-items-center progressWrapper">
                                 <div className="time"> {getReadableTime(currentTime, true, true)} </div>
                                 <div className="progressInner">
-                                    <div className="playerProgress" ref="seekBar"> {this.renderProgressBar()} </div>
+                                    <div className="playerProgress">{this.renderProgressBar()} </div>
                                 </div>
-                                <div className="time"> {getReadableTime(this.state.duration, true, true)} </div>
+                                <div className="time"> {getReadableTime(duration, true, true)} </div>
                             </div>
                         </div>
                     </div>
 
-                    <div className={cn('playerVolume px-2', { hover: this.state.isVolumeSeeking })}>
-                        <i className={`icon-${volume_icon}`} onClick={this.toggleMute} />
+                    <div className={cn('playerVolume px-2', { hover: isVolumeSeeking })}>
+                        <a href="javascript:void(0)" onClick={this.toggleMute}>
+                            <i className={`icon-${volume_icon}`} />
+                        </a>
+
                         <div className="progressWrapper">
                             <Slider
                                 min={0}
@@ -384,8 +400,8 @@ class Player extends Component {
 
                     <div className="action-group">
                         <a id="toggleQueueButton"
-                           href="javascript:void(0)"
-                           onClick={toggleQueue.bind(this, null)}>
+                            href="javascript:void(0)"
+                            onClick={toggleQueue.bind(this, null)}>
                             <i className="icon-playlist_play" />
                         </a>
                     </div>
@@ -399,17 +415,17 @@ class Player extends Component {
 
 Player.propTypes = {
     player: PropTypes.object.isRequired,
-    playlists: PropTypes.object.isRequired,
-    song: PropTypes.object,
+    config: PropTypes.object.isRequired,
     track_entities: PropTypes.object.isRequired,
     user_entities: PropTypes.object.isRequired,
     app: PropTypes.object.isRequired,
-    ui: PropTypes.object.isRequired,
 
     changeTrack: PropTypes.func.isRequired,
     toggleStatus: PropTypes.func.isRequired,
     setConfigKey: PropTypes.func.isRequired,
-    isOnline: PropTypes.func.isRequired,
+    toggleQueue: PropTypes.func.isRequired,
+    setCurrentTime: PropTypes.func.isRequired,
+    setDuration: PropTypes.func.isRequired,
     updateTime: PropTypes.func.isRequired
 }
 

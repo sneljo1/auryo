@@ -1,28 +1,29 @@
 import electron_settings from "electron-settings";
 
+// eslint-disable-next-line
 let settings = null;
-let _settings = {};
+let settingData = {};
 
 if (!process.env.TOKEN) {
     settings = electron_settings;
 } else {
     settings = {
-        getAll(){
-            return _settings;
+        getAll() {
+            return settingData;
         },
-        setAll(s){
-            _settings = s;
+        setAll(s) {
+            settingData = s;
         },
         set(name, val) {
-            _settings[name] = val;
+            settingData[name] = val;
         },
 
-        get(name){
-            return _settings[name]
+        get(name) {
+            return settingData[name]
         },
 
-        hasSync(name){
-            return _settings[name] !== null;
+        hasSync(name) {
+            return settingData[name] !== null;
         },
     }
 

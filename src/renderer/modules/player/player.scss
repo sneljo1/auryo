@@ -130,11 +130,15 @@
   .playerVolume {
     align-items: center;
     position: relative;
+    a{
+      text-decoration: none;
+    }
 
     i {
       cursor: pointer;
       font-size: 25px;
       padding: 10px 0;
+      color:white;
     }
     &:hover .progressWrapper, .progressWrapper:hover, &.hover .progressWrapper {
       display: block;

@@ -11,19 +11,20 @@ class SearchBox extends React.Component {
         this.state = {
             query: props.initialValue || props.value || ''
         }
-
-        this.onChange = this.onChange.bind(this)
-        this.focus = this.focus.bind(this)
-    }
-
-    shouldComponentUpdate(nextProps, nextState, nextContext) {
-        return nextState.query !== this.state.query
     }
 
     componentDidMount() {
-        this.handleSearchDebounced = debounce(this.props.handleSearch, 150)
+        const { handleSearch } = this.props;
+
+        this.handleSearchDebounced = debounce(handleSearch, 150)
 
         ipcRenderer.on('keydown:search', this.focus)
+    }
+
+    shouldComponentUpdate(nextProps, nextState, ) {
+        const { query } = this.state;
+
+        return nextState.query !== query
     }
 
     componentWillUnmount() {
@@ -31,46 +32,52 @@ class SearchBox extends React.Component {
     }
 
     setValue = (query) => {
-        this.setState({query})
+        this.setState({ query })
     }
 
-    focus() {
+    focus = () => {
         this.search.focus()
     }
 
-    onChange(event) {
-        this.handleSearchDebounced(this.state.query, this.search.value)
+    onChange = (event) => {
+        const { query } = this.state;
+
+        this.handleSearchDebounced(query, this.search.value)
         this.setState({ query: event.target.value })
     }
 
     render() {
         const { className } = this.props
+        const { query } = this.state
 
         return (
             <div id={className ? undefined : 'globalSearch'}
-                 className={`input-group search-box d-flex justify-content-center align-items-center ${className}`}>
+                className={`input-group search-box d-flex justify-content-center align-items-center ${className}`}>
                 <div className="input-group-prepend">
                     <span className="input-group-text">
                         <i className="search icon-search2" />
                     </span>
                 </div>
                 <input ref={ref => this.search = ref} type="text"
-                       className="form-control"
-                       placeholder="Search people, tracks and albums"
-                       value={this.state.query}
-                       onKeyPress={(e) => {
-                           if(e.key === "Enter"){
-                               this.handleSearchDebounced(this.state.query, this.search.value)
-                           }
-                       }}
-                       onChange={this.onChange} />
+                    className="form-control"
+                    placeholder="Search people, tracks and albums"
+                    value={query}
+                    onKeyPress={(e) => {
+                        if (e.key === "Enter") {
+                            this.handleSearchDebounced(query, this.search.value)
+                        }
+                    }}
+                    onChange={this.onChange} />
 
                 <div className="input-group-append">
                     <span className="input-group-text">
-                        <i id="clear" className="input-group-addon icon-x" onClick={() => {
+                        <a id="clear" href="javascript:void(0)" onClick={() => {
                             this.setState({ query: '' })
                             this.handleSearchDebounced()
-                        }} />
+                        }}>
+                            <i id="clear" className="input-group-addon icon-x" />
+                        </a>
+
                     </span>
                 </div>
 
@@ -83,11 +90,14 @@ SearchBox.propTypes = {
     handleSearch: PropTypes.func.isRequired,
     className: PropTypes.string,
     initialValue: PropTypes.string,
+    value: PropTypes.string,
 }
 
 
 SearchBox.defaultProps = {
-    value: ''
+    value: '',
+    className: '',
+    initialValue: null
 }
 
 export default SearchBox

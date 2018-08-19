@@ -1,4 +1,4 @@
-import { actionTypes } from '../constants'
+import { actionTypes } from '../constants';
 
 const initialState = {
     queue: false,
@@ -24,7 +24,7 @@ export default function config(state = initialState, action) {
                 }
             }
         case actionTypes.APP_RESET_STORE:
-            state = initialState
+            return initialState
         default:
             return state
     }

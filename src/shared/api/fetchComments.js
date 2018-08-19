@@ -1,13 +1,14 @@
-import {status, json} from "../utils";
-import {commentSchema} from "../schemas";
-import {normalize, schema} from "normalizr";
+import { normalize, schema } from "normalizr";
+import { commentSchema } from "../schemas";
+import { asJson, status } from "../utils";
 
 export default function fetchComments(url) {
     return fetch(url)
         .then(status)
-        .then(json)
+        .then(asJson)
         .then(json => {
-            const collection = json.collection;
+            const { collection } = json;
+            
             const n = normalize(collection, new schema.Array(commentSchema));
 
             return {

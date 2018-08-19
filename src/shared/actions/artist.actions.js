@@ -1,6 +1,6 @@
-import {SC} from "../utils";
-import {getPlaylist} from "./objectActions";
-import {actionTypes, OBJECT_TYPES, USER_TRACKS_PLAYLIST_SUFFIX, USER_LIKES_SUFFIX} from "../constants";
+import { SC } from "../utils";
+import { getPlaylist } from "./objectActions";
+import { actionTypes, OBJECT_TYPES, USER_TRACKS_PLAYLIST_SUFFIX, USER_LIKES_SUFFIX } from "../constants";
 import fetchToJson from "../api/helpers/fetchToJson";
 
 /**
@@ -11,8 +11,8 @@ import fetchToJson from "../api/helpers/fetchToJson";
  */
 export function fetchArtistIfNeeded(user_id) {
     return (dispatch, getState) => {
-        const {entities, objects} = getState();
-        const {user_entities} = entities;
+        const { entities, objects } = getState();
+        const { user_entities } = entities;
         const playlists = objects[OBJECT_TYPES.PLAYLISTS];
 
 
@@ -48,15 +48,13 @@ function getUser(user_id) {
     return {
         type: actionTypes.USER_SET,
         payload: fetchToJson(SC.getUserUrl(user_id))
-            .then(user => {
-                return {
-                    entities: {
-                        user_entities: {
-                            [user.id]: user
-                        }
+            .then(user => ({
+                entities: {
+                    user_entities: {
+                        [user.id]: user
                     }
                 }
-            })
+            }))
     }
 }
 
@@ -70,16 +68,14 @@ function getUserProfiles(user_id) {
     return {
         type: actionTypes.USER_SET_PROFILES,
         payload: fetchToJson(SC.getUserWebProfilesUrl(user_id))
-            .then(json => {
-                return {
-                    entities: {
-                        user_entities: {
-                            [user_id]: {
-                                profiles: json
-                            }
+            .then(json => ({
+                entities: {
+                    user_entities: {
+                        [user_id]: {
+                            profiles: json
                         }
                     }
                 }
-            })
+            }))
     }
 }

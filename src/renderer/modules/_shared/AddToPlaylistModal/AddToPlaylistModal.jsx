@@ -1,11 +1,11 @@
-import React, { Component } from 'react'
-import PropTypes from 'prop-types'
-import { Modal, ModalBody, ModalHeader } from 'reactstrap'
-import { getReadableTime, SC } from '../../../../shared/utils'
-import { IMAGE_SIZES } from '../../../../shared/constants'
-import FallbackImage from '../FallbackImage'
-import './addToPlaylistModal.scss'
-import { connectModal } from 'redux-modal'
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { Modal, ModalBody, ModalHeader } from 'reactstrap';
+import { connectModal } from 'redux-modal';
+import { IMAGE_SIZES } from '../../../../shared/constants';
+import { getReadableTime, SC } from '../../../../shared/utils';
+import FallbackImage from '../FallbackImage';
+import './addToPlaylistModal.scss';
 
 class AddToPlaylistModal extends Component {
 
@@ -34,7 +34,7 @@ class AddToPlaylistModal extends Component {
             <div key={playlist.id} className="modal-playlist d-flex justify-content-between">
                 <div className="d-flex">
                     <div>
-                        <FallbackImage className="mr-2" width={50} height={50} src={url} />
+                        <FallbackImage id={playlist.id} className="mr-2" width={50} height={50} src={url} />
                     </div>
                     <div>
                         <div className="playlist-title">{playlist.title}</div>
@@ -63,11 +63,11 @@ class AddToPlaylistModal extends Component {
                                 Added
                             </a>
                         ) : (
-                            <a href="javascript:void(0)" onClick={togglePlaylistTrack} className="c_btn">
-                                <i className="icon-add" />
-                                Add to playlist
+                                <a href="javascript:void(0)" onClick={togglePlaylistTrack} className="c_btn">
+                                    <i className="icon-add" />
+                                    Add to playlist
                             </a>
-                        )
+                            )
                     }
 
                 </div>
@@ -77,12 +77,12 @@ class AddToPlaylistModal extends Component {
 
     render() {
         const { playlists, playlist_entities, track_entities } = this.props
-        const { show, handleHide, trackID } = this.props
+        const { show, handleHide, trackID, className } = this.props
 
         const track = track_entities[trackID]
 
         return (
-            <Modal isOpen={show} toggle={handleHide} className={this.props.className}>
+            <Modal isOpen={show} toggle={handleHide} className={className}>
                 <ModalHeader toggle={handleHide}>Add to playlist</ModalHeader>
                 <ModalBody>
                     <div className="modal-track d-flex">
@@ -111,8 +111,16 @@ AddToPlaylistModal.propTypes = {
     playlist_objects: PropTypes.object.isRequired,
     togglePlaylistTrackFunc: PropTypes.func.isRequired,
 
+    trackID: PropTypes.string.isRequired,
+    className: PropTypes.string.isRequired,
+
     handleHide: PropTypes.func,
     show: PropTypes.bool
+}
+
+AddToPlaylistModal.defaultProps = {
+    handleHide: null,
+    show: false
 }
 
 export default connectModal({ name: 'addToPlaylist' })(AddToPlaylistModal)

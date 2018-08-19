@@ -1,15 +1,19 @@
-import React from 'react'
-import { Provider } from 'react-redux'
-import { windowRouter } from '../shared/utils/router'
-import { EVENTS } from '../shared/constants/events'
-import { ConnectedRouter } from 'react-router-redux'
-import Routes from './routes'
+import PropTypes from "prop-types";
+import React from 'react';
+import { Provider } from 'react-redux';
+import { ConnectedRouter } from 'react-router-redux';
+import { EVENTS } from '../shared/constants/events';
+import { windowRouter } from '../shared/utils/router';
+import Routes from './routes';
 
 class Root extends React.Component {
 
     componentDidMount() {
+        const { history } = this.props;
+
         windowRouter.send(EVENTS.APP.READY)
-        this.props.history.listen(loc => {
+
+        history.listen(() => {
             windowRouter.send('GO')
         })
     }
@@ -26,6 +30,11 @@ class Root extends React.Component {
 
         )
     }
+}
+
+Root.propTypes = {
+    history: PropTypes.object.isRequired,
+    store: PropTypes.object.isRequired,
 }
 
 export default Root

@@ -25,6 +25,8 @@ build_script:
   - node --version
   - yarn --version
   - yarn run build
+  # linting woop woop
+  - yarn run lint
   # run tests
   - yarn run test-e2e -- --retries 2
 

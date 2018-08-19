@@ -1,31 +1,27 @@
-import React, {Component} from "react";
+import React from "react";
 import PropTypes from "prop-types";
-import {connect} from "react-redux";
-import {PLAYER_STATUS} from "../../../shared/constants";
-import {toggleStatus} from "../../../shared/actions";
+import { connect } from "react-redux";
+import { PLAYER_STATUS } from "../../../shared/constants";
+import * as actions from "../../../shared/actions";
 
-class TogglePlayButton extends Component {
-    constructor(props) {
-        super(props);
-        this.togglePlay = this.togglePlay.bind(this);
-    }
+class TogglePlayButton extends React.Component {
 
-    togglePlay(e) {
+    togglePlay = (e) => {
+        const { toggleStatus, status } = this.props;
+
         e.preventDefault();
         e.nativeEvent.stopImmediatePropagation();
 
-        const {status, dispatch} = this.props;
-
         if (status !== PLAYER_STATUS.PLAYING) {
-            dispatch(toggleStatus(PLAYER_STATUS.PLAYING));
-        } else if (status == PLAYER_STATUS.PLAYING) {
-            dispatch(toggleStatus(PLAYER_STATUS.PAUSED));
+            toggleStatus(PLAYER_STATUS.PLAYING);
+        } else if (status === PLAYER_STATUS.PLAYING) {
+            toggleStatus(PLAYER_STATUS.PAUSED);
         }
 
     }
 
     render() {
-        const {status, className} = this.props;
+        const { status, className } = this.props;
 
         let icon = "";
 
@@ -43,30 +39,35 @@ class TogglePlayButton extends Component {
             case PLAYER_STATUS.LOADING:
                 icon = "more_horiz";
                 break;
+            default:
+                break;
         }
 
         return (
-
             <a href="javascript:void(0)" className={className} onClick={this.togglePlay}>
-                <i className={`icon-${icon}`}/>
+                <i className={`icon-${icon}`} />
             </a>
         );
     }
 }
 
 TogglePlayButton.propTypes = {
-    status: PropTypes.string,
-    dispatch: PropTypes.func,
-    className: PropTypes.string
+    status: PropTypes.string.isRequired,
+    className: PropTypes.string,
+    toggleStatus: PropTypes.func.isRequired
 };
 
-function mapStateToProps(state) {
-    const {player} = state;
-    const {status} = player;
+TogglePlayButton.defaultProps = {
+    className: ""
+}
+
+const mapStateToProps = (state) => {
+    const { player } = state;
+    const { status } = player;
 
     return {
         status,
     };
 }
 
-export default connect(mapStateToProps)(TogglePlayButton);
+export default connect(mapStateToProps, { toggleStatus: actions.toggleStatus })(TogglePlayButton);

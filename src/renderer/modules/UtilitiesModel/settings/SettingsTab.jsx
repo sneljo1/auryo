@@ -1,11 +1,10 @@
-import React, { Component } from 'react'
-import './settings.scss'
-import CheckboxConfig from './components/CheckboxConfig'
-import PropTypes from 'prop-types'
-import InputConfig from './components/InputConfig'
-import { windowRouter } from '../../../../shared/utils/router'
-import { EVENTS } from '../../../../shared/constants/events'
-import { ipcRenderer } from 'electron';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { EVENTS } from '../../../../shared/constants/events';
+import { windowRouter } from '../../../../shared/utils/router';
+import CheckboxConfig from './components/CheckboxConfig';
+import InputConfig from './components/InputConfig';
+import './settings.scss';
 
 class SettingsTab extends Component {
 
@@ -18,20 +17,20 @@ class SettingsTab extends Component {
         windowRouter.send(EVENTS.APP.RESTART)
     }
 
-    isValidDirectory = (dir) => {
-        return new Promise((resolve,reject) => {
-            windowRouter.route("GET", EVENTS.APP.VALID_DIR, dir, (err, result) => {
-                if(err){
-                    reject(err)
-                }
-                this.setState({
-                    validDir: result.exists
-                })
-
-                resolve()
+    isValidDirectory = (dir, setKey) => new Promise((resolve, reject) => {
+        windowRouter.route("GET", EVENTS.APP.VALID_DIR, dir, (err, result) => {
+            if (err) {
+                reject(err)
+            }
+            this.setState({
+                validDir: result.exists
             })
+
+            resolve()
         })
-    }
+    }).then(() => {
+        setKey()
+    })
 
     render() {
         const {
@@ -40,12 +39,14 @@ class SettingsTab extends Component {
             authenticated
         } = this.props
 
+        const { restartMsg, validDir } = this.state;
+
         if (!authenticated) {
             return (
                 <div>
 
                     {
-                        this.state.restartMsg && (
+                        restartMsg && (
                             <div className="info-message">A <a href="javascript:void(0)"
                                 onClick={this.restart}>restart</a> is required to
                                 enable/disable this feature.</div>
@@ -56,11 +57,11 @@ class SettingsTab extends Component {
                         <div className="setting-group-title">Proxy</div>
 
                         <div>
-                            <CheckboxConfig onChange={(value, setConfigKey) => {
+                            <CheckboxConfig onChange={(value, setKey) => {
                                 this.setState({
                                     restartMsg: true
                                 })
-                                setConfigKey()
+                                setKey()
                             }} name="Enable proxy" configKey="enableProxy" {...this.props} />
 
                             {
@@ -91,7 +92,7 @@ class SettingsTab extends Component {
             <div>
 
                 {
-                    this.state.restartMsg && (
+                    restartMsg && (
                         <div className="info-message">A <a href="javascript:void(0)"
                             onClick={this.restart}>restart</a> is required to
                             enable/disable this feature.</div>
@@ -110,12 +111,7 @@ class SettingsTab extends Component {
                             setConfigKey={setConfigKey} />
 
                         <InputConfig name="Download path"
-                            configKey="app.downloadPath" invalid={!this.state.validDir} onChange={(value, setConfigKey) => {
-                                this.isValidDirectory(value)
-                                .then(() => {
-                                    setConfigKey()
-                                })
-                            }} {...this.props} />
+                            configKey="app.downloadPath" invalid={!validDir} onChange={(value, setKey) => this.isValidDirectory(value, setKey)} {...this.props} />
 
                     </div>
                 </div>
@@ -123,11 +119,11 @@ class SettingsTab extends Component {
                     <div className="setting-group-title">Stream</div>
 
                     <div>
-                        <CheckboxConfig onChange={(value, setConfigKey) => {
+                        <CheckboxConfig onChange={(value, setKey) => {
                             this.setState({
                                 restartMsg: true
                             })
-                            setConfigKey()
+                            setKey()
                         }} name="Hide reposts" configKey="hideReposts" config={config}
                             setConfigKey={setConfigKey} />
                     </div>
@@ -136,11 +132,11 @@ class SettingsTab extends Component {
                     <div className="setting-group-title">Proxy</div>
 
                     <div>
-                        <CheckboxConfig onChange={(value, setConfigKey) => {
+                        <CheckboxConfig onChange={(value, setKey) => {
                             this.setState({
                                 restartMsg: true
                             })
-                            setConfigKey()
+                            setKey()
                         }} name="Enable proxy" configKey="enableProxy" {...this.props} />
 
                         {
@@ -148,8 +144,8 @@ class SettingsTab extends Component {
                                 <div className="container-fluid p-0 mt-2">
                                     <div className="form-group form-row">
                                         {
-                                            /*
-                                        <SelectConfig usePlaceholder data={[
+                                            /* 
+                                         <SelectConfig usePlaceholder data={[
                                             {
                                                 key: 'http',
                                                 value: 'http'
@@ -167,7 +163,7 @@ class SettingsTab extends Component {
                                                 value: 'socks'
                                             }
                                         ]} className="col-2" name="Scheme"
-                                                      configKey="proxy.scheme" {...this.props} />*/
+                                                      configKey="proxy.scheme" {...this.props} /> */
                                         }
                                         <InputConfig usePlaceholder className="col-8" name="Host"
                                             configKey="proxy.host" {...this.props} />
@@ -192,9 +188,13 @@ class SettingsTab extends Component {
 }
 
 SettingsTab.propTypes = {
-    config: PropTypes.object,
-    setConfigKey: PropTypes.func,
+    config: PropTypes.object.isRequired,
+    setConfigKey: PropTypes.func.isRequired,
     authenticated: PropTypes.bool
+}
+
+SettingsTab.defaultProps = {
+    authenticated: false
 }
 
 export default SettingsTab
