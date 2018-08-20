@@ -140,16 +140,31 @@
     color: #717171;
     padding: 0 5px;
     transition: .5s color;
+    position: relative;
 
     &:hover {
       color: theme-color("primary");
       transition: .5s color;
     }
+    sup{
+      top: 0;
+      height: 8px;
+      width: 8px;
+      border-radius: 100%;
+      background: theme-color("primary");
+      z-index: 10;
+      -webkit-box-shadow: 0 0 0 1px #fff;
+      box-shadow: 0 0 0 1px #fff;
+      position: absolute;
+      right: 0;
+    }
 
-    i {
-      font-size: 1.1rem;
+    &>svg {
+  
       vertical-align: middle;
-
+      fill: currentColor;
+      transform: rotate(90deg);
+      transform-origin: center;
     }
   }
 }

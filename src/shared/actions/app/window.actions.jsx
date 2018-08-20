@@ -5,6 +5,7 @@ import moment from 'moment';
 import React from 'react';
 import { toastr } from 'react-redux-toastr';
 import { push } from 'react-router-redux';
+import { show } from 'redux-modal';
 import fetchToJson from '../../api/helpers/fetchToJson';
 import * as actionTypes from '../../constants/actionTypes';
 import { EVENTS } from '../../constants/events';
@@ -16,7 +17,6 @@ import { changeTrack, toggleStatus } from '../player/playerActions';
 import { toggleLike } from '../track/like.actions';
 import { toggleRepost } from '../track/reposts.actions';
 import { isOnline } from './offline.actions';
-import { show } from 'redux-modal';
 
 export function openExternal(url) {
     ipcRenderer.send('open_external', url)
@@ -130,17 +130,11 @@ export function initWatchers() {
             })
 
             listeners.push({
-                event: 'new-version',
+                event: EVENTS.APP.NEW_VERSION,
                 handler: (data) => {
-                    // TODO show modal
-                    toastr.success(`Auryo has updated to version ${data}`, {
-                        component: (
-                            <div className='notification-children'>
-                                <a href={`https://github.com/Superjo149/auryo/releases/tag/v${data}`}
-                                    className='notification-action-button'>View changelog</a>
-                            </div>
-                        )
-                    })
+                    dispatch(show('changelog', {
+                        version: data
+                    }))
                 }
             })
 
@@ -186,23 +180,10 @@ export function initWatchers() {
                 handler: (data) => {
                     dispatch(setUpdateAvailable(data.version))
 
-                    let options = {}
-
-                    if (data.status === 'update-available-linux') {
-                        options.component = (
-                            <div className='notification-children'>
-                                <a href={data.url} className='notification-action-button'>Download</a>
-                            </div>
-                        )
-                    } else {
-
-                        options = {
-                            okText: 'Update now',
-                            onOk: () => ipcRenderer.send('do-update')
-                        }
-                    }
-
-                    toastr.success(`Update available v${data.version}`, `Current version: ${data.current_version}`, options)
+                    toastr.success(`Update available v${data.version}`, `Current version: ${data.current_version}`, {
+                        timeOut: 5000,
+                        showCloseButton: false
+                    })
 
                 }
             })

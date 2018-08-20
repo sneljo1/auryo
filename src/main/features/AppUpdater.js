@@ -1,4 +1,4 @@
-import { ipcMain } from 'electron';
+import { ipcMain, shell } from 'electron';
 import is from 'electron-is';
 import { autoUpdater } from 'electron-updater';
 import request from 'request';
@@ -8,6 +8,7 @@ import { Logger } from '../utils/logger';
 import { registerError } from '../utils/raven';
 import IFeature from './IFeature';
 import { version as appVersion } from '../../package.json'
+import { EVENTS } from '../../shared/constants/events';
 
 export default class AppUpdater extends IFeature {
 
@@ -18,12 +19,21 @@ export default class AppUpdater extends IFeature {
 
     cancelUpdate = null;
 
+    has_update = false;
+
     currentVersion;
 
     register() {
         this.cancelUpdate = setTimeout(() => {
             this.update();
-        }, 5000);
+
+            this.win.webContents.send('update-status', {
+                status: 'update-available',
+                version: "newversion",
+                current_version: this.currentVersion
+            });
+            this.listenUpdate();
+        }, 10000);
     }
 
     unregister() {
@@ -44,12 +54,15 @@ export default class AppUpdater extends IFeature {
                 this.has_update = true;
                 Logger.info('New update available');
             });
+
             autoUpdater.addListener('update-downloaded', (info) => {
                 this.win.webContents.send('update-status', {
                     status: 'update-available',
                     version: info.version,
                     current_version: this.currentVersion
                 });
+
+                this.listenUpdate();
 
             });
             autoUpdater.addListener('error', (error) => {
@@ -60,6 +73,7 @@ export default class AppUpdater extends IFeature {
             });
             autoUpdater.addListener('update-not-available', () => {
                 Logger.info('No update found');
+
                 setTimeout(() => {
                     autoUpdater.checkForUpdates();
                 }, 300000);
@@ -71,15 +85,22 @@ export default class AppUpdater extends IFeature {
 
             autoUpdater.checkForUpdates();
 
-            ipcMain.on('do-update', () => {
-                if (this.has_update) {
-                    Logger.info('Updating now!');
-                    autoUpdater.quitAndInstall(true, true);
-                }
-            });
-
         }
 
+    }
+
+    listenUpdate = () => {
+        this.on(EVENTS.APP.UPDATE, () => {
+            if (this.has_update) {
+                Logger.info('Updating now!');
+
+                if (is.linux() || is.macOS()) {
+                    shell.openExternal("http://auryo.com#downloads")
+                } else {
+                    autoUpdater.quitAndInstall(true, true);
+                }
+            }
+        })
     }
 
     updateLinux = () => {
@@ -95,6 +116,7 @@ export default class AppUpdater extends IFeature {
 
                 if (isVersionGreaterThan(latest, this.currentVersion)) {
                     Logger.info('New update available');
+                    this.has_update = true;
 
                     this.win.webContents.send('update-status', {
                         status: 'update-available-linux',
@@ -102,6 +124,9 @@ export default class AppUpdater extends IFeature {
                         currentVersion: this.currentVersion,
                         url: 'http://auryo.com#downloads'
                     });
+                    
+                    this.listenUpdate();
+
                 }
             } else {
                 registerError(error);

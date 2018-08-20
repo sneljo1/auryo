@@ -42,6 +42,7 @@ export default class ConfigManager extends IFeature {
 
         if (this.config.enableProxy) {
             Logger.info('Enabling proxy')
+
             session.defaultSession.setProxy({
                 proxyRules: getProxyUrlFromConfig(this.config.proxy)
             }, () => {
@@ -60,9 +61,9 @@ export default class ConfigManager extends IFeature {
 
         this.store.dispatch(setConfig(this.config))
 
-        this.subscribe(['app', 'loaded'], this.notifyNewVersion)
 
         this.on(EVENTS.APP.READY, () => {
+            this.notifyNewVersion();
             this.on('GO', this.checkCanGo)
             this.subscribe('config', this.updateConfig)
         })
@@ -79,8 +80,6 @@ export default class ConfigManager extends IFeature {
     /**
      * On route change, check if can Go from browser webcontents
      */
-
-
     checkCanGo = () => {
 
         if (this.win && this.win.webContents) {
@@ -102,7 +101,7 @@ export default class ConfigManager extends IFeature {
             setTimeout(() => {
                 this.router.send(EVENTS.APP.NEW_VERSION, version)
                 super.unregister(['app', 'loaded'])
-            }, 1000)
+            }, 5000)
         }
     }
 

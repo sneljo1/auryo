@@ -1,3 +1,4 @@
+import { ResizeSensor } from '@blueprintjs/core';
 import cn from 'classnames';
 import debounce from 'lodash/debounce';
 import { denormalize, schema } from 'normalizr';
@@ -5,7 +6,6 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import ReduxToastr, { actions as toastrActions } from 'react-redux-toastr';
-import ResizeAware from 'react-resize-aware';
 import { Route, Switch, withRouter } from 'react-router';
 import * as actions from '../../../shared/actions';
 import { OBJECT_TYPES } from '../../../shared/constants/global';
@@ -29,6 +29,7 @@ import AppError from './components/AppError/AppError';
 import IsOffline from './components/Offline/Offline';
 import Queue from './components/Queue/Queue';
 import SideBar from './components/Sidebar/Sidebar';
+import ChangelogModal from './components/ChangeLogModal/ChangelogModal';
 
 class App extends React.Component {
 
@@ -106,7 +107,7 @@ class App extends React.Component {
         )
     }
 
-    handleResize = ({ width, height }) => {
+    handleResize = ([{ contentRect: { width, height } }]) => {
 
         const { setDimensions } = this.props;
 
@@ -142,8 +143,7 @@ class App extends React.Component {
         const deNormalizedQueue = denormalize(player.queue, new schema.Array(trackSchema), entities)
 
         return (
-            <ResizeAware
-                onlyEvent
+            <ResizeSensor
                 onResize={this.debouncedHandleResize}
             >
 
@@ -200,9 +200,11 @@ class App extends React.Component {
                         togglePlaylistTrackFunc={togglePlaylistTrack}
                         track_entities={track_entities} />
 
-                    <UtilitiesModal authenticated />
+                    <UtilitiesModal />
+
+                    <ChangelogModal />
                 </div>
-            </ResizeAware>
+            </ResizeSensor>
         )
     }
 }

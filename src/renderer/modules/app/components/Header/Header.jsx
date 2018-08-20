@@ -1,10 +1,12 @@
+import { Icon, Menu, MenuDivider, MenuItem, Popover, Position } from "@blueprintjs/core";
 import isEqual from 'lodash/isEqual';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
-import { ButtonDropdown, DropdownItem, DropdownMenu, DropdownToggle } from 'reactstrap';
 import * as actions from '../../../../../shared/actions/index';
+import { EVENTS } from "../../../../../shared/constants/events";
+import { windowRouter } from "../../../../../shared/utils/router";
 import Sticky from '../../../_shared/Sticky';
 import './header.scss';
 import SearchBox from './Search/SearchBox';
@@ -13,7 +15,6 @@ import User from './User/AuthUser';
 class Header extends React.Component {
 
     state = {
-        dropdownOpen: false,
         height: 0
     }
 
@@ -39,14 +40,13 @@ class Header extends React.Component {
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        const { dropdownOpen } = this.state;
-        const { scrollTop, location, locHistory, me } = this.props;
+        const { scrollTop, location, locHistory, me, app: { update } } = this.props;
 
-        return dropdownOpen !== nextState.dropdownOpen ||
-            !isEqual(location.pathname, nextProps.location.pathname) ||
+        return !isEqual(location.pathname, nextProps.location.pathname) ||
             !isEqual(locHistory, nextProps.locHistory) ||
             me !== nextProps.me ||
             nextState.height !== this.divElement.clientHeight ||
+            nextProps.app.update !== update ||
             (scrollTop < 52 && nextProps.scrollTop > 52) ||
             (scrollTop > 52 && nextProps.scrollTop < 52)
     }
@@ -86,11 +86,11 @@ class Header extends React.Component {
     }
 
     render() {
-        const { locHistory: { next, back }, push, me, logout, scrollTop, replace, className, query, children } = this.props
-        const { height, dropdownOpen } = this.state;
+        const { locHistory: { next, back }, push, me, logout, scrollTop, replace, className, query, children, app: { update } } = this.props
+        const { height } = this.state;
 
         return (
-            <div className={`header-wrapper ${className}` || ""} style={{ minHeight: height }}>
+            <div className={`header-wrapper ${className}`} style={{ minHeight: height }}>
                 <Sticky
                     className="stickymaker"
                     activeClassName="sticky sticky-3"
@@ -128,41 +128,45 @@ class Header extends React.Component {
                             <div className="d-flex align-items-center justify-content-between">
                                 <User me={me} />
 
-                                <ButtonDropdown isOpen={dropdownOpen} toggle={this.toggle}
-                                    className="d-flex align-items-center">
-                                    <DropdownToggle tag="a" className="toggle" href="javascript:void(0)">
-                                        <i className="icon-more-vertical" />
-                                    </DropdownToggle>
-                                    <DropdownMenu right>
+                                <Popover autoFocus={false} minimal content={(
+                                    <Menu>
 
+                                        <MenuItem text="About" icon="info-sign"
+                                            onClick={this.showUtilitiesModal.bind(this, 'about')} />
 
-                                        <a href="javascript:void(0)" className="dropdown-item"
-                                            onClick={this.showUtilitiesModal.bind(this, 'about')}>About</a>
+                                        <MenuItem text="Settings" icon="cog"
+                                            onClick={this.showUtilitiesModal.bind(this, 'settings')} />
 
-                                        <a href="javascript:void(0)" className="dropdown-item"
-                                            onClick={this.showUtilitiesModal.bind(this, 'settings')}>Settings</a>
+                                        {
+                                            update.available && (
+                                                <MenuItem className="text-primary" text="Update" icon="box"
+                                                    onClick={windowRouter.send.bind(null, EVENTS.APP.UPDATE)} />
+                                            )
+                                        }
 
-                                        <DropdownItem divider />
+                                        <MenuDivider />
 
-                                        <a href="https://github.com/Superjo149/auryo/" className="dropdown-item">
-                                            Contribute
-                                        </a>
-                                        <a href="https://github.com/Superjo149/auryo/issues" className="dropdown-item">
-                                            Report an issue
-                                        </a>
-                                        <a href="https://github.com/Superjo149/auryo/issues" className="dropdown-item">
-                                            Suggest a feature
-                                        </a>
-                                        <a href="http://auryo.com/#donate" className="dropdown-item">
-                                            Donate
-                                        </a>
+                                        <MenuItem text="Contribute" href="https://github.com/Superjo149/auryo/" />
+                                        <MenuItem text="Report an issue" href="https://github.com/Superjo149/auryo/issues" />
+                                        <MenuItem text="Suggest a feature" href="https://github.com/Superjo149/auryo/issues" />
+                                        <MenuItem text="Donate" href="http://auryo.com/#donate" />
 
-                                        <DropdownItem divider />
+                                        <MenuDivider />
 
-                                        <a href="javascript:void(0)" className="dropdown-item"
-                                            onClick={() => logout()}>Logout</a>
-                                    </DropdownMenu>
-                                </ButtonDropdown>
+                                        <MenuItem text="Logout" icon="log-out"
+                                            onClick={logout} />
+
+                                    </Menu>
+                                )} position={Position.BOTTOM_RIGHT}>
+                                    <a href="javascript:void(0)" className="toggle">
+                                        <Icon icon="more" />
+                                        {
+                                            update.available && (
+                                                <sup data-show="true" title="5" />
+                                            )
+                                        }
+                                    </a>
+                                </Popover>
                             </div>
                         </nav>
                         <div>{children && children}</div>
@@ -176,6 +180,7 @@ class Header extends React.Component {
 Header.propTypes = {
     children: PropTypes.any,
     history: PropTypes.object.isRequired,
+    app: PropTypes.object.isRequired,
     location: PropTypes.object.isRequired,
     locHistory: PropTypes.object.isRequired,
     className: PropTypes.string,
