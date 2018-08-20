@@ -23,6 +23,10 @@ body {
   overflow: hidden;
 }
 
+:focus {
+  outline: none;
+}
+
 // fix for https://github.com/electron/electron/issues/4420
 ::selection {
   background: rgba(213, 213, 213, 0.99);

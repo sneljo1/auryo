@@ -58,6 +58,7 @@
       color: #fff;
       text-decoration: none;
       transition: .2s ease-in;
+
       &:active {
         transform: rotate(90deg);
         transition: .5s all;
@@ -120,6 +121,7 @@
     .item-info {
       padding-left: 7px;
       width: 100%;
+      max-height: 100%;
       .title {
         width: 100%;
         color: #f1f1f1;
@@ -130,7 +132,7 @@
     }
 
     .title a {
-      color: #f1f1f1
+      color: #f1f1f1;
     }
 
     .actions-dropdown {

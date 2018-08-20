@@ -102,7 +102,7 @@ class PlaylistContainer extends WithHeaderComponent {
 
         const openExternalFunc = actions.openExternal.bind(null, playlist_entity.permalink_url)
 
-        const isEmpty = !playlist_object.isFetching && playlist_entity.tracks.length === 0 && playlist_entity.duration === 0
+        const isEmpty = !playlist_object.isFetching && (playlist_entity.tracks.length === 0 && playlist_entity.duration === 0 || playlist_entity.track_count === 0)
 
         return (
             <CustomScroll heightRelativeToParent="100%"
@@ -153,7 +153,7 @@ class PlaylistContainer extends WithHeaderComponent {
                                                 playlist_entity.tracks.length ? (
                                                     <React.Fragment>
                                                         <MenuItem text="Add to queue"
-                                                            onClick={addUpNext.bind(this, playlist_entity.id, playlist_entity.tracks, null)} />
+                                                            onClick={addUpNext.bind(this, playlist_entity, null)} />
                                                         <MenuDivider />
                                                     </React.Fragment>
                                                 ) : null

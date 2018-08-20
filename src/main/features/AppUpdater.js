@@ -7,20 +7,23 @@ import { CONFIG } from '../../config';
 import { Logger } from '../utils/logger';
 import { registerError } from '../utils/raven';
 import IFeature from './IFeature';
-import { appVersion } from '../../package.json'
+import { version as appVersion } from '../../package.json'
 
 export default class AppUpdater extends IFeature {
+
+    // eslint-disable-next-line
+    shouldRun() {
+        return !process.env.TOKEN && process.env.NODE_ENV === 'production'
+    }
 
     cancelUpdate = null;
 
     currentVersion;
 
     register() {
-        if (!process.env.TOKEN && process.env.NODE_ENV === 'production') {
-            this.cancelUpdate = setTimeout(() => {
-                this.update();
-            }, 5000);
-        }
+        this.cancelUpdate = setTimeout(() => {
+            this.update();
+        }, 5000);
     }
 
     unregister() {
@@ -31,17 +34,11 @@ export default class AppUpdater extends IFeature {
 
     update = () => {
 
-        function getVersion(version) {
-            const regex = /[0-9]+\.[0-9]+\.[0-9]+/g;
-            return regex.exec(version)[0];
-        }
-
-        this.currentVersion = parseVersion(getVersion(appVersion));
+        this.currentVersion = parseVersion(appVersion);
 
         if (is.linux() || is.macOS()) {
             this.updateLinux();
         } else {
-
 
             autoUpdater.addListener('update-available', () => {
                 this.has_update = true;

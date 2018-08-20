@@ -30,7 +30,8 @@ import './track.scss';
 class TrackPage extends WithHeaderComponent {
 
     state = {
-        activeTab: '1'
+        activeTab: '1',
+        scrollTop: 0
     }
 
     componentDidMount() {
@@ -161,8 +162,6 @@ class TrackPage extends WithHeaderComponent {
 
                 <PageHeader image={SC.getImageUrl(track, IMAGE_SIZES.LARGE)}>
                     <Row className="trackHeader">
-
-
                         <Col xs="12" md="4" xl="3">
                             <div className="imageWrapper">
                                 <FallbackImage
@@ -176,7 +175,7 @@ class TrackPage extends WithHeaderComponent {
 
                             <div className="button-group">
                                 {
-                                    (track.streamable  || (track.policy && track.policy === "ALLOW")) || track.kind === 'playlist' ? this.renderToggleButton() :
+                                    (track.streamable || (track.policy && track.policy === "ALLOW")) || track.kind === 'playlist' ? this.renderToggleButton() :
                                         <a href="javascript:void(0)" className="disabled c_btn">
                                             <span>This track is not streamable</span>
                                         </a>
@@ -228,7 +227,7 @@ class TrackPage extends WithHeaderComponent {
                                         <MenuItem text="Add to playlist"
                                             onClick={show.bind(null, 'addToPlaylist', { trackID: track.id })} />
                                         <MenuItem text="Add to queue"
-                                            onClick={addUpNext.bind(null, track.id, null, null)} />
+                                            onClick={addUpNext.bind(null, track, null)} />
                                         <MenuDivider />
 
                                         <MenuItem

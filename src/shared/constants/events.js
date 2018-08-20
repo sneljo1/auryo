@@ -18,5 +18,6 @@ export const EVENTS = {
         READY: 'app::ready',
         RESTART: 'app::restart',
         VALID_DIR: 'app::valid_dir',
+        OPEN_SETTINGS: 'app::open_settings',
     }
 };

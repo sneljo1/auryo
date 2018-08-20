@@ -16,12 +16,12 @@ import ShareMenuItem from './ShareMenuItem';
 class ActionsDropdown extends React.Component {
 
     shouldComponentUpdate(nextProps) {
-        const { track, liked, index, reposted, playlists } = this.props;
+        const { track, likes, index, reposts, playlists } = this.props;
 
         return track.id !== nextProps.track.id ||
-            liked !== nextProps.liked ||
             index !== nextProps.index ||
-            reposted !== nextProps.reposted ||
+            !isEqual(likes, nextProps.likes) ||
+            !isEqual(reposts, nextProps.reposts) ||
             !isEqual(playlists, nextProps.playlists)
     }
 
@@ -31,9 +31,12 @@ class ActionsDropdown extends React.Component {
     }
 
     render() {
-        const { toggleLike, toggleRepost, reposted, liked, track, addUpNext, index, playlists, togglePlaylistTrack, playlist_objects } = this.props
+        const { toggleLike, toggleRepost, reposts, likes, track, addUpNext, index, playlists, togglePlaylistTrack, playlist_objects } = this.props
 
         const trackId = track.id
+
+        const liked = SC.hasID(track.id, (track.kind === 'playlist' ? likes.playlist : likes.track))
+        const reposted = SC.hasID(track.id, reposts)
 
         return (
             <Popover className="actions-dropdown" autoFocus={false} minimal content={(
@@ -51,7 +54,7 @@ class ActionsDropdown extends React.Component {
 
                     <MenuItem text="Add to queue" onClick={(e) => {
                         this.onClick(e)
-                        addUpNext(trackId, track.kind === 'playlist' ? track : null)
+                        addUpNext(track)
                     }} />
 
                     {
@@ -82,7 +85,7 @@ class ActionsDropdown extends React.Component {
                         index !== null ? (
                             <MenuItem text="Remove from queue" onClick={(e) => {
                                 this.onClick(e)
-                                addUpNext(trackId, track.kind === 'playlist' ? track : null, index)
+                                addUpNext(track, index)
                             }} />
                         ) : null
                     }
@@ -105,8 +108,8 @@ class ActionsDropdown extends React.Component {
 }
 
 ActionsDropdown.propTypes = {
-    liked: PropTypes.bool.isRequired,
-    reposted: PropTypes.bool.isRequired,
+    likes: PropTypes.object.isRequired,
+    reposts: PropTypes.object.isRequired,
     track: PropTypes.object.isRequired,
     playlist_objects: PropTypes.object.isRequired,
     playlists: PropTypes.array.isRequired,
@@ -123,19 +126,17 @@ ActionsDropdown.defaultProps = {
     index: null
 }
 
-const mapStateToProps = (state, { track }) => {
+const mapStateToProps = (state) => {
     const { auth: { playlists, likes, reposts }, entities, objects } = state
     const { playlist_entities } = entities
 
     const playlist_objects = objects[OBJECT_TYPES.PLAYLISTS] || {}
 
-    const liked = SC.hasID(track.id, (track.kind === 'playlist' ? likes.playlist : likes.track))
-    const reposted = SC.hasID(track.id, reposts)
-
     return {
         playlists: playlists.map(id => playlist_entities[id]),
         playlist_objects,
-        liked, reposted
+        likes,
+        reposts
 
     }
 }

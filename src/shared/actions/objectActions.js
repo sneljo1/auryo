@@ -131,13 +131,15 @@ export function getPlaylist(url, object_id, refresh) {
 
                                                 return playlist.tracks.map(trackId => ({
                                                     id: trackId,
-                                                    playlistId: id
+                                                    playlistId: id,
+                                                    un: new Date().getTime()
                                                 }))
                                             }
 
                                             return {
                                                 id,
-                                                playlistId: currentPlaylistId
+                                                playlistId: currentPlaylistId,
+                                                un: new Date().getTime()
                                             }
                                         })),
                                     index: queue.length

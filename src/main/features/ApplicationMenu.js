@@ -188,13 +188,7 @@ export default class ApplicationMenu extends IFeature {
                         accelerator: 'CmdOrCtrl+,',
                         role: 'preferences',
                         click: () => {
-                            this.win.webContents.send('navigate', {
-                                pathname: '/settings',
-                                search: '',
-                                hash: '',
-                                action: 'PUSH',
-                                key: 'settings'
-                            })
+                            this.router.send(EVENTS.APP.OPEN_SETTINGS)
                         }
                     },
                     { type: 'separator' },

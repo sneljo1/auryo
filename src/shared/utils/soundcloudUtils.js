@@ -314,5 +314,5 @@ export function getImageUrl(track, size = null) {
  */
 
 export function hasID(id, object) {
-    return object && (id in object) && object[id] === 1
+    return object && object[id] && object[id] === true
 }

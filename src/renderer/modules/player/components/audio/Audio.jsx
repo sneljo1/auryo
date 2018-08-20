@@ -1,4 +1,4 @@
-/* eslint-disable promise/always-return */
+/* eslint-disable promise/always-return,no-underscore-dangle */
 
 import throttle from 'lodash/throttle';
 import PropTypes from 'prop-types';
@@ -17,7 +17,7 @@ class Audio extends React.Component {
     componentWillReceiveProps(nextProps) {
         const { playStatus, playFromPosition, url, id, volume, onTimeUpdate, muted } = this.props
 
-        if (playFromPosition !== nextProps.playFromPosition && nextProps.playFromPosition !== -1 && this.player) {
+        if (this.player && playFromPosition !== nextProps.playFromPosition && nextProps.playFromPosition !== -1) {
             this.player.seek(nextProps.playFromPosition)
             onTimeUpdate()
         }
@@ -156,7 +156,7 @@ Audio.propTypes = {
     volume: PropTypes.number.isRequired,
     playFromPosition: PropTypes.number.isRequired,
     muted: PropTypes.bool.isRequired,
-    id: PropTypes.number.isRequired,
+    id: PropTypes.string.isRequired,
 
     onLoading: PropTypes.func.isRequired,
     onPlaying: PropTypes.func.isRequired,

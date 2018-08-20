@@ -56,7 +56,7 @@ export function getPlaylistObject(playlistId, position) {
                     const current_playlist = playlists[playlistId]
                     const current_playlist_ent = playlist_entities[playlistId]
 
-                    if (!current_playlist.isFetching && !current_playlist.items.length && current_playlist_ent.track_count !== 0) {
+                    if (!current_playlist.isFetching  && (current_playlist.items.length === 0 && current_playlist_ent.duration === 0 || current_playlist_ent.track_count === 0)) {
                         throw new Error('This playlist is empty or not available via a third party!')
                     }
 
@@ -230,13 +230,15 @@ export function setCurrentPlaylist(playlistId, next_track) {
 
                                     return playlist.tracks.map(trackId => ({
                                         id: trackId,
-                                        playlistId: id
+                                        playlistId: id,
+                                        un: new Date().getTime()
                                     }))
                                 }
 
                                 return {
                                     id,
-                                    playlistId
+                                    playlistId,
+                                    un: new Date().getTime()
                                 }
                             })),
                         next_track,
@@ -285,7 +287,7 @@ export function setPlayingTrack(next_track, position) {
  * @param track_playlist
  * @param remove
  */
-export function addUpNext(trackIdParam, track_playlist, remove = null) {
+export function addUpNext(track, remove = null) {
     return (dispatch, getState) => {
         const {
             player: {
@@ -293,35 +295,24 @@ export function addUpNext(trackIdParam, track_playlist, remove = null) {
                 currentPlaylistId,
                 playingTrack
 
-            },
-            entities: {
-                track_entities,
-                playlist_entities
             }
         } = getState()
 
-        let trackId = trackIdParam;
+        const isPlaylist = track.kind === "playlist";
 
-        let next_track; let next_list;
-
-        if (typeof trackId === 'object') {
-            next_track = trackId
-            trackId = next_track.id
-        } else {
-            next_track = {
-                id: trackId,
-                playlistId: (track_playlist ? track_playlist.id : currentPlaylistId)
-            }
+        const nextTrack = {
+            id: track.id,
+            playlistId: currentPlaylistId,
+            un: new Date().getTime()
         }
 
-        let track = track_entities[trackId]
+        let nextList;
 
-        if (track_playlist) {
-            track = playlist_entities[trackId]
-
-            next_list = track.tracks.map((id) => ({
-                id,
-                playlistId: trackId
+        if (isPlaylist) {
+            nextList = track.tracks.map((t) => ({
+                id: t.id,
+                playlistId: track.id,
+                un: new Date().getTime()
             }))
         }
 
@@ -338,10 +329,10 @@ export function addUpNext(trackIdParam, track_playlist, remove = null) {
             dispatch({
                 type: actionTypes.PLAYER_ADD_UP_NEXT,
                 payload: {
-                    next: track_playlist ? next_list : [next_track],
+                    next: isPlaylist ? nextList : [nextTrack],
                     remove,
                     position: getCurrentPosition(queue, playingTrack),
-                    playlist: track_playlist
+                    playlist: isPlaylist
                 }
             })
         }
@@ -398,7 +389,7 @@ export function getItemsAround(next_index) {
         const highBound = next_index + 3;
 
         // Get playlists
-        for (let i = (lowBound < 0 ? 0 : next_index); i < (highBound > queue.length ? queue.length : highBound); i+=1) {
+        for (let i = (lowBound < 0 ? 0 : next_index); i < (highBound > queue.length ? queue.length : highBound); i += 1) {
             const n_track = queue[i]
             if (n_track && n_track.id) {
 

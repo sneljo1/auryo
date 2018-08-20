@@ -297,7 +297,7 @@ class Player extends React.Component {
                     volume={volume}
                     playFromPosition={nextTime}
                     muted={muted}
-                    id={playingTrack.id}
+                    id={`${playingTrack.un}-${playingTrack.id}`}
                     offline={app.offline}
                     onLoading={this.onLoad}
                     onPlaying={this.onPlaying}

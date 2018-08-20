@@ -16,6 +16,7 @@ import { changeTrack, toggleStatus } from '../player/playerActions';
 import { toggleLike } from '../track/like.actions';
 import { toggleRepost } from '../track/reposts.actions';
 import { isOnline } from './offline.actions';
+import { show } from 'redux-modal';
 
 export function openExternal(url) {
     ipcRenderer.send('open_external', url)
@@ -46,6 +47,16 @@ export function initWatchers() {
                 event: EVENTS.PLAYER.CHANGE_TRACK,
                 handler: (data) => {
                     dispatch(changeTrack(data))
+                }
+            })
+
+
+            listeners.push({
+                event: EVENTS.APP.OPEN_SETTINGS,
+                handler: () => {
+                    dispatch(show('utilities', {
+                        activeTab: 'settings'
+                    }))
                 }
             })
 

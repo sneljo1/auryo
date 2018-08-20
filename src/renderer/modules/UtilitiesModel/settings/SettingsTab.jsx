@@ -54,7 +54,7 @@ class SettingsTab extends Component {
                     }
 
                     <div className="setting-group">
-                        <div className="setting-group-title">Proxy</div>
+                        <div className="setting-group-title">Proxy (Experimental)</div>
 
                         <div>
                             <CheckboxConfig onChange={(value, setKey) => {
@@ -129,7 +129,7 @@ class SettingsTab extends Component {
                     </div>
                 </div>
                 <div className="setting-group">
-                    <div className="setting-group-title">Proxy</div>
+                    <div className="setting-group-title">Proxy (Experimental)</div>
 
                     <div>
                         <CheckboxConfig onChange={(value, setKey) => {
