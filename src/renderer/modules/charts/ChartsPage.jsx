@@ -109,7 +109,13 @@ class ChartsPage extends WithHeaderComponent {
                         <TabPane tabId="1">
                             <div>
                                 <Masonry
-                                    breakpointCols={4}
+                                    breakpointCols={{
+                                        default: 5,
+                                        1400: 4,
+                                        1100: 3,
+                                        700: 2,
+                                        500: 1
+                                      }}
                                     className="my-masonry-grid">
                                     {MUSIC_GENRES.map((genre) => (
                                         <ChartGenre key={genre.key} genre={genre} img={GENRE_IMAGES[genre.key]} />
@@ -121,7 +127,7 @@ class ChartsPage extends WithHeaderComponent {
                         <TabPane tabId="2">
                             <div className="row">
                                 {AUDIO_GENRES.map((genre) => (
-                                    <div key={genre.key} className="col-3">
+                                    <div key={genre.key} className="col-4 col-lg-3">
                                         <ChartGenre genre={genre} />
                                     </div>
                                 ))}

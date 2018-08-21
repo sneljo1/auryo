@@ -8,6 +8,13 @@ let memToken = null
 export function initialize(token) {
     memToken = token
 
+    // eslint-disable-next-line
+    const soundcloud = require('soundcloud')
+
+    soundcloud.initialize({
+        client_id: CONFIG.CLIENT_ID
+    })
+
 }
 
 function makeUrl(uri, opts, v2) {

@@ -267,23 +267,30 @@ class TrackPage extends WithHeaderComponent {
                     <TabContent activeTab={this.state.activeTab}>
                         <TabPane tabId="1" className="overview">
                             <Row>
-                                <Col xs="3">
-                                    <TrackGridUser following={following} user={user}
-                                        toggleFollowingFunc={toggleFollowingFunc} />
-                                    <div className="p-3 track-info">
-                                        <strong>Created</strong>
-                                        <div>{moment(track.created_at).fromNow()}</div>
+                                <Col xs="12" lg="3">
+                                    <Row>
+                                        <Col xs="6" lg="12">
+                                            <TrackGridUser following={following} user={user}
+                                                toggleFollowingFunc={toggleFollowingFunc} />
+                                        </Col>
 
-                                        {
-                                            track.label_name && (
-                                                <React.Fragment>
-                                                    <strong>Label</strong>
-                                                    <div>{track.label_name}</div>
-                                                </React.Fragment>
-                                            )
-                                        }
+                                        <Col xs="6" lg="12">
+                                            <div className="p-3 track-info">
+                                                <strong>Created</strong>
+                                                <div>{moment(track.created_at).fromNow()}</div>
 
-                                    </div>
+                                                {
+                                                    track.label_name && (
+                                                        <React.Fragment>
+                                                            <strong>Label</strong>
+                                                            <div>{track.label_name}</div>
+                                                        </React.Fragment>
+                                                    )
+                                                }
+
+                                            </div>
+                                        </Col>
+                                    </Row>
                                 </Col>
 
                                 <Col xs="12" className="trackPadding col-lg">

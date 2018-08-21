@@ -34,6 +34,8 @@
     "no-return-assign": "off",
     "promise/always-return": "off",
     "no-param-reassign": "off",
+    "jsx-a11y/accessible-emoji": "off",
+    "react/no-unescaped-entities": "off",
     "react/sort-comp": [
       "error",
       {

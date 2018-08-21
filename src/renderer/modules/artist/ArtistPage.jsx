@@ -29,7 +29,8 @@ class ArtistPage extends WithHeaderComponent {
 
     state = {
         activeTab: '1',
-        small: false
+        small: false,
+        scrollTop: 0
     }
 
     componentDidMount() {
@@ -178,7 +179,7 @@ class ArtistPage extends WithHeaderComponent {
 
         const user = user_entities[artistId]
 
-        if (!user || user.track_count === null) return <Spinner />
+        if (!user || (user && user.loading) || user.track_count === null) return <Spinner />
 
         const user_img = SC.getImageUrl(user.avatar_url, IMAGE_SIZES.LARGE)
         const following = SC.hasID(user.id, followings)
@@ -188,6 +189,7 @@ class ArtistPage extends WithHeaderComponent {
         return (
             <CustomScroll className="column" heightRelativeToParent="100%"
                 allowOuterScroll
+                heightMargin={35}
                 onScroll={this.debouncedOnScroll}
                 threshold={300}
                 loadMore={this.fetchMore.bind(this)}
@@ -238,8 +240,8 @@ class ArtistPage extends WithHeaderComponent {
                                     </div>
                                 </Col>
 
-                                <Col xs='12' md='' className='col-md text-xs-right'>
-                                    <ul className='artistStats d-flex justify-content-center justify-content-md-end'>
+                                <Col xs='12' md=''>
+                                    <ul className='artistStats d-flex justify-content-start justify-content-lg-end'>
                                         <li>
                                             <span>{abbreviate_number(user.followers_count)}</span>
                                             <span>Followers</span>
@@ -286,7 +288,7 @@ class ArtistPage extends WithHeaderComponent {
                 </PageHeader>
                 <div className='artistPage container-fluid detailPage'>
                     <Row className="main_track_content">
-                        <Col xs='12' lg='9'>
+                        <Col xs='12' lg='8'>
 
                             <TabContent activeTab={this.state.activeTab} className="px-4">
                                 <TabPane tabId='1'>
@@ -298,7 +300,7 @@ class ArtistPage extends WithHeaderComponent {
                                 {
                                     small ? (
                                         <TabPane tabId='3'>
-                                            <div className='artistInfo p-1 pt-0'>
+                                            <div className='artistInfo p-1  pt-5'>
                                                 <Linkify text={user.description} router={this.props.router} />
                                             </div>
                                             <ArtistProfiles className='pt-1' profiles={user.profiles} />
@@ -310,7 +312,7 @@ class ArtistPage extends WithHeaderComponent {
                         </Col>
                         {
                             !small ? (
-                                <Col xs='3' className='artistSide'>
+                                <Col xs='4' className='artistSide'>
 
                                     <ToggleMoreComponent>
                                         <div className='artistInfo'>

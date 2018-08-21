@@ -47,6 +47,8 @@ class PlayListPage extends WithHeaderComponent {
                     case PLAYLISTS.PLAYLISTS:
                         getAuthAllPlaylistsIfNeeded()
                         break
+                    default:
+                        break
                 }
             }
 
@@ -75,14 +77,14 @@ class PlayListPage extends WithHeaderComponent {
             sortType
         } = this.props
 
-        if (!playlist_object) {
-            return null
+        if (!playlist_object ||(playlist_object && playlist_object.items.length === 0 && playlist_object.isFetching) ) {
+            return <Spinner contained />
         }
 
         return (
             <CustomScroll heightRelativeToParent="100%"
                 heightMargin={35}
-                allowOuterScroll={true}
+                allowOuterScroll
                 threshold={300}
                 isFetching={playlist_object.isFetching}
                 ref={r => this.scroll = r}
@@ -131,7 +133,6 @@ class PlayListPage extends WithHeaderComponent {
                             />
                         )
                 }
-
 
             </CustomScroll>
         )

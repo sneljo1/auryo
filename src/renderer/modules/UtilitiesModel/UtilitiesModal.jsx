@@ -78,11 +78,13 @@ class UtilitiesModal extends Component {
 
 UtilitiesModal.propTypes = {
     show: PropTypes.bool,
+    authenticated: PropTypes.bool,
     handleHide: PropTypes.func.isRequired,
 }
 
 UtilitiesModal.defaultProps = {
-    show: false
+    show: false,
+    authenticated: false,
 }
 
 

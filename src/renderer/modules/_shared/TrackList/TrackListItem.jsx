@@ -18,21 +18,13 @@ class trackListItem extends React.Component {
 
     shouldComponentUpdate(nextProps) {
 
-        const { track, liked, isPlaying, reposted } = this.props
+        const { track, isPlaying } = this.props
 
         if (nextProps.track.id !== track.id) {
             return true
         }
 
         if (nextProps.isPlaying !== isPlaying) {
-            return true
-        }
-
-        if (nextProps.liked !== liked) {
-            return true
-        }
-
-        if (nextProps.reposted !== reposted) {
             return true
         }
 
@@ -69,14 +61,8 @@ class trackListItem extends React.Component {
         const {
             track,
             isPlaying,
-            liked,
-            reposted,
             // Functions
-            likeFunc,
-            playTrackFunc,
-            show,
-            addUpNext,
-            toggleRepost
+            playTrackFunc
         } = this.props
 
         if (!track.title) return null
@@ -122,13 +108,7 @@ class trackListItem extends React.Component {
                 </td>
                 <td className="trackitemActions">
                     <ActionsDropdown
-                        toggleLike={likeFunc}
-                        toggleRepost={toggleRepost}
-                        reposted={reposted}
-                        liked={liked}
-                        show={show}
-                        track={track}
-                        addUpNext={addUpNext} />
+                        track={track} />
                 </td>
             </tr>
         )
@@ -138,14 +118,8 @@ class trackListItem extends React.Component {
 trackListItem.propTypes = {
     isPlaying: PropTypes.bool.isRequired,
     track: PropTypes.object.isRequired,
-    liked: PropTypes.bool.isRequired,
-    reposted: PropTypes.bool.isRequired,
 
-    show: PropTypes.func.isRequired,
-    likeFunc: PropTypes.func.isRequired,
-    playTrackFunc: PropTypes.func.isRequired,
-    addUpNext: PropTypes.func.isRequired,
-    toggleRepost: PropTypes.func.isRequired
+    playTrackFunc: PropTypes.func.isRequired
 }
 
 

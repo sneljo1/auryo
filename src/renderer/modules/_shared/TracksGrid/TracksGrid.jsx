@@ -97,7 +97,6 @@ class TracksGrid extends Component {
     )
 
     render() {
-
         const { items } = this.props
 
         return (

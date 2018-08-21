@@ -90,7 +90,7 @@ class PlaylistContainer extends WithHeaderComponent {
 
         const { likes, playlists, followings } = auth
 
-        if (!playlist_object || !playlist_entity) {
+        if (!playlist_object || (playlist_object && playlist_object.items.length === 0 && playlist_object.isFetching)) {
             return <Spinner contained />
         }
 

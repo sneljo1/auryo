@@ -36,7 +36,7 @@ class App extends React.Component {
     constructor() {
         super()
 
-        this.debouncedHandleResize = debounce(this.handleResize, 500)
+        this.debouncedHandleResize = debounce(this.handleResize, 500, { leading: true })
     }
 
     componentDidMount() {
@@ -200,7 +200,7 @@ class App extends React.Component {
                         togglePlaylistTrackFunc={togglePlaylistTrack}
                         track_entities={track_entities} />
 
-                    <UtilitiesModal />
+                    <UtilitiesModal authenticated />
 
                     <ChangelogModal />
                 </div>

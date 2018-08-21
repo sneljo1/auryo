@@ -6,34 +6,37 @@ import fetchToJson from "../api/helpers/fetchToJson";
 /**
  * Fetch auth if limited info is available. Also check if auth tracks or likes have been fetched.
  *
- * @param user_id
+ * @param userId
  * @returns {function(*, *)}
  */
-export function fetchArtistIfNeeded(user_id) {
+export function fetchArtistIfNeeded(userId) {
     return (dispatch, getState) => {
         const { entities, objects } = getState();
         const { user_entities } = entities;
-        const playlists = objects[OBJECT_TYPES.PLAYLISTS];
+        const playlistObjects = objects[OBJECT_TYPES.PLAYLISTS];
 
+        const user = user_entities[userId]
 
-        if (!(user_id in user_entities) || !user_entities[user_id].followers_count) {
-            dispatch(getUser(user_id));
+        if (!user || (user && !user.followers_count && !user.loading)) {
+            dispatch(getUser(userId));
         }
 
-        if (!(user_id in user_entities) || !user_entities[user_id].profiles) {
-            dispatch(getUserProfiles(user_id));
+        if (!user || (user && !user.profiles && !user.profiles_loading)) {
+            dispatch(getUserProfiles(userId));
         }
 
-        const tracks_playlist = user_id + USER_TRACKS_PLAYLIST_SUFFIX;
+        const tracksPlaylistId = userId + USER_TRACKS_PLAYLIST_SUFFIX;
+        const tracksPlaylist = playlistObjects[tracksPlaylistId]
 
-        if (playlists && !playlists[tracks_playlist]) {
-            dispatch(getPlaylist(SC.getUserTracksUrl(user_id), tracks_playlist));
+        if (!tracksPlaylist) {
+            dispatch(getPlaylist(SC.getUserTracksUrl(userId), tracksPlaylistId));
         }
 
-        const likes_playlist = user_id + USER_LIKES_SUFFIX;
+        const likesPlaylistId = userId + USER_LIKES_SUFFIX;
+        const likesPlaylist = playlistObjects[tracksPlaylistId]
 
-        if (playlists && !playlists[likes_playlist]) {
-            dispatch(getPlaylist(SC.getUserLikesUrl(user_id), likes_playlist));
+        if (!likesPlaylist) {
+            dispatch(getPlaylist(SC.getUserLikesUrl(userId), likesPlaylistId));
         }
     }
 }
@@ -41,41 +44,67 @@ export function fetchArtistIfNeeded(user_id) {
 /**
  * Get and save user
  *
- * @param user_id
+ * @param userId
  * @returns {{type, payload: Promise}}
  */
-function getUser(user_id) {
+function getUser(userId) {
     return {
         type: actionTypes.USER_SET,
-        payload: fetchToJson(SC.getUserUrl(user_id))
-            .then(user => ({
+        payload: {
+            promise: fetchToJson(SC.getUserUrl(userId))
+                .then(user => ({
+                    entities: {
+                        user_entities: {
+                            [user.id]: {
+                                ...user,
+                                loading: false
+                            }
+                        }
+                    }
+                })),
+            data: {
                 entities: {
                     user_entities: {
-                        [user.id]: user
+                        [userId]: {
+                            loading: true
+                        }
                     }
                 }
-            }))
+            }
+        }
     }
 }
 
 /**
  * get & save user profiles
  *
- * @param user_id
+ * @param userId
  * @returns {{type, payload: Promise}}
  */
-function getUserProfiles(user_id) {
+function getUserProfiles(userId) {
     return {
         type: actionTypes.USER_SET_PROFILES,
-        payload: fetchToJson(SC.getUserWebProfilesUrl(user_id))
-            .then(json => ({
+        payload: {
+            promise: fetchToJson(SC.getUserWebProfilesUrl(userId))
+                .then(profiles => ({
+                    entities: {
+                        user_entities: {
+                            [userId]: {
+                                profiles,
+                                profiles_loading: false
+                            }
+                        }
+                    }
+                })),
+            data: {
                 entities: {
                     user_entities: {
-                        [user_id]: {
-                            profiles: json
+                        [userId]: {
+                            profiles_loading: true
                         }
                     }
                 }
-            }))
+            }
+        }
     }
 }

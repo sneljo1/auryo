@@ -27,13 +27,8 @@ class TrackList extends React.PureComponent {
     render() {
         const {
             items,
-            likes,
-            reposts,
             hideFirstTrack,
             player,
-
-            likeFunc,
-            toggleRepost,
             show,
             addUpNext
         } = this.props
@@ -66,22 +61,13 @@ class TrackList extends React.PureComponent {
                                     return null
                                 }
 
-                                const liked = SC.hasID(track.id, likes.track)
-                                const reposted = SC.hasID(track.id, reposts)
-
                                 return (
                                     <TrackListItem
                                         key={`track-list-${track.id}`}
                                         track={track}
                                         isPlaying={track.id === player.playingTrack.id}
-                                        liked={liked}
-                                        reposted={reposted}
 
-                                        addUpNext={addUpNext}
                                         playTrackFunc={this.playTrack.bind(this, track.id)}
-                                        likeFunc={likeFunc}
-                                        toggleRepost={toggleRepost}
-                                        show={show}
                                     />
                                 )
                             })
@@ -94,27 +80,16 @@ class TrackList extends React.PureComponent {
 }
 
 TrackList.propTypes = {
-    playingTrack: PropTypes.object,
     items: PropTypes.array.isRequired,
     player: PropTypes.object.isRequired,
-    likes: PropTypes.object.isRequired,
-    reposts: PropTypes.object.isRequired,
     hideFirstTrack: PropTypes.bool,
 
-    likeFunc: PropTypes.func.isRequired,
-    show: PropTypes.func.isRequired,
-    addUpNext: PropTypes.func.isRequired,
-    toggleRepost: PropTypes.func.isRequired,
     playTrackFunc: PropTypes.func.isRequired
 
 }
 
 TrackList.defaultProps = {
-    hideFirstTrack: false,
-    playingTrack: {
-        id: null,
-        playlistId: null
-    }
+    hideFirstTrack: false
 }
 
 export default TrackList
