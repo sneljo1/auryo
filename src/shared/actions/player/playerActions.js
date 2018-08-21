@@ -2,7 +2,7 @@ import flattenDeep from 'lodash/flattenDeep';
 import React from 'react';
 import { toastr } from 'react-redux-toastr';
 import ReactImageFallback from '../../../renderer/modules/_shared/FallbackImage';
-import { actionTypes, IMAGE_SIZES, OBJECT_TYPES, PLAYER_STATUS } from '../../constants';
+import { actionTypes, IMAGE_SIZES, OBJECT_TYPES, PLAYER_STATUS, CHANGE_TYPES } from '../../constants';
 import { EVENTS } from '../../constants/events';
 import { PLAYLISTS } from '../../constants/playlist';
 import { SC } from '../../utils';
@@ -12,6 +12,7 @@ import { fetchPlaylistIfNeeded } from '../index';
 import { fetchMore } from '../objectActions';
 import { fetchPlaylistTracks, fetchTracks } from '../playlist.actions';
 import { playTrack } from './playTrack.actions';
+import { changeTrack } from './changeTrack.actions';
 
 
 const obj_type = OBJECT_TYPES.PLAYLISTS
@@ -56,7 +57,7 @@ export function getPlaylistObject(playlistId, position) {
                     const current_playlist = playlists[playlistId]
                     const current_playlist_ent = playlist_entities[playlistId]
 
-                    if (!current_playlist.isFetching  && (current_playlist.items.length === 0 && current_playlist_ent.duration === 0 || current_playlist_ent.track_count === 0)) {
+                    if (!current_playlist.isFetching && (current_playlist.items.length === 0 && current_playlist_ent.duration === 0 || current_playlist_ent.track_count === 0)) {
                         throw new Error('This playlist is empty or not available via a third party!')
                     }
 
@@ -205,7 +206,7 @@ export function setCurrentPlaylist(playlistId, next_track) {
 
         const playlists = objects[obj_type] || {}
         const playlist_object = playlists[playlistId]
-        const { playlist_entities } = entities
+        const { playlist_entities, track_entities } = entities
 
         const playlist_pos = []
 
@@ -228,11 +229,22 @@ export function setCurrentPlaylist(playlistId, next_track) {
                                         end: i + playlist.tracks.length
                                     })
 
-                                    return playlist.tracks.map(trackId => ({
-                                        id: trackId,
-                                        playlistId: id,
-                                        un: new Date().getTime()
-                                    }))
+                                    return playlist.tracks.map(trackId => {
+                                        if (track_entities[trackId] && !track_entities[trackId].streamable) {
+                                            console.log("not streamable", track_entities[id])
+                                            return null;
+                                        }
+
+                                        return {
+                                            id: trackId,
+                                            playlistId: id,
+                                            un: new Date().getTime()
+                                        }
+                                    }).filter(t => t != null)
+                                }
+
+                                if (track_entities[id] && !track_entities[id].streamable) {
+                                    return null;
                                 }
 
                                 return {
@@ -240,7 +252,7 @@ export function setCurrentPlaylist(playlistId, next_track) {
                                     playlistId,
                                     un: new Date().getTime()
                                 }
-                            })),
+                            })).filter(t => t != null),
                         next_track,
                         playlist_pos
                     })
@@ -259,22 +271,31 @@ export function setCurrentPlaylist(playlistId, next_track) {
 /**
  * Set currentrackIndex & start playing
  *
- * @param next_track
+ * @param nextTrack
  * @param position
  */
-export function setPlayingTrack(next_track, position) {
-    return (dispatch) => {
+export function setPlayingTrack(nextTrack, position, changeType) {
+    return (dispatch, getState) => {
 
+        const { entities: { track_entities } } = getState();
+
+        const track = track_entities[nextTrack.id]
+
+        if (track && !track.streamable) {
+            if (changeType && (changeType in Object.values(CHANGE_TYPES))) {
+                return changeTrack(changeType)
+            }
+        }
         dispatch({
             type: actionTypes.PLAYER_SET_TRACK,
             payload: {
-                next_track,
+                nextTrack,
                 status: PLAYER_STATUS.PLAYING,
                 position
             }
         })
 
-        windowRouter.send(EVENTS.PLAYER.TRACK_CHANGED, next_track.id)
+        windowRouter.send(EVENTS.PLAYER.TRACK_CHANGED, nextTrack.id)
 
     }
 
@@ -309,11 +330,18 @@ export function addUpNext(track, remove = null) {
         let nextList;
 
         if (isPlaylist) {
-            nextList = track.tracks.map((t) => ({
-                id: t.id,
-                playlistId: track.id,
-                un: new Date().getTime()
-            }))
+            nextList = track.tracks.map((t) => {
+
+                if (!t.streamable) {
+                    return null;
+                }
+
+                return {
+                    id: t.id,
+                    playlistId: track.id,
+                    un: new Date().getTime()
+                }
+            }).filter(t => t != null)
         }
 
         if (queue.length) {

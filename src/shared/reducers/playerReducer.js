@@ -30,7 +30,7 @@ export default function player(state = initialState, action) {
 
             let new_state = { // eslint-disable-line
                 ...state,
-                playingTrack: payload.next_track,
+                playingTrack: payload.nextTrack,
                 status: payload.status,
                 currentTime: 0,
                 updateTime: -1,

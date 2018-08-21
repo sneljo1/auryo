@@ -27,11 +27,11 @@ export function playTrackFromIndex(playlistId, trackIndex, trackPlaylist, forceS
  *
  * @param playlistId
  * @param trackId
- * @param track_playlist
+ * @param trackPlaylist
  * @param force_set_playlist
  * @returns {function(*, *)}
  */
-export function playTrack(playlistId, trackIdParam, track_playlist, force_set_playlist) {
+export function playTrack(playlistId, trackId, trackPlaylist, force_set_playlist, changeType) {
     return (dispatch, getState) => {
 
         const {
@@ -40,16 +40,15 @@ export function playTrack(playlistId, trackIdParam, track_playlist, force_set_pl
             }
         } = getState()
 
-        let next_track
-        let trackId = trackIdParam;
+        let nextTrack
 
         if (typeof trackId === 'object') {
-            next_track = trackId
-            trackId = next_track.id
+            nextTrack = trackId
+            trackId = nextTrack.id
         } else {
-            next_track = {
+            nextTrack = {
                 id: trackId,
-                playlistId: (track_playlist ? track_playlist.id : playlistId)
+                playlistId: (trackPlaylist ? trackPlaylist.id : playlistId)
             }
         }
 
@@ -59,7 +58,7 @@ export function playTrack(playlistId, trackIdParam, track_playlist, force_set_pl
 
         let promise = Promise.resolve()
         if (currentPlaylistId !== playlistId || force_set_playlist) {
-            promise = dispatch(setCurrentPlaylist(playlistId, force_set_playlist && next_track ? next_track : null))
+            promise = dispatch(setCurrentPlaylist(playlistId, force_set_playlist && nextTrack ? nextTrack : null))
         }
 
         promise.then(() => {
@@ -71,37 +70,37 @@ export function playTrack(playlistId, trackIdParam, track_playlist, force_set_pl
                 }
             } = getState()
 
-            const playlists = objects[OBJECT_TYPES.PLAYLISTS] || {}
+            const playlist_objects = objects[OBJECT_TYPES.PLAYLISTS] || {}
             let position = getCurrentPosition(queue, playingTrack)
-            position = (typeof force_set_playlist === 'number' ? force_set_playlist : undefined) || getCurrentPosition(queue, next_track)
+            position = (typeof force_set_playlist === 'number' ? force_set_playlist : undefined) || getCurrentPosition(queue, nextTrack)
 
             if (position !== -1) {
                 dispatch(getItemsAround(position, true))
             }
 
-            if (!track_playlist) {
-                const track_playlist_obj = playlists[playlistId]
+            if (!trackPlaylist) {
+                const track_playlist_obj = playlist_objects[playlistId]
 
                 if (track_playlist_obj && position + 10 >= queue.length && track_playlist_obj.nextUrl) {
                     dispatch(fetchMore(playlistId, OBJECT_TYPES.PLAYLISTS))
                         .then(() => {
-                            dispatch(setPlayingTrack(next_track, position))
+                            dispatch(setPlayingTrack(nextTrack, position,changeType))
                         })
                 } else {
 
-                    dispatch(setPlayingTrack(next_track, position))
+                    dispatch(setPlayingTrack(nextTrack, position,changeType))
                 }
 
 
-            } else if (track_playlist && track_playlist.kind === 'playlist') {
+            } else if (trackPlaylist && trackPlaylist.kind === 'playlist') {
 
-                const track_playlist_obj = playlists[track_playlist.id]
+                const track_playlist_obj = playlist_objects[trackPlaylist.id]
 
                 if (!track_playlist_obj) {
 
-                    if (track_playlist.track_count > 0) {
+                    if (trackPlaylist.track_count > 0) {
 
-                        dispatch(getPlaylistObject(track_playlist.id, next_track))
+                        dispatch(getPlaylistObject(trackPlaylist.id, nextTrack))
                             .then(() => {
                                 const {
                                     objects,
@@ -111,13 +110,13 @@ export function playTrack(playlistId, trackIdParam, track_playlist, force_set_pl
                                 } = getState()
 
                                 const playlists = objects[OBJECT_TYPES.PLAYLISTS] || {}
-                                const { items: [firstItem] } = playlists[track_playlist.id]
+                                const { items: [firstItem] } = playlists[trackPlaylist.id]
 
-                                next_track.id = firstItem
+                                nextTrack.id = firstItem
 
-                                const position = getCurrentPosition(queue, next_track)
+                                const position = getCurrentPosition(queue, nextTrack)
 
-                                dispatch(setPlayingTrack(next_track, position))
+                                dispatch(setPlayingTrack(nextTrack, position,changeType))
 
                             })
                     }
@@ -128,24 +127,21 @@ export function playTrack(playlistId, trackIdParam, track_playlist, force_set_pl
                     } = getState()
 
                     const playlists = objects[OBJECT_TYPES.PLAYLISTS] || {}
-                    const { items: [firstItem] } = playlists[track_playlist.id]
+                    const { items: [firstItem] } = playlists[trackPlaylist.id]
 
-                    if (!track_playlist_obj.isFetching && !track_playlist_obj.items.length && track_playlist.track_count !== 0) {
+                    if (!track_playlist_obj.isFetching && !track_playlist_obj.items.length && trackPlaylist.track_count !== 0) {
                         throw new Error('This playlist is empty or not available via a third party!')
                     } else {
                         // If queue doesn't contain playlist yet
 
                         if (force_set_playlist) {
-                            next_track.id = firstItem
-                            position = getCurrentPosition(queue, next_track)
-
+                            nextTrack.id = firstItem
+                            position = getCurrentPosition(queue, nextTrack)
                         } else {
-
-                            position = getCurrentPosition(queue, next_track)
+                            position = getCurrentPosition(queue, nextTrack)
                         }
 
-
-                        dispatch(setPlayingTrack(next_track, position))
+                        dispatch(setPlayingTrack(nextTrack, position,changeType))
 
                     }
                 }

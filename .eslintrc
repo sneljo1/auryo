@@ -33,6 +33,7 @@
     "promise/no-native": "off",
     "no-return-assign": "off",
     "promise/always-return": "off",
+    "no-param-reassign": "off",
     "react/sort-comp": [
       "error",
       {

@@ -22,7 +22,7 @@ class Audio extends React.Component {
             onTimeUpdate()
         }
 
-        if (url !== nextProps.url || id !== nextProps.id) {
+        if (url !== nextProps.url || id !== nextProps.id && nextProps.url && nextProps.url.length > 0) {
             this.startStream(nextProps.url)
         }
 

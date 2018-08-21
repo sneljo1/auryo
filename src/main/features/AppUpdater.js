@@ -26,13 +26,6 @@ export default class AppUpdater extends IFeature {
     register() {
         this.cancelUpdate = setTimeout(() => {
             this.update();
-
-            this.win.webContents.send('update-status', {
-                status: 'update-available',
-                version: "newversion",
-                current_version: this.currentVersion
-            });
-            this.listenUpdate();
         }, 10000);
     }
 
@@ -124,7 +117,7 @@ export default class AppUpdater extends IFeature {
                         currentVersion: this.currentVersion,
                         url: 'http://auryo.com#downloads'
                     });
-                    
+
                     this.listenUpdate();
 
                 }

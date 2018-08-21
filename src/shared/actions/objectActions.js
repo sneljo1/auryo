@@ -91,7 +91,7 @@ export function getPlaylist(url, object_id, refresh) {
             }
         })
             .then(({ value }) => {
-                const { player: { currentPlaylistId, queue }, entities: { playlist_entities } } = getState()
+                const { player: { currentPlaylistId, queue }, entities: { playlist_entities, track_entities } } = getState()
 
                 if (object_id === currentPlaylistId && value.result.length) {
 
@@ -129,11 +129,17 @@ export function getPlaylist(url, object_id, refresh) {
 
                                                 }
 
-                                                return playlist.tracks.map(trackId => ({
-                                                    id: trackId,
-                                                    playlistId: id,
-                                                    un: new Date().getTime()
-                                                }))
+                                                return playlist.tracks.map(trackId => {
+                                                    if (track_entities[trackId] && !track_entities[trackId].streamable) {
+                                                        return null;
+                                                    }
+
+                                                    return {
+                                                        id: trackId,
+                                                        playlistId: id,
+                                                        un: new Date().getTime()
+                                                    }
+                                                })
                                             }
 
                                             return {
