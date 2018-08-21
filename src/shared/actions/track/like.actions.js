@@ -27,8 +27,6 @@ export function toggleLike(trackId, playlistParam) {
 
         const liked = !SC.hasID(trackId, (playlist ? likes.playlist : likes.track))
 
-        console.log(actionTypes.AUTH_SET_LIKE, liked)
-
         dispatch({
             type: actionTypes.AUTH_SET_LIKE,
             payload: fetchToJson(playlist ? SC.updatePlaylistLikeUrl(me.id, trackId) : SC.updateLikeUrl(trackId), {

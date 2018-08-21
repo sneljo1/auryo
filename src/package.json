@@ -64,6 +64,7 @@
     "react-router-redux": "^5.0.0-alpha.9",
     "react-stickky": "^3.0.2",
     "react-virtualized": "^9.10.1",
+    "react-window": "^1.1.1",
     "reactstrap": "^5.0.0",
     "redux": "^3.7.2",
     "redux-electron-store": "^0.6.2",

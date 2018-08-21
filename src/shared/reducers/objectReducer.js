@@ -81,12 +81,13 @@ function objects(state = initialObjectsState, action) {
             if (payload.liked) {
                 return {
                     ...state,
-                    items: [payload.trackId, ...state.items]
+                    // because of the denormalization process, every item needs a schema
+                    items: [{ id: payload.trackId, schema: 'tracks' }, ...state.items]
                 }
             }
             return {
                 ...state,
-                items: state.items.filter((key) => payload.trackId !== key)
+                items: state.items.filter((item) => payload.trackId !== item.id)
             }
         default:
             break;

@@ -28,12 +28,12 @@ class CommentList extends Component {
         return (
             <div className="comments">
                 <ReactList
-                    pageSize={5}
-                    type="uniform"
+                    pageSize={8}
+                    type="simple"
                     length={items.length}
                     itemRenderer={this.renderItem}
                     useTranslate3d
-                    useStaticSize
+                    threshold={400}
                 />
                 {(comments.isFetching) ? <Spinner /> : null}
             </div>
