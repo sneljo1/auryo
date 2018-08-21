@@ -130,15 +130,6 @@ export function initWatchers() {
             })
 
             listeners.push({
-                event: EVENTS.APP.NEW_VERSION,
-                handler: (data) => {
-                    dispatch(show('changelog', {
-                        version: data
-                    }))
-                }
-            })
-
-            listeners.push({
                 event: 'stream-error',
                 handler: (data) => {
                     console.log('stream-error')

@@ -14,7 +14,6 @@ export const EVENTS = {
         REPOST: 'track::action::repost'
     },
     APP: {
-        NEW_VERSION: 'app::new_version',
         UPDATE: 'app::do_update',
         READY: 'app::ready',
         RESTART: 'app::restart',

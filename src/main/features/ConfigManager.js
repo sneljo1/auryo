@@ -11,15 +11,18 @@ import settings from '../settings';
 import { Logger } from '../utils/logger';
 import { getProxyUrlFromConfig } from '../utils/utils';
 import IFeature from './IFeature';
+import { show } from 'redux-modal';
 
 export default class ConfigManager extends IFeature {
 
-    is_new_version = false
+    isNewVersion = false
+
+    isNewUser = false
 
     constructor(app) {
         super(app)
 
-        this.writetoConfig = debounce(config => settings.setAll(config), 5000)
+        this.writetoConfig = debounce(config => settings.setAll(config), 500)
 
     }
 
@@ -32,9 +35,10 @@ export default class ConfigManager extends IFeature {
 
         if (typeof this.config.version === 'undefined') {
             this.config.version = version
+            this.isNewUser = true
         } else if (semver.lt(this.config.version, version)) {
             this.config.version = version
-            this.is_new_version = true
+            this.isNewVersion = true
         }
 
         // fill out default values if config is incomplete
@@ -61,9 +65,9 @@ export default class ConfigManager extends IFeature {
 
         this.store.dispatch(setConfig(this.config))
 
-
         this.on(EVENTS.APP.READY, () => {
             this.notifyNewVersion();
+            this.notifyNewUser();
             this.on('GO', this.checkCanGo)
             this.subscribe('config', this.updateConfig)
         })
@@ -73,7 +77,6 @@ export default class ConfigManager extends IFeature {
      * Write new values to the config file
      */
     updateConfig = ({ currentValue }) => {
-
         this.writetoConfig(currentValue)
     }
 
@@ -97,10 +100,20 @@ export default class ConfigManager extends IFeature {
      * If version doesn't match config version, send update to frontend on app loaded
      */
     notifyNewVersion = () => {
-        if (this.is_new_version) {
+        if (this.isNewVersion && !this.isNewUser) {
             setTimeout(() => {
-                this.router.send(EVENTS.APP.NEW_VERSION, version)
+                this.store.dispatch(show('changelog', { version }))
                 super.unregister(['app', 'loaded'])
+            }, 5000)
+        }
+    }
+
+    notifyNewUser = () => {
+        if (this.isNewUser) {
+            console.log("notifyNewUser")
+            setTimeout(() => {
+                console.log("dispatch")
+                this.store.dispatch(show('welcome'))
             }, 5000)
         }
     }

@@ -6,8 +6,8 @@ import Markdown from "react-markdown";
 import { connect } from 'react-redux';
 import { Modal, ModalBody, ModalHeader } from 'reactstrap';
 import { connectModal } from 'redux-modal';
-import * as actions from '../../../../../shared/actions/config.actions';
-import fetchToJson from '../../../../../shared/api/helpers/fetchToJson';
+import * as actions from '../../../../../../shared/actions/config.actions';
+import fetchToJson from '../../../../../../shared/api/helpers/fetchToJson';
 import "./ChangeLogModal.scss";
 
 class ChangeLogModal extends Component {

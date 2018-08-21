@@ -29,7 +29,7 @@ import AppError from './components/AppError/AppError';
 import IsOffline from './components/Offline/Offline';
 import Queue from './components/Queue/Queue';
 import SideBar from './components/Sidebar/Sidebar';
-import ChangelogModal from './components/ChangeLogModal/ChangelogModal';
+import ChangelogModal from './components/modals/ChangeLogModal/ChangelogModal';
 
 class App extends React.Component {
 
