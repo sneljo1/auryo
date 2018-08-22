@@ -1,10 +1,5 @@
-import chai from "chai";
-import chaiAsPromised from "chai-as-promised";
-import { loaded, refresh } from "../../utils";
+import { loaded } from "../../utils";
 import { harness } from "../_utils/_harness";
-
-chai.should();
-chai.use(chaiAsPromised);
 
 harness("search page", () => {
     it('should go to searchpage when typing in searchbox', async () => {

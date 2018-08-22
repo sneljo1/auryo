@@ -7,7 +7,7 @@ import webpack from 'webpack';
 import { dependencies, optionalDependencies } from './src/package.json';
 
 const data = dotenv.config({ path: path.resolve(__dirname, 'src', `.env.${process.env.NODE_ENV}`) })
-const flags = data.parsed ? Object.keys(data.parsed) : []
+const flags = data.parsed ? Object.keys(data.parsed) : ["CLIENT_ID", "SENTRY_URL", "FB_APP_ID", "GOOGLE_GA"]
 
 const externals = {
     ...dependencies,
@@ -33,7 +33,7 @@ export default {
     },
 
     // https://webpack.github.io/docs/configuration.html#resolve
-    
+
     resolve: {
         extensions: ['.js', '.jsx', '.json'],
         modules: [

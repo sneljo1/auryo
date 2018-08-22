@@ -4,7 +4,6 @@ matrix:
     language: node_js
     node_js: '9'
     sudo: required
-    env: DISPLAY=':99.0'
     dist: trusty
     addons:
       apt:
@@ -38,14 +37,15 @@ cache:
   - $HOME/docker
 install:
 - yarn
-before_script:
-- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export DISPLAY=:99.0; fi
-- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sh -e /etc/init.d/xvfb start; fi
-- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sleep 3; fi
 script:
 - yarn run build || travis_terminate 1
 - yarn run lint || travis_terminate 1
-- yarn run test-e2e -- --retries 2
+- |
+  if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+     xvfb-run --server-args="-screen 0, 1024x768x24" -a yarn run test-e2e -- --retries 2 || travis_terminate 1
+  else
+     yarn run test-e2e -- --retries 2 || travis_terminate 1
+  fi
 after_success:
 - openssl aes-256-cbc -K $encrypted_0b5df9aa1433_key -iv $encrypted_0b5df9aa1433_iv
   -in .snapcraft/travis_snapcraft.cfg -out .snapcraft/snapcraft.cfg -d

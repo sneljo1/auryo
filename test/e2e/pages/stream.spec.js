@@ -1,10 +1,5 @@
-import chai from "chai";
-import chaiAsPromised from "chai-as-promised";
-import { harness } from "../_utils/_harness";
 import { loaded } from "../../utils";
-
-chai.should();
-chai.use(chaiAsPromised);
+import { harness } from "../_utils/_harness";
 
 harness("stream page", () => {
     it('should be first page', async () => {

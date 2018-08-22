@@ -149,7 +149,7 @@
     "devtron": "^1.4.0",
     "dotenv": "^6.0.0",
     "electron": "^2.0.0",
-    "electron-builder": "^20.13.3",
+    "electron-builder": "^20.28.2",
     "electron-devtools-installer": "^2.0.1",
     "enzyme": "^2.7.1",
     "eslint": "^5.2.0",

@@ -1,10 +1,5 @@
-import chai from "chai";
-import chaiAsPromised from "chai-as-promised";
 import { loaded } from "../../utils";
 import { harness } from "../_utils/_harness";
-
-chai.should();
-chai.use(chaiAsPromised);
 
 harness("track page", () => {
     it('should load and have right title', async () => {
@@ -20,6 +15,7 @@ harness("track page", () => {
             .element('.trackWrapper:not(.playlist) .trackTitle a')
             .click()
             .waitUntilWindowLoaded()
+            .waitForExist('.page-header h2', 15000)
             .getText('.page-header h2')
             .should.eventually.contain(trackTitle.replace("...", ""))
     });

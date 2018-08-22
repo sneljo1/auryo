@@ -4,12 +4,12 @@ import chaiAsPromised from 'chai-as-promised';
 import path from 'path';
 import electron from "electron";
 import { getToken } from './_getToken';
+import fs from "fs"
 
 require("dotenv").config({ path: path.resolve(__dirname, '..', '..', '..', 'src', `.env.development`) })
 
 chai.should();
 chai.use(chaiAsPromised);
-import fs from "fs"
 
 process.on('unhandledRejection', console.error.bind(console));
 process.on('uncaughtException', console.error.bind(console));
