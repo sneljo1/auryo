@@ -1,14 +1,14 @@
-import { ipcMain, shell } from 'electron';
+import { shell } from 'electron';
 import is from 'electron-is';
 import { autoUpdater } from 'electron-updater';
 import request from 'request';
 import { gt as isVersionGreaterThan, valid as parseVersion } from 'semver';
 import { CONFIG } from '../../config';
+import { version as appVersion } from '../../package.json';
+import { EVENTS } from '../../shared/constants/events';
 import { Logger } from '../utils/logger';
 import { registerError } from '../utils/raven';
 import IFeature from './IFeature';
-import { version as appVersion } from '../../package.json'
-import { EVENTS } from '../../shared/constants/events';
 
 export default class AppUpdater extends IFeature {
 
