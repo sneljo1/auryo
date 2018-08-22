@@ -7,7 +7,8 @@ chai.should();
 chai.use(chaiAsPromised);
 
 harness("stream page", () => {
-    it('should be first page', () => {
+    it('should be first page', async () => {
+
         await loaded();
         return app.client
             .waitForExist('.auryo', 5000)
@@ -15,7 +16,7 @@ harness("stream page", () => {
             .should.eventually.equal("Stream")
     });
 
-    it('should have tracks', () => {
+    it('should have tracks', async () => {
         await loaded();
 
         return app.client
