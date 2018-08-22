@@ -101,8 +101,8 @@ export default class MediaServiceManager extends IMacFeature {
 
     updateTime = ({ currentState: { player: { currentTime, duration } } }) => {
 
-        this.meta.currentTime = currentTime * 1e3
-        this.meta.duration = duration * 1e3
+        this.meta.currentTime = currentTime
+        this.meta.duration = duration
 
         this.myService.setMetaData(this.meta)
     }

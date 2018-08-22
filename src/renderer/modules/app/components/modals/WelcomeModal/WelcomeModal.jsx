@@ -2,11 +2,11 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Modal, ModalBody, ModalHeader } from 'reactstrap';
+import { Modal, ModalBody } from 'reactstrap';
 import { connectModal } from 'redux-modal';
+import imgUrl from '../../../../../../assets/img/boombox.svg';
 import * as actions from '../../../../../../shared/actions/config.actions';
 import "./WelcomeModal.scss";
-import imgUrl from '../../../../../../assets/img/boombox.svg';
 
 class WelcomeModal extends Component {
 
@@ -16,7 +16,6 @@ class WelcomeModal extends Component {
         return (
             <Modal isOpen={show} toggle={handleHide} className="welcome">
                 <ModalBody>
-
                     <h2>Welcome to Auryo</h2>
                     <img className="logo" src={imgUrl} />
                     <div className="welcome__description">

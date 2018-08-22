@@ -1,6 +1,7 @@
 import { session } from 'electron';
 import debounce from 'lodash/debounce';
 import defaultsDeep from 'lodash/defaultsDeep';
+import { show } from 'redux-modal';
 import semver from 'semver';
 import { CONFIG } from '../../config';
 import { version } from '../../package.json';
@@ -11,7 +12,6 @@ import settings from '../settings';
 import { Logger } from '../utils/logger';
 import { getProxyUrlFromConfig } from '../utils/utils';
 import IFeature from './IFeature';
-import { show } from 'redux-modal';
 
 export default class ConfigManager extends IFeature {
 
@@ -110,9 +110,7 @@ export default class ConfigManager extends IFeature {
 
     notifyNewUser = () => {
         if (this.isNewUser) {
-            console.log("notifyNewUser")
             setTimeout(() => {
-                console.log("dispatch")
                 this.store.dispatch(show('welcome'))
             }, 5000)
         }
