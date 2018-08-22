@@ -4,6 +4,7 @@ import throttle from 'lodash/throttle';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { PLAYER_STATUS } from '../../../../../shared/constants';
+import { toastr } from 'react-redux-toastr';
 
 class Audio extends React.Component {
     componentDidMount() {
@@ -110,8 +111,10 @@ class Audio extends React.Component {
             })
             this.player.on('time', throttleUpdateTimeFunc)
 
+            
             this.player.on('audio_error', (e) => {
-                console.log(e)
+                toastr.error("Error playing track", "Hmmm, something went wrong... try again?", { timeOut: 5000 })
+                console.log(e) // notification
             })
 
         }

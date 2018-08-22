@@ -49,7 +49,7 @@ export default class MediaServiceManager extends IMacFeature {
         })
 
         myService.on('seek', (to) => {
-            this.win.webContents.send('seek', to / 1e3)
+            this.win.webContents.send('seek', to)
         })
 
         //
