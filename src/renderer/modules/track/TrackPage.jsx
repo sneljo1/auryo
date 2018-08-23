@@ -131,6 +131,7 @@ class TrackPage extends WithHeaderComponent {
         }
 
         const user = user_entities[track.user_id]
+        track.user = user;
 
         const liked = SC.hasID(track.id, likes.track)
         const reposted = SC.hasID(track.id, reposts)
@@ -150,6 +151,8 @@ class TrackPage extends WithHeaderComponent {
             return all
         }, [])
 
+        const image = SC.getImageUrl(track, IMAGE_SIZES.LARGE);
+
         return (
             <CustomScroll className="column" heightRelativeToParent="100%"
                 allowOuterScroll
@@ -160,12 +163,12 @@ class TrackPage extends WithHeaderComponent {
 
                 <Header className="withImage" scrollTop={this.state.scrollTop} />
 
-                <PageHeader image={SC.getImageUrl(track, IMAGE_SIZES.LARGE)}>
+                <PageHeader image={image}>
                     <Row className="trackHeader">
                         <Col xs="12" md="4" xl="3">
                             <div className="imageWrapper">
                                 <FallbackImage
-                                    src={SC.getImageUrl(track, IMAGE_SIZES.LARGE)}
+                                    src={image}
                                     id={track.id} />
                             </div>
                         </Col>

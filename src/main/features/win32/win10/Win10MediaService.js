@@ -10,7 +10,7 @@ export default class Win10MediaService extends IWindowsFeature {
 
     // eslint-disable-next-line
     shouldRun() {
-        return false; // TODO remove this and figure out why nodert isn't being added on AppVeyor
+        return !process.env.TOKEN; // TODO remove this and figure out why nodert isn't being added on AppVeyor
     }
 
     register() {

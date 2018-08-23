@@ -32,7 +32,7 @@ export const harness = (name, fn) => {
                         path: electron,
                         env: {
                             TOKEN: token,
-                            NODE_ENV: 'production'
+                            NODE_ENV: 'production',
                         },
                         args: [path.join(__dirname, '..', '..', '..', 'src')],
                     });
