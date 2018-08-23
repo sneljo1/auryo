@@ -1,15 +1,15 @@
 import { CHANGE_TYPES, OBJECT_TYPES, PLAYER_STATUS } from '../../constants';
-import { toggleStatus, updateTime } from '../../../renderer/modules/player/player.actions';
+import { toggleStatus, updateTime } from "./playerActions";
 import { fetchPlaylistIfNeeded } from '../playlist.actions';
 import { playTrack } from './playTrack.actions';
 
 /**
  * Change the track based on the index in the playlist
  *
- * @param change_type
+ * @param changeType
  * @returns {{type, index: *}}
  */
-export function changeTrack(change_type) {
+export function changeTrack(changeType) {
     return (dispatch, getState) => {
         const {
             player,
@@ -32,57 +32,66 @@ export function changeTrack(change_type) {
 
         const position = currentIndex;
 
-        let next_index;
+        let nextIndex;
 
-        switch (change_type) {
+        switch (changeType) {
             case CHANGE_TYPES.NEXT:
-                next_index = position + 1;
+                nextIndex = position + 1;
                 break;
             case CHANGE_TYPES.PREV:
-                next_index = position - 1;
+                nextIndex = position - 1;
+                break;
+            default:
                 break;
         }
 
         // Pause if last song
-        if (((next_index === queue.length && !currentPlaylistObject.nextUrl) || next_index === -1)) {
+        if (((nextIndex === queue.length && !currentPlaylistObject.nextUrl) || nextIndex === -1)) {
             dispatch(toggleStatus(PLAYER_STATUS.PAUSED));
             dispatch(updateTime(0));
-        } else {
-
-            if (next_index <= (queue.length - 1)) {
-                if (next_index < 0) {
-                    next_index = 0;
-                }
-
-                const next_track = queue[next_index];
-
-
-                if (next_track) {
-
-                    const trackId = next_track.id;
-                    let track_ent = track_entities[trackId];
-
-                    if (!track_ent) {
-                        const playlist = playlist_entities[next_track.playlistId];
-
-                        if (playlist) {
-                            dispatch(playTrack(currentPlaylistId, next_track, playlist));
-                        } else {
-                            dispatch(fetchPlaylistIfNeeded(next_track.playlistId));
-                        }
-                    } else {
-                        if (next_track.playlistId !== currentPlaylistId) {
-                            const playlist = playlist_entities[next_track.playlistId];
-                            dispatch(playTrack(currentPlaylistId, next_track, playlist));
-                        } else {
-                            dispatch(playTrack(currentPlaylistId, next_track));
-                        }
-                    }
-
-                }
+        } else if (nextIndex <= (queue.length - 1)) {
+            if (nextIndex < 0) {
+                nextIndex = 0;
             }
 
+            const nextTrack = queue[nextIndex];
+
+            if (nextTrack) {
+
+                const trackId = nextTrack.id;
+                const track = track_entities[trackId];
+
+                // If next item in queue is NOT a track
+                if (!track) {
+                    const playlist = playlist_entities[nextTrack.playlistId];
+
+                    // If playlist already exists
+                    if (playlist) {
+                        dispatch(playTrack(currentPlaylistId, nextTrack, playlist, null, changeType)); // just play it
+                    } else {
+                        return dispatch(fetchPlaylistIfNeeded(nextTrack.playlistId)) // fetch it and the tracks in it
+                            .then(() => {
+                                const {
+                                    entities: {
+                                        playlist_entities // eslint-disable-line
+                                    }
+                                } = getState();
+
+                                dispatch(playTrack(currentPlaylistId, nextTrack, playlist_entities[nextTrack.playlistId], null, changeType))
+                            })
+                    }
+                    // If this playlist is not the same as the current one playing
+                } else if (nextTrack.playlistId !== currentPlaylistId) {
+                    const playlist = playlist_entities[nextTrack.playlistId];
+                    dispatch(playTrack(currentPlaylistId, nextTrack, playlist, null, changeType));
+                } else {
+                    dispatch(playTrack(currentPlaylistId, nextTrack, null, null, changeType));
+                }
+
+            }
         }
 
     };
 }
+
+export default changeTrack;

@@ -1,8 +1,8 @@
-import {PLAYER_STATUS} from "../constants";
 import findIndex from "lodash/findIndex";
+import { PLAYER_STATUS } from "../constants";
 
 export function isCurrentPlaylistPlaying(player, playlistId) {
-    return player.currentPlaylistId == playlistId && (player.status == PLAYER_STATUS.PLAYING);
+    return player.currentPlaylistId === playlistId && (player.status === PLAYER_STATUS.PLAYING);
 }
 
 export function getCurrentPosition(player, track) {

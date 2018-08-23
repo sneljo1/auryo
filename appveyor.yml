@@ -1,29 +1,41 @@
-image: Visual Studio 2017
+os: Previous Visual Studio 2015
 platform:
   - x64
 
+environment:
+  matrix:
+    - nodejs_version: 8.10
+
 cache:
-  - node_modules
+  - '%LOCALAPPDATA%/Yarn'
+  - node_modules -> package.json
+  - src/node_modules -> src/package.json
   - '%USERPROFILE%\.electron'
 
 init:
   - git config --global core.autocrlf input
 
 install:
-  - ps: Install-Product node 8 x64
-  - npm install
+  - ps: Install-Product node $env:nodejs_version x64
+  - set CI=true
+  - yarn
 
 build_script:
   # Output useful info for debugging.
   - node --version
-  - npm --version
-  - npm run build
+  - yarn --version
+  - yarn run build
+  # linting woop woop
+  - yarn run lint
   # run tests
-  - npm run test-e2e
+  - yarn run test-e2e -- --retries 2
 
 deploy_script:
-- cmd: npm run release:win
+- cmd: yarn run release:win
 
 artifacts:
   - path: 'dist\*.exe'
   - path: 'dist\latest.yml'
+
+on_failure:
+  - ps: $root = Resolve-Path ./test\screenshots; [IO.Directory]::GetFiles($root.Path, '*.png', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName to-publish }

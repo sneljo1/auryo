@@ -1,8 +1,8 @@
-import { actionTypes } from '../constants'
-import { DEFAULT_CONFIG } from '../../config'
-import { setToValue } from '../utils'
+import { CONFIG } from '../../config';
+import { actionTypes } from '../constants';
+import { setToValue } from '../utils';
 
-const initialState = DEFAULT_CONFIG
+const initialState = CONFIG.DEFAULT_CONFIG
 
 export default function config(state = initialState, action) {
     const { payload, type } = action

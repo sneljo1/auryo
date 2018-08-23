@@ -1,15 +1,15 @@
-import { actionTypes, OBJECT_TYPES, PLAYLISTS } from '../../constants';
+/* eslint-disable global-require */
 import { ipcRenderer } from 'electron';
 import { replace } from 'react-router-redux';
-import { SC } from '../../utils';
-import { setToken } from '../../actions';
+import { setToken } from '../config.actions';
 import fetchToJson from '../../api/helpers/fetchToJson';
-
+import { actionTypes, OBJECT_TYPES, PLAYLISTS } from '../../constants';
+import { SC } from '../../utils';
 import { getPlaylist } from '../objectActions';
 
-export * from './following.actions';
 export * from '../track/reposts.actions';
 export * from './authLikes.actions';
+export * from './following.actions';
 
 export function logout() {
     return dispatch => {
@@ -62,7 +62,7 @@ export function getAuth() {
             payload: fetchToJson(SC.getMeUrl())
                 .then(user => {
                     if (process.env.NODE_ENV === 'production' && analytics) {
-                        const ua = require('../../../shared/utils/universalAnalytics');
+                        const ua = require('../../utils/universalAnalytics');
 
                         ua().set('userId', user.id);
                     }

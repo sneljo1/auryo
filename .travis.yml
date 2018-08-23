@@ -1,67 +1,67 @@
 matrix:
-  allow_failures:
-    - os: osx
   include:
-    - os: linux
-      language: node_js
-      node_js: '9'
-      sudo: required
-      env: DISPLAY=':99.0'
-      dist: trusty
-      addons:
-        apt:
-          sources:
-            - google-chrome
-          packages:
-            - google-chrome-stable
-    - os: osx
-      language: node_js
-      node_js: '9'
-      sudo: required
-      env:
-        - HOMEBREW_CASK_OPTS='--appdir=/Applications'
-        - ELECTRON_CACHE=$HOME/.cache/electron
-        - ELECTRON_BUILDER_CACHE=$HOME/.cache/electron-builder
-        - ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=true
-
+  - os: linux
+    language: node_js
+    node_js: '9'
+    sudo: required
+    dist: trusty
+    addons:
+      apt:
+        sources:
+        - google-chrome
+        packages:
+        - google-chrome-stable
+  - os: osx
+    language: node_js
+    node_js: '9'
+    sudo: required
+    env:
+    - HOMEBREW_CASK_OPTS='--appdir=/Applications'
+    - ELECTRON_CACHE=$HOME/.cache/electron
+    - ELECTRON_BUILDER_CACHE=$HOME/.cache/electron-builder
+    - ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=true
 before_install:
-  - |
-    if [ "$TRAVIS_OS_NAME" = "osx" ]; then
-      brew update > /dev/null
-      brew cask install google-chrome
-    fi
-
-install:
-  - yarn
-
-before_script:
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export DISPLAY=:99.0; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sh -e /etc/init.d/xvfb start; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sleep 3; fi
-
-script:
-  - yarn run build || travis_terminate 1
-  - yarn run test-e2e
-
-after_success:
-  - |
-    if [ "$TRAVIS_OS_NAME" == "linux" ]; then
-       yarn run release:linux
-    else
-       yarn run release:mac
-    fi
-
+- |
+  if [ "$TRAVIS_OS_NAME" = "osx" ]; then
+    brew update > /dev/null
+    brew cask install google-chrome
+  fi
 cache:
+  yarn: true
   directories:
-    - node_modules
-    - $HOME/.cache/electron
-    - $HOME/.cache/electron-builder
-
+  - node_modules
+  - src/node_modules
+  - $(npm config get prefix)/lib/node_modules
+  - $HOME/.cache/electron
+  - $HOME/.cache/electron-builder
+  - $HOME/docker
+install:
+- yarn
+script:
+- yarn run build || travis_terminate 1
+- yarn run lint || travis_terminate 1
+- |
+  if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+     xvfb-run --server-args="-screen 0, 1024x768x24" -a yarn run test-e2e -- --retries 2 || travis_terminate 1
+  else
+     yarn run test-e2e -- --retries 2 || travis_terminate 1
+  fi
+after_success:
+- openssl aes-256-cbc -K $encrypted_0b5df9aa1433_key -iv $encrypted_0b5df9aa1433_iv
+  -in .snapcraft/travis_snapcraft.cfg -out .snapcraft/snapcraft.cfg -d
+- |
+  if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+     yarn run release:linux
+  else
+     yarn run release:mac
+  fi
 deploy:
-  provider: releases
-  api_key: $GH_TOKEN
-  file_glob: true
-  file: dist/*
+  'on':
+    branch: master
+  provider: script
+  script: docker run -v $(pwd):$(pwd) -t snapcore/snapcraft sh -c "apt update -qq
+    && cd $(pwd) && snapcraft && snapcraft push ./release/__snap-x64/*.snap --release edge"
   skip_cleanup: true
-  on:
-    tags: true
+sudo: required
+services:
+- docker

@@ -1,6 +1,12 @@
 {
   "presets": [
-    ["env", { "targets": { "node": 6 }, "useBuiltIns": true }],
+    [
+      "env",
+      {
+        "targets": { "node": 10 },
+        "useBuiltIns": true
+      }
+    ],
     "stage-0",
     "react"
   ],
@@ -8,13 +14,12 @@
   "env": {
     "production": {
       "presets": ["react-optimize"],
-      "plugins": ["babel-plugin-dev-expression"]
+      "plugins": ["dev-expression"]
     },
     "development": {
       "plugins": [
         "transform-class-properties",
-        "transform-es2015-classes",
-        "react-hot-loader/babel"
+        "transform-es2015-classes"
       ]
     }
   }

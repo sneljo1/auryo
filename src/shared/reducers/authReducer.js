@@ -126,7 +126,7 @@ export default function (state = initialState, action) {
                 }
             };
         case actionTypes.APP_RESET_STORE:
-            state = initialState;
+            return initialState;
         default:
             return state;
     }

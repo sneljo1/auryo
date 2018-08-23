@@ -1,21 +1,17 @@
-import { SC } from '../utils'
-import { actionTypes, OBJECT_TYPES, PLAYLISTS } from '../../shared/constants'
-import { STREAM_CHECK_INTERVAL } from '../../config'
-import { getPlaylist, setObject } from './objectActions'
-import fetchPlaylists from '../api/fetchPlaylists'
-import fetchPlaylist from '../api/fetchPlaylist'
-import fetchTrackList from '../api/fetchTrackList'
-import fetchToJson from '../api/helpers/fetchToJson'
-import { trackSchema } from '../schemas'
-import { normalize, schema } from 'normalizr'
-import { IMAGE_SIZES } from '../constants'
-import { actions as toastrActions, toastr } from 'react-redux-toastr'
-import ReactImageFallback from '../../renderer/modules/_shared/FallbackImage'
-import React from 'react'
-import { Link } from 'react-router-dom'
-import { hide } from 'redux-modal'
-
-let updaterInterval
+import { normalize, schema } from 'normalizr';
+import React from 'react';
+import { actions as toastrActions, toastr } from 'react-redux-toastr';
+import { Link } from 'react-router-dom';
+import { hide } from 'redux-modal';
+import ReactImageFallback from '../../renderer/modules/_shared/FallbackImage';
+import fetchPlaylist from '../api/fetchPlaylist';
+import fetchPlaylists from '../api/fetchPlaylists';
+import fetchTrackList from '../api/fetchTrackList';
+import fetchToJson from '../api/helpers/fetchToJson';
+import { actionTypes, IMAGE_SIZES, OBJECT_TYPES, PLAYLISTS } from '../constants';
+import { trackSchema } from '../schemas';
+import { SC } from '../utils';
+import { getPlaylist, setObject } from './objectActions';
 
 /**
  * Get stream of feed from the authenticated user
@@ -25,7 +21,7 @@ let updaterInterval
 export function getAuthFeed(refresh) {
     return (dispatch, getState) => {
         const { config: { hideReposts } } = getState()
-        //dispatch(initFeedUpdater());
+        // dispatch(initFeedUpdater());
 
         return dispatch(getPlaylist(SC.getFeedUrl(hideReposts ? 40 : 20), PLAYLISTS.STREAM, refresh))
     }
@@ -38,6 +34,7 @@ export function getAuthFeed(refresh) {
  * @param url - Future url from soundcloud API
  * @returns {function(*, *)}
  */
+// eslint-disable-next-line
 function updateFeed(stream, url) {
     return (dispatch, getState) => {
         const {
@@ -60,44 +57,19 @@ function updateFeed(stream, url) {
             type: actionTypes.AUTH_SET_NEW_FEED_ITEMS,
             payload: fetchTrackList(url, old_items)
                 .then(({
-                           normalized,
-                           json
-                       }) => {
-                    return {
-                        futureUrl: SC.appendToken(json.future_href),
-                        entities: normalized.entities,
-                        result: normalized.result,
-                        object_id: PLAYLISTS.STREAM,
-                        object_type: OBJECT_TYPES.PLAYLISTS
-                    }
-                })
+                    normalized,
+                    json
+                }) => ({
+                    futureUrl: SC.appendToken(json.future_href),
+                    entities: normalized.entities,
+                    result: normalized.result,
+                    object_id: PLAYLISTS.STREAM,
+                    object_type: OBJECT_TYPES.PLAYLISTS
+                }))
         })
     }
 }
 
-/**
- * Check for new stream songs every x milliseconds
- *
- * @returns {function(*, *)}
- */
-function initFeedUpdater() {
-    return (dispatch, getState) => {
-        updaterInterval = setInterval(() => {
-            const {
-                objects
-            } = getState()
-            const playlists = objects[OBJECT_TYPES.PLAYLISTS] || {}
-            const stream = playlists[PLAYLISTS.STREAM]
-
-            if (stream.futureUrl) {
-                dispatch(updateFeed(stream, stream.futureUrl))
-            } else {
-                clearInterval(updaterInterval)
-            }
-
-        }, STREAM_CHECK_INTERVAL)
-    }
-}
 
 /**
  * Get playlists from the authenticated user
@@ -105,33 +77,30 @@ function initFeedUpdater() {
  * @returns {function(*=)}
  */
 export function getAuthPlaylists() {
-    return dispatch => {
-        return dispatch({
-            type: actionTypes.AUTH_SET_PLAYLISTS,
-            payload: {
-                promise: fetchPlaylists()
-                    .then(({
-                               normalized,
-                               json
-                           }) => {
+    return dispatch => dispatch({
+        type: actionTypes.AUTH_SET_PLAYLISTS,
+        payload: {
+            promise: fetchPlaylists()
+                .then(({
+                    normalized
+                }) => {
 
-                        normalized.result.forEach(playlistId => {
-                            const playlist = normalized.entities.playlist_entities[playlistId]
-                            dispatch(setObject(
-                                playlistId,
-                                OBJECT_TYPES.PLAYLISTS, {},
-                                playlist.tracks
-                            ))
-                        })
-
-                        return {
-                            result: normalized.result,
-                            entities: normalized.entities
-                        }
+                    normalized.result.forEach(playlistId => {
+                        const playlist = normalized.entities.playlist_entities[playlistId]
+                        dispatch(setObject(
+                            playlistId,
+                            OBJECT_TYPES.PLAYLISTS, {},
+                            playlist.tracks
+                        ))
                     })
-            }
-        })
-    }
+
+                    return {
+                        result: normalized.result,
+                        entities: normalized.entities
+                    }
+                })
+        }
+    })
 }
 
 /**
@@ -146,9 +115,7 @@ export function togglePlaylistTrack(trackId, playlistId) {
         const {
             objects,
             entities: {
-                playlist_entities,
-                track_entities
-            }
+                playlist_entities }
         } = getState()
 
         const playlist_objects = objects[OBJECT_TYPES.PLAYLISTS]
@@ -200,12 +167,12 @@ export function togglePlaylistTrack(trackId, playlistId) {
                             showCloseButton: false,
                             component: (
                                 <div>
-                                    {(add ? 'Added track to ' : 'Removed track from ') + 'playlist '} <Link
-                                    onClick={() => {
-                                        dispatch(toastrActions.remove(`addtoplaylist-${add}-${playlist_entitity.id}`))
-                                        dispatch(hide('addToPlaylist'))
-                                    }}
-                                    to={`/playlist/${playlist_entitity.id}`}>{playlist_entitity.title}</Link>
+                                    {`Track ${add ? 'added to' : 'removed from'} playlist `} <Link
+                                        onClick={() => {
+                                            dispatch(toastrActions.remove(`addtoplaylist-${add}-${playlist_entitity.id}`))
+                                            dispatch(hide('addToPlaylist'))
+                                        }}
+                                        to={`/playlist/${playlist_entitity.id}`}>{playlist_entitity.title}</Link>
                                 </div>
                             )
                         }
@@ -258,9 +225,9 @@ export function fetchPlaylistIfNeeded(playlistId) {
                 payload: {
                     promise: fetchPlaylist(SC.getPlaylistTracksUrl(playlistId), playlistId)
                         .then(({
-                                   normalized,
-                                   json
-                               }) => {
+                            normalized,
+                            json
+                        }) => {
                             const playlist = normalized.entities.playlist_entities[playlistId]
 
                             return {
@@ -286,6 +253,26 @@ export function fetchPlaylistIfNeeded(playlistId) {
 
 
         return Promise.resolve({ fetched: false })
+    }
+}
+
+/**
+ * Fetch new chart if needed
+ *
+ * @returns {function(*, *)}
+ * @param object_id
+ * @param sortType
+ */
+export function fetchChartsIfNeeded(object_id, sortType) {
+    return (dispatch, getState) => {
+        const { objects } = getState()
+
+        const playlist_objects = objects[OBJECT_TYPES.PLAYLISTS]
+        const playlist_object = playlist_objects[object_id]
+
+        if (!playlist_object) {
+            dispatch(getPlaylist(SC.getChartsUrl(object_id.split('_')[0], sortType, 25), object_id))
+        }
     }
 }
 
@@ -317,7 +304,7 @@ export function canFetchPlaylistTracks(playlistId) {
     }
 }
 
-export function fetchPlaylistTracks(playlistId, size = 20, ids = null) {
+export function fetchPlaylistTracks(playlistId, size = 20, idsParam = null) {
     return (dispatch, getState) => {
         const {
             objects
@@ -325,6 +312,8 @@ export function fetchPlaylistTracks(playlistId, size = 20, ids = null) {
 
         const playlist_objects = objects[OBJECT_TYPES.PLAYLISTS]
         const playlist_object = playlist_objects[playlistId]
+
+        let ids = idsParam;
 
 
         if (!playlist_object) {
@@ -389,12 +378,12 @@ export function fetchTracks(ids = []) {
                         }),
                     data: {
                         entities: {
-                            track_entities: ids.reduce(function (obj, id) {
-                                obj[id] = {
+                            track_entities: ids.reduce((obj, id) => ({
+                                ...obj,
+                                [id]: {
                                     loading: true
                                 }
-                                return obj
-                            }, {})
+                            }), {})
                         }
                     }
                 }
@@ -410,25 +399,23 @@ export function fetchTracks(ids = []) {
  * @param tracks
  */
 export function createPlaylist(title, type, tracks) {
-    return dispatch => {
-        return fetchToJson(SC.getPlaylistUrl(), {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                playlist: {
-                    title: title,
-                    sharing: type,
-                    tracks: tracks
-                }
-            })
+    return () => fetchToJson(SC.getPlaylistUrl(), {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            playlist: {
+                title,
+                sharing: type,
+                tracks
+            }
         })
-            .then(res => {
-                console.log(res)
-            })
-    }
+    })
+        .then(res => {
+            console.log(res);
+        });
 
 }
 
@@ -447,12 +434,11 @@ export function deletePlaylist(playlistId) {
             fetchToJson(SC.getPlaylistDeleteUrl(playlistId), {
                 method: 'DELETE'
             })
-                .then(json => {
-                    toastr.info(playlist_entitity.title, 'Playlist has been deleted!')
-
+                .then(() => {
+                    toastr.info(playlist_entitity.title, 'Playlist has been deleted!');
                 })
-                .catch(err => {
-                    toastr.error(playlist_entitity.title, 'Unable to delete playlist!')
+                .catch(() => {
+                    toastr.error(playlist_entitity.title, 'Unable to delete playlist!');
                 })
         }
     }

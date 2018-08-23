@@ -4,7 +4,9 @@ import isEqual from 'lodash/isEqual'
 export default class IFeature {
 
     waitUntil = 'default'
+
     listeners = []
+
     ipclisteners = []
 
     constructor(auryo) {
@@ -34,9 +36,8 @@ export default class IFeature {
         })
     }
 
-    register() {
-
-    }
+    // eslint-disable-next-line
+    register() {}
 
     /**
      * Unregister listener
@@ -71,6 +72,7 @@ export default class IFeature {
 
     }
 
+    // eslint-disable-next-line
     shouldRun() {
         return true
     }

@@ -1,13 +1,8 @@
+import commentSchema from "./comment";
 import playlistSchema from "./playlist";
-import userSchema from "./user";
 import trackSchema from "./track";
 import trackInfoSchema from "./trackInfo";
-import commentSchema from "./comment";
+import userSchema from "./user";
 
-export {
-    playlistSchema,
-    userSchema,
-    trackSchema,
-    trackInfoSchema,
-    commentSchema
-};
+export { playlistSchema, userSchema, trackSchema, trackInfoSchema, commentSchema };
+

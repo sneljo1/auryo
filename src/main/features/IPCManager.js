@@ -1,106 +1,118 @@
-import { ipcMain, shell } from 'electron'
-import IFeature from './IFeature'
-import { setToken } from '../../shared/actions/config.actions'
-import { BASE_URL, getConnectUrl } from '../../config'
-import io from 'socket.io-client'
-import { registerError } from '../utils/raven'
-import { setLoginError, setLoginLoading } from '../../shared/actions/auth/auth.actions'
-import { EVENTS } from '../../shared/constants/events'
-
-const { app } = require('electron')
+import { app, clipboard, ipcMain, shell } from 'electron';
+import { download } from 'electron-dl';
+import fs from 'fs';
+import _ from 'lodash';
+import io from 'socket.io-client';
+import { CONFIG } from '../../config';
+import { setLoginError, setLoginLoading } from '../../shared/actions/auth/auth.actions';
+import { setToken } from '../../shared/actions/config.actions';
+import { EVENTS } from '../../shared/constants/events';
+import { registerError } from '../utils/raven';
+import IFeature from './IFeature';
 
 export default class IPCManager extends IFeature {
 
-    socket
-
     register() {
-
         this.on(EVENTS.APP.RESTART, () => {
-            app.relaunch({ args: process.argv.slice(1).concat(['--relaunch']) })
-            app.exit(0)
-        })
+            app.relaunch({ args: process.argv.slice(1).concat(['--relaunch']) });
+            app.exit(0);
+        });
+
+        this.router.get(EVENTS.APP.VALID_DIR, (req, res) => {
+            const path = req.params[0];
+
+            fs.exists(path, (exists) => {
+                res.json(null, { exists });
+            });
+        });
 
         ipcMain.on('open_external', (event, arg) => {
-            shell.openExternal(arg)
-        })
+            shell.openExternal(arg);
+        });
+
+        ipcMain.on('write_clipboard', (event, arg) => {
+            clipboard.writeText(arg);
+        });
+
+        ipcMain.on('download_file', (event, url) => {
+            const { config } = this.store.getState();
+
+            const downloadSettings = {};
+
+            if (!_.isEmpty(_.get(config, 'app.downloadPath'))) {
+                downloadSettings.directory = config.app.downloadPath;
+            }
+
+            download(this.win, url, downloadSettings)
+                .then(dl => console.log(dl.getSavePath()))
+                .catch(console.error);
+        });
 
         ipcMain.on('error', (event, arg) => {
-            let error = arg
+            let error = arg;
 
             try {
-                error = JSON.parse(error)
+                error = JSON.parse(error);
             } catch (e) {
-
+                console.log(e)
             }
-            registerError(error, true)
-        })
 
-        ipcMain.on('login', (event, arg) => {
-            const _this = this
+            registerError(error, true);
+        });
 
-            this.store.dispatch(setLoginLoading())
+        ipcMain.on('login', () => {
+            this.store.dispatch(setLoginLoading());
 
-            this.startLoginSocket()
+            this.startLoginSocket();
 
             if (this.socket.connected) {
-                login()
+                this.login();
             } else {
-                this.socket.on('connect', login)
-            }
-
-            function login() {
-                shell.openExternal(getConnectUrl(_this.socket.id))
-                _this.store.dispatch(setLoginLoading(false))
-                _this.socket.removeListener('connect', login)
+                this.socket.on('connect', this.login);
             }
 
             if (this.socket && !this.socket.connected) {
-                this.socket.connect()
+                this.socket.connect();
             }
 
             // Set timeout for requests
             setTimeout(() => {
-                const { auth: { authentication: { loading } } } = _this.store.getState()
+                const { auth: { authentication: { loading } } } = this.store.getState();
 
                 if (loading) {
-                    _this.store.dispatch(setLoginError('Timed out, login took longer than expected'))
-                    if (_this.socket) {
-                        _this.socket.removeListener('connect', login)
-                        _this.socket.disconnect()
+                    this.store.dispatch(setLoginError('Timed out, login took longer than expected'));
+                    if (this.socket) {
+                        this.socket.removeListener('connect', this.login);
+                        this.socket.disconnect();
                     }
                 }
-
-            }, 8000)
-        })
+            }, 8000);
+        });
     }
 
+    login = () => {
+        shell.openExternal(CONFIG.getConnectUrl(this.socket.id));
+        this.store.dispatch(setLoginLoading(false));
+        this.socket.removeListener('connect', this.login);
+    }
 
-    startLoginSocket() {
-        const _this = this
-
+    startLoginSocket = () => {
         if (!this.socket) {
-            this.socket = io(BASE_URL)
+            this.socket = io(CONFIG.BASE_URL);
 
-            this.socket.on('token', function (data) {
-                _this.store.dispatch(setToken(data))
-                _this.win.webContents.send('login-success')
-            })
+            this.socket.on('token', (data) => {
+                this.store.dispatch(setToken(data));
+                this.win.webContents.send('login-success');
+            });
 
-            this.socket.on('error', function (err) {
-
-                _this.store.dispatch(setLoginError(err.message))
-
-                registerError(err)
+            this.socket.on('error', (err) => {
+                this.store.dispatch(setLoginError(err.message));
+                registerError(err);
 
                 if (this.socket) {
-                    this.socket.disconnect()
+                    this.socket.disconnect();
                 }
-
-            })
+            });
         }
     }
-
-    unregister() {
-    }
 }
-

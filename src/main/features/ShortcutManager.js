@@ -18,19 +18,17 @@ export default class Shortcut extends IFeature {
         globalShortcut.register('MediaNextTrack', () => {
             this.changeTrack(CHANGE_TYPES.NEXT);
         });
-        globalShortcut.register('MediaNextTrack', () => {
-            this.changeTrack(CHANGE_TYPES.NEXT);
-        });
         globalShortcut.register('MediaStop', () => {
             this.win.webContents.send('player:toggle-status', PLAYER_STATUS.STOPPED);
         });
     }
 
+    // eslint-disable-next-line
     unregister() {
         globalShortcut.unregisterAll();
     }
 
-    changeTrack(changeType) {
+    changeTrack = (changeType) => {
         this.router.send(EVENTS.PLAYER.CHANGE_TRACK, changeType);
     }
 }

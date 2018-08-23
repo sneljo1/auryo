@@ -1,11 +1,12 @@
 import ua from "universal-analytics";
-import { GOOGLE_GA } from "../../config";
+import { CONFIG } from "../../config";
 
 let a;
 
+// eslint-disable-next-line
 export default getUA => {
-    if(!a){
-        a = ua(GOOGLE_GA);
+    if (!a) {
+        a = ua(CONFIG.GOOGLE_GA);
     }
 
     return a

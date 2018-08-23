@@ -1,11 +1,11 @@
-import ILinuxFeature from './ILinuxFeature'
-import * as SC from '../../../shared/utils/soundcloudUtils'
-import { IMAGE_SIZES } from '../../../shared/constants/Soundcloud'
-import { CHANGE_TYPES, PLAYER_STATUS } from '../../../renderer/modules/player/constants/player'
-import path from 'path'
-import * as _ from 'lodash'
-import Logger from '../../utils/logger'
-import { EVENTS } from '../../../shared/constants/events'
+import * as _ from 'lodash';
+import path from 'path';
+import { EVENTS } from '../../../shared/constants/events';
+import { CHANGE_TYPES, PLAYER_STATUS } from '../../../shared/constants/player';
+import { IMAGE_SIZES } from '../../../shared/constants/Soundcloud';
+import * as SC from '../../../shared/utils/soundcloudUtils';
+import { Logger } from '../../utils/logger';
+import ILinuxFeature from './ILinuxFeature';
 
 let logosPath
 
@@ -17,25 +17,19 @@ if (process.env.NODE_ENV === 'development') {
 
 export default class MprisService extends ILinuxFeature {
 
-    constructor(app) {
-        super(app)
-
-        this._updateTime = this._updateTime.bind(this)
-        this._updateStatus = this._updateStatus.bind(this)
-    }
-
     shouldRun() {
         return super.shouldRun() && !process.env.TOKEN
     }
 
     meta = {}
+
     player
 
     register() {
         let mpris
 
         try {
-            mpris = require('mpris-service')
+            mpris = require('mpris-service') // eslint-disable-line
 
             this.player = mpris({
                 name: 'auryo-player',
@@ -52,8 +46,8 @@ export default class MprisService extends ILinuxFeature {
         this.player.playbackStatus = 'Stopped'
         this.player.canEditTracks = false
         this.player.canSeek = false
-        //this.player.canGoPrevious = false;
-        //this.player.canGoNext = false;
+        // this.player.canGoPrevious = false;
+        // this.player.canGoNext = false;
         this.player.shuffle = false
         this.player.canControl = true
         this.player.loopStatus = 'None'
@@ -61,7 +55,7 @@ export default class MprisService extends ILinuxFeature {
 
         this.player.metadata = {
             'xesam:title': 'Auryo',
-            'mpris:artUrl': 'file://' + path.join(logosPath, 'auryo-128.png')
+            'mpris:artUrl': `file://${path.join(logosPath, 'auryo-128.png')}`
         }
 
         this.player.on('raise', () => {
@@ -70,7 +64,7 @@ export default class MprisService extends ILinuxFeature {
         })
 
         this.player.on('quit', () => {
-            app.quit()
+            this.app.quit()
         })
 
         this.player.on('play', () => this.win.webContents.send(EVENTS.PLAYER.TOGGLE_STATUS, PLAYER_STATUS.PLAYING))
@@ -119,8 +113,8 @@ export default class MprisService extends ILinuxFeature {
                 this.meta['xesam:genre'] = track.genre || ''
                 this.meta['xesam:contentCreated'] = track.created_at || 'Unknown release date'
 
-                if (!_.isEqual(meta, this.player.metadata)) {
-                    this.player.metadata = meta
+                if (!_.isEqual(this.meta, this.player.metadata)) {
+                    this.player.metadata = this.meta
                 }
 
             })
@@ -128,19 +122,19 @@ export default class MprisService extends ILinuxFeature {
             /**
              * Update time
              */
-            this.subscribe(['player', 'status'], this._updateStatus)
-            this.subscribe(['player', 'currentTime'], this._updateTime)
-            this.subscribe(['player', 'duration'], this._updateTime)
+            this.subscribe(['player', 'status'], this.updateStatus)
+            this.subscribe(['player', 'currentTime'], this.updateTime)
+            this.subscribe(['player', 'duration'], this.updateTime)
         })
     }
 
-    _updateStatus({ currentValue }) {
+    updateStatus = ({ currentValue }) => {
         if (currentValue) {
             this.player.playbackStatus = currentValue.toLowerCase().charAt(0).toUpperCase() + currentValue.toLowerCase().slice(1)
         }
     }
 
-    _updateTime({ currentState: { player: { currentTime, duration } } }) {
+    updateTime = ({ currentState: { player: { currentTime, duration } } }) => {
 
         this.meta = {
             ...this.meta,
@@ -154,10 +148,6 @@ export default class MprisService extends ILinuxFeature {
         if (!_.isEqual(this.meta, this.player.metadata)) {
             this.player.metadata = this.meta
         }
-    }
-
-    unregister() {
-        super.unregister()
     }
 
 }

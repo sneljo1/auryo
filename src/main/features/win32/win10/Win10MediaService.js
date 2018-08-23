@@ -1,19 +1,16 @@
+/* eslint-disable global-require */
 import IWindowsFeature from '../IWindowsFeature'
 import { EVENTS } from '../../../../shared/constants/events'
 import { PLAYER_STATUS } from '../../../../shared/constants'
-import { CHANGE_TYPES } from '../../../../renderer/modules/player/constants/player'
+import { CHANGE_TYPES } from '../../../../shared/constants/player'
 import * as SC from '../../../../shared/utils/soundcloudUtils'
 import { IMAGE_SIZES } from '../../../../shared/constants/Soundcloud'
 
-// TODO setup windows builds
 export default class Win10MediaService extends IWindowsFeature {
 
+    // eslint-disable-next-line
     shouldRun() {
-        return false
-    }
-
-    constructor(app) {
-        super(app)
+        return !process.env.TOKEN; // TODO remove this and figure out why nodert isn't being added on AppVeyor
     }
 
     register() {
@@ -63,39 +60,40 @@ export default class Win10MediaService extends IWindowsFeature {
             }
         })
 
-        window.wait(() => {
-            this.on(EVENTS.APP.READY, () => {
-                this.on(EVENTS.PLAYER.STATUS_CHANGED, () => {
-                    const { player: { status } } = this.store.getState()
 
-                    const mapping = {
-                        [PLAYER_STATUS.STOPPED]: MediaPlaybackStatus.stopped,
-                        [PLAYER_STATUS.PAUSED]: MediaPlaybackStatus.paused,
-                        [PLAYER_STATUS.PLAYING]: MediaPlaybackStatus.playing
-                    }
 
-                    Controls.playbackStatus = mapping[status]
+        this.on(EVENTS.APP.READY, () => {
+            this.on(EVENTS.PLAYER.STATUS_CHANGED, () => {
+                const { player: { status } } = this.store.getState()
 
-                })
+                const mapping = {
+                    [PLAYER_STATUS.STOPPED]: MediaPlaybackStatus.stopped,
+                    [PLAYER_STATUS.PAUSED]: MediaPlaybackStatus.paused,
+                    [PLAYER_STATUS.PLAYING]: MediaPlaybackStatus.playing
+                }
 
-                this.on(EVENTS.PLAYER.TRACK_CHANGED, () => {
-                    const { entities: { track_entities }, player: { playingTrack } } = this.store.getState()
+                Controls.playbackStatus = mapping[status]
 
-                    const trackID = playingTrack.id
-                    const track = track_entities[trackID]
+            })
 
-                    Controls.displayUpdater.musicProperties.title = track.title
-                    Controls.displayUpdater.musicProperties.artist = (user && user.username ? user.username : 'Unknown artist')
-                    Controls.displayUpdater.musicProperties.albumTitle = track.genre
-                    Controls.displayUpdater.thumbnail = RandomAccessStreamReference.createFromUri(new Uri(SC.getImageUrl(track, IMAGE_SIZES.SMALL)))
+            this.on(EVENTS.PLAYER.TRACK_CHANGED, () => {
+                const { entities: { track_entities, user_entities }, player: { playingTrack } } = this.store.getState()
 
-                    Controls.displayUpdater.update()
-                })
+                const trackID = playingTrack.id
+                const track = track_entities[trackID]
+                const user = user_entities[track.user || track.user_id]
+
+                Controls.displayUpdater.musicProperties.title = track.title
+                Controls.displayUpdater.musicProperties.artist = (user && user.username ? user.username : 'Unknown artist')
+                Controls.displayUpdater.musicProperties.albumTitle = track.genre
+                Controls.displayUpdater.thumbnail = RandomAccessStreamReference.createFromUri(new Uri(SC.getImageUrl(track, IMAGE_SIZES.SMALL)))
+
+                Controls.displayUpdater.update()
             })
         })
     }
 
-    togglePlay(new_status) {
+    togglePlay = (new_status) => {
         const { player: { status } } = this.store.getState()
 
         if (status !== new_status) {
@@ -103,11 +101,7 @@ export default class Win10MediaService extends IWindowsFeature {
         }
     }
 
-    changeTrack(change_type) {
+    changeTrack = (change_type) => {
         this.router.send(EVENTS.PLAYER.CHANGE_TRACK, change_type)
-    }
-
-    unregister() {
-        super.unregister()
     }
 }

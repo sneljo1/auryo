@@ -1,4 +1,4 @@
-import {json, status} from "../../utils";
+import { asJson, status } from "../../utils";
 
 /**
  * Fetch auth data
@@ -8,5 +8,5 @@ import {json, status} from "../../utils";
 export default function fetchToJson(url, options = {}) {
     return fetch(url, options)
         .then(status)
-        .then(json);
+        .then(asJson);
 }

@@ -1,9 +1,9 @@
-import { CHANGE_TYPES } from '../../../renderer/modules/player/constants/player'
-import * as SC from '../../../shared/utils/soundcloudUtils'
-import IMacFeature from './IMacFeature'
-import { nativeImage, TouchBar } from 'electron'
-import path from 'path'
-import { EVENTS } from '../../../shared/constants/events'
+import { nativeImage, TouchBar } from 'electron';
+import path from 'path';
+import { EVENTS } from '../../../shared/constants/events';
+import { CHANGE_TYPES } from '../../../shared/constants/player';
+import * as SC from '../../../shared/utils/soundcloudUtils';
+import IMacFeature from './IMacFeature';
 
 const {
     TouchBarButton,
@@ -19,13 +19,6 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 export default class TouchBarManager extends IMacFeature {
-
-    constructor(app) {
-        super(app)
-
-        this._updateStatus = this._updateStatus.bind(this)
-        this._checkIfLiked = this._checkIfLiked.bind(this)
-    }
 
     likestates = {
         liked: nativeImage.createFromPath(path.join(iconsDirectory, 'heart-full.png')).resize({
@@ -47,6 +40,7 @@ export default class TouchBarManager extends IMacFeature {
             width: 20
         })
     }
+
     prev_btn = new TouchBarButton({
         icon: nativeImage.createFromPath(path.join(iconsDirectory, 'previous.png')).resize({
             width: 20
@@ -62,6 +56,7 @@ export default class TouchBarManager extends IMacFeature {
             this.router.send(EVENTS.PLAYER.TOGGLE_STATUS)
         }
     })
+
     next_btn = new TouchBarButton({
         icon: nativeImage.createFromPath(path.join(iconsDirectory, 'next.png')).resize({
             width: 20
@@ -103,15 +98,15 @@ export default class TouchBarManager extends IMacFeature {
         this.win.setTouchBar(touchBar)
 
         this.on(EVENTS.APP.READY, () => {
-            this.subscribe(['player', 'status'], this._updateStatus)
+            this.subscribe(['player', 'status'], this.updateStatus)
 
-            this.subscribe(['player', 'playingTrack'], this._checkIfLiked)
-            this.on(EVENTS.TRACK.LIKED, this._checkIfLiked)
+            this.subscribe(['player', 'playingTrack'], this.checkIfLiked)
+            this.on(EVENTS.TRACK.LIKED, this.checkIfLiked)
         })
 
     }
 
-    _checkIfLiked() {
+    checkIfLiked = () => {
         const {
             entities: {
                 track_entities
@@ -134,7 +129,7 @@ export default class TouchBarManager extends IMacFeature {
         }
     }
 
-    _updateStatus({ currentValue }) {
+    updateStatus = ({ currentValue }) => {
         this.playpause_btn.icon = this.playstates[currentValue]
     }
 

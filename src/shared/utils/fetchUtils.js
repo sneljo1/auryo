@@ -1,6 +1,6 @@
 import _ from "lodash";
 
-export function json(response) {
+export function asJson(response) {
     return response.json();
 }
 
@@ -27,7 +27,5 @@ export function status(response) {
 
 
 export function toObject(collection) {
-    return _.reduce(collection, (obj, t) => {
-        return Object.assign({}, obj, {[t]: 1})
-    }, {})
+    return _.reduce(collection, (obj, t) => Object.assign({}, obj, { [t]: true }), {})
 }

@@ -28,5 +28,29 @@
         width: 50px;
       }
     }
+
+    .rrt-info{
+      .toastr-icon{
+        fill:theme-color("info")
+      }
+    }
+
+    .rrt-success{
+      .toastr-icon{
+        fill:theme-color("success")
+      }
+    }
+
+    .rrt-error{
+      .toastr-icon{
+        fill:theme-color("danger")
+      }
+    }
+
+    .rrt-warning{
+      .toastr-icon{
+        fill:theme-color("warning")
+      }
+    }
   }
 }

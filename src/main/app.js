@@ -1,11 +1,11 @@
-import { app, BrowserWindow, Menu, nativeImage, shell } from 'electron'
-import { posCenter } from './utils'
-import { MAIN_WINDOW } from '../config'
-import Logger from './utils/logger'
-import path from 'path'
-import os from 'os'
-import windowStateKeeper from 'electron-window-state'
-import { groupBy } from './utils/utils'
+import { app, BrowserWindow, Menu, nativeImage, shell } from 'electron';
+import windowStateKeeper from 'electron-window-state';
+import os from 'os';
+import path from 'path';
+import { CONFIG } from '../config';
+import { posCenter } from './utils';
+import { Logger } from './utils/logger';
+import { groupBy } from './utils/utils';
 
 const Router = require('electron-router')
 
@@ -34,10 +34,7 @@ const icons = {
     'tray-ico': nativeImage.createFromPath(path.join(logosPath, 'auryo-tray.ico')).resize({ width: 24, height: 24 })
 }
 
-let willQuitApp = false
-
 export default class Auryo {
-
 
     constructor(store) {
         this.store = store
@@ -46,20 +43,19 @@ export default class Auryo {
 
         app.setAppUserModelId('com.auryo.core')
 
-        // Make the app a single-instance app (to avoid Database concurrency)
-        const _this = this
+        // Make the app a single-instance app
         const shouldQuit = app.makeSingleInstance(() => {
-            if (_this.mainWindow) {
-                if (_this.mainWindow.isMinimized()) _this.mainWindow.restore()
-                _this.mainWindow.focus()
-                _this.mainWindow.show()
-                _this.mainWindow.setSkipTaskbar(false)
+            if (this.mainWindow) {
+                if (this.mainWindow.isMinimized()) this.mainWindow.restore()
+                this.mainWindow.focus()
+                this.mainWindow.show()
+                this.mainWindow.setSkipTaskbar(false)
                 if (app.dock && app.dock.show) app.dock.show()
             }
         })
 
         if (shouldQuit) {
-            app.quit()
+            app.exit()
         }
     }
 
@@ -67,7 +63,7 @@ export default class Auryo {
 
         Logger.profile('app-start')
 
-        let mainWindowState = windowStateKeeper({
+        const mainWindowState = windowStateKeeper({
             defaultWidth: 1190,
             defaultHeight: 728
         })
@@ -75,11 +71,13 @@ export default class Auryo {
         // Browser Window options
         const mainWindowOption = {
             title: 'Auryo',
-            icon: os.platform() === 'win32' ? icons['ico'] : icons['256'],
+            icon: os.platform() === 'win32' ? icons.ico : icons['256'],
             x: mainWindowState.x,
             y: mainWindowState.y,
             width: mainWindowState.width,
             height: mainWindowState.height,
+            minWidth: 950,
+            minHeight: 400,
             titleBarStyle: 'hiddenInset',
             show: false,
             fullscreen: mainWindowState.isFullScreen,
@@ -124,25 +122,22 @@ export default class Auryo {
             this.mainWindow.show()
         })
 
-        const _main = this.mainWindow
-
         if (process.env.NODE_ENV === 'development' || process.env.ENV === 'development') {
             this.mainWindow.webContents.on('context-menu', (e, props) => {
                 const { x, y } = props
-                Menu.buildFromTemplate([
-                    {
-                        label: 'Inspect element',
-                        click() {
-                            _main.inspectElement(x, y)
-                        }
-                    },
-                    {
-                        label: 'Reload',
-                        click() {
-                            _main.reload()
-                        }
+                Menu.buildFromTemplate([{
+                    label: 'Inspect element',
+                    click: () => {
+                        this.mainWindow.inspectElement(x, y)
                     }
-                ]).popup(_main)
+                },
+                {
+                    label: 'Reload',
+                    click: () => {
+                        this.mainWindow.reload()
+                    }
+                }
+                ]).popup(this.mainWindow)
             })
         }
 
@@ -152,7 +147,7 @@ export default class Auryo {
     }
 
     registerTools() {
-        const { getTools } = require('./features')
+        const { getTools } = require('./features') // eslint-disable-line
 
         const eventFeatures = groupBy(getTools(this), 'waitUntil')
 
@@ -172,7 +167,7 @@ export default class Auryo {
     }
 
     loadMain() {
-        this.mainWindow.loadURL(MAIN_WINDOW)
+        this.mainWindow.loadURL(CONFIG.MAIN_WINDOW)
 
         this.mainWindow.webContents.on('will-navigate', (e, u) => {
             e.preventDefault()
@@ -192,6 +187,8 @@ export default class Auryo {
                 } else {
                     shell.openExternal(u)
                 }
+            } else if (/^mailto:/g.exec(u) !== null) {
+                shell.openExternal(u)
             }
         })
         this.mainWindow.webContents.on('new-window', (e, u) => {

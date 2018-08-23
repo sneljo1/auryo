@@ -1,11 +1,11 @@
-import {status, json} from "../utils";
-import {trackSchema} from "../schemas";
-import {normalize, schema} from "normalizr";
+import { normalize, schema } from "normalizr";
+import { trackSchema } from "../schemas";
+import { asJson, status } from "../utils";
 
 export default function fetchTrackList(url, except = {}) {
     return fetch(url)
         .then(status)
-        .then(json)
+        .then(asJson)
         .then(json => {
             const collection = json.collection
                 .filter(track => !(track.id in except));
@@ -14,7 +14,7 @@ export default function fetchTrackList(url, except = {}) {
 
             return {
                 normalized: n,
-                json: json
+                json
             };
         });
 

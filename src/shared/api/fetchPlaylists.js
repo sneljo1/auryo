@@ -1,11 +1,11 @@
-import {SC, status, json} from "../utils";
-import {playlistSchema} from "../schemas";
-import {normalize, schema} from "normalizr";
+import { normalize, schema } from "normalizr";
+import { playlistSchema } from "../schemas";
+import { asJson, SC, status } from "../utils";
 
 export default function fetchPlaylists() {
     return fetch(SC.getPlaylistUrl())
         .then(status)
-        .then(json)
+        .then(asJson)
         .then(json => {
             const n = normalize(json, new schema.Array(playlistSchema));
 

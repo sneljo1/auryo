@@ -14,12 +14,13 @@ const publicPath = `http://localhost:${port}/dist`;
 
 export default merge(baseConfig, {
     devtool: 'inline-source-map',
+    mode:"development",
 
     entry: [
         'react-hot-loader/patch',
         `webpack-dev-server/client?http://localhost:${port}/`,
         'webpack/hot/only-dev-server',
-        path.join(__dirname, 'src', "renderer", "index.js"),
+        path.join(__dirname, 'src', "renderer", "index.jsx"),
     ],
 
     output: {
@@ -49,6 +50,14 @@ export default merge(baseConfig, {
                         options: {
                             sourceMap: true,
                         }
+                    },
+                    {
+                      loader: 'sass-resources-loader',
+                      options: {
+                        resources: [
+                          path.join(__dirname, 'src', "renderer","css", "bootstrap.imports.scss")
+                        ]
+                      },
                     }
                 ]
             },

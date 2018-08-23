@@ -1,9 +1,9 @@
-import { actionTypes, OBJECT_TYPES } from '../../shared/constants'
-import { SC } from '../utils'
-import fetchPlaylist from '../api/fetchPlaylist'
-import fetchComments from '../api/fetchComments'
-import { fetchPlaylistTracks } from './playlist.actions'
-import flattenDeep from 'lodash/flattenDeep'
+import flattenDeep from 'lodash/flattenDeep';
+import fetchComments from '../api/fetchComments';
+import fetchPlaylist from '../api/fetchPlaylist';
+import { actionTypes, OBJECT_TYPES } from '../constants';
+import { SC } from '../utils';
+import { fetchPlaylistTracks } from './playlist.actions';
 
 /**
  * Check if there is more to fetch, if so, fetch more
@@ -18,7 +18,7 @@ export function fetchMore(object_id, type) {
         const object_group = objects[type] || {}
 
         if (canFetchMore(object_group[object_id])) {
-            const nextUrl = object_group[object_id].nextUrl
+            const { nextUrl } = object_group[object_id];
 
             if (nextUrl) {
                 switch (type) {
@@ -26,6 +26,8 @@ export function fetchMore(object_id, type) {
                         return dispatch(getPlaylist(nextUrl, object_id))
                     case OBJECT_TYPES.COMMENTS:
                         return dispatch(getComments(nextUrl, object_id))
+                    default:
+                        break;
                 }
             }
         }
@@ -68,28 +70,20 @@ export function getPlaylist(url, object_id, refresh) {
         const { objects, config: { hideReposts } } = getState()
 
         const playlists = objects[OBJECT_TYPES.PLAYLISTS] || {}
-        const currentPlaylistObject = playlists[object_id]
-        let old_items = []
-        if (currentPlaylistObject) {
-            old_items = [...currentPlaylistObject.items]
-        }
 
         return dispatch({
             type: actionTypes.OBJECT_SET,
             payload: {
                 promise: fetchPlaylist(url, object_id, hideReposts)
-                    .then(({ normalized, json }) => {
-
-                        return {
-                            object_id,
-                            object_type: OBJECT_TYPES.PLAYLISTS,
-                            entities: normalized.entities,
-                            result: normalized.result,
-                            nextUrl: (json.next_href) ? SC.appendToken(json.next_href) : null,
-                            futureUrl: (json.future_href) ? SC.appendToken(json.future_href) : null,
-                            refresh
-                        }
-                    }),
+                    .then(({ normalized, json }) => ({
+                        object_id,
+                        object_type: OBJECT_TYPES.PLAYLISTS,
+                        entities: normalized.entities,
+                        result: normalized.result,
+                        nextUrl: (json.next_href) ? SC.appendToken(json.next_href) : null,
+                        futureUrl: (json.future_href) ? SC.appendToken(json.future_href) : null,
+                        refresh
+                    })),
                 data: {
                     object_id,
                     object_type: OBJECT_TYPES.PLAYLISTS
@@ -97,60 +91,63 @@ export function getPlaylist(url, object_id, refresh) {
             }
         })
             .then(({ value }) => {
-                const { player: { currentPlaylistId } } = getState()
+                const { player: { currentPlaylistId, queue }, entities: { playlist_entities, track_entities } } = getState()
 
                 if (object_id === currentPlaylistId && value.result.length) {
 
                     if (value && value.result) {
 
-                        const { player: { currentPlaylistId, queue }, entities: { playlist_entities } } = getState()
-
-                        const result = value.result//.filter(i => old_items.indexOf(i) === -1)
+                        const { result } = value;
 
                         if (result.length) {
-                            console.debug('QUEUE insert getplaylist')
                             dispatch({
                                 type: actionTypes.PLAYER_QUEUE_INSERT,
                                 payload: {
                                     items: flattenDeep(result
                                         .filter(trackIdSchema => trackIdSchema.schema !== 'users')
-                                        .map((trackIdSchema, i) => {
-                                        const id = trackIdSchema.id || trackIdSchema
+                                        .map((trackIdSchema) => {
+                                            const id = trackIdSchema.id || trackIdSchema
 
-                                        const playlist = playlist_entities[id]
-                                        const playlist_object = playlists[id]
+                                            const playlist = playlist_entities[id]
+                                            const playlist_object = playlists[id]
 
-                                        if (playlist) {
+                                            if (playlist) {
 
-                                            if (!playlist_object) {
+                                                if (!playlist_object) {
 
-                                                dispatch({
-                                                    type: actionTypes.OBJECT_SET,
-                                                    payload: {
-                                                        object_id: id,
-                                                        object_type: OBJECT_TYPES.PLAYLISTS,
-                                                        result: playlist.tracks,
-                                                        fetchedItems: 0
+                                                    dispatch({
+                                                        type: actionTypes.OBJECT_SET,
+                                                        payload: {
+                                                            object_id: id,
+                                                            object_type: OBJECT_TYPES.PLAYLISTS,
+                                                            result: playlist.tracks,
+                                                            fetchedItems: 0
+                                                        }
+                                                    })
+
+                                                    dispatch(fetchPlaylistTracks(id, 50))
+
+                                                }
+
+                                                return playlist.tracks.map(trackId => {
+                                                    if (track_entities[trackId] && !track_entities[trackId].streamable) {
+                                                        return null;
+                                                    }
+
+                                                    return {
+                                                        id: trackId,
+                                                        playlistId: id,
+                                                        un: new Date().getTime()
                                                     }
                                                 })
-
-                                                dispatch(fetchPlaylistTracks(id, 50))
-
                                             }
 
-                                            return playlist.tracks.map(trackId => {
-                                                return {
-                                                    id: trackId,
-                                                    playlistId: id
-                                                }
-                                            })
-                                        }
-
-                                        return {
-                                            id,
-                                            playlistId: currentPlaylistId
-                                        }
-                                    })),
+                                            return {
+                                                id,
+                                                playlistId: currentPlaylistId,
+                                                un: new Date().getTime()
+                                            }
+                                        })),
                                     index: queue.length
                                 }
                             })
@@ -176,16 +173,14 @@ export function getRelatedPlaylist(url, object_id, trackID) {
         type: actionTypes.OBJECT_SET,
         payload: {
             promise: fetchPlaylist(url, object_id)
-                .then(({ normalized, json }) => {
-                    return {
-                        object_id,
-                        object_type: OBJECT_TYPES.PLAYLISTS,
-                        entities: normalized.entities,
-                        result: [parseInt(trackID), ...normalized.result],
-                        nextUrl: (json.next_href) ? SC.appendToken(json.next_href) : null,
-                        futureUrl: (json.future_href) ? SC.appendToken(json.future_href) : null
-                    }
-                }),
+                .then(({ normalized, json }) => ({
+                    object_id,
+                    object_type: OBJECT_TYPES.PLAYLISTS,
+                    entities: normalized.entities,
+                    result: [+trackID, ...normalized.result],
+                    nextUrl: (json.next_href) ? SC.appendToken(json.next_href) : null,
+                    futureUrl: (json.future_href) ? SC.appendToken(json.future_href) : null
+                })),
             data: {
                 object_id,
                 object_type: OBJECT_TYPES.PLAYLISTS
@@ -201,10 +196,12 @@ export function getRelatedPlaylist(url, object_id, trackID) {
  * @param object_id
  * @returns {function(*, *)}
  */
-export function getComments(url, object_id = null) {
+export function getComments(url, object_idParam = null) {
     return (dispatch, getState) => {
         const { objects } = getState()
         const comments = objects[OBJECT_TYPES.COMMENTS]
+
+        let object_id = object_idParam;
 
         if (!object_id) {
             object_id = url
@@ -215,18 +212,15 @@ export function getComments(url, object_id = null) {
         return dispatch({
             type: actionTypes.OBJECT_SET,
             payload: {
-                promise: fetchComments(object_id == url ? SC.getCommentsUrl(object_id) : url)
-                    .then(({ normalized, json }) => {
-                        return {
-                            object_id,
-                            object_type: OBJECT_TYPES.COMMENTS,
-                            entities: normalized.entities,
-                            result: normalized.result,
-                            nextUrl: (json.next_href) ? SC.appendToken(json.next_href) : null,
-                            futureUrl: (json.future_href) ? SC.appendToken(json.future_href) : null
-                        }
-
-                    }),
+                promise: fetchComments(object_id === url ? SC.getCommentsUrl(object_id) : url)
+                    .then(({ normalized, json }) => ({
+                        object_id,
+                        object_type: OBJECT_TYPES.COMMENTS,
+                        entities: normalized.entities,
+                        result: normalized.result,
+                        nextUrl: (json.next_href) ? SC.appendToken(json.next_href) : null,
+                        futureUrl: (json.future_href) ? SC.appendToken(json.future_href) : null
+                    })),
                 data: {
                     object_id,
                     object_type: OBJECT_TYPES.COMMENTS

@@ -1,44 +1,34 @@
-/**
- * Fetch all auth data. Set app loaded if all has been fetched.
- *
- * @returns {function(*, *)}
- */
-import { actionTypes } from '../../constants';
-import { getAuthFeed, getAuthPlaylists } from '../playlist.actions';
-import { getAuthFollowings } from '../auth/following.actions';
-import { getAuthReposts } from '../track/reposts.actions';
-import { getAuthLikeIds, getAuthLikesIfNeeded } from '../auth/authLikes.actions';
-import { SC } from '../../utils';
-import { getAuth } from '../auth/auth.actions';
 import { replace } from 'react-router-redux';
-import { initWatchers, openExternal, resolveUrl, stopWatchers } from './window.actions';
+import { actionTypes } from '../../constants';
+import { SC } from '../../utils';
+import { getAuth, getAuthLikeIds, getAuthLikesIfNeeded, getAuthFollowings } from '../auth/auth.actions';
+import { getAuthFeed, getAuthPlaylists } from '../playlist.actions';
+import { getAuthReposts } from '../track/reposts.actions';
+import { initWatchers, openExternal, resolveUrl, stopWatchers, writeToClipboard } from './window.actions';
 
 export * from './offline.actions';
 export * from './ui.actions';
-import {actions} from 'react-redux-toastr'
+export { initWatchers, openExternal, resolveUrl, writeToClipboard };
 
-export {
-    initWatchers, openExternal, resolveUrl
-};
 
 export function initApp() {
     return (dispatch, getState) => {
 
-        const { config: { token } } = getState();
+        const { config: { token } } = getState()
 
         if (!token) {
-            dispatch(replace('/login'));
-            return;
+            dispatch(replace('/login'))
+            return
         }
 
-        SC.initialize(token);
+        SC.initialize(token)
 
-        dispatch(initWatchers());
+        dispatch(initWatchers())
 
         if (process.env.NODE_ENV === 'development') {
             dispatch({
                 type: 'APP_RESET_STORE'
-            });
+            })
         }
 
 
@@ -54,22 +44,22 @@ export function initApp() {
                 dispatch(getAuthLikeIds()),
                 dispatch(getAuthPlaylists())
             ])
-        });
-    };
+        })
+    }
 }
 
 export function cleanApp() {
     return dispatch => {
 
-        dispatch(stopWatchers());
-    };
+        dispatch(stopWatchers())
+    }
 }
 
 export function setDimensions(dimensions) {
     return {
         type: actionTypes.APP_SET_DIMENSIONS,
         payload: dimensions
-    };
+    }
 }
 
 export function canGoInHistory(back, next) {
@@ -79,5 +69,5 @@ export function canGoInHistory(back, next) {
             back,
             next
         }
-    };
+    }
 }

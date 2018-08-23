@@ -43,9 +43,13 @@
   user-select: none;
 }
 
+.content .custom-scroll .custom-scrollbar{
+  margin-top: 52px;
+}
+
 .custom-scroll .custom-scrollbar {
   position: absolute;
-  height: calc(100% - 52px);
+  height: 100%;
   width: 6px;
   right: 3px;
   opacity: 0;

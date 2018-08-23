@@ -1,4 +1,4 @@
-import { CHANGE_TYPES, PLAYER_STATUS } from '../../../renderer/modules/player/constants/player'
+import { CHANGE_TYPES, PLAYER_STATUS } from '../../../shared/constants/player'
 import * as SC from '../../../shared/utils/soundcloudUtils'
 import { IMAGE_SIZES } from '../../../shared/constants/Soundcloud'
 import { EVENTS } from '../../../shared/constants/events'
@@ -8,15 +8,8 @@ export default class MediaServiceManager extends IMacFeature {
 
     meta = {}
 
-    constructor(app) {
-        super(app)
-
-        this._updateTime = this._updateTime.bind(this)
-
-    }
-
     register() {
-        const MediaService = require('electron-media-service')
+        const MediaService = require('electron-media-service') // eslint-disable-line
 
         const myService = this.myService = new MediaService()
 
@@ -27,10 +20,10 @@ export default class MediaServiceManager extends IMacFeature {
         myService.setMetaData(this.meta)
 
         myService.on('play', () => {
-                if (this.meta.state !== 'playing') {
-                    this.router.send(EVENTS.PLAYER.TOGGLE_STATUS, PLAYER_STATUS.PLAYING)
-                }
+            if (this.meta.state !== 'playing') {
+                this.router.send(EVENTS.PLAYER.TOGGLE_STATUS, PLAYER_STATUS.PLAYING)
             }
+        }
         )
 
         myService.on('pause', () => {
@@ -56,7 +49,7 @@ export default class MediaServiceManager extends IMacFeature {
         })
 
         myService.on('seek', (to) => {
-            this.win.webContents.send('seek', to / 1e3)
+            this.win.webContents.send('seek', to)
         })
 
         //
@@ -101,15 +94,15 @@ export default class MediaServiceManager extends IMacFeature {
             /**
              * Update time
              */
-            this.subscribe(['player', 'currentTime'], this._updateTime)
-            this.subscribe(['player', 'duration'], this._updateTime)
+            this.subscribe(['player', 'currentTime'], this.updateTime)
+            this.subscribe(['player', 'duration'], this.updateTime)
         })
     }
 
-    _updateTime({ currentState: { player: { currentTime, duration } } }) {
+    updateTime = ({ currentState: { player: { currentTime, duration } } }) => {
 
-        this.meta.currentTime = currentTime * 1e3
-        this.meta.duration = duration * 1e3
+        this.meta.currentTime = currentTime
+        this.meta.duration = duration
 
         this.myService.setMetaData(this.meta)
     }

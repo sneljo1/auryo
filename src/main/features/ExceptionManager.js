@@ -1,6 +1,6 @@
 import unhandled from 'electron-unhandled'
 import IFeature from './IFeature'
-import Logger from '../utils/logger'
+import {Logger} from '../utils/logger'
 import { registerError } from '../utils/raven'
 
 export default class ExceptionManager extends IFeature {
@@ -19,21 +19,18 @@ export default class ExceptionManager extends IFeature {
 
         if (process.env.NODE_ENV === 'production') {
             unhandled({
-                logger: function (e) {
+                logger: (e) => {
                     Logger.error(e)
                 }
             })
         } else {
             unhandled({
-                logger: function (e) {
+                logger: (e) => {
                     Logger.error(e)
                 },
                 showDialog: false
             })
         }
-    }
-
-    unregister() {
     }
 
 }

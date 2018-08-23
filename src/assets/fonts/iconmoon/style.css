@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'icomoon';
-  src:  url('fonts/icomoon.eot?52hd8l');
-  src:  url('fonts/icomoon.eot?52hd8l#iefix') format('embedded-opentype'),
-    url('fonts/icomoon.ttf?52hd8l') format('truetype'),
-    url('fonts/icomoon.woff?52hd8l') format('woff'),
-    url('fonts/icomoon.svg?52hd8l#icomoon') format('svg');
+  src:  url('fonts/icomoon.eot?6knafr');
+  src:  url('fonts/icomoon.eot?6knafr#iefix') format('embedded-opentype'),
+    url('fonts/icomoon.ttf?6knafr') format('truetype'),
+    url('fonts/icomoon.woff?6knafr') format('woff'),
+    url('fonts/icomoon.svg?6knafr#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -24,6 +24,122 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-acoustic:before {
+  content: "\e9ae";
+  color: #fff;
+}
+.icon-blues:before {
+  content: "\e9b2";
+  color: #fff;
+}
+.icon-casette:before {
+  content: "\e9b3";
+  color: #fff;
+}
+.icon-childrens_music:before {
+  content: "\e9b4";
+  color: #fff;
+}
+.icon-chill_out:before {
+  content: "\e9b5";
+  color: #fff;
+}
+.icon-christmas_carols:before {
+  content: "\e9b6";
+  color: #fff;
+}
+.icon-clasical:before {
+  content: "\e9b7";
+  color: #fff;
+}
+.icon-country:before {
+  content: "\e9b8";
+  color: #fff;
+}
+.icon-disc2:before {
+  content: "\e9b9";
+  color: #fff;
+}
+.icon-disco:before {
+  content: "\e9ba";
+  color: #fff;
+}
+.icon-edm:before {
+  content: "\e9bb";
+  color: #fff;
+}
+.icon-excercise:before {
+  content: "\e9bc";
+  color: #fff;
+}
+.icon-gospel:before {
+  content: "\e9bd";
+  color: #fff;
+}
+.icon-hip_hop:before {
+  content: "\e9be";
+  color: #fff;
+}
+.icon-hippie:before {
+  content: "\e9bf";
+  color: #fff;
+}
+.icon-indie:before {
+  content: "\e9c0";
+  color: #fff;
+}
+.icon-jazz:before {
+  content: "\e9c1";
+  color: #fff;
+}
+.icon-k-pop:before {
+  content: "\e9c2";
+  color: #fff;
+}
+.icon-latin:before {
+  content: "\e9c3";
+  color: #fff;
+}
+.icon-metal:before {
+  content: "\e9c4";
+  color: #fff;
+}
+.icon-pop:before {
+  content: "\e9c5";
+  color: #fff;
+}
+.icon-punk:before {
+  content: "\e9c6";
+  color: #fff;
+}
+.icon-RnB:before {
+  content: "\e9c7";
+  color: #fff;
+}
+.icon-reggae:before {
+  content: "\e9c8";
+  color: #fff;
+}
+.icon-rock:before {
+  content: "\e9c9";
+  color: #fff;
+}
+.icon-romantic:before {
+  content: "\e9ca";
+  color: #fff;
+}
+.icon-tango:before {
+  content: "\e9cb";
+  color: #fff;
+}
+.icon-vocal:before {
+  content: "\e9cc";
+  color: #fff;
+}
+.icon-world:before {
+  content: "\e9cd";
+  color: #fff;
+}
 .icon-playlist_play:before {
   content: "\e9af";
 }
@@ -620,42 +736,6 @@
 }
 .icon-snapchat:before {
   content: "\e90a";
-}
-.icon-retweet:before {
-  content: "\e900";
-}
-.icon-arrows:before {
-  content: "\e900";
-}
-.icon-loop:before {
-  content: "\e900";
-}
-.icon-reload:before {
-  content: "\e900";
-}
-.icon-globe:before {
-  content: "\e904";
-}
-.icon-soundcloud:before {
-  content: "\e905";
-}
-.icon-spotify:before {
-  content: "\e907";
-}
-.icon-facebook:before {
-  content: "\e901";
-}
-.icon-instagram:before {
-  content: "\e906";
-}
-.icon-pinterest:before {
-  content: "\e909";
-}
-.icon-tumblr:before {
-  content: "\e908";
-}
-.icon-twitter:before {
-  content: "\e902";
 }
 .icon-retweet:before {
   content: "\e900";

@@ -1,5 +1,5 @@
-import {actionTypes} from "../../../shared/constants";
-import {SC} from "../../utils";
+import { actionTypes } from "../../constants";
+import { SC } from "../../utils";
 import fetchToObject from "../../api/helpers/fetchToObject";
 import fetchToJson from "../../api/helpers/fetchToJson";
 
@@ -23,20 +23,18 @@ export function getAuthFollowings() {
  */
 export function toggleFollowing(user_id) {
     return (dispatch, getState) => {
-        const {auth:{followings}} = getState();
+        const { auth: { followings } } = getState();
 
         const following = !((user_id in followings) ? followings[user_id] : 0);
 
         dispatch({
             type: actionTypes.AUTH_SET_FOLLOWING,
             payload: fetchToJson(SC.updateFollowingUrl(user_id), {
-                method: (following == 1) ? "PUT" : "DELETE"
-            }).then(json => {
-                return {
-                    user_id,
-                    following
-                }
-            })
+                method: (following === 1) ? "PUT" : "DELETE"
+            }).then(() => ({
+                user_id,
+                following
+            }))
         })
 
     }

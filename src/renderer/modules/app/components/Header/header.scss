@@ -1,40 +1,80 @@
 @import "../../../../css/vars";
 
 .header-wrapper {
-  min-height: 52px;
+  &.withImage {
+    background: rgba(255, 255, 255, 0.15);
+    position: relative;
+    z-index: 5;
+
+
+    .stickymaker:not(.sticky) {
+      i {
+        color: white;
+      }
+
+      #globalSearch{
+        background: rgba(255, 255, 255, 0.23);
+        border-radius: 20px;
+      }
+      .navbar .control-nav a {
+        color: white;
+        &:not(.disabled):hover {
+          background: rgba(247, 247, 247, 0.33);
+          transition: .4s background;
+        }
+      }
+      .user .userPofile:not(:hover) {
+        color: #fff !important;
+      }
+      .user .userPofile:hover {
+        background: rgba(247, 247, 247, 0.33);
+        transition: .4s all;
+      }
+
+      .search-box {
+        input {
+          color: #fff;
+          &::-webkit-input-placeholder {
+            color: rgba(247, 247, 247, 0.7);
+          }
+        }
+      }
+    }
+  }
+
   .sticky {
-    .navbar {
+    .navbar-wrapper {
       background: white;
       transition: .5s all;
     }
   }
 
   .sticky-1 {
-    .navbar {
+    .navbar-wrapper {
       box-shadow: 3px 3px 15px rgba(0, 0, 0, 0.03), 3px 3px 30px rgba(0, 0, 0, 0.01);
     }
   }
 
   .sticky-2 {
-    .navbar {
+    .navbar-wrapper {
       box-shadow: 3px 3px 15px rgba(0, 0, 0, 0.06), 3px 3px 30px rgba(0, 0, 0, 0.03);
     }
   }
 
   .sticky-3 {
-    .navbar {
+    .navbar-wrapper {
       box-shadow: 3px 3px 15px rgba(0, 0, 0, 0.11), 3px 3px 30px rgba(0, 0, 0, 0.05);
     }
   }
 }
 
 .sticky-appear {
-  //transform: translateY(-52px);
+  transform: translateY(-52px);
 }
 
 .sticky-appear.sticky-appear-active {
-  //transform: translateY(0);
-  transition: all 500ms ease-in-out;
+  transform: translateY(0);
+  transition: all 300ms ease-in-out;
 }
 
 .navbar {
@@ -100,16 +140,31 @@
     color: #717171;
     padding: 0 5px;
     transition: .5s color;
+    position: relative;
 
     &:hover {
       color: theme-color("primary");
       transition: .5s color;
     }
+    sup{
+      top: 0;
+      height: 8px;
+      width: 8px;
+      border-radius: 100%;
+      background: theme-color("primary");
+      z-index: 10;
+      -webkit-box-shadow: 0 0 0 1px #fff;
+      box-shadow: 0 0 0 1px #fff;
+      position: absolute;
+      right: 0;
+    }
 
-    i {
-      font-size: 1.1rem;
+    &>svg {
+  
       vertical-align: middle;
-
+      fill: currentColor;
+      transform: rotate(90deg);
+      transform-origin: center;
     }
   }
 }
