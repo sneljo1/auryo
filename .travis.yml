@@ -31,10 +31,10 @@ cache:
   directories:
   - node_modules
   - src/node_modules
-  - $(npm config get prefix)/lib/node_modules
-  - $HOME/.cache/electron
-  - $HOME/.cache/electron-builder
-  - $HOME/docker
+  - "$(npm config get prefix)/lib/node_modules"
+  - "$HOME/.cache/electron"
+  - "$HOME/.cache/electron-builder"
+  - "$HOME/docker"
 install:
 - yarn
 script:
@@ -47,21 +47,28 @@ script:
      yarn run test-e2e -- --retries 2 || travis_terminate 1
   fi
 after_success:
-- openssl aes-256-cbc -K $encrypted_0b5df9aa1433_key -iv $encrypted_0b5df9aa1433_iv
-  -in .snapcraft/travis_snapcraft.cfg -out .snapcraft/snapcraft.cfg -d
 - |
   if [ "$TRAVIS_OS_NAME" == "linux" ]; then
      yarn run release:linux
   else
      yarn run release:mac
   fi
+dd:
+  secure: BSO0JreDmiVV2eFJqt8MkQ0YhOfxmfsrn7/yfa4e15K8jROrI9ycV2soY1vGmUC7dv0WxxvSJ1fgSf0C4pyZA4aWMexzaZJh3sflQnYTgoF3cjPadUJI++jv/ODBeDgXMmkRUqqMbXmkyoXRti3elMuE1gBIc+So7D4s6dXfBPtzrRqDWJmphThzoI02MU/0fOqKjwzm0tqWGjYlBAIB3VC5NnI8mJFDh5ql+B8judTVAL97YDkl5jXhL4noCgATvcWrO1pLubBo0fQjSikaNrcyRaK1K4uDYb10mCn8kxT35JRHZCCdyZMiK7xgwVfttkeqBv1B5rZXggVnyz0uLG76699S0zhm+dXNyxtyQKtxl8Ji+zRRfbDr/drj2AR/TO9y7WIHZJMOXLFNUt6eXl3K3GNwifGbmUXginiwnPXCJZIK0QlnyOlrjQgZmLgMRHTiO0eMeMlMdqJeUt/hwCwm5puyrCdw/NF/k0PDGiONWZcXv+QTBaApwgGJ0mMB0V77S2WMVjcA30tS+KC02qxT5DLYsbAk9njQUoK7dwY7KTF/j0nicupLHZQxWXC3BiZNPFC+gzQdhDziGkUF4j6d9qa5lc3ejEAZW07bs1FWgHFpo7d9Ew387OuVrZX23/u8HpWFhrZc7EYqqMaHoafb6PCSmGLXnoeO/bebVIo=
 deploy:
-  'on':
+  on:
     branch: master
   provider: script
-  script: docker run -v $(pwd):$(pwd) -t snapcore/snapcraft sh -c "apt update -qq
-    && cd $(pwd) && snapcraft && snapcraft push ./release/__snap-x64/*.snap --release edge"
+  script: |
+        git config --global user.email "jonas.snellinckx@gmail.com"
+        git config --global user.name "Jonas via Travis CI"
+
+        mkdir auryo-snap
+        cd auryo-snap
+        git init
+        git remote add origin https://${GH_TOKEN}@github.com/auryo/auryo-snap.git > /dev/null 2>&1
+        cp -R ../release/__snap-x64/* .
+        git add -A
+        git commit --message "New build $TRAVIS_BUILD_NUMBER"
+        git push --quiet --set-upstream origin master
   skip_cleanup: true
-sudo: required
-services:
-- docker
