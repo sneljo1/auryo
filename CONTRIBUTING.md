@@ -1,6 +1,6 @@
 # Contributing
 
-*For a technical getting started, please read [Devlopment guide](DEVELOPMENT.md) after finishing this.*
+**For a technical getting started, please read [Development guide](DEVELOPMENT.md) after finishing this.**
 
 We love your input! We want to make contributing to this project as easy and transparent as possible, whether it's:
 
