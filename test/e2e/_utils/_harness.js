@@ -95,6 +95,20 @@ export const harness = (name, fn) => {
                         }
                     })
 
+                app.client.getRenderProcessLogs().then(function (logs) {
+                    if (logs.length) {
+                        let str = ''
+                        logs.forEach(function (log) {
+                            if (log.level === 'ERROR') {
+                                str += log.level + '|' + log.message + '\n'
+                            }
+                        })
+                        if (str.length) {
+                            console.log('RENDERER')
+                            console.log(str + '\n')
+                        }
+                    }
+                })
             }
         });
     });

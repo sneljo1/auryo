@@ -9,6 +9,8 @@ harness("likes page", () => {
             .getText('.page-header h2')
             .should.eventually.equal("Stream")
             .click('#likes a')
+            .waitUntilWindowLoaded()
+            .waitForExist('.loader', 15000, true)
             .getText('.page-header h2')
             .should.eventually.equal("Likes")
     })

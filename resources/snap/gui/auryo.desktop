@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Encoding=UTF-8
+Name=Auryo
+Comment=A beautiful soundcloud desktop app
+Exec=auryo
+Icon=${SNAP}/meta/gui/auryo.png
+Categories=Audio;

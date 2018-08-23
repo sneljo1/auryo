@@ -4,15 +4,27 @@ matrix:
     language: node_js
     node_js: '9'
     sudo: required
-    dist: trusty
+    dist: xenial
+    env:
+    - PATH=/snap/bin:$PATH
     addons:
       apt:
-        sources:
-        - google-chrome
         packages:
         - google-chrome-stable
+        - snapd
+        - openjpeg-tools
+        - rpm
+        - bsdtar
+        - xvfb
+        - libxtst6
+        - libxss1
+        - libgtk2.0-0
+        - libnss3
+        - libasound2
+        - libgconf-2-4
   - os: osx
     language: node_js
+    osx_image: xcode9.0
     node_js: '9'
     sudo: required
     env:
@@ -25,6 +37,8 @@ before_install:
   if [ "$TRAVIS_OS_NAME" = "osx" ]; then
     brew update > /dev/null
     brew cask install google-chrome
+  else
+    sudo snap install snapcraft --classic
   fi
 cache:
   yarn: true
@@ -37,15 +51,20 @@ cache:
   - "$HOME/docker"
 install:
 - yarn
+
+before_script:
+  - | 
+  if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+    export DISPLAY=:99.0
+    sh -e /etc/init.d/xvfb start
+    sleep 3 # give xvfb some time to start
+
+  fi
+
 script:
 - yarn run build || travis_terminate 1
 - yarn run lint || travis_terminate 1
-- |
-  if [ "$TRAVIS_OS_NAME" == "linux" ]; then
-     xvfb-run --server-args="-screen 0, 1024x768x24" -a yarn run test-e2e -- --retries 2 || travis_terminate 1
-  else
-     yarn run test-e2e -- --retries 2 || travis_terminate 1
-  fi
+- yarn run test-e2e -- --retries 2 || travis_terminate 1
 after_success:
 - |
   if [ "$TRAVIS_OS_NAME" == "linux" ]; then
@@ -53,23 +72,12 @@ after_success:
   else
      yarn run release:mac
   fi
-dd:
-  secure: BSO0JreDmiVV2eFJqt8MkQ0YhOfxmfsrn7/yfa4e15K8jROrI9ycV2soY1vGmUC7dv0WxxvSJ1fgSf0C4pyZA4aWMexzaZJh3sflQnYTgoF3cjPadUJI++jv/ODBeDgXMmkRUqqMbXmkyoXRti3elMuE1gBIc+So7D4s6dXfBPtzrRqDWJmphThzoI02MU/0fOqKjwzm0tqWGjYlBAIB3VC5NnI8mJFDh5ql+B8judTVAL97YDkl5jXhL4noCgATvcWrO1pLubBo0fQjSikaNrcyRaK1K4uDYb10mCn8kxT35JRHZCCdyZMiK7xgwVfttkeqBv1B5rZXggVnyz0uLG76699S0zhm+dXNyxtyQKtxl8Ji+zRRfbDr/drj2AR/TO9y7WIHZJMOXLFNUt6eXl3K3GNwifGbmUXginiwnPXCJZIK0QlnyOlrjQgZmLgMRHTiO0eMeMlMdqJeUt/hwCwm5puyrCdw/NF/k0PDGiONWZcXv+QTBaApwgGJ0mMB0V77S2WMVjcA30tS+KC02qxT5DLYsbAk9njQUoK7dwY7KTF/j0nicupLHZQxWXC3BiZNPFC+gzQdhDziGkUF4j6d9qa5lc3ejEAZW07bs1FWgHFpo7d9Ew387OuVrZX23/u8HpWFhrZc7EYqqMaHoafb6PCSmGLXnoeO/bebVIo=
 deploy:
   on:
     branch: master
     condition: $TRAVIS_OS_NAME == "linux"
   provider: script
-  script: |
-        git config --global user.email "jonas.snellinckx@gmail.com"
-        git config --global user.name "Jonas via Travis CI"
-
-        mkdir auryo-snap
-        cd auryo-snap
-        git init
-        git remote add origin https://${GH_TOKEN}@github.com/auryo/auryo-snap.git > /dev/null 2>&1
-        cp -R ../release/__snap-x64/* .
-        git add -A
-        git commit --message "New build $TRAVIS_BUILD_NUMBER"
-        git push --quiet --set-upstream origin master
+  script: bash scripts/deploy.sh $GH_TOKEN $TRAVIS_BUILD_NUMBER
   skip_cleanup: true
+dd:
+  secure: Br5Y8lWXttRgS9MoxmoXJ3BYcc0+lsaHy8sBeoduwtdLIped0OWUq1VWfLO2H11pMCXAFY60Rw1USbm2wGnOp8nx9L1Yo9Nq5sSzaEEujKaS3hetnuGGFsj+2tOuDQ+envWFByzuLfPpAGJNGN3A7k0GYYNUi3kzxJRy1W0d4gfDPpo38X/AVw9kCQS4gXvkk2twWI3fGRlBPnAilzCfTz69aEo850Er/TYvZfMbj9tjJa2HO8l40EXpey7s5ZbrGQJjLM+eCDekmIoDOeWlbzyFj4K3SFhUpAacPvseuF2GCbj4mPPzPlNT0md85JjhNbGQgTmuWHF9iD7ULUDSHwVyFZePW8KDuZzns9oKx5qdbM8ATh8D4b4z03LlE1vPBH3Klij7WfFp0yLZq/PaUWhVvP6Br1KZrMByMrlaEA/Dn8Xw6Sbed8ipG9NZDjPVU4fh2onrEw/He09DWfddoRbYGgkNKKOPbR2mTO5qnFtWz25LX26q/cq2Eh4Twt3imE1EqMdWZ3DbGzoakhTkJCZmGj11TCgBJ5nmV8gJ/FwGjv49zWg2kdM2EgQVpTDvD++wh3LMboBfADoA/tEDF2qZxOF0Looa/Vnph0MU6843YyfY0MAhLDZ/Vj+231De5J413QItVBMw2JPKNnoR6FAmkoO9nuv5EzBf7je3XjE=

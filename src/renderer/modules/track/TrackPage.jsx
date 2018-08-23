@@ -280,7 +280,7 @@ class TrackPage extends WithHeaderComponent {
                                         <Col xs="6" lg="12">
                                             <div className="p-3 track-info">
                                                 <strong>Created</strong>
-                                                <div>{moment(track.created_at).fromNow()}</div>
+                                                <div>{moment(new Date(track.created_at)).fromNow()}</div>
 
                                                 {
                                                     track.label_name && (
