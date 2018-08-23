@@ -18,9 +18,6 @@ export default class Shortcut extends IFeature {
         globalShortcut.register('MediaNextTrack', () => {
             this.changeTrack(CHANGE_TYPES.NEXT);
         });
-        globalShortcut.register('MediaNextTrack', () => {
-            this.changeTrack(CHANGE_TYPES.NEXT);
-        });
         globalShortcut.register('MediaStop', () => {
             this.win.webContents.send('player:toggle-status', PLAYER_STATUS.STOPPED);
         });
