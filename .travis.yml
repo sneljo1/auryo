@@ -63,15 +63,17 @@ script:
 - yarn run test-e2e -- --retries 2 || travis_terminate 1
 after_success:
 - |
-  if [ "$TRAVIS_OS_NAME" == "linux" ]; then
-     yarn run release:linux
-  else
-     yarn run release:mac
+  if [ "$TRAVIS_BRANCH" == "master" ] || [ -z $TRAVIS_TAG ]; then
+    if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+      yarn run release:linux
+    else
+      yarn run release:mac
+    fi
   fi
 deploy:
   on:
-    branch: master
     condition: $TRAVIS_OS_NAME == "linux"
+    tags: true
   provider: script
   script: bash scripts/deploy.sh $GH_TOKEN $TRAVIS_BUILD_NUMBER
   skip_cleanup: true

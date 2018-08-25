@@ -1,7 +1,7 @@
 {
   "name": "auryo",
   "productName": "Auryo",
-  "version": "2.0.0-beta",
+  "version": "2.0.0",
   "description": "Listen to SoundCloud® from the comfort of your desktop. Use keyboard shortcuts to navigate through your music. Be more productive.",
   "main": "./main.js",
   "private": true,
