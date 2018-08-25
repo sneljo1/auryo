@@ -14,6 +14,7 @@ harness("artist page", () => {
             .element('.trackWrapper .trackArtist a:not(.repost)')
             .click()
             .waitUntilWindowLoaded()
+            .waitForExist('.loader', 15000, true)
             .waitForExist('.page-header h2', 15000)
             .getText('.page-header h2')
             .should.eventually.contain(trackArtist)

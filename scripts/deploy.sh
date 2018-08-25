@@ -7,7 +7,7 @@ PACKAGE_VERSION=$(cat src/package.json \
   | grep version \
   | head -1 \
   | awk -F: '{ print $2 }' \
-  | sed 's/[",]//g')
+  | sed 's/[", ]//g')
 
         mkdir auryo-snap
         cd auryo-snap

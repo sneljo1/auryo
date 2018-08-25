@@ -11,6 +11,7 @@ harness("likes page", () => {
             .click('#likes a')
             .waitUntilWindowLoaded()
             .waitForExist('.loader', 15000, true)
+            .waitForExist('.page-header h2', 15000)
             .getText('.page-header h2')
             .should.eventually.equal("Likes")
     })
