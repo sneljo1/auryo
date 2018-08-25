@@ -1,6 +1,6 @@
 import { app } from "electron";
 import os from "os";
-import {CONFIG} from '../../config';
+import { CONFIG } from '../../config';
 import settings from '../settings';
 import { Logger } from './logger';
 
@@ -11,17 +11,18 @@ export const registerError = (err, ui) => {
 }
 
 export const initialize = () => {
+    app.on('ready', () => {
+        const sendCrashReports = settings.get('app.crashReports')
 
-    const sendCrashReports = settings.get('app.crashReports')
-
-    if (sendCrashReports && process.env.NODE_ENV === 'production') {
-        init({
-            dsn: CONFIG.SENTRY_URL,
-            release: app.getVersion(),
-            platform: os.platform(),
-            platform_version: os.release(),
-            arch: os.arch()
-        })
-    }
+        if (sendCrashReports && process.env.NODE_ENV === 'production') {
+            init({
+                dsn: CONFIG.SENTRY_URL,
+                release: app.getVersion(),
+                platform: os.platform(),
+                platform_version: os.release(),
+                arch: os.arch()
+            })
+        }
+    })
 
 }
