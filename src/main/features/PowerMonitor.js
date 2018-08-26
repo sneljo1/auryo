@@ -8,6 +8,11 @@ import IFeature from './IFeature';
  */
 export default class PowerMonitor extends IFeature {
 
+    shouldRun(){
+        // ref: https://github.com/electron/electron/issues/13767
+        return super.shouldRun() && !(process.platform === 'linux' && process.env.SNAP_USER_DATA != null)
+    }
+
     register() {
         powerMonitor.on('suspend', this.pause);
     }
