@@ -71,16 +71,31 @@ The only tests which are being run are e2e tests. I never imaged Auryo getting t
 ### End-2-End testing
 For local end-2-end testing, you will need to have a valid SoundCloud login in your env vars. End-2-end testing is done using [Spectron](https://github.com/electron/spectron). Since Spectron's latest npm release is a bit outdated and doesn't support Electron v2, we're using the spectron directly from github.
 
+**Note: if you changed anything, before testing, always build first**
+
 ```sh
+yarn run build
 yarn run test-e2e
 ```
 
-## Packaging
-Packaging and distribution is done via CI, which sends the packaged builds to github released if the commit is tagged. If you would like to 
+## Building and Packaging
+Packaging and distribution is done via CI, which sends the packaged builds to github released if the commit is tagged. If you would like, you can also do this locally.
 
-### End-2-End testing
-For local end-2-end testing, you will need to have a valid SoundCloud login in your env vars. End-2-end testing is done using [Spectron](https://github.com/electron/spectron). Since Spectron's latest npm release is a bit outdated and doesn't support Electron v2, we're using the spectron directly from github.
+### Building and testing production version locally
+Building will create the necessary compiled files in the `dist/` folder. You can then use this to run the app.
 
 ```sh
-yarn run test-e2e
+yarn run build
+yarn start
+```
+
+### Packaging locally
+Depending on your os, you can run the package command. For building all platforms, please read following documentation [multi-platform build guide](https://www.electron.build/multi-platform-build). Once the command is run, a packaged app is located in the `release`folder.
+
+```sh
+yarn run build
+yarn run package:win // choose one
+yarn run package:linux // choose one
+yarn run package:mac // choose one
+yarn run package:all // choose one
 ```
