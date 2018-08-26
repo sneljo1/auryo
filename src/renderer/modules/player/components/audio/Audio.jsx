@@ -30,6 +30,8 @@ class Audio extends Component {
 
         if (url !== nextProps.url || id !== nextProps.id) {
             this.startStream(nextProps.url)
+        } else if (playStatus !== nextProps.playStatus) {
+            this.toggleStatus(nextProps.playStatus)
         }
 
         if (this.player.getState() === 'playing' && !this.player.isActuallyPlaying()) {
@@ -38,10 +40,6 @@ class Audio extends Component {
             } else {
                 this.player.play()
             }
-        }
-
-        if (playStatus !== nextProps.playStatus) {
-            this.toggleStatus(nextProps.playStatus)
         }
 
         if (volume !== nextProps.volume && this.player) {

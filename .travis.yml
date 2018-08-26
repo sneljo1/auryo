@@ -21,7 +21,11 @@ matrix:
         - libgtk2.0-0
         - libnss3
         - libasound2
+        - libdbus-1-dev
+        - libglib2.0-dev
         - libgconf-2-4
+        - libdbus-1-dev:i386 
+        - libdbus-glib-1-dev
   - os: osx
     language: node_js
     osx_image: xcode9.0
@@ -54,6 +58,7 @@ install:
 - |
   if [ "$TRAVIS_OS_NAME" == "linux" ]; then
     export DISPLAY=':99.0'
+    export DBUS_SESSION_BUS_ADDRESS='unix:path=/run/dbus/system_bus_socket'
     Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
     sleep 3
   fi

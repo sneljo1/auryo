@@ -231,7 +231,6 @@ export function setCurrentPlaylist(playlistId, next_track) {
 
                                     return playlist.tracks.map(trackId => {
                                         if (track_entities[trackId] && !track_entities[trackId].streamable) {
-                                            console.log("not streamable", track_entities[id])
                                             return null;
                                         }
 

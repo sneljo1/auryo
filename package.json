@@ -7,7 +7,7 @@
   "description": "Electron application boilerplate based on React, React Router, Webpack, React Hot Loader for rapid application development",
   "main": "main.js",
   "scripts": {
-    "prebuild": "rebuild-node-sass",
+    "prebuild": "rebuild-node-sass && electron-rebuild",
     "build-test": "cross-env NODE_ENV=test BABEL_DISABLE_CACHE=1 npm run build-main && npm run build-renderer",
     "test": "cross-env NODE_ENV=test BABEL_DISABLE_CACHE=1 mocha --retries 2 --compilers js:babel-register --recursive --require test/**/*.spec.js",
     "test-watch": "npm test -- --watch",
@@ -153,6 +153,7 @@
     "electron": "^2.0.0",
     "electron-builder": "^20.28.2",
     "electron-devtools-installer": "^2.0.1",
+    "electron-rebuild": "^1.8.2",
     "enzyme": "^2.7.1",
     "eslint": "^5.2.0",
     "eslint-config-airbnb": "^17.0.0",

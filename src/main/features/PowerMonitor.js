@@ -13,9 +13,7 @@ export default class PowerMonitor extends IFeature {
     }
 
     pause = () => {
-        if (!this.app.mainWindow) {
-            this.router.send(EVENTS.PLAYER.TOGGLE_STATUS, PLAYER_STATUS.PAUSED);
-        }
+        this.router.send(EVENTS.PLAYER.TOGGLE_STATUS, PLAYER_STATUS.PAUSED);
     }
 
     unregister() {
