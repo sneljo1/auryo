@@ -157,6 +157,7 @@ class TrackPage extends WithHeaderComponent {
             <CustomScroll className="column" heightRelativeToParent="100%"
                 allowOuterScroll
                 threshold={300}
+                ref={r => this.scroll = r}
                 onScroll={this.debouncedOnScroll}
                 loadMore={this.fetchMore.bind(this)}
                 hasMore={this.canFetchMore()}>

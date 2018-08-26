@@ -1,5 +1,6 @@
 import is from "electron-is";
-import { version } from './package.json';
+
+const app = require('electron').app || require('electron').remote.app; // eslint-disable-line
 
 const BASE_URL = 'http://api.auryo.com'
 
@@ -35,7 +36,7 @@ export const CONFIG = {
     DEFAULT_CONFIG: {
         token: process.env.TOKEN ? process.env.TOKEN : null,
         volume: .5,
-        version,
+        version: app.getVersion(),
         hideReposts: false,
         enableProxy: false,
         proxy: {

@@ -2,7 +2,7 @@ import flattenDeep from 'lodash/flattenDeep';
 import React from 'react';
 import { toastr } from 'react-redux-toastr';
 import ReactImageFallback from '../../../renderer/modules/_shared/FallbackImage';
-import { actionTypes, IMAGE_SIZES, OBJECT_TYPES, PLAYER_STATUS, CHANGE_TYPES } from '../../constants';
+import { actionTypes, CHANGE_TYPES, IMAGE_SIZES, OBJECT_TYPES, PLAYER_STATUS } from '../../constants';
 import { EVENTS } from '../../constants/events';
 import { PLAYLISTS } from '../../constants/playlist';
 import { SC } from '../../utils';
@@ -11,8 +11,8 @@ import { windowRouter } from '../../utils/router';
 import { fetchPlaylistIfNeeded } from '../index';
 import { fetchMore } from '../objectActions';
 import { fetchPlaylistTracks, fetchTracks } from '../playlist.actions';
-import { playTrack } from './playTrack.actions';
 import { changeTrack } from './changeTrack.actions';
+import { playTrack } from './playTrack.actions';
 
 
 const obj_type = OBJECT_TYPES.PLAYLISTS
@@ -217,7 +217,7 @@ export function setCurrentPlaylist(playlistId, next_track) {
                     promise: Promise.resolve({
                         playlistId,
                         items: flattenDeep(playlist_object.items
-                            .filter(trackIdSchema => trackIdSchema.schema !== 'users')
+                            .filter(trackIdSchema => (trackIdSchema && trackIdSchema.schema !== 'users'))
                             .map((trackIdSchema, i) => {
                                 const id = trackIdSchema.id || trackIdSchema
                                 const playlist = playlist_entities[id]

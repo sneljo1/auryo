@@ -190,6 +190,7 @@ class ArtistPage extends WithHeaderComponent {
             <CustomScroll className="column" heightRelativeToParent="100%"
                 allowOuterScroll
                 heightMargin={35}
+                ref={r => this.scroll = r}
                 onScroll={this.debouncedOnScroll}
                 threshold={300}
                 loadMore={this.fetchMore.bind(this)}

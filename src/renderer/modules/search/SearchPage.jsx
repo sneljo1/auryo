@@ -104,7 +104,7 @@ class Search extends React.Component {
             )
         }
 
-        if (!results || !results.length && (playlist_object && !playlist_object.isFetching)) {
+        if (query === "" || !results || !results.length && (playlist_object && !playlist_object.isFetching)) {
             return (
                 <div className="pt-5 mt-5">
                     <h5 className='text-muted text-center'>{query ? `No results for "${query}"` : 'Search for people, tracks and albums'}</h5>
@@ -137,7 +137,7 @@ class Search extends React.Component {
 }
 
 Search.propTypes = {
-    query: PropTypes.string.isRequired,
+    query: PropTypes.string,
     results: PropTypes.array.isRequired,
     object_id: PropTypes.string.isRequired,
     searchAll: PropTypes.func.isRequired,
@@ -153,7 +153,8 @@ Search.propTypes = {
 }
 
 Search.defaultProps = {
-    playlist_object: null
+    playlist_object: null,
+    query: ""
 }
 
 

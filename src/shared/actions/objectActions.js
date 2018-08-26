@@ -104,7 +104,7 @@ export function getPlaylist(url, object_id, refresh) {
                                 type: actionTypes.PLAYER_QUEUE_INSERT,
                                 payload: {
                                     items: flattenDeep(result
-                                        .filter(trackIdSchema => trackIdSchema.schema !== 'users')
+                                        .filter(trackIdSchema => (trackIdSchema && trackIdSchema.schema !== 'users'))
                                         .map((trackIdSchema) => {
                                             const id = trackIdSchema.id || trackIdSchema
 

@@ -117,6 +117,10 @@ class Header extends React.Component {
                                 </div>
                                 <SearchBox ref={r => this.search = r} initialValue={query}
                                     handleSearch={(prev, searchQuery) => {
+                                        if (!searchQuery) {
+                                            return replace("/search")
+                                        }
+
                                         if (prev) {
                                             replace(`/search/${searchQuery}`)
                                         } else {

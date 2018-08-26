@@ -46,6 +46,7 @@ class SearchWrapper extends WithHeaderComponent {
         return (
             <CustomScroll heightRelativeToParent="100%"
                 loader={<Spinner />}
+                ref={r => this.scroll = r}
                 onScroll={this.debouncedOnScroll}
                 loadMore={this.loadMore}
                 hasMore={this.hasMore()}

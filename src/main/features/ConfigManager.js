@@ -1,10 +1,9 @@
-import { session } from 'electron';
+import { session, app } from 'electron';
 import debounce from 'lodash/debounce';
 import defaultsDeep from 'lodash/defaultsDeep';
 import { show } from 'redux-modal';
 import semver from 'semver';
 import { CONFIG } from '../../config';
-import { version } from '../../package.json';
 import { canGoInHistory } from '../../shared/actions/app/app.actions';
 import { setConfig } from '../../shared/actions/config.actions';
 import { EVENTS } from '../../shared/constants/events';
@@ -19,11 +18,10 @@ export default class ConfigManager extends IFeature {
 
     isNewUser = false
 
-    constructor(app) {
-        super(app)
+    constructor(auryo) {
+        super(auryo)
 
-        this.writetoConfig = debounce(config => settings.setAll(config), 500)
-
+        this.writetoConfig = debounce(config => settings.setAll(config), 250)
     }
 
     register() {
@@ -34,10 +32,10 @@ export default class ConfigManager extends IFeature {
         }
 
         if (typeof this.config.version === 'undefined') {
-            this.config.version = version
+            this.config.version = app.getVersion()
             this.isNewUser = true
-        } else if (semver.lt(this.config.version, version)) {
-            this.config.version = version
+        } else if (semver.lt(this.config.version, app.getVersion())) {
+            this.config.version = app.getVersion()
             this.isNewVersion = true
         }
 
@@ -63,6 +61,7 @@ export default class ConfigManager extends IFeature {
             })
         }
 
+        this.writetoConfig(this.config)
         this.store.dispatch(setConfig(this.config))
 
         this.on(EVENTS.APP.READY, () => {
@@ -102,7 +101,7 @@ export default class ConfigManager extends IFeature {
     notifyNewVersion = () => {
         if (this.isNewVersion && !this.isNewUser) {
             setTimeout(() => {
-                this.store.dispatch(show('changelog', { version }))
+                this.store.dispatch(show('changelog', { version: app.getVersion() }))
                 super.unregister(['app', 'loaded'])
             }, 5000)
         }
