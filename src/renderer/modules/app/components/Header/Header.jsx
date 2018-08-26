@@ -144,7 +144,7 @@ class Header extends React.Component {
                                         {
                                             update.available && (
                                                 <MenuItem className="text-primary" text="Update" icon="box"
-                                                    onClick={windowRouter.send.bind(null, EVENTS.APP.UPDATE)} />
+                                                    onClick={windowRouter.send.bind(this, EVENTS.APP.UPDATE)} />
                                             )
                                         }
 

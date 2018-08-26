@@ -2,8 +2,8 @@
 import React from 'react';
 import { render } from 'react-dom';
 import { AppContainer } from 'react-hot-loader';
-import { version } from '../../package.json';
-import {CONFIG} from '../config';
+import { CONFIG } from '../config';
+import { version } from '../package.json';
 import { SC } from '../shared/utils';
 import { configureStore, history } from './configureStore';
 import './css/app.scss';

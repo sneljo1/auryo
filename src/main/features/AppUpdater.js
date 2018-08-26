@@ -1,10 +1,9 @@
-import { shell } from 'electron';
+import { shell, app } from 'electron';
 import is from 'electron-is';
 import { autoUpdater } from 'electron-updater';
 import request from 'request';
 import { gt as isVersionGreaterThan, valid as parseVersion } from 'semver';
 import { CONFIG } from '../../config';
-import { version as appVersion } from '../../package.json';
 import { EVENTS } from '../../shared/constants/events';
 import { Logger } from '../utils/logger';
 import { registerError } from '../utils/raven';
@@ -37,7 +36,7 @@ export default class AppUpdater extends IFeature {
 
     update = () => {
 
-        this.currentVersion = parseVersion(appVersion);
+        this.currentVersion = parseVersion(app.getVersion());
 
         if (is.linux() || is.macOS()) {
             this.updateLinux();
