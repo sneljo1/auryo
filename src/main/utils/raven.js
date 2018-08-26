@@ -11,18 +11,22 @@ export const registerError = (err, ui) => {
 }
 
 export const initialize = () => {
-    app.on('ready', () => {
-        const sendCrashReports = settings.get('app.crashReports')
 
-        if (sendCrashReports && process.env.NODE_ENV === 'production') {
-            init({
-                dsn: CONFIG.SENTRY_URL,
-                release: app.getVersion(),
-                platform: os.platform(),
-                platform_version: os.release(),
-                arch: os.arch()
-            })
-        }
-    })
+    // ref: https://github.com/electron/electron/issues/13767
+    if (!(process.platform === 'linux' && process.env.SNAP_USER_DATA != null)) {
+        app.on('ready', () => {
+            const sendCrashReports = settings.get('app.crashReports')
+
+            if (sendCrashReports && process.env.NODE_ENV === 'production') {
+                init({
+                    dsn: CONFIG.SENTRY_URL,
+                    release: app.getVersion(),
+                    platform: os.platform(),
+                    platform_version: os.release(),
+                    arch: os.arch()
+                })
+            }
+        })
+    }
 
 }

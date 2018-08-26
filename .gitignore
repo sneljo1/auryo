@@ -50,3 +50,4 @@ main.js.map
 .env*
 src/.env*
 xunit.xml
+deploy_key

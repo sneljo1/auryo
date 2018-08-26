@@ -5,13 +5,10 @@ matrix:
     node_js: '9'
     sudo: required
     dist: xenial
-    env:
-    - PATH=/snap/bin:$PATH
     addons:
       apt:
         packages:
         - google-chrome-stable
-        - snapd
         - openjpeg-tools
         - rpm
         - bsdtar
@@ -24,7 +21,7 @@ matrix:
         - libdbus-1-dev
         - libglib2.0-dev
         - libgconf-2-4
-        - libdbus-1-dev:i386 
+        - libdbus-1-dev:i386
         - libdbus-glib-1-dev
   - os: osx
     language: node_js
@@ -37,12 +34,16 @@ matrix:
     - ELECTRON_BUILDER_CACHE=$HOME/.cache/electron-builder
     - ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=true
 before_install:
+- openssl aes-256-cbc -K $encrypted_0b5df9aa1433_key -iv $encrypted_0b5df9aa1433_iv
+  -in deploy_key.enc -out ./deploy_key -d
+- eval "$(ssh-agent -s)"
+- chmod 600 ./deploy_key
+- ssh-add ./deploy_key
+- echo -e "Host aur.archlinux.org\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
 - |
   if [ "$TRAVIS_OS_NAME" = "osx" ]; then
     brew update > /dev/null
     brew cask install google-chrome
-  else
-    sudo snap install snapcraft --classic
   fi
 cache:
   yarn: true
