@@ -28,7 +28,6 @@
     "package:mac": "build --mac",
     "package:linux": "build --linux",
     "package:all": "build -mwl",
-    "package:snap-dir": "build --linux snap --dir",
     "release": "build -wl --ia32 --x64 --publish onTagOrDraft",
     "release:win": "build -w --ia32 --x64 --publish onTagOrDraft",
     "release:linux": "build -l --x64 --publish onTagOrDraft",
@@ -79,8 +78,7 @@
         "deb",
         "rpm",
         "AppImage",
-        "pacman",
-        "snap"
+        "pacman"
       ]
     },
     "snap": {
