@@ -1,4 +1,4 @@
-# Auryo [![Join the chat at https://gitter.im/auryoapp-/Lobby](https://badges.gitter.im/auryoapp-/Lobby.svg)](https://gitter.im/auryoapp-/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+# Auryo [![Join the chat at https://gitter.im/auryoapp-/Lobby](https://badges.gitter.im/auryoapp-/Lobby.svg)](https://gitter.im/auryoapp-/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Contributions welcome](https://img.shields.io/badge/Contributions-welcome-blue.svg)](https://github.com/Superjo149/auryo/issues)
 
 |MacOS/Linux|Windows|Snap|
 |-----------|-------|----|
