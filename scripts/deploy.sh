@@ -25,7 +25,7 @@ cd ..
 
 # AUR
 
-git clone ssh://aur@aur.archlinux.org/auryo.git AUR-repo
+git clone ssh://aur@aur.archlinux.org/auryo-bin.git AUR-repo
 cd AUR-repo
 sed -i "s/[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+)?/$PACKAGE_VERSION/g" PKGBUILD
 sed -i "s/[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+)?/$PACKAGE_VERSION/g" .SRCINFO

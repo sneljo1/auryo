@@ -125,6 +125,7 @@
     "electron": "./node_modules/.bin/electron"
   },
   "devDependencies": {
+    "@sentry/webpack-plugin": "^1.5.2",
     "asar": "^0.14.0",
     "babel-core": "^6.22.1",
     "babel-eslint": "^7.1.1",

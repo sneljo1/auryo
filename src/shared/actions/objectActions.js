@@ -139,7 +139,7 @@ export function getPlaylist(url, object_id, refresh) {
                                                         playlistId: id,
                                                         un: new Date().getTime()
                                                     }
-                                                })
+                                                }).filter(t => t != null)
                                             }
 
                                             return {

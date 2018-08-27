@@ -34,12 +34,10 @@ class Audio extends Component {
             this.toggleStatus(nextProps.playStatus)
         }
 
-        if (this.player.getState() === 'playing' && !this.player.isActuallyPlaying()) {
-            if(!this.player){
-                this.startStream(nextProps.url)
-            } else {
-                this.player.play()
-            }
+        if (this.player && this.player.getState() === 'playing' && !this.player.isActuallyPlaying()) {
+            this.player.play()
+        } else if (!this.player) {
+            this.startStream(nextProps.url)
         }
 
         if (volume !== nextProps.volume && this.player) {
@@ -121,7 +119,7 @@ class Audio extends Component {
             this.player.on('time', throttleUpdateTimeFunc)
 
             this.player.on('audio_error', (e) => {
-                console.log("audio_error",e)
+                console.log("audio_error", e)
             })
 
         }

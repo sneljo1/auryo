@@ -1,6 +1,7 @@
 /**
  * Build config for electron 'Renderer Process' file
  */
+import SentryPlugin from "@sentry/webpack-plugin";
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import OptimizeCSSAssetsPlugin from 'optimize-css-assets-webpack-plugin';
 import path from 'path';
@@ -8,6 +9,7 @@ import webpack from 'webpack';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 import merge from 'webpack-merge';
 import baseConfig from './webpack.config.base';
+import version from "./src/package.json";
 
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
 
@@ -142,6 +144,13 @@ export default merge(baseConfig, {
             analyzerMode:
                 process.env.OPEN_ANALYZER === 'true' ? 'server' : 'disabled',
             openAnalyzer: process.env.OPEN_ANALYZER === 'true'
+        }),
+
+        new SentryPlugin({
+            release: version,
+            include: ['./src/dist', 'src/main.*'],
+            ignore: ['node_modules', 'webpack.config.js'],
+            dryRun: true
         })
     ],
 

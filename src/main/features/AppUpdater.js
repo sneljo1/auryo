@@ -13,7 +13,7 @@ export default class AppUpdater extends IFeature {
 
     // eslint-disable-next-line
     shouldRun() {
-        return !process.env.TOKEN && process.env.NODE_ENV === 'production'
+        return !process.env.TOKEN && process.env.NODE_ENV === 'production'  && !(process.platform === 'linux' && process.env.SNAP_USER_DATA != null)
     }
 
     cancelUpdate = null;
