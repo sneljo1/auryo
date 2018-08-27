@@ -1,4 +1,4 @@
-# Auryo
+# Auryo [![Gitter chat](https://badges.gitter.im/auryoapp-/Lobby.png)](https://gitter.im/auryoapp-/Lobby)
 |MacOS/Linux|Windows|Snap|
 |-----------|-------|----|
 |[![Build Status](https://travis-ci.org/Superjo149/auryo.svg?branch=master)](https://travis-ci.org/Superjo149/auryo)|[![Build status](https://ci.appveyor.com/api/projects/status/qrnwwqa9yvb26daa/branch/master?svg=true)](https://ci.appveyor.com/project/Superjo149/auryo/branch/master)|[![Snap Status](https://build.snapcraft.io/badge/auryo/auryo-snap.svg)](https://build.snapcraft.io/user/auryo/auryo-snap)|
