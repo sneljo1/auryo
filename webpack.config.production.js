@@ -149,8 +149,7 @@ export default merge(baseConfig, {
         new SentryPlugin({
             release: version,
             include: ['./src/dist', 'src/main.*'],
-            ignore: ['node_modules', 'webpack.config.js'],
-            dryRun: true
+            ignore: ['node_modules', 'webpack.config.js']
         })
     ],
 
