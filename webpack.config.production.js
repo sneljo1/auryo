@@ -9,9 +9,21 @@ import webpack from 'webpack';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 import merge from 'webpack-merge';
 import baseConfig from './webpack.config.base';
-import version from "./src/package.json";
+import { version } from "./src/package.json";
 
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
+
+
+const plugins = [];
+
+
+if (process.env.SENTRY_AUTH_TOKEN) {
+    plugins.push(new SentryPlugin({
+        release: version,
+        include: ['./src/dist', './src/main.js', './src/main.js.map'],
+        ignore: ['node_modules', 'webpack.config.js']
+    }))
+}
 
 
 export default merge(baseConfig, {
@@ -121,6 +133,8 @@ export default merge(baseConfig, {
 
     plugins: [
 
+        ...plugins,
+
         // new LodashModuleReplacementPlugin(),
         /**
          * Create global constants which can be configured at compile time.
@@ -145,12 +159,6 @@ export default merge(baseConfig, {
                 process.env.OPEN_ANALYZER === 'true' ? 'server' : 'disabled',
             openAnalyzer: process.env.OPEN_ANALYZER === 'true'
         }),
-
-        new SentryPlugin({
-            release: version,
-            include: ['./src/dist', 'src/main.*'],
-            ignore: ['node_modules', 'webpack.config.js']
-        })
     ],
 
 });

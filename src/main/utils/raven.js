@@ -19,7 +19,7 @@ export const initialize = () => {
 
             if (sendCrashReports && process.env.NODE_ENV === 'production') {
                 init({
-                    dsn: CONFIG.SENTRY_URL,
+                    dsn: CONFIG.SENTRY_REPORT_URL,
                     release: app.getVersion(),
                     platform: os.platform(),
                     platform_version: os.release(),

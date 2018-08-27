@@ -18,7 +18,7 @@ if (!process.env.TOKEN && process.env.NODE_ENV === 'production') {
     if (crashReports) {
         const Raven = require('raven-js')
 
-        Raven.config(CONFIG.SENTRY_URL).install()
+        Raven.config(CONFIG.SENTRY_REPORT_URL).install()
     }
 
     if (analytics) {
