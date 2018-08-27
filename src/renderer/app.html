@@ -2,7 +2,6 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Auryo</title>
     <link rel="dns-prefetch" href="//style.sndcdn.com">
     <link rel="dns-prefetch" href="//api-v2.soundcloud.com">
     <link rel="dns-prefetch" href="//api.soundcloud.com">
@@ -16,8 +15,6 @@
     <meta name="author" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script>
-        const version = require('../package.json').version;
-
         (function () {
             if (!process.env.HOT) {
                 const link = document.createElement('link')
@@ -25,7 +22,6 @@
                 link.href = '../dist/style.css'
                 document.write(link.outerHTML)
             }
-            document.title += ' ' + version
         }())
     </script>
 </head>

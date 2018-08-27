@@ -70,7 +70,7 @@ export default class Auryo {
 
         // Browser Window options
         const mainWindowOption = {
-            title: 'Auryo',
+            title: `Auryo - ${app.getVersion()}`,
             icon: os.platform() === 'win32' ? icons.ico : icons['256'],
             x: mainWindowState.x,
             y: mainWindowState.y,
@@ -149,18 +149,26 @@ export default class Auryo {
     registerTools() {
         const { getTools } = require('./features') // eslint-disable-line
 
-        const eventFeatures = groupBy(getTools(this), 'waitUntil')
+        const featuresWaitUntil = groupBy(getTools(this), 'waitUntil')
 
+        const registerFeature = (feature) => {
+            Logger.debug(`Registering feature: ${feature.constructor.name}`)
+            try {
+                feature.register()
+            } catch (e) {
+                Logger.error(`Error starting feature: ${feature.constructor.name}`, e)
+            }
+        }
 
-        Object.keys(eventFeatures)
+        Object.keys(featuresWaitUntil)
             .forEach(event => {
-                const features = eventFeatures[event]
+                const features = featuresWaitUntil[event]
 
                 features.forEach((feature) => {
                     if (event === 'default') {
-                        feature.register()
+                        registerFeature(feature)
                     } else {
-                        app.on(event, feature.register)
+                        this.mainWindow.on(event, registerFeature.bind(this, feature))
                     }
                 })
             })

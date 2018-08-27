@@ -14,11 +14,7 @@ if (process.env.NODE_ENV === 'development') {
 
 export default class Thumbar extends IWindowsFeature {
 
-    constructor(app) {
-        super(app)
-
-        this.waitUntil = 'focus'
-    }
+    waitUntil = 'focus'
 
     register() {
 

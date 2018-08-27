@@ -29,6 +29,15 @@ export default class TouchBarManager extends IMacFeature {
         })
     }
 
+    repoststates = {
+        reposted: nativeImage.createFromPath(path.join(iconsDirectory, 'repost-enabled.png')).resize({
+            width: 20
+        }),
+        notReposted: nativeImage.createFromPath(path.join(iconsDirectory, 'repost.png')).resize({
+            width: 20
+        })
+    }
+
     playstates = {
         'PLAYING': nativeImage.createFromPath(path.join(iconsDirectory, 'pause.png')).resize({
             width: 20
@@ -79,6 +88,19 @@ export default class TouchBarManager extends IMacFeature {
         }
     })
 
+    repost_btn = new TouchBarButton({
+        icon: this.repoststates.notReposted,
+        click: () => {
+            const {
+                player: {
+                    playingTrack
+                }
+            } = this.store.getState()
+
+            this.router.send(EVENTS.TRACK.REPOST, playingTrack.id)
+        }
+    })
+
     register() {
 
         const touchBar = new TouchBar([
@@ -91,7 +113,8 @@ export default class TouchBarManager extends IMacFeature {
             this.like_btn,
             new TouchBarSpacer({
                 size: 'small'
-            })
+            }),
+            this.repost_btn,
 
         ])
 
@@ -99,9 +122,9 @@ export default class TouchBarManager extends IMacFeature {
 
         this.on(EVENTS.APP.READY, () => {
             this.subscribe(['player', 'status'], this.updateStatus)
-
             this.subscribe(['player', 'playingTrack'], this.checkIfLiked)
             this.on(EVENTS.TRACK.LIKED, this.checkIfLiked)
+            this.on(EVENTS.TRACK.REPOSTED, this.checkIfReposted)
         })
 
     }
@@ -129,6 +152,29 @@ export default class TouchBarManager extends IMacFeature {
         }
     }
 
+    checkIfReposted = () => {
+        const {
+            entities: {
+                track_entities
+            },
+            player: {
+                playingTrack
+            },
+            auth: {
+                reposts
+            }
+        } = this.store.getState()
+
+        const trackID = playingTrack.id
+        const track = track_entities[trackID]
+
+        if (track) {
+            const reposted = SC.hasID(track.id, reposts)
+
+            this.repost_btn.icon = reposted ? this.repoststates.reposted : this.repoststates.notReposted
+        }
+    }
+
     updateStatus = ({ currentValue }) => {
         this.playpause_btn.icon = this.playstates[currentValue]
     }
@@ -136,7 +182,7 @@ export default class TouchBarManager extends IMacFeature {
     unregister() {
         super.unregister()
 
-        if (!this.app.mainWindow) {
+        if (this.app.mainWindow) {
             this.win.setTouchBar(null)
         }
     }

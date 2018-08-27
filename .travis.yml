@@ -79,9 +79,8 @@ after_success:
 deploy:
   on:
     condition: $TRAVIS_OS_NAME == "linux"
-    tags: true
   provider: script
-  script: bash scripts/deploy.sh $GH_TOKEN $TRAVIS_BUILD_NUMBER
+  script: bash scripts/deploy.sh $GH_TOKEN $TRAVIS_BUILD_NUMBER $TRAVIS_TAG
   skip_cleanup: true
 dd:
   secure: Br5Y8lWXttRgS9MoxmoXJ3BYcc0+lsaHy8sBeoduwtdLIped0OWUq1VWfLO2H11pMCXAFY60Rw1USbm2wGnOp8nx9L1Yo9Nq5sSzaEEujKaS3hetnuGGFsj+2tOuDQ+envWFByzuLfPpAGJNGN3A7k0GYYNUi3kzxJRy1W0d4gfDPpo38X/AVw9kCQS4gXvkk2twWI3fGRlBPnAilzCfTz69aEo850Er/TYvZfMbj9tjJa2HO8l40EXpey7s5ZbrGQJjLM+eCDekmIoDOeWlbzyFj4K3SFhUpAacPvseuF2GCbj4mPPzPlNT0md85JjhNbGQgTmuWHF9iD7ULUDSHwVyFZePW8KDuZzns9oKx5qdbM8ATh8D4b4z03LlE1vPBH3Klij7WfFp0yLZq/PaUWhVvP6Br1KZrMByMrlaEA/Dn8Xw6Sbed8ipG9NZDjPVU4fh2onrEw/He09DWfddoRbYGgkNKKOPbR2mTO5qnFtWz25LX26q/cq2Eh4Twt3imE1EqMdWZ3DbGzoakhTkJCZmGj11TCgBJ5nmV8gJ/FwGjv49zWg2kdM2EgQVpTDvD++wh3LMboBfADoA/tEDF2qZxOF0Looa/Vnph0MU6843YyfY0MAhLDZ/Vj+231De5J413QItVBMw2JPKNnoR6FAmkoO9nuv5EzBf7je3XjE=

@@ -10,6 +10,7 @@ import PowerMonitor from './PowerMonitor';
 import ShortcutManager from './ShortcutManager';
 import Thumbar from './win32/Thumbar';
 import Win10MediaService from './win32/win10/Win10MediaService';
+import DbusService from './linux/DbusService';
 
 export const tools = [
     AppUpdater,
@@ -23,7 +24,8 @@ export const tools = [
     TouchBarManager,
     MediaServiceManager,
     MprisService,
-    Win10MediaService
+    Win10MediaService,
+    DbusService
 ]
 
 export const getTools = (app) => tools.map(Feature => new Feature(app))
