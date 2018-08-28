@@ -15,6 +15,7 @@ export const EVENTS = {
         REPOST: 'track/action/repost'
     },
     APP: {
+        NAVIGATE: 'app/navigate',
         UPDATE: 'app/update',
         STREAM_ERROR: 'app/stream/error',
         STREAMED: 'app/stream',

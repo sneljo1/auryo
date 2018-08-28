@@ -33,23 +33,18 @@ class Audio extends Component {
         if (playFromPosition !== nextProps.playFromPosition && nextProps.playFromPosition !== -1 && this.player) {
             this.player.seek(nextProps.playFromPosition)
             onTimeUpdate()
-            console.log("1")
         }
 
         if (url !== nextProps.url || id !== nextProps.id) {
             this.startStream(nextProps.url, nextProps.playStatus)
-            console.log("2")
         } else if (playStatus !== nextProps.playStatus) {
             this.toggleStatus(nextProps.playStatus)
-            console.log("3")
         }
 
         if (this.player && this.player.getState() === 'playing' && !this.player.isActuallyPlaying()) {
             this.player.play()
-            console.log("4")
         } else if (!this.player) {
             this.startStream(nextProps.url, nextProps.playStatus)
-            console.log("5")
         }
 
         if (muted !== nextProps.muted && this.player) {

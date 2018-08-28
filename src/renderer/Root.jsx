@@ -9,7 +9,13 @@ import Routes from './routes';
 class Root extends React.Component {
 
     componentDidMount() {
+        const { history } = this.props;
+
         ipcRenderer.send(EVENTS.APP.READY)
+
+        history.listen(() => {	
+            ipcRenderer.send(EVENTS.APP.NAVIGATE)	
+       })
     }
 
     render() {

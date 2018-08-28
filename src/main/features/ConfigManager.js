@@ -67,7 +67,7 @@ export default class ConfigManager extends IFeature {
         this.on(EVENTS.APP.READY, () => {
             this.notifyNewVersion();
             this.notifyNewUser();
-            this.win.webContents.on('did-navigate', this.checkCanGo)
+            this.on(EVENTS.APP.NAVIGATE,this.checkCanGo)
             this.subscribe('config', this.updateConfig)
         })
 
@@ -85,14 +85,12 @@ export default class ConfigManager extends IFeature {
      * On route change, check if can Go from browser webcontents
      */
     checkCanGo = () => {
-
         if (this.win && this.win.webContents) {
 
             const canGoBack = this.win.webContents.canGoBack()
             const canGoForward = this.win.webContents.canGoForward()
 
             this.store.dispatch(canGoInHistory(canGoBack, canGoForward))
-
         }
     }
 
