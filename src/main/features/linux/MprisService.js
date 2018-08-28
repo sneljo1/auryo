@@ -126,9 +126,9 @@ export default class MprisService extends ILinuxFeature {
                     this.meta['xesam:genre'] = track.genre || ''
                     this.meta['xesam:contentCreated'] = track.created_at || 'Unknown release date'
                 } else {
-                    this.meta['mpris:trackid'] = "track.id"
                     this.meta['xesam:title'] = "Auryo"
-                    this.meta['xesam:artist'] = "[user && user.username ? user.username : 'Unknown artist']"
+                    this.meta['xesam:artist'] = ""
+                    this.meta['xesam:url'] = ""
                     this.meta['mpris:artUrl'] = `file://${path.join(logosPath, 'auryo-128.png')}`
                 }
 

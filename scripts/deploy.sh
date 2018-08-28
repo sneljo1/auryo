@@ -30,8 +30,8 @@ cd ..
 if ! [[ -z $3 ]]; then
   git clone ssh://aur@aur.archlinux.org/auryo-bin.git AUR-repo
   cd AUR-repo
-  sed -i "s/[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+)?/$PACKAGE_VERSION/g" PKGBUILD
-  sed -i "s/[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+)?/$PACKAGE_VERSION/g" .SRCINFO
+  perl -pi -e "s/[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+)?/$PACKAGE_VERSION/g" PKGBUILD
+  perl -pi -e "s/[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+)?/$PACKAGE_VERSION/g" .SRCINFO
   git add -A
   git commit --message "Travis build $2 for ${PACKAGE_VERSION}"
   git push --quiet --set-upstream origin master

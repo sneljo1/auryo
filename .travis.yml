@@ -73,9 +73,9 @@ after_success:
   if [ "$TRAVIS_BRANCH" == "master" ] || [ -n "$TRAVIS_TAG" ]; then
     if [ "$TRAVIS_OS_NAME" == "linux" ]; then
       # Only create snap in when untagged, otherwise snaps build service will do this for us
-      if [ -z $TRAVIS_TAG ]; then
-        sed -i "s/\"AppImage\",/\"AppImage\",\"snap\",/g" package.json
-      fi
+      # if [ -z $TRAVIS_TAG ]; then
+      #   sed -i "s/\"AppImage\",/\"AppImage\",\"snap\",/g" package.json
+      # fi
       yarn run release:linux
     else
       yarn run release:mac
