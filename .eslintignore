@@ -48,3 +48,4 @@ main.js.map
 npm-debug.log.*
 __snapshots__
 test/**
+webpack.config.*

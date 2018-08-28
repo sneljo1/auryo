@@ -7,7 +7,7 @@ export default class DbusService extends ILinuxFeature {
     shouldRun() {
         return super.shouldRun() && !process.env.TOKEN
     }
-    
+
     register() {
         const DBus = require("dbus"); // eslint-disable-line
 

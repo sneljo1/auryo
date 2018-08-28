@@ -116,10 +116,10 @@ export default merge(baseConfig, {
 
     optimization: {
         minimizer: [
-            new UglifyJSPlugin({
-                parallel: true,
-                sourceMap: true
-            }),
+            // new UglifyJSPlugin({
+            //     parallel: true,
+            //     sourceMap: true
+            // }),
             new OptimizeCSSAssetsPlugin({
                 cssProcessorOptions: {
                     map: {
