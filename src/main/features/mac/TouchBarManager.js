@@ -54,25 +54,19 @@ export default class TouchBarManager extends IMacFeature {
         icon: nativeImage.createFromPath(path.join(iconsDirectory, 'previous.png')).resize({
             width: 20
         }),
-        click: () => {
-            this.router.send(EVENTS.PLAYER.CHANGE_TRACK, CHANGE_TYPES.PREV)
-        }
+        click: () => this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, CHANGE_TYPES.PREV)
     })
 
     playpause_btn = new TouchBarButton({
         icon: this.playstates.PAUSED,
-        click: () => {
-            this.router.send(EVENTS.PLAYER.TOGGLE_STATUS)
-        }
+        click: () => this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS)
     })
 
     next_btn = new TouchBarButton({
         icon: nativeImage.createFromPath(path.join(iconsDirectory, 'next.png')).resize({
             width: 20
         }),
-        click: () => {
-            this.router.send(EVENTS.PLAYER.CHANGE_TRACK, CHANGE_TYPES.NEXT)
-        }
+        click: () => this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, CHANGE_TYPES.NEXT)
     })
 
     like_btn = new TouchBarButton({
@@ -84,7 +78,7 @@ export default class TouchBarManager extends IMacFeature {
                 }
             } = this.store.getState()
 
-            this.router.send(EVENTS.TRACK.LIKE, playingTrack.id)
+            this.sendToWebContents(EVENTS.TRACK.LIKE, playingTrack.id)
         }
     })
 
@@ -97,7 +91,7 @@ export default class TouchBarManager extends IMacFeature {
                 }
             } = this.store.getState()
 
-            this.router.send(EVENTS.TRACK.REPOST, playingTrack.id)
+            this.sendToWebContents(EVENTS.TRACK.REPOST, playingTrack.id)
         }
     })
 

@@ -67,9 +67,11 @@ export default class ConfigManager extends IFeature {
         this.on(EVENTS.APP.READY, () => {
             this.notifyNewVersion();
             this.notifyNewUser();
-            this.on('GO', this.checkCanGo)
+            this.win.webContents.on('did-navigate', this.checkCanGo)
             this.subscribe('config', this.updateConfig)
         })
+
+        
     }
 
     /**
@@ -92,7 +94,6 @@ export default class ConfigManager extends IFeature {
             this.store.dispatch(canGoInHistory(canGoBack, canGoForward))
 
         }
-
     }
 
     /**

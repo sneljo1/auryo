@@ -2,7 +2,6 @@
 import { ipcRenderer } from 'electron';
 import is from 'electron-is';
 import moment from 'moment';
-import React from 'react';
 import { toastr } from 'react-redux-toastr';
 import { push } from 'react-router-redux';
 import { show } from 'redux-modal';
@@ -11,7 +10,6 @@ import * as actionTypes from '../../constants/actionTypes';
 import { EVENTS } from '../../constants/events';
 import { PLAYER_STATUS, VOLUME_TYPES } from '../../constants/player';
 import { SC } from '../../utils';
-import { windowRouter } from '../../utils/router';
 import { setConfigKey } from '../config.actions';
 import { changeTrack, toggleStatus } from '../player/playerActions';
 import { toggleLike } from '../track/like.actions';
@@ -19,15 +17,15 @@ import { toggleRepost } from '../track/reposts.actions';
 import { isOnline } from './offline.actions';
 
 export function openExternal(url) {
-    ipcRenderer.send('open_external', url)
+    ipcRenderer.send(EVENTS.APP.OPEN_EXTERNAL, url)
 }
 
 export function writeToClipboard(content) {
-    ipcRenderer.send('write_clipboard', content)
+    ipcRenderer.send(EVENTS.APP.WRITE_CLIPBOARD, content)
 }
 
 export function downloadFile(url) {
-    ipcRenderer.send('download_file', url)
+    ipcRenderer.send(EVENTS.APP.DOWNLOAD_FILE, url)
 }
 
 let listeners = []
@@ -45,7 +43,7 @@ export function initWatchers() {
 
             listeners.push({
                 event: EVENTS.PLAYER.CHANGE_TRACK,
-                handler: (data) => {
+                handler: (e, data) => {
                     dispatch(changeTrack(data))
                 }
             })
@@ -62,7 +60,7 @@ export function initWatchers() {
 
             listeners.push({
                 event: EVENTS.PLAYER.CHANGE_VOLUME,
-                handler: (data) => {
+                handler: (e, data) => {
                     const { config: { volume } } = getState()
 
                     let new_volume = volume + .05
@@ -85,13 +83,11 @@ export function initWatchers() {
 
             listeners.push({
                 event: EVENTS.PLAYER.TOGGLE_STATUS,
-                handler: (arg) => {
-
-                    let newStatus = arg;
+                handler: (e, newStatus) => {
 
                     const { player: { status } } = getState()
 
-                    if (!newStatus) {
+                    if (!newStatus || typeof newStatus !== "string") {
                         newStatus = status !== PLAYER_STATUS.PLAYING ? PLAYER_STATUS.PLAYING : PLAYER_STATUS.PAUSED
                     }
                     dispatch(toggleStatus(newStatus))
@@ -100,7 +96,7 @@ export function initWatchers() {
 
             listeners.push({
                 event: EVENTS.TRACK.LIKE,
-                handler: (trackId) => {
+                handler: (e, trackId) => {
                     if (trackId) {
                         dispatch(toggleLike(trackId, false))
                     }
@@ -109,7 +105,7 @@ export function initWatchers() {
 
             listeners.push({
                 event: EVENTS.TRACK.REPOST,
-                handler: (trackId) => {
+                handler: (e, trackId) => {
                     if (trackId) {
                         dispatch(toggleRepost(trackId, false))
                     }
@@ -144,7 +140,7 @@ export function initWatchers() {
                             toastr.error('Not found!', 'This track might not exists anymore')
                             break
                         case 429:
-                            return fetchToJson(url)
+                            return fetchToJson(data.url)
                                 .then((json) => {
                                     if (json.errors.length > 0) {
                                         const error = json.errors[0]
@@ -180,7 +176,7 @@ export function initWatchers() {
             })
 
             listeners.forEach(l => {
-                windowRouter.on(l.event, l.handler)
+                ipcRenderer.on(l.event, l.handler)
             })
         }
     }
@@ -189,7 +185,7 @@ export function initWatchers() {
 export function stopWatchers() {
     return () => {
         listeners.forEach(l => {
-            windowRouter.removeListener(l.event, l.handler)
+            ipcRenderer.removeListener(l.event, l.handler)
         })
 
         listeners = []
@@ -228,7 +224,7 @@ export function resolveUrl(url, history) {
             })
             .catch(() => {
                 history.goBack()
-                ipcRenderer.send('open_external', unescape(url))
+                openExternal(unescape(url))
             })
 
     }

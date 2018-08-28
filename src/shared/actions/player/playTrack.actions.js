@@ -1,8 +1,8 @@
 /* eslint-disable promise/catch-or-return,no-shadow */
+import { ipcRenderer } from "electron";
 import { OBJECT_TYPES } from '../../constants';
 import { EVENTS } from '../../constants/events';
 import { getCurrentPosition } from '../../utils/playerUtils';
-import { windowRouter } from '../../utils/router';
 import { fetchMore } from '../objectActions';
 import { getItemsAround, getPlaylistObject, setCurrentPlaylist, setPlayingTrack } from "./playerActions";
 
@@ -84,11 +84,11 @@ export function playTrack(playlistId, trackId, trackPlaylist, force_set_playlist
                 if (track_playlist_obj && position + 10 >= queue.length && track_playlist_obj.nextUrl) {
                     dispatch(fetchMore(playlistId, OBJECT_TYPES.PLAYLISTS))
                         .then(() => {
-                            dispatch(setPlayingTrack(nextTrack, position,changeType))
+                            dispatch(setPlayingTrack(nextTrack, position, changeType))
                         })
                 } else {
 
-                    dispatch(setPlayingTrack(nextTrack, position,changeType))
+                    dispatch(setPlayingTrack(nextTrack, position, changeType))
                 }
 
 
@@ -116,7 +116,7 @@ export function playTrack(playlistId, trackId, trackPlaylist, force_set_playlist
 
                                 const position = getCurrentPosition(queue, nextTrack)
 
-                                dispatch(setPlayingTrack(nextTrack, position,changeType))
+                                dispatch(setPlayingTrack(nextTrack, position, changeType))
 
                             })
                     }
@@ -141,14 +141,14 @@ export function playTrack(playlistId, trackId, trackPlaylist, force_set_playlist
                             position = getCurrentPosition(queue, nextTrack)
                         }
 
-                        dispatch(setPlayingTrack(nextTrack, position,changeType))
+                        dispatch(setPlayingTrack(nextTrack, position, changeType))
 
                     }
                 }
 
             }
-
-            windowRouter.send(EVENTS.PLAYER.STATUS_CHANGED)
+            
+            ipcRenderer.send(EVENTS.PLAYER.STATUS_CHANGED)
         })
 
     }

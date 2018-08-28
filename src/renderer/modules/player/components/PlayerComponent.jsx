@@ -10,6 +10,7 @@ import { CHANGE_TYPES, IMAGE_SIZES, PLAYER_STATUS } from '../../../../shared/con
 import { getReadableTime, SC } from '../../../../shared/utils';
 import FallbackImage from '../../_shared/FallbackImage';
 import Audio from './audio/Audio';
+import { EVENTS } from '../../../../shared/constants/events';
 
 class Player extends React.Component {
 
@@ -33,7 +34,7 @@ class Player extends React.Component {
 
         let stopSeeking
 
-        ipcRenderer.on('seek', (event, to) => {
+        ipcRenderer.on(EVENTS.PLAYER.SEEK, (event, to) => {
             if (!isSeeking) {
                 this.setState({
                     isSeeking: true
@@ -65,7 +66,7 @@ class Player extends React.Component {
     }
 
     componentWillUnmount() {
-        ipcRenderer.removeAllListeners(['seek'])
+        ipcRenderer.removeAllListeners([EVENTS.PLAYER.SEEK])
     }
 
     changeSong = (changeType) => {

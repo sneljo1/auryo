@@ -1,6 +1,6 @@
 import { replace } from 'react-router-redux';
 import { actionTypes } from '../../constants';
-import { SC } from '../../utils';
+import { SC, createInternalRequest } from '../../utils';
 import { getAuth, getAuthLikeIds, getAuthLikesIfNeeded, getAuthFollowings } from '../auth/auth.actions';
 import { getAuthFeed, getAuthPlaylists } from '../playlist.actions';
 import { getAuthReposts } from '../track/reposts.actions';
@@ -53,6 +53,10 @@ export function cleanApp() {
 
         dispatch(stopWatchers())
     }
+}
+
+export function doUpdate() {
+    return createInternalRequest("app/update", { method: "POST" });
 }
 
 export function setDimensions(dimensions) {

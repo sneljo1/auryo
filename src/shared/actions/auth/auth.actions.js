@@ -6,6 +6,7 @@ import fetchToJson from '../../api/helpers/fetchToJson';
 import { actionTypes, OBJECT_TYPES, PLAYLISTS } from '../../constants';
 import { SC } from '../../utils';
 import { getPlaylist } from '../objectActions';
+import { EVENTS } from '../../constants/events';
 
 export * from '../track/reposts.actions';
 export * from './authLikes.actions';
@@ -18,13 +19,12 @@ export function logout() {
         });
         dispatch(replace('/login'));
         dispatch(setToken(null));
-        ipcRenderer.send('logout');
     };
 }
 
 export function login() {
     return dispatch => {
-        ipcRenderer.send('login');
+        ipcRenderer.send(EVENTS.APP.AUTH.LOGIN);
 
         ipcRenderer.once('login-success', () => {
 

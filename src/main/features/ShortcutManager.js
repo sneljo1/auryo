@@ -10,7 +10,7 @@ export default class Shortcut extends IFeature {
 
     register() {
         globalShortcut.register('MediaPlayPause', () => {
-            this.router.send(EVENTS.PLAYER.TOGGLE_STATUS);
+            this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS)
         });
         globalShortcut.register('MediaPreviousTrack', () => {
             this.changeTrack(CHANGE_TYPES.PREV);
@@ -19,7 +19,7 @@ export default class Shortcut extends IFeature {
             this.changeTrack(CHANGE_TYPES.NEXT);
         });
         globalShortcut.register('MediaStop', () => {
-            this.win.webContents.send('player:toggle-status', PLAYER_STATUS.STOPPED);
+            this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PLAYER_STATUS.STOPPED)
         });
     }
 
@@ -29,6 +29,6 @@ export default class Shortcut extends IFeature {
     }
 
     changeTrack = (changeType) => {
-        this.router.send(EVENTS.PLAYER.CHANGE_TRACK, changeType);
+        this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, changeType)
     }
 }

@@ -67,17 +67,17 @@ export default class MprisService extends ILinuxFeature {
             this.app.quit()
         })
 
-        this.player.on('play', () => this.win.webContents.send(EVENTS.PLAYER.TOGGLE_STATUS, PLAYER_STATUS.PLAYING))
+        this.player.on('play', () => this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PLAYER_STATUS.PLAYING))
 
-        this.player.on('pause', () => this.win.webContents.send(EVENTS.PLAYER.TOGGLE_STATUS, PLAYER_STATUS.PAUSED))
+        this.player.on('pause', () => this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PLAYER_STATUS.PAUSED))
 
-        this.player.on('playpause', () => this.win.webContents.send(EVENTS.PLAYER.TOGGLE_STATUS))
+        this.player.on('playpause', () => this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS))
 
-        this.player.on('stop', () => this.win.webContents.send(EVENTS.PLAYER.TOGGLE_STATUS, PLAYER_STATUS.STOPPED))
+        this.player.on('stop', () => this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PLAYER_STATUS.STOPPED))
 
-        this.player.on('next', () => this.win.webContents.send(EVENTS.PLAYER.CHANGE_TRACK, CHANGE_TYPES.NEXT))
+        this.player.on('next', () => this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, CHANGE_TYPES.NEXT))
 
-        this.player.on('previous', () => this.win.webContents.send(EVENTS.PLAYER.CHANGE_TRACK, CHANGE_TYPES.PREV))
+        this.player.on('previous', () => this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, CHANGE_TYPES.PREV))
 
 
         //

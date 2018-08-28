@@ -1,3 +1,4 @@
+import { ipcRenderer } from "electron";
 import flattenDeep from 'lodash/flattenDeep';
 import React from 'react';
 import { toastr } from 'react-redux-toastr';
@@ -7,13 +8,11 @@ import { EVENTS } from '../../constants/events';
 import { PLAYLISTS } from '../../constants/playlist';
 import { SC } from '../../utils';
 import { getCurrentPosition } from '../../utils/playerUtils';
-import { windowRouter } from '../../utils/router';
 import { fetchPlaylistIfNeeded } from '../index';
 import { fetchMore } from '../objectActions';
 import { fetchPlaylistTracks, fetchTracks } from '../playlist.actions';
 import { changeTrack } from './changeTrack.actions';
 import { playTrack } from './playTrack.actions';
-
 
 const obj_type = OBJECT_TYPES.PLAYLISTS
 
@@ -183,7 +182,7 @@ export function toggleStatus(statusParam) {
             })
         }
 
-        windowRouter.send(EVENTS.PLAYER.STATUS_CHANGED)
+        ipcRenderer.send(EVENTS.PLAYER.STATUS_CHANGED)
     }
 }
 
@@ -294,7 +293,8 @@ export function setPlayingTrack(nextTrack, position, changeType) {
             }
         })
 
-        windowRouter.send(EVENTS.PLAYER.TRACK_CHANGED, nextTrack.id)
+        return ipcRenderer.send(EVENTS.PLAYER.TRACK_CHANGED)
+
 
     }
 

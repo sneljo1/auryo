@@ -1,5 +1,6 @@
-import ReduxWatcher from 'redux-watcher'
-import isEqual from 'lodash/isEqual'
+import { ipcMain } from "electron";
+import isEqual from 'lodash/isEqual';
+import ReduxWatcher from 'redux-watcher';
 
 export default class IFeature {
 
@@ -11,8 +12,8 @@ export default class IFeature {
 
     constructor(auryo) {
         this.win = auryo.mainWindow
-        this.router = auryo.router
         this.store = auryo.store
+        this.router = auryo.router
         this.app = auryo
 
         this.watcher = new ReduxWatcher(auryo.store)
@@ -27,8 +28,16 @@ export default class IFeature {
         })
     }
 
+    sendToWebContents(channel, params) {
+        if (this.win && this.win.webContents) {
+            this.win.webContents.send(channel, params)
+        }
+    }
+
     on(path, callback) {
-        this.router.on(path, callback)
+        ipcMain.on(path, (event, ...args) => {
+            callback(args);
+        });
 
         this.ipclisteners.push({
             name: path,
@@ -37,7 +46,7 @@ export default class IFeature {
     }
 
     // eslint-disable-next-line
-    register() {}
+    register() { }
 
     /**
      * Unregister listener
@@ -63,9 +72,6 @@ export default class IFeature {
                         throw err
                     }
                 }
-            })
-            this.ipclisteners.forEach(listener => {
-                this.router.removeListener(listener.name, listener.handler)
             })
         }
 

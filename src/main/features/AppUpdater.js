@@ -13,7 +13,7 @@ export default class AppUpdater extends IFeature {
 
     // eslint-disable-next-line
     shouldRun() {
-        return !process.env.TOKEN && process.env.NODE_ENV === 'production'  && !(process.platform === 'linux' && process.env.SNAP_USER_DATA != null)
+        return !process.env.TOKEN && process.env.NODE_ENV === 'production' && !(process.platform === 'linux' && process.env.SNAP_USER_DATA != null)
     }
 
     cancelUpdate = null;
@@ -82,7 +82,7 @@ export default class AppUpdater extends IFeature {
     }
 
     listenUpdate = () => {
-        this.on(EVENTS.APP.UPDATE, () => {
+        this.router.post("/app/update", () => {
             if (this.has_update) {
                 Logger.info('Updating now!');
 
@@ -96,6 +96,16 @@ export default class AppUpdater extends IFeature {
     }
 
     updateLinux = () => {
+        this.has_update = true;
+
+        this.listenUpdate();
+        this.win.webContents.send('update-status', {
+            status: 'update-available-linux',
+            version: "latest",
+            current_version: this.currentVersion,
+            url: 'http://auryo.com#downloads'
+        });
+
         request({
             url: CONFIG.UPDATE_SERVER_HOST, headers: {
                 'User-Agent': 'request'
@@ -113,7 +123,7 @@ export default class AppUpdater extends IFeature {
                     this.win.webContents.send('update-status', {
                         status: 'update-available-linux',
                         version: latest,
-                        currentVersion: this.currentVersion,
+                        current_version: this.currentVersion,
                         url: 'http://auryo.com#downloads'
                     });
 

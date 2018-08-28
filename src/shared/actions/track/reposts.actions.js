@@ -1,3 +1,4 @@
+import { ipcRenderer } from "electron";
 import React from 'react';
 import { toastr } from 'react-redux-toastr';
 import ReactImageFallback from '../../../renderer/modules/_shared/FallbackImage';
@@ -5,7 +6,6 @@ import fetchToObject from '../../api/helpers/fetchToObject';
 import { actionTypes, IMAGE_SIZES } from '../../constants';
 import { EVENTS } from '../../constants/events';
 import { SC } from '../../utils';
-import { windowRouter } from '../../utils/router';
 
 /**
  * Get and save auth reposts
@@ -69,9 +69,7 @@ export function toggleRepost(trackId, playlistParam) {
                 };
             })
         })
-            .then(() => {
-                windowRouter.send(EVENTS.TRACK.REPOSTED)
-            })
+            .then(() => ipcRenderer.send(EVENTS.TRACK.REPOSTED))
 
     }
 }

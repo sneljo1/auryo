@@ -81,7 +81,7 @@ export default class ApplicationMenu extends IFeature {
                     {
                         label: !player || player.status !== PLAYER_STATUS.PLAYING ? 'Play' : 'Pause',
                         accelerator: 'CmdOrCtrl+Shift+Space',
-                        click: () => this.router.send(EVENTS.PLAYER.TOGGLE_STATUS)
+                        click: () => this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS)
                     },
                     {
                         type: 'separator'
@@ -89,12 +89,12 @@ export default class ApplicationMenu extends IFeature {
                     {
                         label: 'Next',
                         accelerator: 'CmdOrCtrl+Right',
-                        click: () => this.router.send(EVENTS.PLAYER.CHANGE_TRACK, CHANGE_TYPES.NEXT)
+                        click: () => this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, CHANGE_TYPES.NEXT)
                     },
                     {
                         label: 'Previous',
                         accelerator: 'CmdOrCtrl+Left',
-                        click: () => this.router.send(EVENTS.PLAYER.CHANGE_TRACK, CHANGE_TYPES.PREV)
+                        click: () => this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, CHANGE_TYPES.PREV)
                     },
                     {
                         type: 'separator'
@@ -102,12 +102,12 @@ export default class ApplicationMenu extends IFeature {
                     {
                         label: 'Volume up',
                         accelerator: 'CmdOrCtrl+Up',
-                        click: () => this.router.send(EVENTS.PLAYER.CHANGE_VOLUME, VOLUME_TYPES.UP)
+                        click: () => this.sendToWebContents(EVENTS.PLAYER.CHANGE_VOLUME, VOLUME_TYPES.UP)
                     },
                     {
                         label: 'Volume down',
                         accelerator: 'CmdOrCtrl+Down',
-                        click: () => this.router.send(EVENTS.PLAYER.CHANGE_VOLUME, VOLUME_TYPES.DOWN)
+                        click: () => this.sendToWebContents(EVENTS.PLAYER.CHANGE_VOLUME, VOLUME_TYPES.DOWN)
                     }
                 ]
             },
@@ -118,13 +118,13 @@ export default class ApplicationMenu extends IFeature {
                     {
                         label: 'Like',
                         accelerator: 'CmdOrCtrl+L',
-                        click: () => this.router.send(EVENTS.TRACK.LIKE, playingTrack.id),
+                        click: () => this.sendToWebContents(EVENTS.TRACK.LIKE, playingTrack.id),
                         enabled: false
                     },
                     {
                         label: 'Repost',
                         accelerator: 'CmdOrCtrl+S',
-                        click: () => this.router.send(EVENTS.TRACK.REPOST, playingTrack.id),
+                        click: () => this.sendToWebContents(EVENTS.TRACK.REPOST, playingTrack.id),
                         enabled: false
                     }
                 ]
@@ -188,7 +188,7 @@ export default class ApplicationMenu extends IFeature {
                         accelerator: 'CmdOrCtrl+,',
                         role: 'preferences',
                         click: () => {
-                            this.router.send(EVENTS.APP.OPEN_SETTINGS)
+                            this.sendToWebContents(EVENTS.APP.OPEN_SETTINGS)
                         }
                     },
                     { type: 'separator' },

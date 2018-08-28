@@ -117,11 +117,11 @@ export default class Thumbar extends IWindowsFeature {
         const { player: { status } } = this.store.getState()
 
         if (status !== new_status) {
-            this.router.send(EVENTS.PLAYER.TOGGLE_STATUS, new_status)
+            this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, new_status)
         }
     }
 
     changeTrack = (change_type) => {
-        this.router.send(EVENTS.PLAYER.CHANGE_TRACK, change_type)
+        this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, change_type)
     }
 }

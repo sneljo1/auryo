@@ -1,3 +1,4 @@
+import { ipcRenderer } from "electron";
 import moment from 'moment';
 import React from 'react';
 import { toastr } from 'react-redux-toastr';
@@ -6,8 +7,6 @@ import fetchToJson from '../../api/helpers/fetchToJson';
 import { actionTypes, IMAGE_SIZES } from '../../constants';
 import { EVENTS } from '../../constants/events';
 import { SC } from '../../utils';
-import { windowRouter } from '../../utils/router';
-
 /**
  * Toggle like of a specific track
  *
@@ -57,9 +56,7 @@ export function toggleLike(trackId, playlistParam) {
                 }
             })
         })
-            .then(() => {
-                windowRouter.send(EVENTS.TRACK.LIKED)
-            })
+            .then(() => ipcRenderer.send(EVENTS.TRACK.LIKED))
             .catch(err => {
 
                 if (err.response && err.response.status === 429) {

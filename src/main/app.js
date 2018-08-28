@@ -1,4 +1,5 @@
 import { app, BrowserWindow, Menu, nativeImage, shell } from 'electron';
+import { Router } from 'electron-routes';
 import windowStateKeeper from 'electron-window-state';
 import os from 'os';
 import path from 'path';
@@ -7,7 +8,6 @@ import { posCenter } from './utils';
 import { Logger } from './utils/logger';
 import { groupBy } from './utils/utils';
 
-const Router = require('electron-router')
 
 if (process.env.NODE_ENV === 'development') {
     require('electron-debug')() // eslint-disable-line global-require
@@ -38,7 +38,7 @@ export default class Auryo {
 
     constructor(store) {
         this.store = store
-        this.router = Router('MAIN')
+        this.router = new Router('auryo-api')
         this.quitting = false
 
         app.setAppUserModelId('com.auryo.core')
@@ -82,7 +82,8 @@ export default class Auryo {
             show: false,
             fullscreen: mainWindowState.isFullScreen,
             webPreferences: {
-                nodeIntegrationInWorker: true
+                nodeIntegrationInWorker: true,
+                preload: path.join(__dirname, 'preload.js')
 
             }
         }

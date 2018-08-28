@@ -18,7 +18,7 @@ export default class PowerMonitor extends IFeature {
     }
 
     pause = () => {
-        this.router.send(EVENTS.PLAYER.TOGGLE_STATUS, PLAYER_STATUS.PAUSED);
+        this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PLAYER_STATUS.PAUSED)
     }
 
     unregister() {

@@ -1,7 +1,8 @@
+import { ipcRenderer } from "electron";
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { EVENTS } from '../../../../shared/constants/events';
-import { windowRouter } from '../../../../shared/utils/router';
+import { createInternalRequest } from '../../../../shared/utils';
 import CheckboxConfig from './components/CheckboxConfig';
 import InputConfig from './components/InputConfig';
 import './settings.scss';
@@ -14,23 +15,17 @@ class SettingsTab extends Component {
     }
 
     restart = () => {
-        windowRouter.send(EVENTS.APP.RESTART)
+        ipcRenderer.send(EVENTS.APP.RESTART)
     }
 
-    isValidDirectory = (dir, setKey) => new Promise((resolve, reject) => {
-        windowRouter.route("GET", EVENTS.APP.VALID_DIR, dir, (err, result) => {
-            if (err) {
-                reject(err)
-            }
+    isValidDirectory = (dir, setKey) => createInternalRequest(EVENTS.APP.VALID_DIR.replace(':dir', encodeURIComponent(dir)))
+        .then((result) => {
             this.setState({
                 validDir: result.exists
             })
 
-            resolve()
+            setKey()
         })
-    }).then(() => {
-        setKey()
-    })
 
     render() {
         const {

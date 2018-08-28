@@ -1,12 +1,11 @@
 import { Icon, Menu, MenuDivider, MenuItem, Popover, Position } from "@blueprintjs/core";
+import { ipcRenderer } from "electron";
 import isEqual from 'lodash/isEqual';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import * as actions from '../../../../../shared/actions/index';
-import { EVENTS } from "../../../../../shared/constants/events";
-import { windowRouter } from "../../../../../shared/utils/router";
 import Sticky from '../../../_shared/Sticky';
 import './header.scss';
 import SearchBox from './Search/SearchBox';
@@ -86,7 +85,7 @@ class Header extends React.Component {
     }
 
     render() {
-        const { locHistory: { next, back }, push, me, logout, scrollTop, replace, className, query, children, app: { update } } = this.props
+        const { locHistory: { next, back }, push, me, logout, scrollTop, replace, className, query, children, app: { update },doUpdate } = this.props
         const { height } = this.state;
 
         return (
@@ -144,7 +143,7 @@ class Header extends React.Component {
                                         {
                                             update.available && (
                                                 <MenuItem className="text-primary" text="Update" icon="box"
-                                                    onClick={windowRouter.send.bind(this, EVENTS.APP.UPDATE)} />
+                                                    onClick={doUpdate} />
                                             )
                                         }
 
@@ -192,6 +191,7 @@ Header.propTypes = {
     replace: PropTypes.func.isRequired,
     me: PropTypes.object.isRequired,
     logout: PropTypes.func.isRequired,
+    doUpdate: PropTypes.func.isRequired,
     show: PropTypes.func.isRequired,
     scrollTop: PropTypes.number.isRequired,
     query: PropTypes.string,

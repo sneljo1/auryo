@@ -22,7 +22,9 @@ export default {
             use: {
                 loader: 'babel-loader'
             }
-        }]
+        },
+        // { test: /\.(t|j)sx?$/, use: { loader: 'awesome-typescript-loader' } }
+    ]
     },
 
     output: {

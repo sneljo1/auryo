@@ -21,35 +21,35 @@ export default class MediaServiceManager extends IMacFeature {
 
         myService.on('play', () => {
             if (this.meta.state !== 'playing') {
-                this.router.send(EVENTS.PLAYER.TOGGLE_STATUS, PLAYER_STATUS.PLAYING)
+                this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PLAYER_STATUS.PLAYING)
             }
         }
         )
 
         myService.on('pause', () => {
             if (this.meta.state === 'playing') {
-                this.router.send(EVENTS.PLAYER.TOGGLE_STATUS, PLAYER_STATUS.PAUSED)
+                this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PLAYER_STATUS.PAUSED)
             }
         })
 
         myService.on('stop', () => {
-            this.router.send(EVENTS.PLAYER.TOGGLE_STATUS, PLAYER_STATUS.STOPPED)
+            this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PLAYER_STATUS.STOPPED)
         })
 
         myService.on('playPause', () => {
-            this.router.send(EVENTS.PLAYER.TOGGLE_STATUS)
+            this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS)
         })
 
         myService.on('next', () => {
-            this.router.send(EVENTS.PLAYER.CHANGE_TRACK, CHANGE_TYPES.NEXT)
+            this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, CHANGE_TYPES.NEXT)
         })
 
         myService.on('previous', () => {
-            this.router.send(EVENTS.PLAYER.CHANGE_TRACK, CHANGE_TYPES.PREV)
+            this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, CHANGE_TYPES.PREV)
         })
 
         myService.on('seek', (to) => {
-            this.win.webContents.send('seek', to)
+            this.sendToWebContents(EVENTS.PLAYER.SEEK, to)
         })
 
         //

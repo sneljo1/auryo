@@ -13,28 +13,29 @@ import IFeature from './IFeature';
 export default class IPCManager extends IFeature {
 
     register() {
-        this.on(EVENTS.APP.RESTART, () => {
+
+        this.router.get(EVENTS.APP.VALID_DIR, (req, res) => {
+            const path = decodeURIComponent(req.params.dir);
+
+            fs.exists(path, (exists) => {
+                res.json({ exists });
+            });
+        });
+
+        ipcMain.on(EVENTS.APP.RESTART, () => {
             app.relaunch({ args: process.argv.slice(1).concat(['--relaunch']) });
             app.exit(0);
         });
 
-        this.router.get(EVENTS.APP.VALID_DIR, (req, res) => {
-            const path = req.params[0];
-
-            fs.exists(path, (exists) => {
-                res.json(null, { exists });
-            });
-        });
-
-        ipcMain.on('open_external', (event, arg) => {
+        ipcMain.on(EVENTS.APP.OPEN_EXTERNAL, (event, arg) => {
             shell.openExternal(arg);
-        });
+        })
 
-        ipcMain.on('write_clipboard', (event, arg) => {
+        ipcMain.on(EVENTS.APP.WRITE_CLIPBOARD, (event, arg) => {
             clipboard.writeText(arg);
         });
 
-        ipcMain.on('download_file', (event, url) => {
+        ipcMain.on(EVENTS.APP.DOWNLOAD_FILE, (event, url) => {
             const { config } = this.store.getState();
 
             const downloadSettings = {};
@@ -48,19 +49,7 @@ export default class IPCManager extends IFeature {
                 .catch(console.error);
         });
 
-        ipcMain.on('error', (event, arg) => {
-            let error = arg;
-
-            try {
-                error = JSON.parse(error);
-            } catch (e) {
-                console.log(e)
-            }
-
-            registerError(error, true);
-        });
-
-        ipcMain.on('login', () => {
+        ipcMain.on(EVENTS.APP.AUTH.LOGIN, () => {
             this.store.dispatch(setLoginLoading());
 
             this.startLoginSocket();
@@ -102,7 +91,7 @@ export default class IPCManager extends IFeature {
 
             this.socket.on('token', (data) => {
                 this.store.dispatch(setToken(data));
-                this.win.webContents.send('login-success');
+                this.sendToWebContents('login-success')
             });
 
             this.socket.on('error', (err) => {

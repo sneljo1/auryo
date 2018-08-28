@@ -77,6 +77,7 @@ const enhancer = composeEnhancers(applyMiddleware(...middleware), electronEnhanc
             playingTrack: true
         },
         routing: true,
+        modal: true,
         auth: {
             authentication: true
         }

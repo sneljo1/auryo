@@ -22,10 +22,10 @@ export default class DbusService extends ILinuxFeature {
                 if (!err) {
                     iface.on('MediaPlayerKeyPressed', (n, keyName) => {
                         switch (keyName) {
-                            case 'Next': this.win.webContents.send(EVENTS.PLAYER.CHANGE_TRACK, CHANGE_TYPES.NEXT); break;
-                            case 'Previous': this.win.webContents.send(EVENTS.PLAYER.CHANGE_TRACK, CHANGE_TYPES.PREV); break;
-                            case 'Play': this.win.webContents.send(EVENTS.PLAYER.TOGGLE_STATUS); break;
-                            case 'Stop': this.win.webContents.send(EVENTS.PLAYER.TOGGLE_STATUS, PLAYER_STATUS.STOPPED); break;
+                            case 'Next': this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, CHANGE_TYPES.NEXT); break;
+                            case 'Previous': this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, CHANGE_TYPES.PREV); break;
+                            case 'Play': this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS); break;
+                            case 'Stop': this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PLAYER_STATUS.STOPPED); break;
                             default:
                         }
                     });

@@ -60,8 +60,6 @@ export default class Win10MediaService extends IWindowsFeature {
             }
         })
 
-
-
         this.on(EVENTS.APP.READY, () => {
             this.on(EVENTS.PLAYER.STATUS_CHANGED, () => {
                 const { player: { status } } = this.store.getState()
@@ -83,10 +81,15 @@ export default class Win10MediaService extends IWindowsFeature {
                 const track = track_entities[trackID]
                 const user = user_entities[track.user || track.user_id]
 
-                Controls.displayUpdater.musicProperties.title = track.title
-                Controls.displayUpdater.musicProperties.artist = (user && user.username ? user.username : 'Unknown artist')
-                Controls.displayUpdater.musicProperties.albumTitle = track.genre
-                Controls.displayUpdater.thumbnail = RandomAccessStreamReference.createFromUri(new Uri(SC.getImageUrl(track, IMAGE_SIZES.SMALL)))
+                if(track){
+                    Controls.displayUpdater.musicProperties.title = track.title
+                    Controls.displayUpdater.musicProperties.artist = (user && user.username ? user.username : 'Unknown artist')
+                    Controls.displayUpdater.musicProperties.albumTitle = track.genre
+                    Controls.displayUpdater.thumbnail = RandomAccessStreamReference.createFromUri(new Uri(SC.getImageUrl(track, IMAGE_SIZES.SMALL)))    
+                } else {
+                    Controls.displayUpdater.musicProperties.title = 'Auryo'
+                    Controls.displayUpdater.musicProperties.artist = 'No track is playing'              
+                }
 
                 Controls.displayUpdater.update()
             })
@@ -97,11 +100,11 @@ export default class Win10MediaService extends IWindowsFeature {
         const { player: { status } } = this.store.getState()
 
         if (status !== new_status) {
-            this.router.send(EVENTS.PLAYER.TOGGLE_STATUS, new_status)
+            this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, new_status)
         }
     }
 
     changeTrack = (change_type) => {
-        this.router.send(EVENTS.PLAYER.CHANGE_TRACK, change_type)
+        this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, change_type)
     }
 }
