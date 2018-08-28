@@ -1,7 +1,9 @@
+import { ipcRenderer } from "electron";
 import { replace } from 'react-router-redux';
 import { actionTypes } from '../../constants';
-import { SC, createInternalRequest } from '../../utils';
-import { getAuth, getAuthLikeIds, getAuthLikesIfNeeded, getAuthFollowings } from '../auth/auth.actions';
+import { EVENTS } from '../../constants/events';
+import { SC } from '../../utils';
+import { getAuth, getAuthFollowings, getAuthLikeIds, getAuthLikesIfNeeded } from '../auth/auth.actions';
 import { getAuthFeed, getAuthPlaylists } from '../playlist.actions';
 import { getAuthReposts } from '../track/reposts.actions';
 import { initWatchers, openExternal, resolveUrl, stopWatchers, writeToClipboard } from './window.actions';
@@ -56,7 +58,7 @@ export function cleanApp() {
 }
 
 export function doUpdate() {
-    return createInternalRequest("app/update", { method: "POST" });
+    return ipcRenderer.send(EVENTS.APP.UPDATE)
 }
 
 export function setDimensions(dimensions) {
