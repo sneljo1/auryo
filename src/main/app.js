@@ -80,8 +80,7 @@ export default class Auryo {
             show: false,
             fullscreen: mainWindowState.isFullScreen,
             webPreferences: {
-                nodeIntegrationInWorker: true,
-                preload: path.join(__dirname, 'preload.js')
+                nodeIntegrationInWorker: true
 
             }
         }

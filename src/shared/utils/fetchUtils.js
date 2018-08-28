@@ -1,5 +1,4 @@
 import _ from "lodash";
-import fetchToJson from "../api/helpers/fetchToJson";
 
 export function asJson(response) {
     return response.json();
