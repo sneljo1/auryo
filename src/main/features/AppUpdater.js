@@ -1,10 +1,9 @@
-import { shell, app } from 'electron';
+import { app, shell } from 'electron';
 import is from 'electron-is';
 import { autoUpdater } from 'electron-updater';
 import request from 'request';
 import { gt as isVersionGreaterThan, valid as parseVersion } from 'semver';
 import { CONFIG } from '../../config';
-import { EVENTS } from '../../shared/constants/events';
 import { Logger } from '../utils/logger';
 import { registerError } from '../utils/raven';
 import IFeature from './IFeature';
