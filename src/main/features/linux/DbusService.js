@@ -4,6 +4,10 @@ import { CHANGE_TYPES, PLAYER_STATUS } from '../../../shared/constants';
 
 export default class DbusService extends ILinuxFeature {
 
+    shouldRun() {
+        return super.shouldRun() && !process.env.TOKEN
+    }
+    
     register() {
         const DBus = require("dbus"); // eslint-disable-line
 
