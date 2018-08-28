@@ -2,7 +2,6 @@ import { ipcRenderer } from "electron";
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { EVENTS } from '../../../../shared/constants/events';
-import { createInternalRequest } from '../../../../shared/utils';
 import CheckboxConfig from './components/CheckboxConfig';
 import InputConfig from './components/InputConfig';
 import './settings.scss';
@@ -18,14 +17,17 @@ class SettingsTab extends Component {
         ipcRenderer.send(EVENTS.APP.RESTART)
     }
 
-    isValidDirectory = (dir, setKey) => createInternalRequest(EVENTS.APP.VALID_DIR.replace(':dir', encodeURIComponent(dir)))
-        .then((result) => {
+    isValidDirectory = (dir, setKey) => {
+
+        ipcRenderer.send(EVENTS.APP.VALID_DIR, dir)
+        ipcRenderer.once(EVENTS.APP.VALID_DIR_RESPONSE, (event, exists) => {
             this.setState({
-                validDir: result.exists
+                validDir: exists
             })
 
             setKey()
         })
+    }
 
     render() {
         const {

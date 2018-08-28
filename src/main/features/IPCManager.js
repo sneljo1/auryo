@@ -14,11 +14,9 @@ export default class IPCManager extends IFeature {
 
     register() {
 
-        this.router.get(EVENTS.APP.VALID_DIR, (req, res) => {
-            const path = decodeURIComponent(req.params.dir);
-
+        ipcMain.on(EVENTS.APP.VALID_DIR, (event, path) => {
             fs.exists(path, (exists) => {
-                res.json({ exists });
+                this.sendToWebContents(EVENTS.APP.VALID_DIR_RESPONSE, exists)
             });
         });
 

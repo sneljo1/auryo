@@ -1,5 +1,4 @@
 import { app, BrowserWindow, Menu, nativeImage, shell } from 'electron';
-import { Router } from 'electron-routes';
 import windowStateKeeper from 'electron-window-state';
 import os from 'os';
 import path from 'path';
@@ -38,7 +37,6 @@ export default class Auryo {
 
     constructor(store) {
         this.store = store
-        this.router = new Router('auryo-api')
         this.quitting = false
 
         app.setAppUserModelId('com.auryo.core')

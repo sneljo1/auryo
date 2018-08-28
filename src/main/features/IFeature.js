@@ -13,7 +13,6 @@ export default class IFeature {
     constructor(auryo) {
         this.win = auryo.mainWindow
         this.store = auryo.store
-        this.router = auryo.router
         this.app = auryo
 
         this.watcher = new ReduxWatcher(auryo.store)
