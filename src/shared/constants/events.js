@@ -16,6 +16,9 @@ export const EVENTS = {
     },
     APP: {
         UPDATE: 'app/update',
+        STREAM_ERROR: 'app/stream/error',
+        STREAMED: 'app/stream',
+        UPDATE_AVAILABLE: 'app/update/available',
         READY: 'app/ready',
         RESTART: 'app/restart',
         VALID_DIR: 'app/valid_dir',

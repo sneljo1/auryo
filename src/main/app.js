@@ -6,6 +6,7 @@ import { CONFIG } from '../config';
 import { posCenter } from './utils';
 import { Logger } from './utils/logger';
 import { groupBy } from './utils/utils';
+import { EVENTS } from '../shared/constants/events';
 
 
 if (process.env.NODE_ENV === 'development') {
@@ -206,10 +207,10 @@ export default class Auryo {
 
         this.mainWindow.webContents.on('did-get-response-details', (e, status, newURL, originalURL, httpResponseCode) => {
             if (newURL.indexOf('/stream?client_id=') !== -1 || newURL.indexOf('https://cf-media.sndcdn.com/') !== -1) {
-                this.mainWindow.webContents.send('stream-request')
+                this.mainWindow.webContents.send(EVENTS.APP.STREAMED)
 
                 if (httpResponseCode < 200 && httpResponseCode > 300) {
-                    this.mainWindow.webContents.send('stream-error', httpResponseCode, newURL)
+                    this.mainWindow.webContents.send(EVENTS.APP.STREAM_ERROR, httpResponseCode, newURL)
                 }
             }
 
@@ -217,7 +218,7 @@ export default class Auryo {
 
         this.mainWindow.webContents.session.webRequest.onErrorOccurred({ urls: ['*/stream?client_id=*'] }, (details) => {
             if (details.error === 'net::ERR_INTERNET_DISCONNECTED') {
-                this.mainWindow.webContents.send('stream-error', -1)
+                this.mainWindow.webContents.send(EVENTS.APP.STREAM_ERROR, -1)
 
             }
         })

@@ -7,6 +7,7 @@ import { CONFIG } from '../../config';
 import { Logger } from '../utils/logger';
 import { registerError } from '../utils/raven';
 import IFeature from './IFeature';
+import { EVENTS } from '../../shared/constants/events';
 
 export default class AppUpdater extends IFeature {
 
@@ -47,7 +48,7 @@ export default class AppUpdater extends IFeature {
             });
 
             autoUpdater.addListener('update-downloaded', (info) => {
-                this.win.webContents.send('update-status', {
+                this.sendToWebContents(EVENTS.APP.UPDATE_AVAILABLE, {
                     status: 'update-available',
                     version: info.version,
                     current_version: this.currentVersion
@@ -81,7 +82,7 @@ export default class AppUpdater extends IFeature {
     }
 
     listenUpdate = () => {
-        this.router.post("/app/update", () => {
+        this.on(EVENTS.APP.UPDATE, () => {
             if (this.has_update) {
                 Logger.info('Updating now!');
 
@@ -95,16 +96,6 @@ export default class AppUpdater extends IFeature {
     }
 
     updateLinux = () => {
-        this.has_update = true;
-
-        this.listenUpdate();
-        this.win.webContents.send('update-status', {
-            status: 'update-available-linux',
-            version: "latest",
-            current_version: this.currentVersion,
-            url: 'http://auryo.com#downloads'
-        });
-
         request({
             url: CONFIG.UPDATE_SERVER_HOST, headers: {
                 'User-Agent': 'request'
@@ -119,7 +110,7 @@ export default class AppUpdater extends IFeature {
                     Logger.info('New update available');
                     this.has_update = true;
 
-                    this.win.webContents.send('update-status', {
+                    this.sendToWebContents(EVENTS.APP.UPDATE_AVAILABLE, {
                         status: 'update-available-linux',
                         version: latest,
                         current_version: this.currentVersion,

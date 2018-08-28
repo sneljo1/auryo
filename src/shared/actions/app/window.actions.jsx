@@ -113,7 +113,7 @@ export function initWatchers() {
             })
 
             listeners.push({
-                event: 'stream-request',
+                event: EVENTS.APP.STREAMED,
                 handler: () => {
 
                     const { config: { app: { analytics } } } = getState()
@@ -126,21 +126,23 @@ export function initWatchers() {
             })
 
             listeners.push({
-                event: 'stream-error',
-                handler: (data) => {
-                    console.log('stream-error')
+                event: EVENTS.APP.STREAM_ERROR,
+                handler: (e, httpResponse, url) => {
+
                     const { app: { offline }, config: { app: { analytics } } } = getState()
-                    switch (data) {
+
+                    switch (httpResponse) {
                         case -1:
                             if (!offline) {
                                 dispatch(isOnline())
                             }
                             break
                         case 404:
-                            toastr.error('Not found!', 'This track might not exists anymore')
+                            toastr.error('Not found!', 'This resource might not exists anymore')
                             break
                         case 429:
-                            return fetchToJson(data.url)
+                            if (!url) return;
+                            return fetchToJson(url)
                                 .then((json) => {
                                     if (json.errors.length > 0) {
                                         const error = json.errors[0]
@@ -163,8 +165,8 @@ export function initWatchers() {
             })
 
             listeners.push({
-                event: 'update-status',
-                handler: (data) => {
+                event: EVENTS.APP.UPDATE_AVAILABLE,
+                handler: (e, data) => {
                     dispatch(setUpdateAvailable(data.version))
 
                     toastr.success(`Update available v${data.version}`, `Current version: ${data.current_version}`, {
