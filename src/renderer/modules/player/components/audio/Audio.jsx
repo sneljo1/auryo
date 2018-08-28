@@ -70,7 +70,6 @@ class Audio extends Component {
     }
 
     repeat = () => {
-
         if (this.player) {
             this.player.pause()
             this.player.seek(0)
