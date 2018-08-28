@@ -12,6 +12,7 @@ matrix:
         - openjpeg-tools
         - rpm
         - bsdtar
+        - snapd
         - xvfb
         - libxtst6
         - libxss1
@@ -59,9 +60,9 @@ install:
 - |
   if [ "$TRAVIS_OS_NAME" == "linux" ]; then
     export DISPLAY=':99.0'
-    #export DBUS_SESSION_BUS_ADDRESS='unix:path=/run/dbus/system_bus_socket'
     Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
     sleep 3
+    sudo snap install snapcraft --classic
   fi
 script:
 - yarn run build || travis_terminate 1
@@ -71,6 +72,10 @@ after_success:
 - |
   if [ "$TRAVIS_BRANCH" == "master" ] || [ -n "$TRAVIS_TAG" ]; then
     if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+      # Only create snap in when untagged, otherwise snaps build service will do this for us
+      if [ -z $TRAVIS_TAG ]; then
+        sed -i "s/\"AppImage\",/\"AppImage\",\"snap\",/g" package.json
+      fi
       yarn run release:linux
     else
       yarn run release:mac
@@ -79,6 +84,7 @@ after_success:
 deploy:
   on:
     condition: $TRAVIS_OS_NAME == "linux"
+    tags: true
   provider: script
   script: bash scripts/deploy.sh $GH_TOKEN $TRAVIS_BUILD_NUMBER $TRAVIS_TAG
   skip_cleanup: true
