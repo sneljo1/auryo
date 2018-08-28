@@ -74,7 +74,6 @@ export default class Thumbar extends IWindowsFeature {
         this.on(EVENTS.APP.READY, () => {
             this.subscribe(['player', 'status'], () => {
                 this.setThumbarButtons()
-
             })
 
             this.subscribe(['player', 'playingTrack'], () => {
@@ -113,15 +112,15 @@ export default class Thumbar extends IWindowsFeature {
         }
     }
 
-    togglePlay = (new_status) => {
+    togglePlay = (newStatus) => {
         const { player: { status } } = this.store.getState()
 
-        if (status !== new_status) {
-            this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, new_status)
+        if (status !== newStatus) {
+            this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, newStatus)
         }
     }
 
-    changeTrack = (change_type) => {
-        this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, change_type)
+    changeTrack = (changeType) => {
+        this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, changeType)
     }
 }

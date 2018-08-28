@@ -67,17 +67,29 @@ export default class MprisService extends ILinuxFeature {
             this.app.quit()
         })
 
-        this.player.on('play', () => this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PLAYER_STATUS.PLAYING))
+        this.player.on('play', () => {
+            this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PLAYER_STATUS.PLAYING)
+        })
 
-        this.player.on('pause', () => this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PLAYER_STATUS.PAUSED))
+        this.player.on('pause', () => {
+            this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PLAYER_STATUS.PAUSED)
+        })
 
-        this.player.on('playpause', () => this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS))
+        this.player.on('playpause', () => {
+            this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS)
+        })
 
-        this.player.on('stop', () => this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PLAYER_STATUS.STOPPED))
+        this.player.on('stop', () => {
+            this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PLAYER_STATUS.STOPPED)
+        })
 
-        this.player.on('next', () => this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, CHANGE_TYPES.NEXT))
+        this.player.on('next', () => {
+            this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, CHANGE_TYPES.NEXT)
+        })
 
-        this.player.on('previous', () => this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, CHANGE_TYPES.PREV))
+        this.player.on('previous', () => {
+            this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, CHANGE_TYPES.PREV)
+        })
 
 
         //
@@ -104,14 +116,21 @@ export default class MprisService extends ILinuxFeature {
                     ...this.player.metadata
                 }
 
-                this.meta['mpris:trackid'] = track.id
-                this.meta['xesam:title'] = track.title
-                this.meta['xesam:artist'] = [user && user.username ? user.username : 'Unknown artist']
-                this.meta['mpris:artUrl'] = SC.getImageUrl(track, IMAGE_SIZES.SMALL)
-                this.meta['xesam:url'] = track.uri || ''
-                this.meta['xesam:useCount'] = track.playback_count || 0
-                this.meta['xesam:genre'] = track.genre || ''
-                this.meta['xesam:contentCreated'] = track.created_at || 'Unknown release date'
+                if (track) {
+                    this.meta['mpris:trackid'] = track.id
+                    this.meta['xesam:title'] = track.title
+                    this.meta['xesam:artist'] = [user && user.username ? user.username : 'Unknown artist']
+                    this.meta['mpris:artUrl'] = SC.getImageUrl(track, IMAGE_SIZES.SMALL)
+                    this.meta['xesam:url'] = track.uri || ''
+                    this.meta['xesam:useCount'] = track.playback_count || 0
+                    this.meta['xesam:genre'] = track.genre || ''
+                    this.meta['xesam:contentCreated'] = track.created_at || 'Unknown release date'
+                } else {
+                    this.meta['mpris:trackid'] = "track.id"
+                    this.meta['xesam:title'] = "Auryo"
+                    this.meta['xesam:artist'] = "[user && user.username ? user.username : 'Unknown artist']"
+                    this.meta['mpris:artUrl'] = `file://${path.join(logosPath, 'auryo-128.png')}`
+                }
 
                 if (!_.isEqual(this.meta, this.player.metadata)) {
                     this.player.metadata = this.meta
