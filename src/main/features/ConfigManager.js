@@ -100,7 +100,7 @@ export default class ConfigManager extends IFeature {
      * If version doesn't match config version, send update to frontend on app loaded
      */
     notifyNewVersion = () => {
-        if (this.isNewVersion && !this.isNewUser) {
+        if (this.isNewVersion && !this.isNewUser && !process.env.TOKEN) {
             setTimeout(() => {
                 this.store.dispatch(show('changelog', { version: app.getVersion() }))
                 super.unregister(['app', 'loaded'])
@@ -109,7 +109,7 @@ export default class ConfigManager extends IFeature {
     }
 
     notifyNewUser = () => {
-        if (this.isNewUser) {
+        if (this.isNewUser && !process.env.TOKEN) {
             setTimeout(() => {
                 this.store.dispatch(show('welcome'))
             }, 5000)

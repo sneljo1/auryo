@@ -51,3 +51,4 @@ main.js.map
 src/.env*
 xunit.xml
 deploy_key
+.eslintcache
