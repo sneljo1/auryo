@@ -25,15 +25,15 @@ export function toggleFollowing(user_id) {
     return (dispatch, getState) => {
         const { auth: { followings } } = getState();
 
-        const following = !((user_id in followings) ? followings[user_id] : 0);
+        const following = SC.hasID(user_id, followings)
 
         dispatch({
             type: actionTypes.AUTH_SET_FOLLOWING,
             payload: fetchToJson(SC.updateFollowingUrl(user_id), {
-                method: (following === 1) ? "PUT" : "DELETE"
+                method: (!following) ? "PUT" : "DELETE"
             }).then(() => ({
                 user_id,
-                following
+                following: !following
             }))
         })
 

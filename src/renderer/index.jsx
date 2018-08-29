@@ -26,6 +26,8 @@ if (!process.env.TOKEN && process.env.NODE_ENV === 'production') {
 
         ua().set('version', version)
 
+        ua().pv("/").send()
+
         history.listen((location) => {
             ua().pv(location.pathname).send()
         })
