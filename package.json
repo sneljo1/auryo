@@ -3,7 +3,7 @@
   "repository": "Superjo149/auryo",
   "homepage": "http://auryo.com",
   "productName": "Auryo",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "Electron application boilerplate based on React, React Router, Webpack, React Hot Loader for rapid application development",
   "main": "main.js",
   "scripts": {
