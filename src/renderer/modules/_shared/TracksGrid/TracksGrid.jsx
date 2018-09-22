@@ -1,13 +1,13 @@
 import cn from 'classnames';
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import React from 'react';
 import ReactList from 'react-list';
 import { Col } from 'reactstrap';
 import * as SC from '../../../../shared/utils/soundcloudUtils';
 import TrackGridItem from './TrackGridItem';
 import TrackGridUser from './TrackGridUser';
 
-class TracksGrid extends Component {
+class TracksGrid extends React.Component {
 
     renderItem = (index) => {
         const {
@@ -26,7 +26,7 @@ class TracksGrid extends Component {
         } = this.props
 
 
-        const item = items[index]
+        const item = {...items[index]}
 
         if (!item || typeof item !== 'object' || Object.keys(item) === ['id', 'kind']) {
             return null
@@ -48,7 +48,7 @@ class TracksGrid extends Component {
 
         }
 
-        const newplayTrackFunc = playTrackFunc.bind(null, playlist_name, obj.id, obj.kind === 'playlist' ? obj : null, true)
+        const newplayTrackFunc = playTrackFunc.bind(null, playlist_name, obj.id, obj.kind === 'playlist' ? obj : null, true, null)
 
         let isPlaying = false;
 
@@ -132,7 +132,7 @@ TracksGrid.defaultProps = {
     items: [],
     showInfo: false,
     followings: {},
-    toggleFollowing: ()=>{},
+    toggleFollowing: () => { },
 }
 
 export default TracksGrid

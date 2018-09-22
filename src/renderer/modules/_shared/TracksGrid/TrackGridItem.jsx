@@ -142,7 +142,6 @@ class TrackGridItem extends React.Component {
                         <div className="trackTitle">
                             <Link to={object_url}>
                                 <TextTruncate clamp={1}>{track.title}</TextTruncate>
-
                             </Link>
                         </div>
                         {

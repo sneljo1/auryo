@@ -54,11 +54,12 @@ class Search extends React.Component {
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        const { query, playlist_object } = this.props;
+        const { query, playlist_object, player } = this.props;
         const { loading } = this.state;
 
         if (!isEqual(nextProps.query, query) ||
             !isEqual(nextProps.playlist_object, playlist_object) ||
+            !isEqual(nextProps.player.playingTrack, player.playingTrack) ||
             !isEqual(nextState.loading, loading)) {
             return true
         }

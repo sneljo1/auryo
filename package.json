@@ -1,9 +1,9 @@
 {
-  "name": "electron-react-boilerplate",
+  "name": "auryo-build-env",
   "repository": "Superjo149/auryo",
   "homepage": "http://auryo.com",
   "productName": "Auryo",
-  "version": "0.10.0",
+  "version": "2.1.1",
   "description": "Electron application boilerplate based on React, React Router, Webpack, React Hot Loader for rapid application development",
   "main": "main.js",
   "scripts": {

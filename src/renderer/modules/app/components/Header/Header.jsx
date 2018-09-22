@@ -10,6 +10,7 @@ import Sticky from '../../../_shared/Sticky';
 import './header.scss';
 import SearchBox from './Search/SearchBox';
 import User from './User/AuthUser';
+import { encode } from "punycode";
 
 class Header extends React.Component {
 
@@ -85,7 +86,7 @@ class Header extends React.Component {
     }
 
     render() {
-        const { locHistory: { next, back }, push, me, logout, scrollTop, replace, className, query, children, app: { update },doUpdate } = this.props
+        const { locHistory: { next, back }, push, me, logout, scrollTop, replace, className, query, children, app: { update }, doUpdate } = this.props
         const { height } = this.state;
 
         return (
@@ -115,7 +116,9 @@ class Header extends React.Component {
                                     </div>
                                 </div>
                                 <SearchBox ref={r => this.search = r} initialValue={query}
-                                    handleSearch={(prev, searchQuery) => {
+                                    handleSearch={(prev, rawQuery) => {
+                                        const searchQuery = escape(rawQuery.replace("%", ""))
+
                                         if (!searchQuery) {
                                             return replace("/search")
                                         }

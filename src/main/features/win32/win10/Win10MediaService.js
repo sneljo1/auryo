@@ -80,15 +80,16 @@ export default class Win10MediaService extends IWindowsFeature {
                 const trackID = playingTrack.id
                 const track = track_entities[trackID]
                 const user = user_entities[track.user || track.user_id]
+                const image = SC.getImageUrl(track, IMAGE_SIZES.SMALL);
 
-                if(track){
-                    Controls.displayUpdater.musicProperties.title = track.title
+                if (track) {
+                    Controls.displayUpdater.musicProperties.title = track.title || ""
                     Controls.displayUpdater.musicProperties.artist = (user && user.username ? user.username : 'Unknown artist')
-                    Controls.displayUpdater.musicProperties.albumTitle = track.genre
-                    Controls.displayUpdater.thumbnail = RandomAccessStreamReference.createFromUri(new Uri(SC.getImageUrl(track, IMAGE_SIZES.SMALL)))    
+                    Controls.displayUpdater.musicProperties.albumTitle = track.genre || ""
+                    Controls.displayUpdater.thumbnail = image? RandomAccessStreamReference.createFromUri(new Uri(image)) : ""
                 } else {
                     Controls.displayUpdater.musicProperties.title = 'Auryo'
-                    Controls.displayUpdater.musicProperties.artist = 'No track is playing'              
+                    Controls.displayUpdater.musicProperties.artist = 'No track is playing'
                 }
 
                 Controls.displayUpdater.update()

@@ -155,8 +155,10 @@ export function togglePlaylistTrack(trackId, playlistId) {
 
                     const track = track_entities[trackId]
 
+                    const notificiationId = `addtoplaylist-${trackId}-${Date.now()}`
+
                     dispatch(toastrActions.add({
-                        id: `addtoplaylist-${add}-${playlist_entitity.id}`, // If not provided we will add one.
+                        id: notificiationId, // If not provided we will add one.
                         type: 'info',
                         title: track.title,
                         options: {
@@ -169,7 +171,7 @@ export function togglePlaylistTrack(trackId, playlistId) {
                                 <div>
                                     {`Track ${add ? 'added to' : 'removed from'} playlist `} <Link
                                         onClick={() => {
-                                            dispatch(toastrActions.remove(`addtoplaylist-${add}-${playlist_entitity.id}`))
+                                            dispatch(toastrActions.remove(notificiationId))
                                             dispatch(hide('addToPlaylist'))
                                         }}
                                         to={`/playlist/${playlist_entitity.id}`}>{playlist_entitity.title}</Link>

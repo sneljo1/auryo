@@ -7,9 +7,8 @@ import IFeature from './IFeature';
 export default class ApplicationMenu extends IFeature {
 
     register() {
-        this.buildMenu()
-
         this.on(EVENTS.APP.READY, () => {
+            this.buildMenu()
 
             this.subscribe(['player', 'playingTrack'], () => {
 
@@ -243,8 +242,7 @@ export default class ApplicationMenu extends IFeature {
             }
         }
 
-        const menu = Menu.buildFromTemplate(template)
-        Menu.setApplicationMenu(menu)
+        Menu.setApplicationMenu(Menu.buildFromTemplate(template))
     }
 
 }

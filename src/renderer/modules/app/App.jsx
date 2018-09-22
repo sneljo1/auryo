@@ -1,5 +1,6 @@
 import { ResizeSensor } from '@blueprintjs/core';
 import cn from 'classnames';
+import is from "electron-is";
 import debounce from 'lodash/debounce';
 import { denormalize, schema } from 'normalizr';
 import PropTypes from 'prop-types';
@@ -26,10 +27,10 @@ import UtilitiesModal from '../UtilitiesModel/UtilitiesModal';
 import AddToPlaylistModal from '../_shared/AddToPlaylistModal/AddToPlaylistModal';
 import Spinner from '../_shared/Spinner/Spinner';
 import AppError from './components/AppError/AppError';
+import ChangelogModal from './components/modals/ChangeLogModal/ChangelogModal';
 import IsOffline from './components/Offline/Offline';
 import Queue from './components/Queue/Queue';
 import SideBar from './components/Sidebar/Sidebar';
-import ChangelogModal from './components/modals/ChangeLogModal/ChangelogModal';
 
 class App extends React.Component {
 
@@ -147,7 +148,7 @@ class App extends React.Component {
                 onResize={this.debouncedHandleResize}
             >
 
-                <div className={cn('body auryo', { development: !(process.env.NODE_ENV === 'production') })}>
+                <div className={cn('body auryo', { development: !(process.env.NODE_ENV === 'production'), mac: is.osx() })}>
                     {
                         !app.loaded && !app.offline && !app.loading_error ? <Spinner full /> : null
                     }

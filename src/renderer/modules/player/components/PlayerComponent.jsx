@@ -254,7 +254,7 @@ class Player extends React.Component {
         } = player
 
         const trackID = playingTrack.id
-        const track = track_entities[trackID]
+        const track = {...track_entities[trackID]}
 
         /**
          * If Track ID is empty, just exit here

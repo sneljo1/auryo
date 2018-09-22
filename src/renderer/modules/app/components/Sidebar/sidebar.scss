@@ -56,6 +56,18 @@
   }
 }
 
+.drag-strip {
+  height: 23px;
+  -webkit-app-region: drag;
+  flex-shrink: 0;
+}
+
+.mac {
+  .drag-strip {
+    height: 53px;
+  }
+}
+
 #sidebar {
   width: 260px;
   flex-shrink: 0;
@@ -63,11 +75,7 @@
   position: fixed;
   height: 100%;
 
-  .drag-strip {
-    height: 53px;
-    -webkit-app-region: drag;
-    flex-shrink: 0;
-  }
+  
   h2 {
     font-size: .8rem;
     text-transform: uppercase;

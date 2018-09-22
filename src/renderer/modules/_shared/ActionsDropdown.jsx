@@ -40,22 +40,14 @@ class ActionsDropdown extends React.Component {
 
         return (
             <Popover className="actions-dropdown" autoFocus={false} minimal content={(
-                <Menu>
+                <Menu shouldDismissPopover>
                     <MenuItem className={cn({ 'text-primary': liked })} text={liked ? 'Liked' : 'Like'}
-                        onClick={(e) => {
-                            this.onClick(e)
-                            toggleLike(trackId, track.kind === 'playlist')
-                        }} />
-                    <MenuItem className={cn({ 'text-primary': reposted })} text={reposted ? 'Reposted' : 'Repost'}
-                        onClick={(e) => {
-                            this.onClick(e)
-                            toggleRepost(trackId)
-                        }} />
+                        onClick={() => toggleLike(trackId, track.kind === 'playlist')} />
 
-                    <MenuItem text="Add to queue" onClick={(e) => {
-                        this.onClick(e)
-                        addUpNext(track)
-                    }} />
+                    <MenuItem className={cn({ 'text-primary': reposted })} text={reposted ? 'Reposted' : 'Repost'}
+                        onClick={() => toggleRepost(trackId)} />
+
+                    <MenuItem text="Add to queue" onClick={() => addUpNext(track)} />
 
                     {
                         track.kind !== 'playlist' ? (
@@ -83,10 +75,7 @@ class ActionsDropdown extends React.Component {
 
                     {
                         index !== null ? (
-                            <MenuItem text="Remove from queue" onClick={(e) => {
-                                this.onClick(e)
-                                addUpNext(track, index)
-                            }} />
+                            <MenuItem text="Remove from queue" onClick={() => addUpNext(track, index)} />
                         ) : null
                     }
 
