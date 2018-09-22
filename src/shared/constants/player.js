@@ -1,8 +1,11 @@
 export const CHANGE_TYPES = {
     NEXT: 'NEXT',
-    SHUFFLE: 'SHUFFLE',
-    REPEAT: 'REPEAT',
     PREV: 'PREV'
+};
+
+export const REPEAT_TYPES = {
+    ONE: 'ONE',
+    ALL: 'ALL'
 };
 
 export const PLAYER_STATUS = {

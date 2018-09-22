@@ -93,12 +93,20 @@ export function getPlaylistObject(playlistId, position) {
     }
 }
 
-/**
- * Set current time for the song
- *
- * @param time
- * @returns {{type, time: *}}
- */
+export function setRepeat(repeatType) {
+    return {
+        type: actionTypes.PLAYER_SET_REPEAT,
+        payload: repeatType
+    }
+}
+
+export function toggleShuffle() {
+    return {
+        type: actionTypes.PLAYER_TOGGLE_SHUFFLE,
+        payload: {}
+    }
+}
+
 export function setCurrentTime(time) {
     return {
         type: actionTypes.PLAYER_SET_TIME,
@@ -108,12 +116,6 @@ export function setCurrentTime(time) {
     }
 }
 
-/**
- * Update time for the audio player
- *
- * @param time
- * @returns {{type, time: *}}
- */
 export function updateTime(time) {
     return {
         type: actionTypes.PLAYER_UPDATE_TIME,

@@ -6,11 +6,11 @@ import Slider from 'rc-slider';
 import React from 'react';
 import TextTruncate from 'react-dotdotdot';
 import { Link } from 'react-router-dom';
-import { CHANGE_TYPES, IMAGE_SIZES, PLAYER_STATUS } from '../../../../shared/constants';
+import { EVENTS } from '../../../../shared/constants/events';
+import { CHANGE_TYPES, IMAGE_SIZES, PLAYER_STATUS, REPEAT_TYPES } from '../../../../shared/constants/index';
 import { getReadableTime, SC } from '../../../../shared/utils';
 import FallbackImage from '../../_shared/FallbackImage';
 import Audio from './audio/Audio';
-import { EVENTS } from '../../../../shared/constants/events';
 
 class Player extends React.Component {
 
@@ -20,8 +20,6 @@ class Player extends React.Component {
         isSeeking: false,
         isVolumeSeeking: false,
         muted: false,
-        repeat: false,
-        shuffle: false,
         offline: false
     }
 
@@ -62,6 +60,7 @@ class Player extends React.Component {
             !isEqual(nextProps.player.playingTrack.id, player.playingTrack.id) ||
             !isEqual(nextProps.player.currentTime, player.currentTime) ||
             !isEqual(nextProps.player.status, player.status) ||
+            !isEqual(nextProps.config.repeat, config.repeat) ||
             !isEqual(nextProps.config.volume, config.volume)
     }
 
@@ -92,20 +91,24 @@ class Player extends React.Component {
     }
 
     toggleShuffle = () => {
-        const { shuffle } = this.state;
+        const { toggleShuffle } = this.props;
 
-        this.setState({
-            shuffle: !shuffle
-        })
+        toggleShuffle()
 
     }
 
     toggleRepeat = () => {
-        const { repeat } = this.state;
+        const { setConfigKey, config: { repeat } } = this.props;
 
-        this.setState({
-            repeat: !repeat
-        })
+        let newRepeatType = null;
+
+        if (!repeat) {
+            newRepeatType = REPEAT_TYPES.ALL
+        } else if (repeat === REPEAT_TYPES.ALL) {
+            newRepeatType = REPEAT_TYPES.ONE
+        }
+
+        setConfigKey('repeat', newRepeatType)
     }
 
     toggleMute = () => {
@@ -134,6 +137,7 @@ class Player extends React.Component {
                 currentTime
             }
         } = this.props
+
         const {
             duration, isSeeking, nextTime
         } = this.state
@@ -220,14 +224,9 @@ class Player extends React.Component {
     }
 
     onFinishedPlaying = () => {
-        const { repeat, shuffle } = this.state;
         const { changeTrack } = this.props;
 
-        if (repeat) {
-            this.audio.repeat()
-        } else {
-            changeTrack(shuffle ? CHANGE_TYPES.SHUFFLE : CHANGE_TYPES.NEXT)
-        }
+        changeTrack(CHANGE_TYPES.NEXT)
     }
 
     // ====
@@ -242,10 +241,10 @@ class Player extends React.Component {
             toggleQueue,
             toggleStatus,
             updateTime,
-            config: { volume }
+            config: { volume, repeat }
         } = this.props
 
-        const { shuffle, muted, nextTime, repeat, isVolumeSeeking, duration } = this.state
+        const { muted, nextTime, isVolumeSeeking, duration } = this.state
 
         const {
             status,
@@ -254,7 +253,7 @@ class Player extends React.Component {
         } = player
 
         const trackID = playingTrack.id
-        const track = {...track_entities[trackID]}
+        const track = { ...track_entities[trackID] }
 
         /**
          * If Track ID is empty, just exit here
@@ -266,10 +265,7 @@ class Player extends React.Component {
         if ((track.loading && !track.title) || !track.user) return <div>Loading</div>
 
         const prevFunc = this.changeSong.bind(this, CHANGE_TYPES.PREV)
-        const nextFunc = this.changeSong.bind(
-            this,
-            shuffle ? CHANGE_TYPES.SHUFFLE : CHANGE_TYPES.NEXT
-        )
+        const nextFunc = this.changeSong.bind(this, CHANGE_TYPES.NEXT)
 
         const overlay_image = SC.getImageUrl(track, IMAGE_SIZES.XSMALL)
 
@@ -349,11 +345,9 @@ class Player extends React.Component {
 
                     <div className="action-group pr-4">
                         <a href="javascript:void(0)"
-                            className={cn({ active: repeat })}
-                            onClick={() => {
-                                this.setState({ repeat: !repeat })
-                            }}>
-                            <i className="icon-repeat" />
+                            className={cn({ active: repeat !== null })}
+                            onClick={this.toggleRepeat}>
+                            <i className={repeat === REPEAT_TYPES.ONE ? "icon-repeat_one" : "icon-repeat"} />
                         </a>
                     </div>
 
@@ -427,6 +421,8 @@ Player.propTypes = {
     toggleQueue: PropTypes.func.isRequired,
     setCurrentTime: PropTypes.func.isRequired,
     setDuration: PropTypes.func.isRequired,
+    setRepeat: PropTypes.func.isRequired,
+    toggleShuffle: PropTypes.func.isRequired,
     updateTime: PropTypes.func.isRequired
 }
 

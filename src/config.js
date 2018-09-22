@@ -36,6 +36,7 @@ export const CONFIG = {
     DEFAULT_CONFIG: {
         token: process.env.TOKEN ? process.env.TOKEN : null,
         volume: .5,
+        repeat: null,
         version: app.getVersion(),
         hideReposts: false,
         enableProxy: false,

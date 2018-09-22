@@ -1,10 +1,12 @@
 import { findIndex } from "lodash";
-import { actionTypes, PLAYER_STATUS } from "../constants";
+import { actionTypes, PLAYER_STATUS } from "../constants/index";
 import { onSuccess } from "../utils/reduxUtils";
 
 const initialState = {
     status: PLAYER_STATUS.STOPPED,
     queue: [],
+    repeat: null,
+    shuffle: false,
     playingTrack: {
         id: null,
         playlistId: null
@@ -25,6 +27,16 @@ export default function player(state = initialState, action) {
     const { payload, type } = action;
 
     switch (type) {
+        case actionTypes.PLAYER_SET_REPEAT:
+            return {
+                ...state,
+                repeat: payload
+            }
+        case actionTypes.PLAYER_TOGGLE_SHUFFLE:
+            return {
+                ...state,
+                shuffle: !this.state.shuffle
+            }
         case actionTypes.PLAYER_SET_TRACK:
             const position = findIndex(state.queue, payload.next_track) // eslint-disable-line
 

@@ -1,6 +1,6 @@
-import { CHANGE_TYPES, OBJECT_TYPES, PLAYER_STATUS } from '../../constants';
-import { toggleStatus, updateTime } from "./playerActions";
+import { CHANGE_TYPES, OBJECT_TYPES, PLAYER_STATUS, REPEAT_TYPES } from '../../constants/index';
 import { fetchPlaylistIfNeeded } from '../playlist.actions';
+import { toggleStatus, updateTime } from "./playerActions";
 import { playTrack } from './playTrack.actions';
 
 /**
@@ -17,6 +17,9 @@ export function changeTrack(changeType) {
             entities: {
                 track_entities,
                 playlist_entities
+            },
+            config:{
+                repeat
             }
         } = getState();
 
@@ -24,7 +27,7 @@ export function changeTrack(changeType) {
         const {
             currentPlaylistId,
             queue,
-            currentIndex
+            currentIndex,
         } = player;
 
         const playlists = objects[OBJECT_TYPES.PLAYLISTS] || {};
@@ -45,11 +48,25 @@ export function changeTrack(changeType) {
                 break;
         }
 
-        // Pause if last song
+        if(repeat === REPEAT_TYPES.ONE){
+            nextIndex = position;
+        }
+
+        // If last song
         if (((nextIndex === queue.length && !currentPlaylistObject.nextUrl) || nextIndex === -1)) {
-            dispatch(toggleStatus(PLAYER_STATUS.PAUSED));
-            dispatch(updateTime(0));
-        } else if (nextIndex <= (queue.length - 1)) {
+            if (repeat === null) {
+                dispatch(toggleStatus(PLAYER_STATUS.PAUSED));
+                dispatch(updateTime(0));
+
+                return;
+            }
+
+            if (repeat === REPEAT_TYPES.ALL) {
+                nextIndex = 0;
+            }
+        }
+
+        if (nextIndex <= (queue.length - 1)) {
             if (nextIndex < 0) {
                 nextIndex = 0;
             }
