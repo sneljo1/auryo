@@ -65,8 +65,8 @@ install:
     sudo snap install snapcraft --classic
   fi
 script:
-- yarn run build || travis_terminate 1
 - yarn run lint || travis_terminate 1
+- yarn run build || travis_terminate 1
 - yarn run test-e2e -- --retries 2 || travis_terminate 1
 after_success:
 - |

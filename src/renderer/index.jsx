@@ -25,6 +25,7 @@ if (!process.env.TOKEN && process.env.NODE_ENV === 'production') {
         const ua = require('../shared/utils/universalAnalytics')
 
         ua().set('version', version)
+        ua().set('anonymizeIp', true)
 
         ua().pv("/").send()
 

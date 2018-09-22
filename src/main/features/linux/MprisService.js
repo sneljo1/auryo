@@ -117,14 +117,14 @@ export default class MprisService extends ILinuxFeature {
                 }
 
                 if (track) {
-                    this.meta['mpris:trackid'] = track.id
+                    this.meta['mpris:trackid'] = this.player.objectPath(track.id)
+                    this.meta['mpris:length'] = track.duration * 1000
+                    this.meta['mpris:artUrl'] = SC.getImageUrl(track, IMAGE_SIZES.SMALL)
+
                     this.meta['xesam:title'] = track.title
                     this.meta['xesam:artist'] = [user && user.username ? user.username : 'Unknown artist']
-                    this.meta['mpris:artUrl'] = SC.getImageUrl(track, IMAGE_SIZES.SMALL)
                     this.meta['xesam:url'] = track.uri || ''
                     this.meta['xesam:useCount'] = track.playback_count || 0
-                    this.meta['xesam:genre'] = track.genre || ''
-                    this.meta['xesam:contentCreated'] = track.created_at || 'Unknown release date'
                 } else {
                     this.meta['xesam:title'] = "Auryo"
                     this.meta['xesam:artist'] = ""

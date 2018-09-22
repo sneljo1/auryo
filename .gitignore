@@ -52,3 +52,5 @@ src/.env*
 xunit.xml
 deploy_key
 .eslintcache
+AUR-repo
+
