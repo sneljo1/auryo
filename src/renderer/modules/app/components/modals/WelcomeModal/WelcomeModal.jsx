@@ -5,8 +5,6 @@ import { connect } from 'react-redux';
 import { Modal, ModalBody } from 'reactstrap';
 import { connectModal } from 'redux-modal';
 import imgUrl from '../../../../../../assets/img/boombox.svg';
-import * as actions from '../../../../../../shared/actions/config.actions';
-import "./WelcomeModal.scss";
 
 class WelcomeModal extends Component {
 
@@ -48,4 +46,4 @@ const mapStateToProps = (state) => {
     }
 }
 
-export default connectModal({ name: 'welcome' })(connect(mapStateToProps, actions)(WelcomeModal))
+export default connectModal({ name: 'welcome' })(connect(mapStateToProps, {})(WelcomeModal))

@@ -4,7 +4,7 @@ platform:
 
 environment:
   matrix:
-    - nodejs_version: 8.10
+    - nodejs_version: "8.10"
 
 cache:
   - '%LOCALAPPDATA%/Yarn'

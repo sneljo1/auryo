@@ -1,5 +1,4 @@
 import { Icon, Menu, MenuDivider, MenuItem, Popover, Position } from "@blueprintjs/core";
-import { ipcRenderer } from "electron";
 import isEqual from 'lodash/isEqual';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -7,10 +6,8 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import * as actions from '../../../../../shared/actions/index';
 import Sticky from '../../../_shared/Sticky';
-import './header.scss';
 import SearchBox from './Search/SearchBox';
 import User from './User/AuthUser';
-import { encode } from "punycode";
 
 class Header extends React.Component {
 

@@ -8,7 +8,6 @@ import url from '../../../assets/img/feetonmusicbox.jpg';
 import * as authActions from '../../../shared/actions/auth/auth.actions';
 import UtilitiesModal from '../UtilitiesModel/UtilitiesModal';
 import Button from '../_shared/Button/Button';
-import './login.scss';
 
 class LoginContainer extends React.Component {
 

@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom';
 import { IMAGE_SIZES } from "../../../../shared/constants/index";
 import { SC } from "../../../../shared/utils/index";
 import FallbackImage from "../FallbackImage";
-import "./userCard.scss";
 
 const UserCard = ({ user, followings, toggleFollowingFunc }) => {
     const following = SC.hasID(user.id, followings);

@@ -1,4 +1,4 @@
-import { actionTypes } from '../constants';
+import { actionTypes } from '../constants/actionTypes';
 
 export function setToken(token) {
     return {

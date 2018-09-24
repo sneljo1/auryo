@@ -7,7 +7,6 @@ import { connectModal } from 'redux-modal';
 import * as actions from '../../../shared/actions/config.actions';
 import AboutTab from './about/AboutTab';
 import SettingsTab from './settings/SettingsTab';
-import './UtilitiesModal.scss';
 
 class UtilitiesModal extends Component {
     constructor(props) {

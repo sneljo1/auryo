@@ -3,12 +3,10 @@ import React from 'react';
 import { render } from 'react-dom';
 import { AppContainer } from 'react-hot-loader';
 import { CONFIG } from '../config';
-import { version } from '../package.json';
 import { SC } from '../shared/utils';
 import { configureStore, history } from './configureStore';
-import './css/app.scss';
 import Root from './Root';
-
+const app = require('electron').remote.app
 const store = configureStore()
 
 if (!process.env.TOKEN && process.env.NODE_ENV === 'production') {
@@ -24,7 +22,7 @@ if (!process.env.TOKEN && process.env.NODE_ENV === 'production') {
     if (analytics) {
         const ua = require('../shared/utils/universalAnalytics')
 
-        ua().set('version', version)
+        ua().set('version', app.getVersion())
         ua().set('anonymizeIp', true)
 
         ua().pv("/").send()

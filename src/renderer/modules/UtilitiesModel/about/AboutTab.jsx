@@ -2,7 +2,6 @@ import { remote } from 'electron';
 import os from 'os';
 import React from 'react';
 import logo_url from '../../../../assets/img/auryo-dark.png';
-import './about.scss';
 
 const AboutTab = () => (
     <div className="about mt-2">

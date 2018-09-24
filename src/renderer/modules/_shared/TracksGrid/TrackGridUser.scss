@@ -1,3 +1,5 @@
+@import "~/src/renderer/css/vars.scss";
+
 .songs .userWrapper {
   @include make-col-ready();
   @media (min-width: 1300px) and (max-width: 1500px) {

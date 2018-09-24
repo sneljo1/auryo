@@ -8,7 +8,6 @@ import { abbreviate_number, getReadableTime, SC } from '../../../../shared/utils
 import ActionsDropdown from '../ActionsDropdown';
 import FallbackImage from '../FallbackImage';
 import TogglePlayButton from '../TogglePlayButton';
-import './trackListItem.scss';
 
 class trackListItem extends React.Component {
 

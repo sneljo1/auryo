@@ -2,7 +2,6 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import ReactList from 'react-list';
 import Spinner from '../Spinner/Spinner';
-import './commentList.scss';
 import CommentListItem from './CommentListitem';
 
 class CommentList extends Component {

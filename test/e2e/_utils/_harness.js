@@ -1,7 +1,7 @@
 import { Application } from 'spectron';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import path from 'path';
+import * as path from 'path';
 import electron from "electron";
 import { getToken } from './_getToken';
 import fs from "fs"

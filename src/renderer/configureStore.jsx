@@ -12,7 +12,7 @@ import { isOnline } from '../shared/actions/app/offline.actions';
 import { logout } from '../shared/actions/auth/auth.actions';
 import { REDUX_STATES } from '../shared/constants';
 import { PLAYER_SET_TIME, UI_SET_SCROLL_TOP } from '../shared/constants/actionTypes';
-import rootReducer from '../shared/reducers';
+import {rootReducer} from '../shared/reducers';
 
 const history = createHashHistory()
 

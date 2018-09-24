@@ -1,6 +1,5 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import './searchBox.scss'
 import debounce from 'lodash/debounce'
 import { ipcRenderer } from 'electron'
 

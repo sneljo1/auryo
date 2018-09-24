@@ -6,7 +6,6 @@ import ReactList from 'react-list';
 import { getCurrentPosition } from '../../../../../shared/utils/playerUtils';
 import CustomScroll from '../../../_shared/CustomScroll';
 import Spinner from '../../../_shared/Spinner/Spinner';
-import './queue.scss';
 import QueueItem from './QueueItem';
 
 class Queue extends React.Component {

@@ -18,7 +18,6 @@ import ShareMenuItem from '../_shared/ShareMenuItem';
 import Spinner from '../_shared/Spinner/Spinner';
 import TracksGrid from '../_shared/TracksGrid/TracksGrid';
 import WithHeaderComponent from '../_shared/WithHeaderComponent';
-import './playlist.scss';
 
 class PlaylistContainer extends WithHeaderComponent {
 

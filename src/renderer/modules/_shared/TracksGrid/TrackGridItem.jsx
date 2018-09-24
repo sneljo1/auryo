@@ -10,7 +10,7 @@ import { getReadableTime } from '../../../../shared/utils/appUtils';
 import ActionsDropdown from '../ActionsDropdown';
 import FallbackImage from '../FallbackImage';
 import TogglePlayButton from '../TogglePlayButton';
-import './trackGridItem.scss';
+
 
 class TrackGridItem extends React.Component {
 

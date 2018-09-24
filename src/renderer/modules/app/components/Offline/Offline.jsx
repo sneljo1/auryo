@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { Alert } from "reactstrap";
 import Spinner from "../../../_shared/Spinner/Spinner";
-import "./offline.scss";
 
 class Offline extends Component {
     render() {

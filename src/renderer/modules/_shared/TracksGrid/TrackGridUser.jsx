@@ -6,7 +6,6 @@ import { Link } from 'react-router-dom';
 import { IMAGE_SIZES } from '../../../../shared/constants';
 import { abbreviate_number, SC } from '../../../../shared/utils';
 import FallbackImage from '../FallbackImage';
-import './TrackGridUser.scss';
 
 class TrackGridUser extends React.Component {
 

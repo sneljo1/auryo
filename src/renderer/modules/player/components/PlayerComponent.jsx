@@ -421,7 +421,6 @@ Player.propTypes = {
     toggleQueue: PropTypes.func.isRequired,
     setCurrentTime: PropTypes.func.isRequired,
     setDuration: PropTypes.func.isRequired,
-    setRepeat: PropTypes.func.isRequired,
     toggleShuffle: PropTypes.func.isRequired,
     updateTime: PropTypes.func.isRequired
 }

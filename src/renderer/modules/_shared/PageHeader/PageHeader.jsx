@@ -1,6 +1,5 @@
 import React from 'react'
 import cn from 'classnames'
-import './PageHeader.scss'
 import PropTypes from "prop-types";
 
 const PageHeader = ({ image, gradient, children, title }) => (

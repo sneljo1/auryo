@@ -5,7 +5,6 @@ import React from 'react';
 import { NavLink, withRouter } from 'react-router-dom';
 import CustomScroll from '../../../_shared/CustomScroll';
 import SideBarPlaylist from './playlist/SideBarPlaylist';
-import './sidebar.scss';
 
 class SideBar extends React.Component {
 

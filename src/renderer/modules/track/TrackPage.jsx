@@ -25,7 +25,6 @@ import TogglePlay from '../_shared/TogglePlayButton';
 import TrackList from '../_shared/TrackList/TrackList';
 import TrackGridUser from '../_shared/TracksGrid/TrackGridUser';
 import WithHeaderComponent from '../_shared/WithHeaderComponent';
-import './track.scss';
 
 class TrackPage extends WithHeaderComponent {
 

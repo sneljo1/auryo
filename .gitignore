@@ -53,4 +53,4 @@ xunit.xml
 deploy_key
 .eslintcache
 AUR-repo
-
+.awcache

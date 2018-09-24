@@ -23,7 +23,6 @@ import ToggleMoreComponent from '../_shared/ToggleMore';
 import TrackList from '../_shared/TrackList/TrackList';
 import WithHeaderComponent from '../_shared/WithHeaderComponent';
 import ArtistProfiles from './components/ArtistProfiles/ArtistProfiles';
-import './index.scss';
 
 class ArtistPage extends WithHeaderComponent {
 

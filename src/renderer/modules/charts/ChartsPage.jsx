@@ -12,7 +12,6 @@ import Header from '../app/components/Header/Header';
 import CustomScroll from '../_shared/CustomScroll';
 import PageHeader from '../_shared/PageHeader/PageHeader';
 import WithHeaderComponent from '../_shared/WithHeaderComponent';
-import './ChartsPage.scss';
 import ChartGenre from './components/ChartGenre';
 
 export const GENRE_IMAGES = {

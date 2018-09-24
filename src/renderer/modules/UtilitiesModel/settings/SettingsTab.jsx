@@ -4,7 +4,6 @@ import React, { Component } from 'react';
 import { EVENTS } from '../../../../shared/constants/events';
 import CheckboxConfig from './components/CheckboxConfig';
 import InputConfig from './components/InputConfig';
-import './settings.scss';
 
 class SettingsTab extends Component {
 

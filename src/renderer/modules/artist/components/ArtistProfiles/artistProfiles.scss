@@ -1,3 +1,5 @@
+@import "~/src/renderer/css/vars.scss";
+
 $facebook_color: hsla(222, 47%, 40%, 1); // #365397
 $twitter_color: hsla(198, 100%, 47%, 1); // #00a9f1
 $google_color: hsla(217, 89%, 61%, 1); // #4285f4
@@ -12,13 +14,7 @@ $pinterest: #cb2027;
 $beatport: #8fc73e;
 $snapchat: #fffc00;
 
-@import "../../../../css/vars";
-
 @mixin color($color) {
-  i {
-
-
-  }
   &:hover {
     i {
       color: $color;

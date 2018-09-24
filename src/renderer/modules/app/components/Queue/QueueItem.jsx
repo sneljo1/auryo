@@ -9,7 +9,6 @@ import { IMAGE_SIZES } from '../../../../../shared/constants/Soundcloud';
 import * as SC from '../../../../../shared/utils/soundcloudUtils';
 import ActionsDropdown from '../../../_shared/ActionsDropdown';
 import FallbackImage from '../../../_shared/FallbackImage';
-import './queue.scss';
 
 class QueueItem extends React.Component {
 

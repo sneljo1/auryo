@@ -9,7 +9,6 @@ import { IMAGE_SIZES } from '../../../../shared/constants';
 import { SC } from '../../../../shared/utils';
 import FallbackImage from '../FallbackImage';
 import Linkify from '../Linkify';
-import './commentList.scss';
 
 class CommentListItem extends React.Component {
 

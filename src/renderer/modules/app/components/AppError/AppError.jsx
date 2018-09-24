@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import './AppError.scss';
 
 class AppError extends React.Component {
 

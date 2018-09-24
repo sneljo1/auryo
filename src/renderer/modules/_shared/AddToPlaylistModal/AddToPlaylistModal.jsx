@@ -5,7 +5,6 @@ import { connectModal } from 'redux-modal';
 import { IMAGE_SIZES } from '../../../../shared/constants';
 import { getReadableTime, SC } from '../../../../shared/utils';
 import FallbackImage from '../FallbackImage';
-import './addToPlaylistModal.scss';
 
 class AddToPlaylistModal extends Component {
 

@@ -1,7 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import cn from 'classnames'
-import './Spinner.scss'
 
 const Spinner = ({ full, contained }) => (
     <div className={cn('loader', { full, contained })}>

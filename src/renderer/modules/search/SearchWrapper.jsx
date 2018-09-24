@@ -10,7 +10,6 @@ import CustomScroll from '../_shared/CustomScroll';
 import Spinner from '../_shared/Spinner/Spinner';
 import WithHeaderComponent from '../_shared/WithHeaderComponent';
 import SearchCategoryPage from './Category/SearchCategoryPage';
-import './search.scss';
 import SearchPage from './SearchPage';
 
 class SearchWrapper extends WithHeaderComponent {

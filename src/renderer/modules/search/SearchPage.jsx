@@ -10,7 +10,6 @@ import playlistSchema from '../../../shared/schemas/playlist';
 import trackSchema from '../../../shared/schemas/track';
 import Spinner from '../_shared/Spinner/Spinner';
 import TracksGrid from '../_shared/TracksGrid/TracksGrid';
-import './search.scss';
 
 class Search extends React.Component {
 
