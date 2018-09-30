@@ -1,122 +1,123 @@
-import { EVENTS } from '../../../shared/constants/events'
-import { CHANGE_TYPES, PLAYER_STATUS } from '../../../shared/constants/player'
-import { IMAGE_SIZES } from '../../../shared/constants/Soundcloud'
-import * as SC from '../../../shared/utils/soundcloudUtils'
-import MacFeature from './macFeature'
-import { MediaService, MetaData, MediaStates, milliseconds } from './interfaces/electron-media-service.interfaces'
+import { EVENTS } from '../../../shared/constants/events';
+import { IMAGE_SIZES } from '../../../shared/constants/Soundcloud';
+import { ChangeTypes, PlayerStatus, PlayingTrack } from '../../../shared/store/player';
+import * as SC from '../../../shared/utils/soundcloudUtils';
+import { MediaService, MediaStates, MetaData, milliseconds } from './interfaces/electron-media-service.interfaces';
+import MacFeature from './macFeature';
+import { WatchState } from '../feature';
 
 export default class MediaServiceManager extends MacFeature {
-  private myService: MediaService
+  private myService: MediaService;
   private meta: MetaData = {
     state: MediaStates.STOPPED
-  }
+  };
 
   register() {
-    const MediaService = require('electron-media-service') // eslint-disable-line
+    const MediaService = require('electron-media-service'); // eslint-disable-line
 
-    const myService = (this.myService = new MediaService())
+    const myService = (this.myService = new MediaService());
 
-    myService.startService()
+    myService.startService();
 
-    myService.setMetaData(this.meta)
+    myService.setMetaData(this.meta);
 
     myService.on('play', () => {
       if (this.meta.state !== MediaStates.PLAYING) {
-        this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PLAYER_STATUS.PLAYING)
+        this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PlayerStatus.PLAYING);
       }
-    })
+    });
 
     myService.on('pause', () => {
       if (this.meta.state === MediaStates.PLAYING) {
-        this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PLAYER_STATUS.PAUSED)
+        this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PlayerStatus.PAUSED);
       }
-    })
+    });
 
     myService.on('stop', () => {
-      this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PLAYER_STATUS.STOPPED)
-    })
+      this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PlayerStatus.STOPPED);
+    });
 
     myService.on('playPause', () => {
-      this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS)
-    })
+      this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS);
+    });
 
     myService.on('next', () => {
-      this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, CHANGE_TYPES.NEXT)
-    })
+      this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, ChangeTypes.NEXT);
+    });
 
     myService.on('previous', () => {
-      this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, CHANGE_TYPES.PREV)
-    })
+      this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, ChangeTypes.PREV);
+    });
 
     myService.on('seek', (to: milliseconds) => {
-      this.sendToWebContents(EVENTS.PLAYER.SEEK, to)
-    })
+      this.sendToWebContents(EVENTS.PLAYER.SEEK, to);
+    });
 
     //
     // WATCHERS
     //
 
+    /**
+     * Update track information
+     */
     this.on(EVENTS.APP.READY, () => {
-      /**
-       * Update track information
-       */
-
-      this.subscribe(['player', 'playingTrack'], ({ currentState }: any) => {
-        // TODO type enum later
+      this.subscribe<PlayingTrack>(['player', 'playingTrack'], ({ currentState }) => {
         const {
-          entities: { track_entities },
+          entities: { trackEntities, userEntities },
           player: { playingTrack }
-        } = currentState
+        } = currentState;
 
-        const trackID = playingTrack.id
-        const track = track_entities[trackID]
+        if (playingTrack) {
+          const trackID = playingTrack.id;
+          const track = trackEntities[trackID];
+          const user = userEntities[track.user || track.user_id];
 
-        if (track) {
-          this.meta.id = track.id
-          this.meta.title = track.title
+          if (track) {
+            this.meta.id = parseInt(track.id);
+            this.meta.title = track.title;
 
-          this.meta.artist = track.user && track.user.username ? track.user.username : 'Unknown artist'
-          this.meta.albumArt = SC.getImageUrl(track, IMAGE_SIZES.LARGE)
+            this.meta.artist = user && user.username ? user.username : 'Unknown artist';
+            this.meta.albumArt = SC.getImageUrl(track, IMAGE_SIZES.LARGE);
 
-          myService.setMetaData(this.meta)
+            myService.setMetaData(this.meta);
+          }
         }
-      })
+      });
 
       /**
        * Update playback status
        */
-      this.subscribe(['player', 'status'], ({ currentValue: status }: any) => {
-        this.meta.state = status.toLowerCase()
+      this.subscribe<PlayerStatus>(['player', 'status'], ({ currentValue: status }: any) => {
+        this.meta.state = status.toLowerCase();
 
-        myService.setMetaData(this.meta)
-      })
+        myService.setMetaData(this.meta);
+      });
 
       /**
        * Update time
        */
-      this.subscribe(['player', 'currentTime'], this.updateTime)
-      this.subscribe(['player', 'duration'], this.updateTime)
-    })
+      this.subscribe(['player', 'currentTime'], this.updateTime);
+      this.subscribe(['player', 'duration'], this.updateTime);
+    });
   }
 
   updateTime = ({
     currentState: {
       player: { currentTime, duration }
     }
-  }: any) => {
-    // TODO type enum later
+  }: WatchState<number>) => {
 
-    this.meta.currentTime = currentTime
-    this.meta.duration = duration
+    this.meta.currentTime = currentTime;
+    this.meta.duration = duration;
 
-    this.myService.setMetaData(this.meta)
+    this.myService.setMetaData(this.meta);
   }
 
   unregister() {
-    super.unregister()
+    super.unregister();
 
     if (this.myService && this.myService.isStarted()) {
-      this.myService.stopService()
+      this.myService.stopService();
     }
   }
 }

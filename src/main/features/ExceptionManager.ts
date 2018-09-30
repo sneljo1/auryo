@@ -1,4 +1,4 @@
-import * as unhandled from 'electron-unhandled';
+import unhandled from 'electron-unhandled';
 import { Logger } from '../utils/logger';
 import Feature from './feature';
 

@@ -25,8 +25,8 @@ const mainOptions = [
 ];
 
 async function compileParcel() {
-  await run('Parcel (Renderer)', 'parcel', ['build', ...rendererOptions]);
-  await run('Parcel (Main)', 'parcel', ['build', ...mainOptions]);
+  await run('Parcel (Renderer)', 'parcel', ['build', ...rendererOptions ]);
+  await run('Parcel (Main)', 'parcel', [ 'build', ...mainOptions ]);
 };
 
 module.exports = {

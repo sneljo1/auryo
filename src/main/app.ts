@@ -1,14 +1,14 @@
-import { app, BrowserWindow, Menu, nativeImage, shell, BrowserWindowConstructorOptions } from 'electron';
-import * as windowStateKeeper from 'electron-window-state';
+import { app, BrowserWindow, BrowserWindowConstructorOptions, Menu, nativeImage, shell } from 'electron';
+import windowStateKeeper from 'electron-window-state';
+import { LocationDescriptorObject } from 'history';
+import * as _ from 'lodash';
 import * as os from 'os';
 import * as path from 'path';
 import { Store } from 'redux';
-import { CONFIG } from '../config';
 import { EVENTS } from '../shared/constants/events';
-import { Logger } from './utils/logger';
-import { StoreState } from '../shared/reducers';
+import { StoreState } from '../shared/store';
 import Feature from './features/feature';
-import * as _ from 'lodash';
+import { Logger } from './utils/logger';
 import { Utils } from './utils/utils';
 
 if (process.env.NODE_ENV === 'development') {
@@ -26,22 +26,22 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 const icons = {
-  '256': nativeImage.createFromPath(path.join(logosPath, 'auryo.png')),
-  '128': nativeImage.createFromPath(path.join(logosPath, 'auryo-128.png')),
-  '64': nativeImage.createFromPath(path.join(logosPath, 'auryo-64.png')),
-  '48': nativeImage.createFromPath(path.join(logosPath, 'auryo-48.png')),
-  '32': nativeImage.createFromPath(path.join(logosPath, 'auryo-32.png')),
+  256: nativeImage.createFromPath(path.join(logosPath, 'auryo.png')),
+  128: nativeImage.createFromPath(path.join(logosPath, 'auryo-128.png')),
+  64: nativeImage.createFromPath(path.join(logosPath, 'auryo-64.png')),
+  48: nativeImage.createFromPath(path.join(logosPath, 'auryo-48.png')),
+  32: nativeImage.createFromPath(path.join(logosPath, 'auryo-32.png')),
   ico: nativeImage.createFromPath(path.join(logosPath, 'auryo.ico')),
   tray: nativeImage.createFromPath(path.join(logosPath, 'auryo-tray.png')).resize({ width: 24, height: 24 }),
   'tray-ico': nativeImage.createFromPath(path.join(logosPath, 'auryo-tray.ico')).resize({ width: 24, height: 24 })
 };
 
 export class Auryo {
-  private logger = new Logger('Main');
 
   public mainWindow: Electron.BrowserWindow | undefined;
   public store: Store<StoreState>;
   public quitting: boolean = false;
+  private logger = new Logger('Main');
 
   constructor(store: Store<StoreState>) {
     this.store = store;
@@ -87,7 +87,6 @@ export class Auryo {
       fullscreen: mainWindowState.isFullScreen,
       webPreferences: {
         nodeIntegrationInWorker: true,
-        preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
       }
     };
 
@@ -111,7 +110,7 @@ export class Auryo {
       this.quitting = true;
     });
 
-    this.mainWindow.on('close', event => {
+    this.mainWindow.on('close', (event) => {
       if (process.platform === 'darwin') {
         if (this.quitting) {
           this.mainWindow = undefined;
@@ -132,7 +131,7 @@ export class Auryo {
     });
 
     if (process.env.NODE_ENV === 'development' || process.env.ENV === 'development') {
-      this.mainWindow.webContents.on('context-menu', (e, props) => {
+      this.mainWindow.webContents.on('context-menu', (_e, props) => {
         const { x, y } = props;
         Menu.buildFromTemplate([
           {
@@ -172,8 +171,9 @@ export class Auryo {
       this.logger.debug(`Registering feature: ${feature.constructor.name}`);
       try {
         feature.register();
-      } catch (e) {
-        this.logger.error(`Error starting feature: ${feature.constructor.name}`, e);
+      } catch (error) {
+        this.logger.error(`Error starting feature: ${feature.constructor.name}`);
+        this.logger.error(error);
       }
     };
 
@@ -194,8 +194,9 @@ export class Auryo {
 
   loadMain() {
     if (this.mainWindow) {
+      console.log(`file:/${path.resolve(__dirname, '..', 'index.html')}`);
 
-      this.mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
+      this.mainWindow.loadURL(`file://${path.resolve(__dirname, '..', 'index.html')}`);
 
       this.mainWindow.webContents.on('will-navigate', (e, u) => {
         e.preventDefault();
@@ -203,16 +204,15 @@ export class Auryo {
         if (/^(https?:\/\/)/g.exec(u) !== null) {
           if (/https?:\/\/(www.)?soundcloud\.com\//g.exec(u) !== null) {
             if (this.mainWindow) {
-              this.mainWindow.webContents.send('navigate', {
+              const goto: LocationDescriptorObject = {
                 pathname: '/resolve',
-                search: '',
-                hash: '',
-                action: 'PUSH',
                 key: 'resolve',
-                query: {
+                state: {
                   url: escape(u)
                 }
-              });
+              };
+
+              this.mainWindow.webContents.send('navigate', goto);
             }
           } else {
             shell.openExternal(u);
@@ -232,7 +232,7 @@ export class Auryo {
         {
           urls: ['/stream?client_id=', 'cf-media.sndcdn.com']
         },
-        details => {
+        (details) => {
           if (this.mainWindow) {
             this.mainWindow.webContents.send(EVENTS.APP.STREAMED);
 
@@ -243,7 +243,7 @@ export class Auryo {
         }
       );
 
-      this.mainWindow.webContents.session.webRequest.onErrorOccurred({ urls: ['*/stream?client_id=*'] }, details => {
+      this.mainWindow.webContents.session.webRequest.onErrorOccurred({ urls: ['*/stream?client_id=*'] }, (details) => {
         if (details.error === 'net::ERR_INTERNET_DISCONNECTED' && this.mainWindow) {
           this.mainWindow.webContents.send(EVENTS.APP.STREAM_ERROR, -1);
         }

@@ -3,19 +3,12 @@ import { Auryo } from './app';
 import { configureStore } from './store';
 import * as CrashReporter from './utils/raven';
 import { Utils } from './utils/utils';
-import { enableLiveReload } from 'electron-compile';
-
-const isDevMode = process.execPath.match(/[\\/]electron/);
-
-if (isDevMode) {
-  enableLiveReload({strategy: 'react-hmr'});
-}
 
 if (process.env.TOKEN) {
   process.env.ENV = 'test';
 }
 
-if (process.argv.some(arg => arg === '--development') || process.argv.some(arg => arg === '--dev')) {
+if (process.argv.some((arg) => arg === '--development') || process.argv.some((arg) => arg === '--dev')) {
   process.env.ENV = 'development';
 }
 

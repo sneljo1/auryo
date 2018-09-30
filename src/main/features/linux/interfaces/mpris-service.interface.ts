@@ -1,29 +1,29 @@
 export namespace MprisServiceClient {
-  export type MetaData = {
+  export interface MetaData {
     'xesam:title'?: string
     'mpris:trackid'?: string
     'mpris:artUrl'?: string
     'mpris:length'?: microseconds
-    'xesam:artist'?: string[]
+    'xesam:artist'?: Array<string>
     'xesam:asText'?: string
     'xesam:audioBPM'?: number
     'xesam:autoRating'?: number
-    'xesam:comment'?: number[]
-    'xesam:composer'?: string[]
+    'xesam:comment'?: Array<number>
+    'xesam:composer'?: Array<string>
     'xesam:url'?: string
     'xesam:lastUsed'?: ISOString
-    'xesam:genre'?: string[]
+    'xesam:genre'?: Array<string>
     'xesam:contentCreated'?: ISOString
     'xesam:useCount'?: number
-  };
+  }
 
-  export type PlayerOptions = {
+  export interface PlayerOptions {
     name: string
     identity: string
-    supportedUriSchemes: string[]
-    supportedMimeTypes: string[]
-    supportedInterfaces: string[]
-  };
+    supportedUriSchemes: Array<string>
+    supportedMimeTypes: Array<string>
+    supportedInterfaces: Array<string>
+  }
 
   export type double = number;
   export type ISOString = string;

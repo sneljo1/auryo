@@ -38,7 +38,7 @@ export default class AppUpdater extends Feature {
         this.logger.info('New update available');
       });
 
-      autoUpdater.addListener('update-downloaded', info => {
+      autoUpdater.addListener('update-downloaded', (info) => {
         this.sendToWebContents(EVENTS.APP.UPDATE_AVAILABLE, {
           status: 'update-available',
           version: info.version,
@@ -47,7 +47,7 @@ export default class AppUpdater extends Feature {
 
         this.listenUpdate();
       });
-      autoUpdater.addListener('error', error => {
+      autoUpdater.addListener('error', (error) => {
         this.logger.error(error);
       });
       autoUpdater.addListener('checking-for-update', () => {

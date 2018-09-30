@@ -3,7 +3,7 @@ declare module 'redux-electron-store' {
 
     namespace ReduxElectronStore {
 
-        function electronEnhancer(): StoreEnhancer<any>;
+        function electronEnhancer(opts?: { filter: object }): StoreEnhancer<any>;
 
     }
 

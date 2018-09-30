@@ -1,9 +1,10 @@
-import { nativeImage, TouchBar } from 'electron';
+import { nativeImage, TouchBar, NativeImage } from 'electron';
 import * as path from 'path';
 import { EVENTS } from '../../../shared/constants/events';
-import { CHANGE_TYPES } from '../../../shared/constants/player';
 import * as SC from '../../../shared/utils/soundcloudUtils';
 import MacFeature from './macFeature';
+import { ChangeTypes, PlayerStatus } from '../../../shared/store/player';
+import { WatchState } from '../feature';
 
 const { TouchBarButton, TouchBarSpacer } = TouchBar;
 
@@ -34,8 +35,7 @@ export default class TouchBarManager extends MacFeature {
     })
   };
 
-  playstates: any = {
-    // TODO type enum later
+  playstates = {
     PLAYING: nativeImage.createFromPath(path.join(iconsDirectory, 'pause.png')).resize({
       width: 20
     }),
@@ -51,7 +51,7 @@ export default class TouchBarManager extends MacFeature {
     icon: nativeImage.createFromPath(path.join(iconsDirectory, 'previous.png')).resize({
       width: 20
     }),
-    click: () => this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, CHANGE_TYPES.PREV)
+    click: () => this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, ChangeTypes.PREV)
   });
 
   playpause_btn = new TouchBarButton({
@@ -63,7 +63,7 @@ export default class TouchBarManager extends MacFeature {
     icon: nativeImage.createFromPath(path.join(iconsDirectory, 'next.png')).resize({
       width: 20
     }),
-    click: () => this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, CHANGE_TYPES.NEXT)
+    click: () => this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, ChangeTypes.NEXT)
   });
 
   like_btn = new TouchBarButton({
@@ -73,7 +73,9 @@ export default class TouchBarManager extends MacFeature {
         player: { playingTrack }
       } = this.store.getState();
 
-      this.sendToWebContents(EVENTS.TRACK.LIKE, playingTrack.id);
+      if (playingTrack) {
+        this.sendToWebContents(EVENTS.TRACK.LIKE, playingTrack.id);
+      }
     }
   });
 
@@ -84,7 +86,9 @@ export default class TouchBarManager extends MacFeature {
         player: { playingTrack }
       } = this.store.getState();
 
-      this.sendToWebContents(EVENTS.TRACK.REPOST, playingTrack.id);
+      if (playingTrack) {
+        this.sendToWebContents(EVENTS.TRACK.REPOST, playingTrack.id);
+      }
     }
   });
 
@@ -110,6 +114,7 @@ export default class TouchBarManager extends MacFeature {
     this.on(EVENTS.APP.READY, () => {
       this.subscribe(['player', 'status'], this.updateStatus);
       this.subscribe(['player', 'playingTrack'], this.checkIfLiked);
+
       this.on(EVENTS.TRACK.LIKED, this.checkIfLiked);
       this.on(EVENTS.TRACK.REPOSTED, this.checkIfReposted);
     });
@@ -117,40 +122,47 @@ export default class TouchBarManager extends MacFeature {
 
   checkIfLiked = () => {
     const {
-      entities: { track_entities },
+      entities: { trackEntities },
       player: { playingTrack },
       auth: { likes }
     } = this.store.getState();
 
-    const trackID = playingTrack.id;
-    const track = track_entities[trackID];
+    if (playingTrack) {
+      const trackID = playingTrack.id;
+      const track = trackEntities[trackID];
 
-    if (track) {
-      const liked = SC.hasID(track.id, likes.track);
+      if (track) {
+        const liked = SC.hasID(track.id, likes.track);
 
-      this.like_btn.icon = liked ? this.likestates.liked : this.likestates.unliked;
+        this.like_btn.icon = liked ? this.likestates.liked : this.likestates.unliked;
+      }
+    } else {
+      this.like_btn.icon = this.likestates.unliked;
     }
   }
 
   checkIfReposted = () => {
     const {
-      entities: { track_entities },
+      entities: { trackEntities },
       player: { playingTrack },
       auth: { reposts }
     } = this.store.getState();
 
-    const trackID = playingTrack.id;
-    const track = track_entities[trackID];
+    if (playingTrack) {
+      const trackID = playingTrack.id;
+      const track = trackEntities[trackID];
 
-    if (track) {
-      const reposted = SC.hasID(track.id, reposts);
+      if (track) {
+        const reposted = SC.hasID(track.id, reposts);
 
-      this.repost_btn.icon = reposted ? this.repoststates.reposted : this.repoststates.notReposted;
+        this.repost_btn.icon = reposted ? this.repoststates.reposted : this.repoststates.notReposted;
+      }
+    } else {
+      this.repost_btn.icon = this.repoststates.notReposted;
     }
   }
 
-  updateStatus = ({ currentValue }: any) => {
-    // TODO type enum later
+  updateStatus = ({ currentValue }: WatchState<PlayerStatus>) => {
     this.playpause_btn.icon = this.playstates[currentValue];
   }
 }

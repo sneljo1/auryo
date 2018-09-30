@@ -1,10 +1,11 @@
 import _ from 'lodash';
 import * as path from 'path';
 import { EVENTS } from '../../../shared/constants/events';
-import { CHANGE_TYPES, PLAYER_STATUS } from '../../../shared/constants/player';
 import { IMAGE_SIZES } from '../../../shared/constants/Soundcloud';
+import { ChangeTypes, PlayerStatus } from '../../../shared/store/player';
 import * as SC from '../../../shared/utils/soundcloudUtils';
 import { Logger } from '../../utils/logger';
+import { WatchState } from '../feature';
 import { MprisServiceClient } from './interfaces/mpris-service.interface';
 import LinuxFeature from './linuxFeature';
 
@@ -69,11 +70,11 @@ export default class MprisService extends LinuxFeature {
     });
 
     this.player.on('play', () => {
-      this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PLAYER_STATUS.PLAYING);
+      this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PlayerStatus.PLAYING);
     });
 
     this.player.on('pause', () => {
-      this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PLAYER_STATUS.PAUSED);
+      this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PlayerStatus.PAUSED);
     });
 
     this.player.on('playpause', () => {
@@ -81,15 +82,15 @@ export default class MprisService extends LinuxFeature {
     });
 
     this.player.on('stop', () => {
-      this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PLAYER_STATUS.STOPPED);
+      this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PlayerStatus.STOPPED);
     });
 
     this.player.on('next', () => {
-      this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, CHANGE_TYPES.NEXT);
+      this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, ChangeTypes.NEXT);
     });
 
     this.player.on('previous', () => {
-      this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, CHANGE_TYPES.PREV);
+      this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, ChangeTypes.PREV);
     });
 
     //
@@ -100,40 +101,41 @@ export default class MprisService extends LinuxFeature {
       /**
        * Update track information
        */
-      this.subscribe(['player', 'playingTrack'], ({ currentState }: any) => {
-        // TODO type later
+      this.subscribe(['player', 'playingTrack'], ({ currentState }) => {
         const {
-          entities: { track_entities, user_entities },
+          entities: { trackEntities, userEntities },
           player: { playingTrack, queue }
         } = currentState;
 
-        const trackID = playingTrack.id;
-        const track = track_entities[trackID];
-        const position = queue.indexOf(playingTrack);
-        const user = user_entities[track.user || track.user_id];
+        if (playingTrack) {
+          const trackID = playingTrack.id;
+          const track = trackEntities[trackID];
+          const position = queue.indexOf(playingTrack);
+          const user = userEntities[track.user || track.user_id];
 
-        this.player.canGoPrevious = queue.length > 0 && position > 0;
-        this.player.canGoNext = queue.length > 0 && position + 1 <= queue.length;
+          this.player.canGoPrevious = queue.length > 0 && position > 0;
+          this.player.canGoNext = queue.length > 0 && position + 1 <= queue.length;
 
-        this.meta = {
-          ...this.meta,
-          ...this.player.metadata
-        };
+          this.meta = {
+            ...this.meta,
+            ...this.player.metadata
+          };
 
-        if (track) {
-          this.meta['mpris:trackid'] = this.player.objectPath(track.id);
-          this.meta['mpris:length'] = track.duration * 1000;
-          this.meta['mpris:artUrl'] = SC.getImageUrl(track, IMAGE_SIZES.SMALL);
+          if (track) {
+            this.meta['mpris:trackid'] = this.player.objectPath(track.id);
+            this.meta['mpris:length'] = track.duration * 1000;
+            this.meta['mpris:artUrl'] = SC.getImageUrl(track, IMAGE_SIZES.SMALL);
 
-          this.meta['xesam:title'] = track.title;
-          this.meta['xesam:artist'] = [user && user.username ? user.username : 'Unknown artist'];
-          this.meta['xesam:url'] = track.uri || '';
-          this.meta['xesam:useCount'] = track.playback_count || 0;
-        } else {
-          this.meta['xesam:title'] = 'Auryo';
-          this.meta['xesam:artist'] = [''];
-          this.meta['xesam:url'] = '';
-          this.meta['mpris:artUrl'] = `file://${path.join(logosPath, 'auryo-128.png')}`;
+            this.meta['xesam:title'] = track.title;
+            this.meta['xesam:artist'] = [user && user.username ? user.username : 'Unknown artist'];
+            this.meta['xesam:url'] = track.uri || '';
+            this.meta['xesam:useCount'] = track.playback_count || 0;
+          } else {
+            this.meta['xesam:title'] = 'Auryo';
+            this.meta['xesam:artist'] = [''];
+            this.meta['xesam:url'] = '';
+            this.meta['mpris:artUrl'] = `file://${path.join(logosPath, 'auryo-128.png')}`;
+          }
         }
 
         if (!_.isEqual(this.meta, this.player.metadata)) {
@@ -150,14 +152,13 @@ export default class MprisService extends LinuxFeature {
     });
   }
 
-  updateStatus = ({ currentValue }: any) => {
-    // TODO type later
+  updateStatus({ currentValue }: WatchState<PlayerStatus>) {
     if (currentValue) {
       this.player.playbackStatus =
         currentValue
           .toLowerCase()
           .charAt(0)
-          .toUpperCase() + currentValue.toLowerCase().slice(1);
+          .toUpperCase() + currentValue.toLowerCase().slice(1) as any;
     }
   }
 
@@ -165,8 +166,7 @@ export default class MprisService extends LinuxFeature {
     currentState: {
       player: { currentTime, duration }
     }
-  }: any) => {
-    // TODO type later
+  }: WatchState<number>) => {
 
     this.meta = {
       ...this.meta,

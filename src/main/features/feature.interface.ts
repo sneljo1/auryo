@@ -1,5 +1,5 @@
 export interface IFeature {
-  subscribe(path: string[], handler: Function): void;
+  subscribe(path: Array<string>, handler: Function): void;
 
   sendToWebContents(channel: string, params: object): void;
 
@@ -7,7 +7,7 @@ export interface IFeature {
 
   on(path: string, handler: Function): void;
 
-  unregister(path?: string[] | string): void;
+  unregister(path?: Array<string> | string): void;
 
   shouldRun(): boolean;
 }

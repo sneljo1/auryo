@@ -1,0 +1,45 @@
+@import "../../../../../../css/vars.scss";
+
+.setting-group {
+  margin: 0 0 1rem;
+  font-size: .85rem;
+
+  .setting-group-title {
+    padding: 6px 12px 6px 0;
+    text-transform: uppercase;
+    font-size: .9rem;
+    color: #00000F;
+    font-weight: 700;
+    &:after {
+      content: "";
+      width: 40px;
+      height: 2px;
+      background: #2980b9;
+      display: block;
+      margin-top: 5px;
+    }
+  }
+  .setting {
+    &:not([class*="col-"]) {
+      padding: 10px 0 5px;
+    }
+
+    span {
+      vertical-align: text-bottom;
+    }
+  }
+
+}
+
+.info-message {
+  background: hsla(204, 64%, 93%, 1);
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  color: hsla(204, 10%, 42%, 1);
+  font-size: 0.85rem;
+
+  a {
+    text-decoration: underline;
+  }
+}

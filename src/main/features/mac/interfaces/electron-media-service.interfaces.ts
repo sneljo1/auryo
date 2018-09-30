@@ -5,21 +5,21 @@ export enum MediaStates {
 }
 
 export interface MetaData {
-  state: MediaStates
-  id?: number
-  title?: string
-  artist?: string
-  albumArt?: string
-  album?: string
-  currentTime?: milliseconds
-  duration?: milliseconds
+  state: MediaStates;
+  id?: number;
+  title?: string;
+  artist?: string;
+  albumArt?: string;
+  album?: string;
+  currentTime?: milliseconds;
+  duration?: milliseconds;
 }
 
 export interface MediaService {
-  setMetaData(metadata: MetaData): void
-  isStarted(): boolean
-  startService(): void
-  stopService(): void
+  setMetaData(metadata: MetaData): void;
+  isStarted(): boolean;
+  startService(): void;
+  stopService(): void;
 }
 
-export type milliseconds = number
+export type milliseconds = number;

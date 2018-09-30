@@ -1,10 +1,10 @@
 import { nativeImage } from 'electron';
 import * as is from 'electron-is';
 import * as path from 'path';
-import { CHANGE_TYPES, PLAYER_STATUS } from '../../../shared/constants';
 import { EVENTS } from '../../../shared/constants/events';
 import IFeature from '../feature';
 import { Auryo } from '../../app';
+import { PlayerStatus, ChangeTypes } from '../../../shared/store/player';
 
 let iconsDirectory: string;
 
@@ -14,7 +14,7 @@ if (process.env.NODE_ENV === 'development') {
   iconsDirectory = path.resolve(__dirname, './assets/img/icons');
 }
 
-type ThumbarPreset = {
+interface ThumbarPreset {
   play: Electron.ThumbarButton
   playDisabled: Electron.ThumbarButton
   pause: Electron.ThumbarButton
@@ -23,7 +23,7 @@ type ThumbarPreset = {
   prevDisabled: Electron.ThumbarButton
   next: Electron.ThumbarButton
   nextDisabled: Electron.ThumbarButton
-};
+}
 
 export default class Thumbar extends IFeature {
   private thumbarButtons: ThumbarPreset;
@@ -42,7 +42,7 @@ export default class Thumbar extends IFeature {
         tooltip: 'Play',
         icon: nativeImage.createFromPath(path.join(iconsDirectory, 'play.png')),
         click: () => {
-          this.togglePlay(PLAYER_STATUS.PLAYING);
+          this.togglePlay(PlayerStatus.PLAYING);
         }
       },
       playDisabled: {
@@ -50,13 +50,13 @@ export default class Thumbar extends IFeature {
         flags: ['disabled'],
         icon: nativeImage.createFromPath(path.join(iconsDirectory, 'play-disabled.png')),
         // tslint:disable-next-line:no-empty
-        click: () => {}
+        click: () => { }
       },
       pause: {
         tooltip: 'Pause',
         icon: nativeImage.createFromPath(path.join(iconsDirectory, 'pause.png')),
         click: () => {
-          this.togglePlay(PLAYER_STATUS.PAUSED);
+          this.togglePlay(PlayerStatus.PAUSED);
         }
       },
       pauseDisabled: {
@@ -64,13 +64,13 @@ export default class Thumbar extends IFeature {
         flags: ['disabled'],
         icon: nativeImage.createFromPath(path.join(iconsDirectory, 'pause-disabled.png')),
         // tslint:disable-next-line:no-empty
-        click: () => {}
+        click: () => { }
       },
       prev: {
         tooltip: 'Prev',
         icon: nativeImage.createFromPath(path.join(iconsDirectory, 'previous.png')),
         click: () => {
-          this.changeTrack(CHANGE_TYPES.PREV);
+          this.changeTrack(ChangeTypes.PREV);
         }
       },
       prevDisabled: {
@@ -78,13 +78,13 @@ export default class Thumbar extends IFeature {
         flags: ['disabled'],
         icon: nativeImage.createFromPath(path.join(iconsDirectory, 'previous-disabled.png')),
         // tslint:disable-next-line:no-empty
-        click: () => {}
+        click: () => { }
       },
       next: {
         tooltip: 'Next',
         icon: nativeImage.createFromPath(path.join(iconsDirectory, 'next.png')),
         click: () => {
-          this.changeTrack(CHANGE_TYPES.NEXT);
+          this.changeTrack(ChangeTypes.NEXT);
         }
       },
       nextDisabled: {
@@ -92,7 +92,7 @@ export default class Thumbar extends IFeature {
         flags: ['disabled'],
         icon: nativeImage.createFromPath(path.join(iconsDirectory, 'next-disabled.png')),
         // tslint:disable-next-line:no-empty
-        click: () => {}
+        click: () => { }
       }
     };
 
@@ -115,21 +115,21 @@ export default class Thumbar extends IFeature {
     } = this.store.getState();
 
     switch (status) {
-      case PLAYER_STATUS.PLAYING:
+      case PlayerStatus.PLAYING:
         this.win.setThumbarButtons([
           queue.length > 0 || currentIndex > 0 ? this.thumbarButtons.prev : this.thumbarButtons.prevDisabled,
           this.thumbarButtons.pause,
           queue.length > 0 && currentIndex + 1 <= queue.length ? this.thumbarButtons.next : this.thumbarButtons.nextDisabled
         ]);
         break;
-      case PLAYER_STATUS.PAUSED:
+      case PlayerStatus.PAUSED:
         this.win.setThumbarButtons([
           queue.length > 0 || currentIndex > 0 ? this.thumbarButtons.prev : this.thumbarButtons.prevDisabled,
           this.thumbarButtons.play,
           queue.length > 0 && currentIndex + 1 <= queue.length ? this.thumbarButtons.next : this.thumbarButtons.nextDisabled
         ]);
         break;
-      case PLAYER_STATUS.STOPPED:
+      case PlayerStatus.STOPPED:
         this.win.setThumbarButtons([this.thumbarButtons.prevDisabled, this.thumbarButtons.playDisabled, this.thumbarButtons.nextDisabled]);
         break;
       default:
@@ -137,8 +137,7 @@ export default class Thumbar extends IFeature {
     }
   }
 
-  togglePlay = (newStatus: any) => {
-    // TODO change when enum
+  togglePlay = (newStatus:  PlayerStatus) => {
     const {
       player: { status }
     } = this.store.getState();
@@ -148,8 +147,7 @@ export default class Thumbar extends IFeature {
     }
   }
 
-  changeTrack = (changeType: any) => {
-    // TODO change when enum
+  changeTrack = (changeType: ChangeTypes) => {
     this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, changeType);
   }
 }

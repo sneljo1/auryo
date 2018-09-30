@@ -9,19 +9,19 @@ export class MockSettings implements Partial<Settings> {
     return !!_.get(this.data, keyPath);
   }
 
-  set(keyPath: string, value: JsonValue, options?: SettingsOptions) {
+  set(keyPath: string, value: JsonValue, _options?: SettingsOptions) {
     this.data[keyPath] = value;
 
     return this as any;
   }
 
-  setAll(obj: JsonValue, options?: SettingsOptions): Settings {
+  setAll(obj: JsonValue, _options?: SettingsOptions): Settings {
     this.data = obj;
 
     return this as any;
   }
 
-  get(keyPath: string, defaultValue?: any, options?: SettingsOptions): JsonValue {
+  get(keyPath: string, defaultValue?: any, _options?: SettingsOptions): JsonValue {
     return _.get(this.data, keyPath) || defaultValue;
   }
 
@@ -29,13 +29,13 @@ export class MockSettings implements Partial<Settings> {
     return this.data;
   }
 
-  delete(keyPath: string, options?: SettingsOptions): Settings {
+  delete(keyPath: string, _options?: SettingsOptions): Settings {
     delete this.data[keyPath];
 
     return this as any;
   }
 
-  deleteAll(options?: SettingsOptions): Settings {
+  deleteAll(_options?: SettingsOptions): Settings {
     this.data = {};
 
     return this as any;

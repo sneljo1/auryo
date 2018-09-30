@@ -1,7 +1,7 @@
-import { globalShortcut } from 'electron'
-import { CHANGE_TYPES, PLAYER_STATUS } from '../../shared/constants'
-import IFeature from './feature'
-import { EVENTS } from '../../shared/constants/events'
+import { globalShortcut } from 'electron';
+import IFeature from './feature';
+import { EVENTS } from '../../shared/constants/events';
+import { ChangeTypes, PlayerStatus } from '../../shared/store/player';
 
 /**
  * Register global media shortcuts
@@ -9,26 +9,24 @@ import { EVENTS } from '../../shared/constants/events'
 export default class Shortcut extends IFeature {
   register() {
     globalShortcut.register('MediaPlayPause', () => {
-      this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS)
-    })
+      this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS);
+    });
     globalShortcut.register('MediaPreviousTrack', () => {
-      this.changeTrack(CHANGE_TYPES.PREV)
-    })
+      this.changeTrack(ChangeTypes.PREV);
+    });
     globalShortcut.register('MediaNextTrack', () => {
-      this.changeTrack(CHANGE_TYPES.NEXT)
-    })
+      this.changeTrack(ChangeTypes.NEXT);
+    });
     globalShortcut.register('MediaStop', () => {
-      this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PLAYER_STATUS.STOPPED)
-    })
+      this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PlayerStatus.STOPPED);
+    });
   }
 
-  // eslint-disable-next-line
   unregister() {
-    globalShortcut.unregisterAll()
+    globalShortcut.unregisterAll();
   }
 
-  changeTrack = (changeType: any) => {
-    // TODO change to enum
-    this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, changeType)
+  changeTrack = (changeType: ChangeTypes) => {
+    this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, changeType);
   }
 }

@@ -1,14 +1,15 @@
 import { screen } from 'electron';
+import { ProxyConfig } from '../../shared/store/config';
 
 export class Utils {
-  static getProxyUrlFromConfig(proxy: { username?: string; password?: string; host: string; port?: number }) {
+  static getProxyUrlFromConfig(proxy: ProxyConfig) {
     return `https://${proxy.username ? `${proxy.username}:${proxy.password}@` : ''}${proxy.host}:${proxy.port || 443}`;
   }
 
   static posCenter(options: { width?: number; height?: number; x?: number; y?: number }) {
     const displays = screen.getAllDisplays();
 
-    if (displays.length > 1) {
+    if (displays.length > 1 && options.width && options.height) {
       const x = (displays[0].workArea.width - options.width) / 2;
       const y = (displays[0].workArea.height - options.height) / 2;
       options.x = x + displays[0].workArea.x;
@@ -24,7 +25,7 @@ export class Utils {
     const extensions = ['REACT_DEVELOPER_TOOLS', 'REDUX_DEVTOOLS'];
     const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
 
-    extensions.forEach(async name => {
+    extensions.forEach(async (name) => {
       await installer.default(installer[name], forceDownload);
     });
   }

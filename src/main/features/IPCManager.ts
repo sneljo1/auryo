@@ -4,8 +4,8 @@ import fs from 'fs';
 import _ from 'lodash';
 import io from 'socket.io-client';
 import { CONFIG } from '../../config';
-import { setLoginError, setLoginLoading } from '../../shared/actions/auth/auth.actions';
-import { setToken } from '../../shared/actions/config.actions';
+import { setLoginError, setLoginLoading } from '../../shared/store/auth/actions';
+import { setToken } from '../../shared/store/config/actions';
 import { EVENTS } from '../../shared/constants/events';
 import { Logger } from '../utils/logger';
 import Feature from './feature';
@@ -16,8 +16,8 @@ export default class IPCManager extends Feature {
   private socket: SocketIOClient.Socket;
 
   register() {
-    ipcMain.on(EVENTS.APP.VALID_DIR, (event: IpcMessageEvent, path: any) => {
-      fs.exists(path, exists => {
+    ipcMain.on(EVENTS.APP.VALID_DIR, (_e: IpcMessageEvent, path: any) => {
+      fs.exists(path, (exists) => {
         this.sendToWebContents(EVENTS.APP.VALID_DIR_RESPONSE, exists);
       });
     });
@@ -27,15 +27,15 @@ export default class IPCManager extends Feature {
       app.exit(0);
     });
 
-    ipcMain.on(EVENTS.APP.OPEN_EXTERNAL, (event: IpcMessageEvent, arg: string) => {
+    ipcMain.on(EVENTS.APP.OPEN_EXTERNAL, (_e: IpcMessageEvent, arg: string) => {
       shell.openExternal(arg);
     });
 
-    ipcMain.on(EVENTS.APP.WRITE_CLIPBOARD, (event: IpcMessageEvent, arg: string) => {
+    ipcMain.on(EVENTS.APP.WRITE_CLIPBOARD, (_e: IpcMessageEvent, arg: string) => {
       clipboard.writeText(arg);
     });
 
-    ipcMain.on(EVENTS.APP.DOWNLOAD_FILE, (event: IpcMessageEvent, url: string) => {
+    ipcMain.on(EVENTS.APP.DOWNLOAD_FILE, (_e: IpcMessageEvent, url: string) => {
       const { config } = this.store.getState();
 
       const downloadSettings: any = {};
@@ -45,7 +45,7 @@ export default class IPCManager extends Feature {
       }
 
       download(this.win, url, downloadSettings)
-        .then(dl => console.log(dl.getSavePath()))
+        .then((dl) => console.log(dl.getSavePath()))
         .catch(console.error);
     });
 
@@ -93,7 +93,7 @@ export default class IPCManager extends Feature {
 
   startLoginSocket = () => {
     if (!this.socket) {
-      this.socket = io(CONFIG.BASE_URL); // TODO type config
+      this.socket = io(CONFIG.BASE_URL);
 
       this.socket.on('token', (data: string) => {
         this.store.dispatch(setToken(data));

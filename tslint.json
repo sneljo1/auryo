@@ -15,7 +15,6 @@
     "no-consecutive-blank-lines": [true, 2],
     "no-console": false,
     "no-construct": true,
-    "no-default-export": true,
     "no-duplicate-variable": true,
     "no-empty-interface": false,
     "no-empty": true,
@@ -36,7 +35,10 @@
     "object-literal-sort-keys": false,
     "object-literal-key-quotes": [true, "as-needed"],
     "only-arrow-functions": [false],
-    "ordered-imports": [true],
+    "ordered-imports": [false],
+    "no-default-export": [false],
+    "no-shadowed-variable": [false],
+    "member-access": [false],
     "one-variable-per-declaration": [true],
     "one-line": [false,
       "check-else",
@@ -74,8 +76,5 @@
       "check-separator",
       "check-type"
     ]
-  },
-  "rulesDirectory": [
-    "node_modules/tslint-microsoft-contrib"
-  ]
+  }
 }

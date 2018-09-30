@@ -20,6 +20,9 @@
 @import '../modules/app/components/Offline/offline.scss';
 @import '../modules/app/components/modals/ChangeLogModal/ChangeLogModal.scss';
 @import '../modules/app/components/modals/WelcomeModal/WelcomeModal.scss';
+@import '../modules/app/components/modals/UtilitiesModel/UtilitiesModal.scss';
+@import '../modules/app/components/modals/UtilitiesModel/settings/settings.scss';
+@import '../modules/app/components/modals/UtilitiesModel/about/about.scss';
 @import '../modules/app/components/Header/header.scss';
 @import '../modules/app/components/Header/User/user.scss';
 @import '../modules/app/components/Header/Search/searchBox.scss';
@@ -32,9 +35,6 @@
 @import '../modules/playlist/playlist.scss';
 @import '../modules/search/search.scss';
 @import '../modules/track/track.scss';
-@import '../modules/UtilitiesModel/UtilitiesModal.scss';
-@import '../modules/UtilitiesModel/settings/settings.scss';
-@import '../modules/UtilitiesModel/about/about.scss';
 
 body {
   font-family: 'Roboto', sans-serif;
@@ -350,7 +350,7 @@ i {
 .tracktabs {
   padding: 0 15px 0 15px;
   min-height: 55px;
-  font-size: .9rem;
+  font-size: .7rem;
   text-transform: uppercase;
   font-weight: bold;
   font-family: 'Roboto', sans-serif;
@@ -358,25 +358,20 @@ i {
   margin-top: 1rem;
 
   a {
-    padding: 10px 20px;
+    padding: 10px 15px;
+    margin-right: 10px;
     text-decoration: none;
     color: #fff;
     position: relative;
+    
+    &:hover {
+      color:opacify($color: theme-color("primary"), $amount: .6);
+    }
 
     &.active {
-      &:after {
-        content: '';
-        background: theme-color("primary");
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        margin: 0 auto;
-        width: 3rem;
-        display: block;
-        height: 4px;
-        border-radius: 10px;
-      }
+      background:rgba(255,255,255,.4);
+      color:opacify($color: theme-color("primary"), $amount: .8);
+      border-radius:10px;
     }
 
     & span {

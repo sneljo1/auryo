@@ -5,6 +5,19 @@ import { app } from 'electron';
 const defaultFileLogLevel = 'info';
 const defaultConsoleLogLevel = process.env.NODE_ENV === 'development' || process.env.ENV === 'development' ? 'debug' : 'info';
 
+function prodFormat() {
+  const replaceError = ({ label, level, message, stack }: any) => ({ label, level, message, stack });
+  const replacer = (_key: any, value: any) => value instanceof Error ? replaceError(value) : value;
+  return winston.format.json({ replacer });
+}
+
+function devFormat() {
+  const formatMessage = (info: any) => `${info.level} ${info.message}`;
+  const formatError = (info: any) => `${info.level} ${info.stack}\n`;
+  const format = (info: any) => info.stack ? formatError(info) : formatMessage(info);
+  return winston.format.printf(format);
+}
+
 export class Logger {
   private logger: winston.Logger;
 
@@ -21,9 +34,8 @@ export class Logger {
           handleExceptions: true,
           format: winston.format.combine(
             winston.format.colorize(),
-            winston.format.splat(),
-            winston.format.simple(),
-            winston.format.label({ label: id })
+            (process.env.NODE_ENV === 'production' ? prodFormat() : devFormat()),
+            winston.format.label({ label: id }),
           )
         })
       ]
@@ -31,20 +43,17 @@ export class Logger {
 
   }
 
-  public error(...args: any[]) {
+  public error(...args: Array<any>) {
     if (args.length > 0) {
-      const errorIndex = args.findIndex(item => item instanceof Error);
+      const errorIndex = args.findIndex((item) => item instanceof Error);
 
       if (errorIndex >= 0) {
         const error: Error = args.splice(errorIndex, 1)[0];
 
-        this.logger.error(
-          args.toString(),
-          error.message,
-          JSON.stringify({
-            stack: error.stack
-          })
-        );
+        this.logger.error({
+          stack: error.stack,
+          message: error.message
+        });
 
         return;
       }
@@ -53,31 +62,31 @@ export class Logger {
     this.logger.error.apply(this.logger, args);
   }
 
-  public warn(...args: any[]) {
+  public warn(..._args: Array<any>) {
     this.logger.warn.apply(this.logger, arguments);
   }
 
-  public info(...args: any[]) {
+  public info(..._args: Array<any>) {
     this.logger.info.apply(this.logger, arguments);
   }
 
-  public verbose(...args: any[]) {
+  public verbose(..._args: Array<any>) {
     this.logger.verbose.apply(this.logger, arguments);
   }
 
-  public debug(...args: any[]) {
+  public debug(..._args: Array<any>) {
     this.logger.debug.apply(this.logger, arguments);
   }
 
-  public silly(...args: any[]) {
+  public silly(..._args: Array<any>) {
     this.logger.silly.apply(this.logger, arguments);
   }
 
-  public log(...args: any[]) {
+  public log(..._args: Array<any>) {
     this.logger.log.apply(this.logger, arguments);
   }
 
-  public profile(...args: any[]) {
+  public profile(..._args: Array<any>) {
     this.logger.profile.apply(this.logger, arguments);
   }
 }

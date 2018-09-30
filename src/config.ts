@@ -19,7 +19,7 @@ export const CONFIG = {
     SENTRY_REPORT_URL: process.env.SENTRY_REPORT_URL,
     FB_APP_ID: process.env.FB_APP_ID,
 
-    getConnectUrl: (socketID) => `${BASE_URL}/connect?state=${socketID}&env=${process.env.NODE_ENV}`,
+    getConnectUrl: (socketID: string) => `${BASE_URL}/connect?state=${socketID}&env=${process.env.NODE_ENV}`,
 
     // Google
 
@@ -41,10 +41,10 @@ export const CONFIG = {
         hideReposts: false,
         enableProxy: false,
         proxy: {
-            host: null,
-            port: null,
-            username: null,
-            password: null
+            host: undefined,
+            port: undefined,
+            username: undefined,
+            password: undefined
         },
         app: {
             analytics: true,

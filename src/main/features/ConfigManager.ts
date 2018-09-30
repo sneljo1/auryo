@@ -3,14 +3,15 @@ import * as _ from 'lodash';
 import { show } from 'redux-modal';
 import * as semver from 'semver';
 import { CONFIG } from '../../config';
-import { canGoInHistory } from '../../shared/actions/app/app.actions';
-import { setConfig } from '../../shared/actions/config.actions';
 import { EVENTS } from '../../shared/constants/events';
+import { canGoInHistory } from '../../shared/store/app/actions';
+import { Config } from '../../shared/store/config';
+import { setConfig } from '../../shared/store/config/actions';
+import { Auryo } from '../app';
 import { settings } from '../settings';
 import { Logger } from '../utils/logger';
 import { Utils } from '../utils/utils';
-import Feature from './feature';
-import { Auryo } from '../app';
+import Feature, { WatchState } from './feature';
 
 export default class ConfigManager extends Feature {
   private logger = new Logger('ConfigManager');
@@ -19,17 +20,17 @@ export default class ConfigManager extends Feature {
   private isNewUser = false;
 
   private writetoConfig: Function;
-  private config: any; // TODO type config
+  private config: Config;
 
   constructor(auryo: Auryo) {
     super(auryo);
 
-    this.writetoConfig = _.debounce(config => settings.setAll(config), 250);
+    this.writetoConfig = _.debounce((config) => settings.setAll(config), 250);
   }
 
   register() {
     try {
-      this.config = settings.getAll();
+      this.config = settings.getAll() as any;
     } catch (e) {
       this.config = CONFIG.DEFAULT_CONFIG;
     }
@@ -57,7 +58,7 @@ export default class ConfigManager extends Feature {
           },
           () => {
             if (session.defaultSession) {
-              session.defaultSession.resolveProxy('https://api.soundcloud.com', proxy => {
+              session.defaultSession.resolveProxy('https://api.soundcloud.com', (proxy) => {
                 this.logger.info('Proxy status: ', proxy);
 
                 if (!proxy && session.defaultSession) {
@@ -85,6 +86,7 @@ export default class ConfigManager extends Feature {
     this.on(EVENTS.APP.READY, () => {
       this.notifyNewVersion();
       this.notifyNewUser();
+      console.log("READY")
       this.on(EVENTS.APP.NAVIGATE, this.checkCanGo);
       this.subscribe(['config'], this.updateConfig);
     });
@@ -93,8 +95,7 @@ export default class ConfigManager extends Feature {
   /**
    * Write new values to the config file
    */
-  updateConfig = ({ currentValue }: any) => {
-    // TODO Type redux state
+  updateConfig = ({ currentValue }: WatchState<Config>) => {
     this.writetoConfig(currentValue);
   }
 
@@ -102,11 +103,12 @@ export default class ConfigManager extends Feature {
    * On route change, check if can Go from browser webcontents
    */
   checkCanGo = () => {
+    console.log("NAVIGATE")
     if (this.win && this.win.webContents) {
-      const canGoBack = this.win.webContents.canGoBack();
-      const canGoForward = this.win.webContents.canGoForward();
+      const back = this.win.webContents.canGoBack();
+      const next = this.win.webContents.canGoForward();
 
-      this.store.dispatch(canGoInHistory(canGoBack, canGoForward));
+      this.store.dispatch(canGoInHistory({ back, next }));
     }
   }
 

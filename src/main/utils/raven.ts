@@ -10,7 +10,7 @@ export const initialize = () => {
   if (!(process.platform === 'linux' && process.env.SNAP_USER_DATA != null)) {
     app.on('ready', () => {
       init({
-        shouldSend(e: SentryEvent) {
+        shouldSend(_e: SentryEvent) {
           const sendCrashReports = settings.get('app.crashReports');
 
           return sendCrashReports === true && process.env.NODE_ENV === 'production';

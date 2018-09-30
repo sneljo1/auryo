@@ -5,6 +5,7 @@
     "experimentalDecorators": true,
     "removeComments": false,
     "preserveConstEnums": true,
+    "sourceMap": true,
     "lib": [
       "es2017",
       "dom"
@@ -20,20 +21,26 @@
     "noEmitHelpers": true,
     "module": "commonjs",
     "moduleResolution": "node",
-    "sourceMap": true,
+    "allowSyntheticDefaultImports": true,
     "pretty": true,
     "target": "es2017",
     "jsx": "react",
     "typeRoots": [
       "./node_modules/@types",
-      "./types"
+      "types"
     ],
     "baseUrl": ".",
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "types"
   ],
   "exclude": [
-    "node_modules"
-  ]
+    "node_modules",
+    "dist"
+  ],
+  "formatCodeOptions": {
+    "indentSize": 4,
+    "tabSize": 4
+  }
 }

@@ -1,0 +1,40 @@
+@import "../../../../../../css/vars.scss";
+
+.about {
+  text-align: center;
+  font-size: .85rem;
+  .logo {
+    max-width: 200px;
+    margin: 0 auto;
+  }
+
+  section {
+    margin-bottom: 3rem;
+
+    &.details {
+      div:not(:last-child) {
+        &:after {
+          content: "-";
+          margin: 0 1rem;
+        }
+      }
+    }
+
+    h3 {
+      font-size: 1.4rem;
+      font-family: "Roboto", sans-serif;
+      font-weight: 500;
+    }
+  }
+  .app-info {
+    text-align: center;
+    list-style: none;
+    padding-left: 0;
+    li {
+      span:not(.key) {
+        margin-left: 1rem;
+        font-weight: 500;
+      }
+    }
+  }
+}
