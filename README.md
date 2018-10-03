@@ -7,28 +7,11 @@
 A beautiful SoundCloud app for your desktop. Using the power of [electron](electronjs.org) we are able to integrate this webapp with native features like touchbar and media key support.
 
 ## Table of Contents
-- [Features](#features)
 - [Installation](#installation)
 - [Contributing](#contributing)
-- [Credits](#credits)
+- [Support](#support)
 - [License](#license)
 
-## Features
-![alt text](_media/likes.png)
-
-### Pages
-- Stream
-- Charts
-- Likes
-- My tracks
-- My playlists
-- Search
-
-### Integrations
-- Touchbar
-- Media keys 
-- Download free to download song directly to your desktop
-- **Missing a feature? [Contribute](#Contribute) or create an issue**
 
 ## Installation
 There are builds for Mac, Windows and Linux.
@@ -38,14 +21,27 @@ Downloads are available on [the website](http://auryo.com#downloads)
 ## Contributing
 Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
+## Support 💪 
+
+Auryo is a open source project. It can grow thanks to the sponsors and support by the amazing backers. If you like to contribute, please visit 👉[our collective](https://opencollective.com/auryo).
+
+## Sponsors 🏆🏆
+
+Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [Become a sponsor](https://opencollective.com/auryo)
+
+## Backers 🙏
+You can help us grow! [Become a backer](https://opencollective.com/auryo)
+
+<a href="https://opencollective.com/auryo"><img src="https://opencollective.com/auryo/backers.svg?width=890"></a>
+
+
 ## Author
 This application has been built by [Jonas Snellinckx](www.linkedin.com/in/jonas-snellinckx). It started out as a learning journey back in college-university Oct 2016, to start learning React, Redux and Electron. Since the first release in August 2017, the journey was incredibly educational. Over the next few months, Auryo has matured from a learning side-project into an escalated one. In a good sense.
 
 As of release 2.0.0, Auryo also has been open-sourced. See the list of [contributors](https://github.com/Superjo149/auryo/contributors) who participated in this project.
 
 ### Tip Jar
-Show me some love, buy me a ☕️. Oh right, I don't drink coffee, beer or something? maybe Pizza?
-- [Paypal](https://www.paypal.me/superjo149)
+Show me some love, buy me a ☕️.
 - Ethereum: 0x6a9F12D2084CD54587BC3BBfFf52C5931d10fB38
 - Stellar: GCHNLOV4GV54LIUEULLCSGSITFO2OY2B44IF2EUL36OA3ZRLNVADPWBE
 - Bitcoin: 17E7wxp6J6Gj4mvaZ58D3ESFe22Ezp5adz
