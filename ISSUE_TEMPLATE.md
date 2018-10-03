@@ -10,3 +10,6 @@ When submitting an issue please answer following question alongside your descrip
 - What steps did you take to recieve this error?
 
 -->
+
+<!-- Love Auryo? Please consider supporting our collective:
+👉  https://opencollective.com/auryo/donate -->
