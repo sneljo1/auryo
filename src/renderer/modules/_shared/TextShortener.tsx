@@ -1,36 +1,13 @@
 import React from 'react';
-import TextTruncate from 'react-dotdotdot';
+import Marquee from "react-marquee";
 
 interface Props {
     text: string;
 }
 
-// TODO implement text carousel like spotify
-class TextShortener extends React.Component<Props>{
-
-    onMouseEnter = () => {
-
-    }
-
-    onMouseLeave = () => {
-
-    }
-
-    render() {
-        const { text } = this.props;
-
-        return (
-            <span
-                onMouseEnter={this.onMouseEnter}
-                onMouseLeave={this.onMouseLeave}>
-                <TextTruncate
-                    clamp={1}>
-                    {text}
-                </TextTruncate>
-            </span>
-        );
-    }
-}
+const TextShortener: React.SFC<Props> = ({ text }) => (
+    <Marquee loop={true} text={text} trailing={1500} />
+)
 
 export default TextShortener;
 
