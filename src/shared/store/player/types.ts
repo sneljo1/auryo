@@ -14,12 +14,12 @@ export interface PlayerState extends Readonly<{
 }> { }
 
 export interface PlayingTrack {
-    id: string;
+    id: number;
     playlistId: string;
 }
 
 export interface PlayingPositionState {
-    id: string;
+    id: number;
     start: number;
     end: number;
 }

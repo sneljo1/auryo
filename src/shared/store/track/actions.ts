@@ -9,8 +9,10 @@ import { IPC } from '../../utils/ipc';
 import { AuthActionTypes } from '../auth';
 import { getComments, getPlaylist, ObjectTypes } from '../objects';
 import { TrackActionTypes } from './types';
+import { addToast } from '../ui';
+import { Intent } from '@blueprintjs/core';
 
-export function toggleLike(trackId: string, playlist = false): ThunkResult<any> {
+export function toggleLike(trackId: number, playlist = false): ThunkResult<any> {
     return (dispatch, getState) => {
         const { auth: { likes, me } } = getState();
 
@@ -23,26 +25,12 @@ export function toggleLike(trackId: string, playlist = false): ThunkResult<any> 
             payload: fetchToJson(playlist ? SC.updatePlaylistLikeUrl(me.id, trackId) : SC.updateLikeUrl(trackId), {
                 method: (liked) ? 'PUT' : 'DELETE'
             }).then(() => {
-
-                const { entities: { trackEntities, playlistEntities } } = getState();
-
-                let obj;
-
-                if (playlist) {
-                    obj = playlistEntities[trackId];
-                } else {
-                    obj = trackEntities[trackId];
-                }
-
+                
                 if (liked) {
-                    // TODO reactImageFallback in different file so we don't have to make this a tsx file
-
-                    //     toastr.info(obj.title, `Liked ${playlist ? 'playlist' : 'track'}`, {
-                    //         icon: (
-                    //             <ReactImageFallback src= { SC.getImageUrl(obj, IMAGE_SIZES.MEDIUM) } />
-                    //         ),
-                    //         showCloseButton: false
-                    // })
+                    dispatch(addToast({
+                        message: `Liked track`,
+                        intent: Intent.SUCCESS
+                    }))
                 }
 
                 return {
@@ -79,7 +67,7 @@ export function toggleLike(trackId: string, playlist = false): ThunkResult<any> 
  * @returns {function(*, *)}
  */
 
-export function toggleRepost(trackId: string, playlist = false): ThunkResult<Promise<any>> {
+export function toggleRepost(trackId: number, playlist = false): ThunkResult<Promise<any>> {
     return (dispatch, getState) => {
         const { auth: { reposts } } = getState();
 
@@ -94,22 +82,14 @@ export function toggleRepost(trackId: string, playlist = false): ThunkResult<Pro
             payload: fetch(SC.updateRepostUrl(trackId), {
                 method: (reposted) ? 'PUT' : 'DELETE'
             }).then(() => {
-                const { entities: { trackEntities, playlistEntities } } = getState();
 
-                let obj;
-
-                if (playlist) {
-                    obj = playlistEntities[trackId];
-                } else {
-                    obj = trackEntities[trackId];
-                }
                 if (reposted) {
-                    // TODO image in different file for toastr
-                    //     toastr.info(obj.title, 'Reposted track', {
-                    //         icon: (<ReactImageFallback src= { SC.getImageUrl(obj, IMAGE_SIZES.MEDIUM) } />),
-                    //         showCloseButton: false
-                    // });
+                    dispatch(addToast({
+                        message: `Reposted track`,
+                        intent: Intent.SUCCESS
+                    }))
                 }
+
                 return {
                     trackId,
                     reposted,
@@ -122,7 +102,7 @@ export function toggleRepost(trackId: string, playlist = false): ThunkResult<Pro
     };
 }
 
-export function fetchTrackIfNeeded(trackId: string): ThunkResult<any> {
+export function fetchTrackIfNeeded(trackId: number): ThunkResult<any> {
     return (dispatch, getState) => {
         const { entities: { trackEntities }, objects } = getState();
         const playlists = objects[ObjectTypes.PLAYLISTS] || {};
@@ -142,14 +122,13 @@ export function fetchTrackIfNeeded(trackId: string): ThunkResult<any> {
         const comment = comments[trackId];
 
         if (!comment) {
-            console.log("getComments")
             dispatch(getComments(trackId));
         }
 
     };
 }
 
-function getTrack(trackId: string) {
+function getTrack(trackId: number) {
     return {
         type: TrackActionTypes.ADD,
         payload: {

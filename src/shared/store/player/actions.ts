@@ -8,6 +8,8 @@ import { getCurrentPosition } from '../../utils/playerUtils';
 import { ObjectTypes } from '../objects';
 import { fetchMore, fetchPlaylistIfNeeded, fetchPlaylistTracks, fetchTracks } from '../objects/actions';
 import { ChangeTypes, PlayerActionTypes, PlayerStatus, PlayingPositionState, PlayingTrack, RepeatTypes } from './types';
+import { addToast } from '../ui';
+import { Intent } from '@blueprintjs/core';
 
 /**
  * Get playlist from ID if needed
@@ -29,10 +31,9 @@ export function getPlaylistObject(playlistId: string, position: number): ThunkRe
         let playlists = objects[ObjectTypes.PLAYLISTS] || {};
         const track_playlist_obj = playlists[playlistId];
 
-
         if (!track_playlist_obj) {
 
-            return dispatch<Promise<any>>(fetchPlaylistIfNeeded(playlistId))
+            return dispatch<Promise<any>>(fetchPlaylistIfNeeded(+playlistId))
                 .then((result: any) => {
                     const {
                         // eslint-disable-next-line
@@ -52,7 +53,7 @@ export function getPlaylistObject(playlistId: string, position: number): ThunkRe
 
                     // Try and fetch all playlist tracks
                     if (current_playlist.fetchedItems < current_playlist.items.length) {
-                        dispatch(fetchPlaylistTracks(playlistId, 50));
+                        dispatch(fetchPlaylistTracks(+playlistId, 50));
                     }
 
                     return result;
@@ -142,7 +143,7 @@ export function setCurrentPlaylist(playlistId: string, nextTrack: PlayingTrack |
         } = getState();
 
         const playlists = objects[ObjectTypes.PLAYLISTS] || {};
-        const playlistObject = playlists[playlistId];
+        const playlistObject = playlists[playlistId.toString()];
         const { playlistEntities, trackEntities } = entities;
 
         const containsPlaylists: Array<PlayingPositionState> = [];
@@ -167,7 +168,7 @@ export function setCurrentPlaylist(playlistId: string, nextTrack: PlayingTrack |
                                     });
 
                                     return playlist.tracks.map((trackIdResult) => {
-                                        
+
                                         const trackId = trackIdResult.id;
 
                                         if (trackEntities[trackId] && !trackEntities[trackId].streamable) {
@@ -176,7 +177,7 @@ export function setCurrentPlaylist(playlistId: string, nextTrack: PlayingTrack |
 
                                         return {
                                             id: trackId,
-                                            playlistId: id,
+                                            playlistId: id.toString(),
                                             // un: new Date().getTime()
                                         };
                                     }).filter((t) => t != null);
@@ -247,7 +248,7 @@ export function setPlayingTrack(nextTrack: PlayingTrack, position: number, chang
  * @param track_playlist
  * @param remove
  */
-export function addUpNext(track: SoundCloud.Track | SoundCloud.Playlist, remove: boolean = false): ThunkResult<void> {
+export function addUpNext(track: SoundCloud.Track | SoundCloud.Playlist, remove?: number): ThunkResult<void> {
     return (dispatch, getState) => {
         const {
             player: {
@@ -286,15 +287,12 @@ export function addUpNext(track: SoundCloud.Track | SoundCloud.Playlist, remove:
 
         if (queue.length) {
             if (!remove) {
-                // TODO try not to use react here?
 
-                //     toastr.info(track.title, 'Added track to play queue', {
-                //         icon: (
-                //             <ReactImageFallback src= { SC.getImageUrl(track, IMAGE_SIZES.MEDIUM) } />
-                //         ),
-                //         showCloseButton: false
-                // })
-
+                dispatch(addToast({
+                    message: `track to play queue`,
+                    intent: Intent.SUCCESS
+                }))
+                
             }
             dispatch({
                 type: PlayerActionTypes.ADD_UP_NEXT,
@@ -354,7 +352,7 @@ export function getItemsAround(position: number): ThunkResult<void> {
             const playlists = objects[ObjectTypes.PLAYLISTS] || {};
             const currentPlaylist = playlists[currentPlaylistId];
 
-            const itemsToFetch = [];
+            const itemsToFetch: number[] = [];
 
             const lowBound = position - 3;
             const highBound = position + 3;
@@ -375,8 +373,8 @@ export function getItemsAround(position: number): ThunkResult<void> {
                         itemsToFetch.push(queueItem.id);
                     }
 
-                    if (currentPlaylist.fetchedItems && currentPlaylist.fetchedItems - 10 < i && currentPlaylist.fetchedItems !== currentPlaylist.items.length) {
-                        dispatch(fetchPlaylistTracks(currentPlaylistId, 30));
+                    if (currentPlaylist && currentPlaylist.fetchedItems && currentPlaylist.fetchedItems - 10 < i && currentPlaylist.fetchedItems !== currentPlaylist.items.length) {
+                        dispatch(fetchPlaylistTracks(+currentPlaylistId, 30));
                     }
                 }
             }
@@ -413,7 +411,7 @@ export function playTrackFromIndex(playlistId: string, trackIndex: number, force
  * @param force_set_playlist
  * @returns {function(*, *)}
  */
-export function playTrack(playlistId: string, next: { id: string; playlistId?: string; }, force_set_playlist = false, changeType?: ChangeTypes): ThunkResult<any> {
+export function playTrack(playlistId: string, next: { id: number; playlistId?: string; }, force_set_playlist = false, changeType?: ChangeTypes): ThunkResult<any> {
     return (dispatch, getState) => {
 
         const {
@@ -494,7 +492,7 @@ export function playTrack(playlistId: string, next: { id: string; playlistId?: s
                                 const playlists = objects[ObjectTypes.PLAYLISTS] || {};
                                 const { items: [firstItem] } = playlists[nextTrack.playlistId];
 
-                                nextTrack.id = firstItem.toString();
+                                nextTrack.id = firstItem.id;
 
                                 const position = getCurrentPosition({ queue, playingTrack: nextTrack });
 
@@ -513,7 +511,7 @@ export function playTrack(playlistId: string, next: { id: string; playlistId?: s
                         // If queue doesn't contain playlist yet
 
                         if (force_set_playlist) {
-                            nextTrack.id = firstItem.toString();
+                            nextTrack.id = firstItem.id;
                             position = getCurrentPosition({ queue, playingTrack: nextTrack });
                         } else {
                             position = getCurrentPosition({ queue, playingTrack: nextTrack });

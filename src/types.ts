@@ -5,10 +5,10 @@ export type ThunkResult<R> = ThunkAction<R, StoreState, undefined, any>;
 
 export interface GetPlaylistOptions {
     refresh?: boolean;
-    appendId?: string | null;
+    appendId?: number | null;
 }
 
-export interface NormalizedResult { schema: 'users' | 'tracks' | 'playlists'; id: string; }
+export interface NormalizedResult { schema: 'users' | 'tracks' | 'playlists'; id: number; }
 
 export interface NormalizedResponse {
     entities: NormalizedEntities;
@@ -35,11 +35,11 @@ type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 export namespace Normalized {
     export interface Playlist extends Omit<SoundCloud.Playlist, 'tracks' | 'user'> {
         tracks: Array<NormalizedResult>;
-        user: string;
+        user: number;
     }
 
     export interface Track extends Omit<SoundCloud.Track, 'user'> {
-        user: string;
+        user: number;
     }
 }
 
@@ -47,7 +47,7 @@ export namespace SoundCloud {
     export type DateString = string;
 
     export interface Asset<T> {
-        id: string;
+        id: number;
         kind: T;
         uri: string;
 
@@ -91,8 +91,8 @@ export namespace SoundCloud {
 
     export interface Comment extends Asset<AssetType.COMMENT> {
         created_at: DateString;
-        user_id: string;
-        track_id: string;
+        user_id: number;
+        track_id: number;
         timestamp: number;
         body: string;
         user: CompactUser;
@@ -216,7 +216,7 @@ export namespace SoundCloud {
         release_year?: any;
         secret_uri: string;
         track_count: number;
-        user_id: string;
+        user_id: number;
         last_modified: string;
         license: string;
         tracks: Array<Track>;

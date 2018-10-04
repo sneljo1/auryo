@@ -57,7 +57,7 @@ class ToggleMore extends Component {
                     {children}
                 </div>
                 <div className="overflow-bottom">
-                    <a className="overflow-button" href="javascript:void(0)" onClick={this.toggleOpen.bind(this)}>
+                    <a className="overflow-button" href="javascript:void(0)" onClick={(this.toggleOpen.bind(this))}>
                         <i className={`icon-${open ? 'keyboard_arrow_up' : 'keyboard_arrow_down'}`} />
                     </a>
                 </div>

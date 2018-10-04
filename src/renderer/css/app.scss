@@ -13,7 +13,6 @@
 @import '../modules/_shared/PageHeader/PageHeader.scss';
 @import '../modules/_shared/CommentList/commentList.scss';
 @import '../modules/_shared/Button/Button.scss';
-@import '../modules/_shared/AddToPlaylistModal/addToPlaylistModal.scss';
 @import '../modules/_shared/UserCard/userCard.scss';
 @import '../modules/app/components/Sidebar/sidebar.scss';
 @import '../modules/app/components/Queue/queue.scss';
@@ -67,9 +66,12 @@ body {
   outline: none !important;
 }
 
-//.custom-scroll {
-//  overflow-y: scroll;
-//}
+.custom-scroll.withHeader{
+  // .custom-scrollbar{
+  //   height: calc(100% - 55px);
+  //   margin-top: 55px;
+  // }
+}
 
 // =======================
 
@@ -363,22 +365,16 @@ i {
     text-decoration: none;
     color: #fff;
     position: relative;
+    border-radius:10px;
     
     &:hover {
-      color:opacify($color: theme-color("primary"), $amount: .6);
+      transition: .3s background;
+      background:rgba(255,255,255,.1);
     }
 
     &.active {
       background:rgba(255,255,255,.4);
       color:opacify($color: theme-color("primary"), $amount: .8);
-      border-radius:10px;
-    }
-
-    & span {
-      vertical-align: middle;
-      &.text {
-        margin-right: 5px;
-      }
     }
   }
 }

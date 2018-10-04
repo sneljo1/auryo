@@ -5,7 +5,7 @@ import App from './modules/app/App';
 import Login from './modules/login/Login';
 import Spinner from './modules/_shared/Spinner/Spinner';
 import WelcomeModal from './modules/app/components/modals/WelcomeModal/WelcomeModal';
-import { resolveUrl } from '../shared/utils/soundcloudUtils';
+import { Utils } from '../shared/utils/utils';
 
 const Routes: React.SFC = () => (
     <div>
@@ -19,7 +19,7 @@ const Routes: React.SFC = () => (
                     return <Redirect to='/' />;
                 }
 
-                resolveUrl(url);
+                Utils.resolveUrl(url);
 
                 return <Spinner full={true} />;
             }} />

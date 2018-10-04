@@ -51,6 +51,7 @@ interface PropsFromState {
         [PlaylistTypes.TRACKS]: ObjectState<SoundCloud.Track> | null,
     },
     previousScrollTop?: number;
+    artistIdParam: number;
 }
 
 interface PropsFromDispatch {
@@ -88,16 +89,16 @@ class ArtistPage extends WithHeaderComponent<AllProps, State> {
     componentDidMount() {
         super.componentDidMount();
 
-        const { fetchArtistIfNeeded, match: { params: { artistId } } } = this.props;
+        const { fetchArtistIfNeeded, artistIdParam } = this.props;
 
-        fetchArtistIfNeeded(artistId);
+        fetchArtistIfNeeded(artistIdParam);
     }
 
     componentWillReceiveProps(nextProps: AllProps) {
-        const { fetchArtistIfNeeded, match: { params: { artistId } }, app: { dimensions } } = nextProps;
+        const { fetchArtistIfNeeded, artistIdParam, app: { dimensions } } = nextProps;
         const { activeTab } = this.state;
 
-        fetchArtistIfNeeded(artistId);
+        fetchArtistIfNeeded(artistIdParam);
 
         if (this.state.small !== dimensions.width < 990) {
             this.setState({
@@ -124,9 +125,9 @@ class ArtistPage extends WithHeaderComponent<AllProps, State> {
     }
 
     toggleFollow = () => {
-        const { toggleFollowing, match: { params: { artistId } } } = this.props;
+        const { toggleFollowing, artistIdParam } = this.props;
 
-        toggleFollowing(artistId);
+        toggleFollowing(artistIdParam);
     }
 
     fetchMore = () => {
@@ -179,7 +180,7 @@ class ArtistPage extends WithHeaderComponent<AllProps, State> {
                 <TrackList
                     items={playlist.items}
                     playingTrack={player.playingTrack}
-                    playTrack={playTrack.bind(null, objectId)}
+                    playTrack={playTrack}
                     objectId={objectId}
                 />
                 {playlist.isFetching ? <Spinner /> : null}
@@ -214,9 +215,17 @@ class ArtistPage extends WithHeaderComponent<AllProps, State> {
             );
         }
 
+        const toggle = () => {
+            if (player.currentPlaylistId === playlistId.toString()) {
+                toggleStatus()
+            } else {
+                playTrack(playlistId.toString(), { id: first_id })
+            }
+        }
+
         return (
             <a href='javascript:void(0)' className='c_btn'
-                onClick={player.currentPlaylistId === playlistId ? toggleStatus.bind(null, null) : playTrack.bind(null, playlistId, first_id, null)}>
+                onClick={toggle}>
                 <i className='icon-play_arrow' />
                 Play
             </a>
@@ -224,24 +233,25 @@ class ArtistPage extends WithHeaderComponent<AllProps, State> {
     }
 
     render() {
-        const { user, match: { params: { artistId } }, auth } = this.props;
+        const { user, artistIdParam, auth } = this.props;
         const { followings, me } = auth;
         const { small, activeTab } = this.state;
 
-        if (!user || (user && user.loading) || user.track_count === null) return <Spinner />;
+        if (!user || (user && user.loading) || user.track_count === null) return <Spinner contained />;
 
         const user_img = SC.getImageUrl(user.avatar_url, IMAGE_SIZES.LARGE);
         const following = SC.hasID(user.id, followings);
 
         return (
-            <CustomScroll className='column' heightRelativeToParent='100%'
+            <CustomScroll className='column withHeader' heightRelativeToParent='100%'
                 allowOuterScroll={true}
-                heightMargin={35}
+                //heightMargin={35}
                 ref={(r) => this.scroll = r}
                 onScroll={this.debouncedOnScroll}
                 threshold={300}
                 loadMore={this.fetchMore.bind(this)}
                 hasMore={this.canFetchMore()}>
+
                 <Header className='withImage' scrollTop={this.state.scrollTop} />
 
                 <PageHeader image={user_img}>
@@ -264,9 +274,11 @@ class ArtistPage extends WithHeaderComponent<AllProps, State> {
                                             this.renderPlayButton()
                                         }
                                         {
-                                            me && artistId !== me.id ? <a href='javascript:void(0)'
+                                            me && artistIdParam !== me.id ? <a href='javascript:void(0)'
                                                 className={cn('c_btn', { following })}
-                                                onClick={this.toggleFollow.bind(this)}>
+                                                onClick={() => {
+                                                    this.toggleFollow()
+                                                }}>
                                                 {following ? <i className='icon-check' /> : <i className='icon-add' />}
                                                 <span>{following ? 'Following' : 'Follow'}</span>
                                             </a> : null
@@ -442,8 +454,8 @@ const mapStateToProps = (state: StoreState, props: OwnProps): PropsFromState => 
             [PlaylistTypes.LIKES]: dlikesPlaylistObject,
             [PlaylistTypes.TRACKS]: dtracksPlaylistObject,
         },
-        previousScrollTop: history.action === 'POP' ? ui.scrollPosition[location.pathname] : undefined
-
+        previousScrollTop: history.action === 'POP' ? ui.scrollPosition[location.pathname] : undefined,
+        artistIdParam: +artistId
     };
 };
 

@@ -108,8 +108,8 @@ export default class MprisService extends LinuxFeature {
         } = currentState;
 
         if (playingTrack) {
-          const trackID = playingTrack.id;
-          const track = trackEntities[trackID];
+          const trackId = playingTrack.id;
+          const track = trackEntities[trackId];
           const position = queue.indexOf(playingTrack);
           const user = userEntities[track.user || track.user_id];
 
@@ -122,7 +122,7 @@ export default class MprisService extends LinuxFeature {
           };
 
           if (track) {
-            this.meta['mpris:trackid'] = this.player.objectPath(track.id);
+            this.meta['mpris:trackId'] = this.player.objectPath(track.id.toString());
             this.meta['mpris:length'] = track.duration * 1000;
             this.meta['mpris:artUrl'] = SC.getImageUrl(track, IMAGE_SIZES.SMALL);
 

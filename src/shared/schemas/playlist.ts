@@ -7,9 +7,6 @@ const playlistSchema = new schema.Entity('playlistEntities', {
     tracks: new schema.Array({
         tracks:trackSchema
     }, (input) => `${input.kind}s`)
-},{
-    processStrategy: (entity) => ({ ...entity, id: String(entity.id) })
-
 });
 
 export default playlistSchema;

@@ -113,7 +113,7 @@ const objectGroup: Reducer<ObjectGroup> = (state = initialObjectGroupState, acti
         case isLoading(ObjectsActionTypes.SET_TRACKS):
             return {
                 ...state,
-                [payload.objectId]: objectState(state[payload.objectId], action)
+                [String(payload.objectId)]: objectState(state[String(payload.objectId)], action)
             };
         case onSuccess(AuthActionTypes.SET_LIKE):
             return {

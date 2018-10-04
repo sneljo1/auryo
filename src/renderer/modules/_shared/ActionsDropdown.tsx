@@ -4,7 +4,6 @@ import { MenuDivider } from '@blueprintjs/core/lib/cjs/components/menu/menuDivid
 import { MenuItem } from '@blueprintjs/core/lib/cjs/components/menu/menuItem';
 import { Popover } from '@blueprintjs/core/lib/cjs/components/popover/popover';
 import cn from 'classnames';
-import isEqual from 'lodash/isEqual';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
@@ -17,6 +16,8 @@ import { SC } from '../../../shared/utils';
 import { IPC } from '../../../shared/utils/ipc';
 import { Normalized, SoundCloud } from '../../../types';
 import ShareMenuItem from './ShareMenuItem';
+import { isEqual } from 'lodash';
+import { ObjectTypes, ObjectGroup } from '../../../shared/store/objects';
 
 interface OwnProps {
     track: SoundCloud.Music;
@@ -26,7 +27,8 @@ interface OwnProps {
 interface PropsFromState {
     likes: AuthLikes;
     reposts: AuthReposts;
-    playlists: Normalized.Playlist[]
+    playlists: Normalized.Playlist[];
+    playlistObjects: ObjectGroup;
 }
 
 interface PropsFromDispatch {
@@ -51,7 +53,18 @@ class ActionsDropdown extends React.Component<AllProps> {
     }
 
     render() {
-        const { toggleLike, toggleRepost, reposts, likes, track, addUpNext, index, playlists, togglePlaylistTrack } = this.props
+        const {
+            toggleLike,
+            toggleRepost,
+            reposts,
+            likes,
+            track,
+            addUpNext,
+            index,
+            playlists,
+            togglePlaylistTrack,
+            playlistObjects
+        } = this.props
 
         const trackId = track.id
 
@@ -74,14 +87,16 @@ class ActionsDropdown extends React.Component<AllProps> {
                             <MenuItem text="Add to playlist">
                                 {
                                     playlists.map(playlist => {
-
-                                        const inPlaylist = !!playlist.tracks.find(t => t.id === trackId)
+                                        const items = playlistObjects[playlist.id].items || []
+                                        const inPlaylist = !!items.find(t => t.id === trackId)
 
                                         return (
                                             <MenuItem
                                                 key={`menu-item-add-to-playlist-${playlist.id}`}
                                                 className={cn({ 'text-primary': inPlaylist })}
-                                                onClick={togglePlaylistTrack.bind(null, trackId, playlist.id)}
+                                                onClick={() => {
+                                                    togglePlaylistTrack(trackId, playlist.id)
+                                                }}
                                                 text={playlist.title} />
                                         )
                                     })
@@ -93,7 +108,7 @@ class ActionsDropdown extends React.Component<AllProps> {
 
                     {
                         index ? (
-                            <MenuItem text="Remove from queue" onClick={() => addUpNext(track, true)} />
+                            <MenuItem text="Remove from queue" onClick={() => addUpNext(track, index)} />
                         ) : null
                     }
 
@@ -120,12 +135,16 @@ class ActionsDropdown extends React.Component<AllProps> {
 }
 
 const mapStateToProps = (state: StoreState): PropsFromState => {
-    const { auth: { playlists, likes, reposts }, entities } = state
+    const { auth: { playlists, likes, reposts }, entities, objects } = state
     const { playlistEntities } = entities
+
+    const playlistObjects = objects[ObjectTypes.PLAYLISTS] || {}
+
 
     return {
         playlists: playlists.map((result) => playlistEntities[result.id]),
         likes,
+        playlistObjects,
         reposts
     }
 }

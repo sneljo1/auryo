@@ -3,13 +3,13 @@ import { ThunkResult } from '../../../types';
 import { UIActionTypes } from './types';
 import { IToastOptions } from '@blueprintjs/core';
 
-export function toggleQueue(newState: boolean): ThunkResult<void> {
+export function toggleQueue(newState?: boolean): ThunkResult<void> {
     return (dispatch, getState) => {
         const { ui: { showQueue } } = getState();
 
         dispatch({
             type: UIActionTypes.TOGGLE_QUEUE,
-            payload: (newState != null ? newState : !showQueue)
+            payload: (newState ? newState : !showQueue)
         });
     };
 }

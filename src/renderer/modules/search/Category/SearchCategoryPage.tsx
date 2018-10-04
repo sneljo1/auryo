@@ -113,7 +113,8 @@ class SearchCategory extends React.Component<AllProps> {
                     toggleFollowing={toggleFollowing}
                     followings={followings}
                     items={playlist.items}
-                    player={player}
+                    playingTrack={player.playingTrack}
+                    currentPlaylistId={player.currentPlaylistId}
                     objectId={objectId}
                     playTrack={playTrack}
                     fetchPlaylistIfNeeded={fetchPlaylistIfNeeded}

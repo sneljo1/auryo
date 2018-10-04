@@ -104,7 +104,7 @@ class ChartsPage extends WithHeaderComponent<AllProps, State> {
 
         return (
             <CustomScroll heightRelativeToParent="100%"
-                heightMargin={35}
+                //heightMargin={35}
                 allowOuterScroll
                 threshold={300}
                 isFetching={false}

@@ -200,7 +200,7 @@ class Header extends React.Component<AllProps, State> {
                                         <MenuItem text='Contribute' href='https://github.com/Superjo149/auryo/' />
                                         <MenuItem text='Report an issue' href='https://github.com/Superjo149/auryo/issues' />
                                         <MenuItem text='Suggest a feature' href='https://github.com/Superjo149/auryo/issues' />
-                                        <MenuItem text='Donate' href='http://auryo.com/#donate' />
+                                        <MenuItem text='Donate' href='https://opencollective.com/auryo' />
 
                                         <MenuDivider />
 

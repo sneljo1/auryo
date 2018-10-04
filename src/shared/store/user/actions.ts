@@ -7,7 +7,7 @@ import { getPlaylist } from '../objects/actions';
 import { UserActionTypes } from './types';
 
 
-export function fetchArtistIfNeeded(userId: string): ThunkResult<any> {
+export function fetchArtistIfNeeded(userId: number): ThunkResult<any> {
     return (dispatch, getState) => {
         const { entities, objects } = getState();
         const { userEntities } = entities;
@@ -45,7 +45,7 @@ export function fetchArtistIfNeeded(userId: string): ThunkResult<any> {
  * @param userId
  * @returns {{type, payload: Promise}}
  */
-function getUser(userId: string) {
+function getUser(userId: number) {
     return {
         type: UserActionTypes.SET,
         payload: {
@@ -82,7 +82,7 @@ function getUser(userId: string) {
     };
 }
 
-function getUserProfiles(userId: string) {
+function getUserProfiles(userId: number) {
     return {
         type: UserActionTypes.SET_PROFILES,
         payload: {

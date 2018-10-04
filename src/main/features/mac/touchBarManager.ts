@@ -1,10 +1,10 @@
-import { nativeImage, TouchBar, NativeImage } from 'electron';
+import { nativeImage, TouchBar } from 'electron';
 import * as path from 'path';
 import { EVENTS } from '../../../shared/constants/events';
-import * as SC from '../../../shared/utils/soundcloudUtils';
-import MacFeature from './macFeature';
 import { ChangeTypes, PlayerStatus } from '../../../shared/store/player';
+import * as SC from '../../../shared/utils/soundcloudUtils';
 import { WatchState } from '../feature';
+import MacFeature from './macFeature';
 
 const { TouchBarButton, TouchBarSpacer } = TouchBar;
 
@@ -128,8 +128,8 @@ export default class TouchBarManager extends MacFeature {
     } = this.store.getState();
 
     if (playingTrack) {
-      const trackID = playingTrack.id;
-      const track = trackEntities[trackID];
+      const trackId = playingTrack.id;
+      const track = trackEntities[trackId];
 
       if (track) {
         const liked = SC.hasID(track.id, likes.track);
@@ -149,8 +149,8 @@ export default class TouchBarManager extends MacFeature {
     } = this.store.getState();
 
     if (playingTrack) {
-      const trackID = playingTrack.id;
-      const track = trackEntities[trackID];
+      const trackId = playingTrack.id;
+      const track = trackEntities[trackId];
 
       if (track) {
         const reposted = SC.hasID(track.id, reposts);

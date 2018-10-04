@@ -3,6 +3,7 @@ import { Reducer } from 'redux';
 import { onSuccess } from '../../utils/reduxUtils';
 import { PlayerState, PlayerStatus, PlayerActionTypes } from './types';
 import { AppActionTypes } from '../app';
+import _ from 'lodash';
 
 const initialState = {
     status: PlayerStatus.STOPPED,
@@ -114,7 +115,7 @@ export const playerReducer: Reducer<PlayerState> = (state = initialState, action
             };
         case PlayerActionTypes.ADD_UP_NEXT:
 
-            if (payload.remove !== null) {
+            if (!_.isNil(payload.remove)) {
                 const newState = { // eslint-disable-line
                     ...state,
                     queue: [

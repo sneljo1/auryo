@@ -7,15 +7,17 @@ import { RouteComponentProps, withRouter } from 'react-router-dom';
 import { Col, Row, TabContent, TabPane } from 'reactstrap';
 import { bindActionCreators, Dispatch } from 'redux';
 import { IMAGE_SIZES, RELATED_PLAYLIST_SUFFIX } from '../../../shared/constants';
-import { commentSchema } from '../../../shared/schemas';
+import { commentSchema, playlistSchema } from '../../../shared/schemas';
 import trackSchema from '../../../shared/schemas/track';
 import { StoreState } from '../../../shared/store';
 import { AuthState, toggleFollowing } from '../../../shared/store/auth';
 import { canFetchMoreOf, EntitiesState, fetchMore, ObjectState, ObjectTypes } from '../../../shared/store/objects';
 import { addUpNext, PlayerState, playTrack } from '../../../shared/store/player';
+import { togglePlaylistTrack } from '../../../shared/store/playlist/playlist';
 import { fetchTrackIfNeeded, toggleLike, toggleRepost } from '../../../shared/store/track/actions';
 import { setScrollPosition } from '../../../shared/store/ui';
 import { isCurrentPlaylistPlaying, SC } from '../../../shared/utils';
+import { IPC } from '../../../shared/utils/ipc';
 import { SoundCloud } from '../../../types';
 import Header from '../app/components/Header/Header';
 import CustomScroll from '../_shared/CustomScroll';
@@ -27,8 +29,6 @@ import TogglePlay from '../_shared/TogglePlayButton';
 import TrackList from '../_shared/TrackList/TrackList';
 import WithHeaderComponent from '../_shared/WithHeaderComponent';
 import TrackOverview from './components/TrackOverview';
-import { IPC } from '../../../shared/utils/ipc';
-import { show } from 'redux-modal';
 
 interface OwnProps extends RouteComponentProps<{ songId: string }> {
 }
@@ -42,6 +42,8 @@ interface PropsFromState {
     comments: ObjectState<SoundCloud.Comment> | null;
     previousScrollTop?: number;
     track: SoundCloud.Track | null;
+    songIdParam: number;
+    userPlaylists: SoundCloud.Playlist[]
 }
 
 interface PropsFromDispatch {
@@ -54,7 +56,7 @@ interface PropsFromDispatch {
     toggleFollowing: typeof toggleFollowing;
     addUpNext: typeof addUpNext;
     toggleLike: typeof toggleLike;
-    show: typeof show;
+    togglePlaylistTrack: typeof togglePlaylistTrack;
 }
 
 interface State {
@@ -79,17 +81,17 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
     componentDidMount() {
         super.componentDidMount();
 
-        const { fetchTrackIfNeeded, match: { params: { songId } } } = this.props;
+        const { fetchTrackIfNeeded, songIdParam } = this.props;
 
-        fetchTrackIfNeeded(songId);
+        fetchTrackIfNeeded(songIdParam);
 
     }
 
     componentWillReceiveProps(nextProps: AllProps) {
-        const { fetchTrackIfNeeded, match: { params: { songId } } } = nextProps;
+        const { fetchTrackIfNeeded, songIdParam } = nextProps;
 
         // if (songId !== nextProps.params.songId) {
-        fetchTrackIfNeeded(songId);
+        fetchTrackIfNeeded(songIdParam);
         // }
     }
 
@@ -120,16 +122,16 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
     }
 
     renderToggleButton = () => {
-        const { match: { params: { songId } }, playTrack, relatedPlaylistId, player: { playingTrack } } = this.props;
+        const { songIdParam, playTrack, relatedPlaylistId, player: { playingTrack } } = this.props;
 
         // TODO redundant?
 
-        if (playingTrack && playingTrack.id !== null && (playingTrack.id === songId)) {
+        if (playingTrack && playingTrack.id !== null && (playingTrack.id === songIdParam)) {
             return <TogglePlay className='c_btn round playButton' />;
         }
 
         const playTrackFunc = () => {
-            playTrack(relatedPlaylistId, { id: songId });
+            playTrack(relatedPlaylistId, { id: songIdParam });
         };
 
         // const icon = (playingTrack.id === songId) ? 'pause' : 'play_arrow'
@@ -154,7 +156,7 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
             // Functions
             toggleFollowing,
             playTrack,
-            show,
+            userPlaylists,
             toggleLike,
             toggleRepost,
             addUpNext
@@ -174,16 +176,14 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
 
         return (
             <CustomScroll
-                className='column'
+                className='column withHeader'
                 heightRelativeToParent='100%'
                 allowOuterScroll={true}
                 threshold={300}
                 ref={(r) => this.scroll = r}
                 onScroll={this.debouncedOnScroll}
-                loadMore={() => {
-                    this.fetchMore();
-                }}
-                hasMore={this.canFetchMore()}
+                loadMore={this.fetchMore}
+                hasMore={this.canFetchMore}
             >
 
                 <Header
@@ -263,10 +263,23 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
                                             )
                                         }
 
-                                        <MenuItem text='Add to playlist'
-                                            onClick={() => {
-                                                show('addToPlaylist', { trackID: track.id });
-                                            }} />
+                                        <MenuItem text="Add to playlist">
+                                            {
+                                                userPlaylists.map(playlist => {
+                                                    const inPlaylist = !!playlist.tracks.find(t => t.id === track.id)
+
+                                                    return (
+                                                        <MenuItem
+                                                            key={`menu-item-add-to-playlist-${playlist.id}`}
+                                                            className={cn({ 'text-primary': inPlaylist })}
+                                                            onClick={() => {
+                                                                togglePlaylistTrack(track.id, playlist.id)
+                                                            }}
+                                                            text={playlist.title} />
+                                                    )
+                                                })
+                                            }
+                                        </MenuItem>
 
                                         <MenuItem text='Add to queue'
                                             onClick={() => {
@@ -387,6 +400,8 @@ const mapStateToProps = (state: StoreState, props: OwnProps): PropsFromState => 
         }), entities);
     }
 
+    const userPlaylists = denormalize(auth.playlists, new schema.Array({ playlists: playlistSchema }, (input) => `${input.kind}s`), entities);
+
     const track = denormalize(songId, trackSchema, entities);
 
 
@@ -396,6 +411,8 @@ const mapStateToProps = (state: StoreState, props: OwnProps): PropsFromState => 
         relatedPlaylistId,
         auth,
         track,
+        userPlaylists,
+        songIdParam: +songId,
         relatedTracks: dRelatedTracksObject,
         comments: dcommentsObject,
         previousScrollTop: history.action === 'POP' ? ui.scrollPosition[location.pathname] : undefined
@@ -412,7 +429,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>): PropsFromDispatch => bindA
     toggleFollowing,
     addUpNext,
     toggleLike,
-    show
+    togglePlaylistTrack
 }, dispatch);
 
 export default withRouter(connect<PropsFromState, PropsFromDispatch, OwnProps, StoreState>(mapStateToProps, mapDispatchToProps)(TrackPage));

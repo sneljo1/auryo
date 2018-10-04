@@ -26,7 +26,6 @@ import MyPlaylistsPage from '../playlists/MyPlaylistsPage';
 import MyTracksPage from '../playlists/MyTracksPage';
 import SearchWrapper from '../search/SearchWrapper';
 import TrackPage from '../track/TrackPage';
-import AddToPlaylistModal from '../_shared/AddToPlaylistModal/AddToPlaylistModal';
 import ErrorBoundary from '../_shared/ErrorBoundary';
 import Spinner from '../_shared/Spinner/Spinner';
 import AppError from './components/AppError/AppError';
@@ -36,6 +35,7 @@ import IsOffline from './components/Offline/Offline';
 import Queue from './components/Queue/Queue';
 import SideBar from './components/Sidebar/Sidebar';
 import Toastr from './components/Toastr';
+import { SoundCloud } from '../../../types';
 
 interface PropsFromState {
     showQueue: boolean;
@@ -45,6 +45,9 @@ interface PropsFromState {
     auth: AuthState;
     player: PlayerState;
     app: AppState;
+
+    userPlayerlists: SoundCloud.Playlist[];
+    queue: SoundCloud.Track[];
 }
 
 interface PropsFromDispatch {
@@ -147,9 +150,7 @@ class Layout extends React.Component<AllProps> {
     render() {
         const {
             // Vars
-            auth,
             app,
-            entities,
             showQueue,
             player,
             children,
@@ -159,18 +160,9 @@ class Layout extends React.Component<AllProps> {
             toggleQueue,
             initApp,
             toasts,
-            clearToasts
+            clearToasts,
+            queue, userPlayerlists
         } = this.props;
-
-        const { playlists } = auth;
-
-        const deNormalizedPlaylists = denormalize(playlists, new schema.Array({
-            playlists: playlistSchema
-        }, (input) => `${input.kind}s`), entities);
-
-        const deNormalizedQueue = denormalize(player.queue, new schema.Array({
-            tracks: trackSchema
-        }, (input) => `${input.kind}s`), entities);
 
         return (
             <ResizeSensor
@@ -190,11 +182,11 @@ class Layout extends React.Component<AllProps> {
                         <SideBar
                             playing={!!player.playingTrack}
                             currentPlaylistId={player.currentPlaylistId}
-                            playlists={deNormalizedPlaylists} />
+                            playlists={userPlayerlists} />
 
                         <Queue
                             showQueue={showQueue}
-                            items={deNormalizedQueue}
+                            items={queue}
                             player={player}
 
                             updateQueue={updateQueue}
@@ -218,7 +210,6 @@ class Layout extends React.Component<AllProps> {
 
                     {/* Register Modals */}
 
-                    <AddToPlaylistModal />
                     <UtilitiesModal />
                     <ChangelogModal />
 
@@ -231,7 +222,17 @@ class Layout extends React.Component<AllProps> {
 const mapStateToProps = (state: StoreState): PropsFromState => {
     const { auth, app, player, entities, ui } = state;
 
+    const deNormalizedPlaylists = denormalize(auth.playlists, new schema.Array({
+        playlists: playlistSchema
+    }, (input) => `${input.kind}s`), entities);
+
+    const deNormalizedQueue = denormalize(player.queue.map(p => ({ id: p.id, schema: "tracks" })), new schema.Array({
+        tracks: trackSchema
+    }, (input) => `${input.kind}s`), entities);
+
     return {
+        userPlayerlists: deNormalizedPlaylists,
+        queue: deNormalizedQueue,
         auth,
         player,
         app,

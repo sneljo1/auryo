@@ -22,10 +22,9 @@ class TrackList extends React.Component<Props> {
         return !isEqual(playingTrack, nextProps.playingTrack) ||
             !isEqual(items, nextProps.items) ||
             !isEqual(objectId, nextProps.objectId);
-
     }
 
-    playTrack(id: string, doubleClick: boolean, e: React.MouseEvent<any>) {
+    playTrack(id: number, doubleClick: boolean, e: React.MouseEvent<any>) {
         const { playTrack, objectId } = this.props
 
         if (doubleClick) {

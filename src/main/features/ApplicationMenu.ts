@@ -147,7 +147,7 @@ export default class ApplicationMenu extends Feature {
           },
           {
             label: 'Donate',
-            click: () => shell.openExternal('http://auryo.com#donate')
+            click: () => shell.openExternal('https://opencollective.com/auryo')
           },
           {
             label: 'Learn More',
@@ -207,12 +207,12 @@ export default class ApplicationMenu extends Feature {
     } = this.store.getState();
 
     if (playingTrack) {
-      const trackID = playingTrack.id;
-      const track = trackEntities[trackID];
+      const trackId = playingTrack.id;
+      const track = trackEntities[trackId];
 
       const index = template.findIndex((r) => r.role === 'track');
 
-      if (trackID && track) {
+      if (trackId && track) {
         const liked = SC.hasID(track.id, likes.track);
         const reposted = SC.hasID(track.id, reposts);
 

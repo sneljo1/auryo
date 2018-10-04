@@ -37,7 +37,9 @@ class InputConfig extends React.PureComponent<Props> {
         const { configKey, onChange, setConfigKey } = this.props;
 
         if (onChange) {
-            onChange(event.currentTarget.value, setConfigKey.bind(this, configKey, event.currentTarget.value));
+            onChange(event.currentTarget.value, () => {
+                setConfigKey(configKey, event.currentTarget.value)
+            });
         } else {
             setConfigKey(configKey, event.currentTarget.value);
         }

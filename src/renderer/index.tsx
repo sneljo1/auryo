@@ -8,6 +8,11 @@ import { configureStore, history } from './configureStore';
 import Main from './Main';
 const app = require('electron').remote.app;
 
+if(process.env.NODE_ENV === "development"){
+    const {whyDidYouUpdate} = require('why-did-you-update');
+    //whyDidYouUpdate(React);
+}
+
 const store = configureStore();
 
 if (!process.env.TOKEN && process.env.NODE_ENV === 'production') {

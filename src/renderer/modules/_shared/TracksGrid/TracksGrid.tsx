@@ -1,11 +1,12 @@
 import cn from 'classnames';
+import { isEqual } from 'lodash';
 import React from 'react';
 import ReactList from 'react-list';
 import { Col } from 'reactstrap';
 import { PLAYLISTS } from '../../../../shared/constants';
 import { AuthFollowing, toggleFollowing } from '../../../../shared/store/auth';
 import { fetchPlaylistIfNeeded } from '../../../../shared/store/objects';
-import { PlayerState, playTrack } from '../../../../shared/store/player';
+import { PlayingTrack, playTrack } from '../../../../shared/store/player';
 import * as SC from '../../../../shared/utils/soundcloudUtils';
 import { SoundCloud } from '../../../../types';
 import TrackGridItem from './TrackGridItem';
@@ -14,7 +15,8 @@ import TrackGridUser from './TrackGridUser';
 interface Props {
     showInfo?: boolean;
     items: SoundCloud.All[];
-    player: PlayerState;
+    playingTrack: PlayingTrack | null;
+    currentPlaylistId: string | null;
     followings: AuthFollowing;
     objectId: string;
 
@@ -25,14 +27,25 @@ interface Props {
 
 class TracksGrid extends React.Component<Props> {
 
+    // shouldComponentUpdate(nextProps: Props) {
+    //     const { playingTrack, objectId, items, currentPlaylistId, followings } = this.props;
+
+    //     return !isEqual(playingTrack, nextProps.playingTrack) ||
+    //         !isEqual(items, nextProps.items) ||
+    //         !isEqual(objectId, nextProps.objectId) ||
+    //         !isEqual(followings, nextProps.followings) ||
+    //         !isEqual(currentPlaylistId, nextProps.currentPlaylistId);
+    // }
+
     renderItem = (index: number) => {
         const {
             // Vars
             showInfo,
             objectId,
             followings,
-            player,
+            playingTrack,
             items,
+            currentPlaylistId,
 
             // Functions
             playTrack,
@@ -49,13 +62,13 @@ class TracksGrid extends React.Component<Props> {
             return null
         }
 
-        let isPlaying = !!player.playingTrack;
+        let isPlaying = !!playingTrack;
 
-        if (player.playingTrack) {
+        if (playingTrack) {
             if (item.kind === 'playlist') {
-                isPlaying = player.playingTrack.playlistId === item.id
+                isPlaying = playingTrack.playlistId === item.id.toString()
             } else {
-                isPlaying = player.playingTrack.id === item.id && player.playingTrack.playlistId === player.currentPlaylistId
+                isPlaying = playingTrack.id === item.id && playingTrack.playlistId === currentPlaylistId
             }
         }
 

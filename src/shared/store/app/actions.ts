@@ -13,6 +13,8 @@ import { setConfigKey } from '../config';
 import { changeTrack, ChangeTypes, PlayerStatus, toggleStatus, VolumeChangeTypes } from '../player';
 import { toggleLike, toggleRepost } from '../track/actions';
 import { AppActionTypes, CanGoHistory } from './types';
+import { addToast } from '../ui';
+import { Intent } from '@blueprintjs/core';
 
 export function initApp(): ThunkResult<void> {
     return (dispatch, getState) => {
@@ -116,7 +118,7 @@ export function initWatchers(): ThunkResult<any> {
                 event: EVENTS.TRACK.LIKE,
                 handler: (_e: any, trackId: string) => {
                     if (trackId) {
-                        dispatch(toggleLike(trackId, false));
+                        dispatch(toggleLike(+trackId, false));
                     }
                 }
             });
@@ -125,7 +127,7 @@ export function initWatchers(): ThunkResult<any> {
                 event: EVENTS.TRACK.REPOST,
                 handler: (_e: string, trackId: string) => {
                     if (trackId) {
-                        dispatch(toggleRepost(trackId, false));
+                        dispatch(toggleRepost(+trackId, false));
                     }
                 }
             });
@@ -184,12 +186,11 @@ export function initWatchers(): ThunkResult<any> {
                 event: EVENTS.APP.UPDATE_AVAILABLE,
                 handler: (_e: any, data: { currentVersion: string, version: string }) => {
                     dispatch(setUpdateAvailable(data.version));
-                    // TODO can we do this in main?
 
-                    toastr.success(`Update available v${data.version}`, `Current version: ${data.currentVersion}`, {
-                        timeOut: 5000,
-                        showCloseButton: false
-                    });
+                    dispatch(addToast({
+                        message: `Update available`,
+                        intent: Intent.SUCCESS
+                    }))
 
                 }
             });

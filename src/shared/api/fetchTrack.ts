@@ -5,7 +5,7 @@ import { NormalizedResponse, SoundCloud } from '../../types';
 
 type JsonResponse = SoundCloud.Track;
 
-export default function fetchTrack(trackId: string): Promise<{
+export default function fetchTrack(trackId: number): Promise<{
     json: JsonResponse,
     normalized: NormalizedResponse
 }> {

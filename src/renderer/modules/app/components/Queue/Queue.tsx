@@ -76,6 +76,7 @@ class Queue extends React.Component<Props> {
             items,
             playTrack,
         } = this.props;
+        
 
         const { queue, currentPlaylistId, currentIndex } = player;
 

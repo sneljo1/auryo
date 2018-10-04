@@ -18,7 +18,9 @@ class CheckboxConfig extends React.PureComponent<Props> {
         const { configKey, setConfigKey, onChange } = this.props;
 
         if (onChange) {
-            onChange(e.target.checked, setConfigKey.bind(this, configKey, e.target.checked));
+            onChange(e.target.checked, () => {
+                setConfigKey(configKey, e.target.checked)
+            });
         } else {
             setConfigKey(configKey, e.target.checked);
         }

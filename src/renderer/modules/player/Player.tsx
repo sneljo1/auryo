@@ -401,7 +401,9 @@ class Player extends React.Component<AllProps, State>{
                     <div className='action-group'>
                         <a id='toggleQueueButton'
                             href='javascript:void(0)'
-                            onClick={toggleQueue.bind(this, null)}>
+                            onClick={() => {
+                                toggleQueue()
+                            }}>
                             <i className='icon-playlist_play' />
                         </a>
                     </div>

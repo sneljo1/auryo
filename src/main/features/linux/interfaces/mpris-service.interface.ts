@@ -1,7 +1,7 @@
 export namespace MprisServiceClient {
   export interface MetaData {
     'xesam:title'?: string
-    'mpris:trackid'?: string
+    'mpris:trackId'?: string
     'mpris:artUrl'?: string
     'mpris:length'?: microseconds
     'xesam:artist'?: Array<string>

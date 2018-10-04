@@ -68,12 +68,13 @@ export default class MediaServiceManager extends MacFeature {
         } = currentState;
 
         if (playingTrack) {
-          const trackID = playingTrack.id;
-          const track = trackEntities[trackID];
-          const user = userEntities[track.user || track.user_id];
+          const trackId = playingTrack.id;
+          const track = trackEntities[trackId];
 
           if (track) {
-            this.meta.id = parseInt(track.id);
+            const user = userEntities[track.user || track.user_id];
+            
+            this.meta.id = track.id;
             this.meta.title = track.title;
 
             this.meta.artist = user && user.username ? user.username : 'Unknown artist';

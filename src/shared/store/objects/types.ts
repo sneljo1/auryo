@@ -16,7 +16,7 @@ export interface ObjectGroup {
     [id: string]: ObjectState<NormalizedResult>;
 }
 
-export interface ObjectState<T>{
+export interface ObjectState<T> {
     isFetching: boolean;
     error: string | null;
     meta: object;
@@ -26,19 +26,18 @@ export interface ObjectState<T>{
     fetchedItems: number;
 }
 
-
 export interface EntitiesState extends Readonly<{
     playlistEntities: {
-        [playlistId: string]: Normalized.Playlist
+        [playlistId: number]: Normalized.Playlist
     },
     trackEntities: {
-        [trackId: string]: Normalized.Track
+        [trackId: number]: Normalized.Track
     },
     userEntities: {
-        [trackId: string]: SoundCloud.User
+        [userId: number]: SoundCloud.User
     },
     commentEntities: {
-        [commentId: string]: SoundCloud.Comment
+        [commentId: number]: SoundCloud.Comment
     }
 }> { }
 

@@ -6,7 +6,6 @@ const trackSchema = new schema.Entity('trackEntities', {
 },{
     processStrategy: (entity) => ({ 
         ...entity, 
-        id: String(entity.id),
         likes_count: entity.likes_count || entity.favoritings_count
       })
 });

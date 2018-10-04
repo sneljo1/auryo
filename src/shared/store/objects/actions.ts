@@ -129,7 +129,7 @@ export function getPlaylist(url: string, objectId: string, options: GetPlaylistO
 
                                                     return {
                                                         id: trackId,
-                                                        playlistId: id,
+                                                        playlistId: id.toString(),
                                                         // un: new Date().getTime()
                                                     };
                                                 }).filter((t) => t != null);
@@ -153,8 +153,8 @@ export function getPlaylist(url: string, objectId: string, options: GetPlaylistO
     };
 }
 
-export function getComments(objectId: string) {
-    return getCommentsByUrl(SC.getCommentsUrl(objectId), objectId);
+export function getComments(trackId: number) {
+    return getCommentsByUrl(SC.getCommentsUrl(trackId), trackId.toString());
 }
 
 function getCommentsByUrl(url: string, objectId: string): ThunkResult<Promise<any>> {
@@ -164,11 +164,7 @@ function getCommentsByUrl(url: string, objectId: string): ThunkResult<Promise<an
         const objectType = ObjectTypes.COMMENTS;
         const comments = objects[objectType];
 
-        console.log(canFetch(comments[objectId]))
-
         if (!canFetch(comments[objectId])) return Promise.resolve();
-
-        console.log("actually getting")
 
         return dispatch<Promise<any>>({
             type: ObjectsActionTypes.SET,
@@ -207,7 +203,7 @@ export const setObject = (objectId: string, objectType: ObjectTypes, entities: N
 * @param playlistId
 * @returns {function(*, *)}
 */
-export function fetchPlaylistIfNeeded(playlistId: string): ThunkResult<Promise<any>> {
+export function fetchPlaylistIfNeeded(playlistId: number): ThunkResult<Promise<any>> {
     return (dispatch, getState) => {
         const {
             objects
@@ -220,7 +216,7 @@ export function fetchPlaylistIfNeeded(playlistId: string): ThunkResult<Promise<a
             return dispatch<Promise<any>>({
                 type: ObjectsActionTypes.SET,
                 payload: {
-                    promise: fetchPlaylist(SC.getPlaylistTracksUrl(playlistId), playlistId)
+                    promise: fetchPlaylist(SC.getPlaylistTracksUrl(playlistId), playlistId.toString())
                         .then(({
                             normalized,
                             json
@@ -311,7 +307,7 @@ export function canFetchPlaylistTracks(playlistId: string): ThunkResult<void> {
     };
 }
 
-export function fetchPlaylistTracks(playlistId: string, size = 20, ids?: Array<NormalizedResult>): ThunkResult<Promise<any>> {
+export function fetchPlaylistTracks(playlistId: number, size = 20, ids?: Array<NormalizedResult>): ThunkResult<Promise<any>> {
     return (dispatch, getState) => {
         const {
             objects
@@ -367,7 +363,7 @@ export function fetchPlaylistTracks(playlistId: string, size = 20, ids?: Array<N
     };
 }
 
-export function fetchTracks(ids: Array<string>): ThunkResult<void> {
+export function fetchTracks(ids: Array<number>): ThunkResult<void> {
     return (dispatch) => {
         if (!ids || (ids && !ids.length)) return;
 

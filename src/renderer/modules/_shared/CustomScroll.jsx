@@ -224,7 +224,7 @@ class CustomScroll extends React.Component {
         let offset = el.scrollHeight - el.parentNode.scrollTop - el.parentNode.clientHeight
 
         if (offset < Number(this.props.threshold) && !this.props.isFetching) {
-            if (typeof this.props.loadMore === 'function') {
+            if (typeof this.props.loadMore === 'function' ) {
                 this.props.loadMore((this.pageLoaded += 1))
             }
         }

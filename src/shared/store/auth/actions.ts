@@ -132,7 +132,7 @@ export const getAuthFollowings = () => action(AuthActionTypes.SET_FOLLOWINGS, fe
  * @param user_id
  * @returns {function(*, *)}
  */
-export function toggleFollowing(userId: string): ThunkResult<void> {
+export function toggleFollowing(userId: number): ThunkResult<void> {
     return (dispatch, getState) => {
         const { auth: { followings } } = getState();
 
@@ -179,13 +179,12 @@ export function getAuthPlaylists(): ThunkResult<any> {
                 .then(({
                     normalized
                 }) => {
-
                     normalized.result.forEach((playlistResult) => {
                         if (normalized.entities.playlistEntities && normalized.entities.playlistEntities[playlistResult.id]) {
                             const playlist = normalized.entities.playlistEntities[playlistResult.id];
 
                             dispatch(setObject(
-                                playlistResult.id,
+                                playlistResult.id.toString(),
                                 ObjectTypes.PLAYLISTS,
                                 {},
                                 playlist.tracks
@@ -193,7 +192,7 @@ export function getAuthPlaylists(): ThunkResult<any> {
                         }
 
                     });
-                    
+
                     return normalized;
                 })
         }

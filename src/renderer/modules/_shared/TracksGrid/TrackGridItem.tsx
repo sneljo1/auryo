@@ -47,20 +47,20 @@ class TrackGridItem extends React.Component<Props> {
         }
     }
 
-    shouldComponentUpdate(nextProps: Props) {
-        const { track, isPlaying } = this.props
+    // shouldComponentUpdate(nextProps: Props) {
+    //     const { track, isPlaying } = this.props
 
-        if (nextProps.track.id !== track.id) {
-            return true
-        }
+    //     if (nextProps.track.id !== track.id) {
+    //         return true
+    //     }
 
-        if (nextProps.isPlaying !== isPlaying) {
-            return true
-        }
+    //     if (nextProps.isPlaying !== isPlaying) {
+    //         return true
+    //     }
 
-        return false
+    //     return false
 
-    }
+    // }
 
     renderArtist = () => {
         const { track, showReposts } = this.props

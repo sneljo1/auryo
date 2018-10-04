@@ -80,8 +80,8 @@ export default class Win10MediaService extends WindowsFeature {
         } = this.store.getState();
 
         if (playingTrack) {
-          const trackID = playingTrack.id;
-          const track = trackEntities[trackID];
+          const trackId = playingTrack.id;
+          const track = trackEntities[trackId];
           const user = userEntities[track.user || track.user_id];
           const image = SC.getImageUrl(track, IMAGE_SIZES.SMALL);
 

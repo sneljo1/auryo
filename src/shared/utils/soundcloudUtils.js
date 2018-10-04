@@ -35,8 +35,8 @@ function makeUrl(uri, opts, v2) {
     return url;
 }
 
-export function getTrackUrl(trackID) {
-    return makeUrl(`tracks/${trackID}`, {
+export function getTrackUrl(trackId) {
+    return makeUrl(`tracks/${trackId}`, {
         client_id: true,
     });
 }
@@ -48,6 +48,12 @@ export function getChartsUrl(genre, sort = "top", limit = 50) {
         genre: `soundcloud:genres:${genre}`,
         limit,
     }, true);
+}
+
+export function getRemainingTracks() {
+    return makeUrl("rate_limit_status", {
+        client_id: true,
+    });
 }
 
 export function getUserUrl(artistID) {
@@ -149,16 +155,16 @@ export function getPlaylistTracksUrl(playlist_id) {
     }, true);
 }
 
-export function getRelatedUrl(trackID, limit = 50) {
-    return makeUrl(`tracks/${trackID}/related`, {
+export function getRelatedUrl(trackId, limit = 50) {
+    return makeUrl(`tracks/${trackId}/related`, {
         client_id: true,
         linked_partitioning: 1,
         limit,
     });
 }
 
-export function getCommentsUrl(trackID, limit = 20) {
-    return makeUrl(`tracks/${trackID}/comments`, {
+export function getCommentsUrl(trackId, limit = 20) {
+    return makeUrl(`tracks/${trackId}/comments`, {
         client_id: true,
         linked_partitioning: 1,
         limit,
@@ -187,8 +193,8 @@ export function getRepostIdsUrl() {
     });
 }
 
-export function updateLikeUrl(trackID) {
-    return makeUrl(`me/favorites/${trackID}`, {
+export function updateLikeUrl(trackId) {
+    return makeUrl(`me/favorites/${trackId}`, {
         oauth_token: true,
     });
 }
@@ -205,8 +211,8 @@ export function updateFollowingUrl(userID) {
     });
 }
 
-export function updateRepostUrl(trackID) {
-    return makeUrl(`e1/me/track_reposts/${trackID}`, {
+export function updateRepostUrl(trackId) {
+    return makeUrl(`e1/me/track_reposts/${trackId}`, {
         oauth_token: true,
     });
 }

@@ -3,6 +3,8 @@ import { NormalizedResult, ThunkResult } from '../../../types';
 import fetchToJson from '../../api/helpers/fetchToJson';
 import { SC } from '../../utils';
 import { ObjectsActionTypes, ObjectTypes } from '../objects';
+import { addToast } from '../ui';
+import { Intent } from '@blueprintjs/core';
 
 
 /**
@@ -12,7 +14,7 @@ import { ObjectsActionTypes, ObjectTypes } from '../objects';
  * @param playlistId
  * @returns {function(*, *)}
  */
-export function togglePlaylistTrack(trackId: string, playlistId: string): ThunkResult<any> {
+export function togglePlaylistTrack(trackId: number, playlistId: number): ThunkResult<any> {
     return (dispatch, getState) => {
         const {
             objects,
@@ -28,11 +30,11 @@ export function togglePlaylistTrack(trackId: string, playlistId: string): ThunkR
 
         const track: NormalizedResult = { id: trackId, schema: 'tracks' };
 
-        const item_index = playlist_object.items.indexOf(track);
+        const found: boolean = !!playlist_object.items.find(t => t.id === track.id && t.schema === track.schema);
 
         let add = true;
 
-        if (item_index === -1) {
+        if (!found) {
             newitems = [track, ...playlist_object.items];
         } else {
             newitems = [...playlist_object.items.filter((normalizedResult) => normalizedResult.id !== track.id)];
@@ -60,33 +62,10 @@ export function togglePlaylistTrack(trackId: string, playlistId: string): ThunkR
 
                         const track = trackEntities[trackId];
 
-                        const notificiationId = `addtoplaylist-${trackId}-${Date.now()}`;
-
-                        // TODO toaster somewhere else
-
-                        // dispatch(toastrActions.add({
-                        //     id: notificiationId, // If not provided we will add one.
-                        //     type: 'info',
-                        //     title: track.title,
-                        //     options: {
-                        //         timeOut: 3000,
-                        //         icon: (
-                        //             <ReactImageFallback src={SC.getImageUrl(track, IMAGE_SIZES.MEDIUM)} />
-                        //         ),
-                        //         showCloseButton: false,
-                        //         component: (
-                        //             <div>
-                        //                 {`Track ${add ? 'added to' : 'removed from'} playlist `} <Link
-                        //                     onClick={() => {
-                        //                         dispatch(toastrActions.remove(notificiationId))
-                        //                         dispatch(hide('addToPlaylist'))
-                        //                     }}
-                        //                     to={`/playlist/${playlist_entitity.id}`}>{playlist_entitity.title}</Link>
-                        //             </div>
-                        //         )
-                        //     }
-                        // }))
-
+                        dispatch(addToast({
+                            message: `Track ${add ? 'added to' : 'removed from'} playlist`,
+                            intent: Intent.SUCCESS
+                        }))
 
                         return {
                             objectId: playlistId,
@@ -95,8 +74,8 @@ export function togglePlaylistTrack(trackId: string, playlistId: string): ThunkR
                             entities: {
                                 playlistEntities: {
                                     [playlistId]: {
-                                        track_count: item_index === -1 ? playlist_entitity.track_count + 1 : playlist_entitity.track_count - 1,
-                                        duration: item_index === -1 ? playlist_entitity.duration + track.duration : playlist_entitity.duration - track.duration
+                                        track_count: !found ? playlist_entitity.track_count + 1 : playlist_entitity.track_count - 1,
+                                        duration: !found ? playlist_entitity.duration + track.duration : playlist_entitity.duration - track.duration
                                     }
                                 }
                             }

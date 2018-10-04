@@ -9,7 +9,7 @@ import playlistSchema from '../../../shared/schemas/playlist';
 import trackSchema from '../../../shared/schemas/track';
 import { StoreState } from '../../../shared/store';
 import { AuthState, toggleFollowing } from '../../../shared/store/auth';
-import { canFetchMoreOf, EntitiesState, fetchMore, fetchPlaylistIfNeeded, ObjectState, ObjectTypes } from '../../../shared/store/objects';
+import { canFetchMoreOf, fetchMore, fetchPlaylistIfNeeded, ObjectState, ObjectTypes } from '../../../shared/store/objects';
 import { searchAll } from '../../../shared/store/objects/playlists/search/actions';
 import { PlayerState, playTrack } from '../../../shared/store/player';
 import { SoundCloud } from '../../../types';
@@ -118,7 +118,8 @@ class Search extends React.Component<AllProps> {
                 <TracksGrid
                     followings={followings}
                     items={playlist.items}
-                    player={player}
+                    playingTrack={player.playingTrack}
+                    currentPlaylistId={player.currentPlaylistId}
                     objectId={objectId}
                     toggleFollowing={toggleFollowing}
                     playTrack={playTrack}

@@ -33,9 +33,9 @@ interface PropsFromState {
     auth: AuthState;
     player: PlayerState;
     previousScrollTop?: number;
-    playlistId: string;
     playlist: SoundCloud.Playlist;
     playlistObject: ObjectState<SoundCloud.Track> | null;
+    playlistIdParam: number;
 }
 
 interface PropsFromDispatch {
@@ -60,24 +60,24 @@ class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
     componentDidMount() {
         super.componentDidMount();
 
-        const { fetchPlaylistIfNeeded, playlistId } = this.props;
+        const { fetchPlaylistIfNeeded, playlistIdParam } = this.props;
 
-        fetchPlaylistIfNeeded(playlistId);
+        fetchPlaylistIfNeeded(playlistIdParam);
 
     }
 
     componentWillReceiveProps(nextProps: AllProps) {
-        const { fetchPlaylistIfNeeded, playlistId } = this.props;
+        const { fetchPlaylistIfNeeded, playlistIdParam } = this.props;
 
-        if (playlistId !== nextProps.playlistId) {
-            fetchPlaylistIfNeeded(nextProps.playlistId);
+        if (playlistIdParam !== nextProps.playlistIdParam) {
+            fetchPlaylistIfNeeded(nextProps.playlistIdParam);
         }
     }
 
     renderPlayButton = () => {
         const {
             playlist,
-            playlistId,
+            playlistIdParam,
             player,
             playTrack,
             toggleStatus
@@ -85,7 +85,7 @@ class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
 
         const first_id = playlist.tracks[0].id;
 
-        if (player.currentPlaylistId === playlistId && player.status === PlayerStatus.PLAYING) {
+        if (player.currentPlaylistId === playlistIdParam.toString() && player.status === PlayerStatus.PLAYING) {
             return (
                 <a href='javascript:void(0)' className='c_btn playing'
                     onClick={() => toggleStatus()}>
@@ -95,9 +95,17 @@ class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
             );
         }
 
+        const toggle = () => {
+            if (player.currentPlaylistId === playlistIdParam.toString()) {
+                toggleStatus()
+            } else {
+                playTrack(playlistIdParam.toString(), { id: first_id })
+            }
+        }
+
         return (
             <a href='javascript:void(0)' className='c_btn'
-                onClick={player.currentPlaylistId === playlistId ? toggleStatus.bind(null, null) : playTrack.bind(null, playlistId, first_id, null)}>
+                onClick={toggle}>
                 <i className='icon-play_arrow' />
                 Play
             </a>
@@ -109,10 +117,9 @@ class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
             // Vars
             playlistObject,
             playlist,
-            playlistId,
             player,
             auth,
-
+            playlistIdParam,
             // Functions
             toggleLike,
             playTrack,
@@ -131,26 +138,24 @@ class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
         const first_item = playlist.tracks[0];
         const hasImage = playlist.artwork_url || (first_item && first_item.artwork_url);
 
-        const liked = SC.hasID(playlistId, likes.playlist);
+        const liked = SC.hasID(playlistIdParam, likes.playlist);
         const playlistOwned = playlists.find(p => p.id === playlist.id);
-
-        const openExternalFunc = IPC.openExternal.bind(null, playlist.permalink_url);
 
         const isEmpty = !playlistObject.isFetching && (playlist.tracks.length === 0 && playlist.duration === 0 || playlist.track_count === 0);
 
         return (
             <CustomScroll heightRelativeToParent='100%'
-                heightMargin={35}
+                //heightMargin={35}
                 allowOuterScroll={true}
                 threshold={300}
                 isFetching={playlistObject.isFetching}
                 ref={(r) => this.scroll = r}
                 loadMore={() => {
-                    fetchPlaylistTracks(playlistId)
+                    fetchPlaylistTracks(playlistIdParam)
                 }}
                 loader={<Spinner />}
                 onScroll={this.debouncedOnScroll}
-                hasMore={canFetchPlaylistTracks(playlistId)}>
+                hasMore={canFetchPlaylistTracks(playlistIdParam.toString())}>
 
                 <Header className={cn({
                     withImage: hasImage
@@ -176,7 +181,9 @@ class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
                             {
                                 playlist.tracks.length && !playlistOwned ? (
                                     <a href='javascript:void(0)' className={cn('c_btn', { liked })}
-                                        onClick={toggleLike.bind(this, playlist.id, true)}>
+                                        onClick={() => {
+                                            toggleLike(playlist.id, true)
+                                        }}>
                                         <i className={liked ? 'icon-favorite' : 'icon-favorite_border'} />
                                         <span>{liked ? 'Liked' : 'Like'}</span>
                                     </a>
@@ -191,7 +198,9 @@ class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
                                                 playlist.tracks.length ? (
                                                     <React.Fragment>
                                                         <MenuItem text='Add to queue'
-                                                            onClick={addUpNext.bind(this, playlist, null)} />
+                                                            onClick={() => {
+                                                                addUpNext(playlist)
+                                                            }} />
                                                         <MenuDivider />
                                                     </React.Fragment>
                                                 ) : null
@@ -199,7 +208,9 @@ class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
 
                                             <MenuItem
                                                 text='View in browser'
-                                                onClick={openExternalFunc} />
+                                                onClick={() => {
+                                                    IPC.openExternal(playlist.permalink_url)
+                                                }} />
                                             <ShareMenuItem title={playlist.title}
                                                 permalink={playlist.permalink_url}
                                                 username={playlist.user.username} />
@@ -245,8 +256,9 @@ class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
                             <TracksGrid
                                 followings={followings}
                                 items={playlistObject.items}
-                                player={player}
-                                objectId={playlistId}
+                                playingTrack={player.playingTrack}
+                                currentPlaylistId={player.currentPlaylistId}
+                                objectId={playlistIdParam.toString()}
                                 playTrack={playTrack}
                                 fetchPlaylistIfNeeded={fetchPlaylistIfNeeded} />
 
@@ -277,14 +289,12 @@ const mapStateToProps = (state: StoreState, props: OwnProps): PropsFromState => 
         }), entities);
     }
 
-    console.log(dPlaylistObject)
-
     return {
         auth,
         player,
         playlist,
         playlistObject: dPlaylistObject,
-        playlistId,
+        playlistIdParam: +playlistId,
         previousScrollTop: history.action === 'POP' ? ui.scrollPosition[location.pathname] : undefined
     };
 };

@@ -1,6 +1,9 @@
 @import "../../../../css/vars";
 
 .header-wrapper {
+  .bp3-popover-target{
+    transform:rotate(90deg)
+  }
   &.withImage {
     background: rgba(255, 255, 255, 0.15);
     position: relative;
@@ -8,6 +11,9 @@
 
 
     .stickymaker:not(.sticky) {
+      .bp3-popover-target svg{
+        color: white;
+      }
       i {
         color: white;
       }
@@ -135,10 +141,12 @@
 
 .navbar {
 
+  .bp3-popover-wrapper{
+    padding: 0 10px 0 8px;
+  }
   .toggle {
     text-decoration: none !important;
     color: #717171;
-    padding: 0 5px;
     transition: .5s color;
     position: relative;
 

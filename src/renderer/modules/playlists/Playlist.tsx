@@ -71,7 +71,6 @@ class PlayListPage extends WithHeaderComponent<AllProps, State> {
 
     componentWillReceiveProps(nextProps: AllProps) {
         this.fetchPlaylist(nextProps);
-
     }
 
     fetchPlaylist = (props: AllProps) => {
@@ -138,7 +137,7 @@ class PlayListPage extends WithHeaderComponent<AllProps, State> {
         return (
             <CustomScroll
                 heightRelativeToParent='100%'
-                heightMargin={35}
+                //heightMargin={35}
                 allowOuterScroll={true}
                 threshold={300}
                 isFetching={playlistObject.isFetching}
@@ -185,7 +184,8 @@ class PlayListPage extends WithHeaderComponent<AllProps, State> {
                                 <TracksGrid
                                     followings={followings}
                                     items={playlistObject.items}
-                                    player={player}
+                                    playingTrack={player.playingTrack}
+                                    currentPlaylistId={player.currentPlaylistId}
                                     objectId={objectId}
                                     showInfo={showInfo}
                                     playTrack={playTrack}
