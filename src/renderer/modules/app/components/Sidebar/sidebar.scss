@@ -75,8 +75,8 @@
   background: $sidebar_bg;
   position: fixed;
   height: 100%;
+  overflow: hidden;
 
-  
   h2 {
     font-size: .8rem;
     text-transform: uppercase;

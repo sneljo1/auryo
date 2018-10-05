@@ -19,7 +19,6 @@ import TracksGrid from '../../_shared/TracksGrid/TracksGrid';
 
 interface OwnProps extends RouteComponentProps<{
     category: "user" | "playlist" | "track";
-    query: string;
 }> {
 
 }
@@ -29,6 +28,7 @@ interface PropsFromState {
     objectId: string;
     auth: AuthState;
     player: PlayerState;
+    query: string;
 }
 
 interface PropsFromDispatch {
@@ -48,7 +48,7 @@ class SearchCategory extends React.Component<AllProps> {
     }
 
     componentDidMount() {
-        const { match: { params: { query } }, search, playlist, objectId } = this.props
+        const { query, playlist, objectId, search } = this.props
 
         if (!playlist && query && query.length) {
             search(objectId, query, 25)
@@ -56,17 +56,17 @@ class SearchCategory extends React.Component<AllProps> {
     }
 
     componentWillReceiveProps(nextProps: AllProps) {
-        const { match: { params: { query } }, search, playlist, objectId } = this.props
+        const { query, playlist, objectId, search } = this.props
 
-        if ((query !== nextProps.match.params.query || !playlist) && query && query.length) {
-            search(objectId, nextProps.match.params.query, 25)
+        if ((query !== nextProps.query || !playlist) && query && query.length) {
+            search(objectId, nextProps.query, 25)
         }
     }
 
     shouldComponentUpdate(nextProps: AllProps) {
-        const { match: { params: { query } }, playlist } = this.props;
+        const { query, playlist } = this.props;
 
-        if (!isEqual(nextProps.match.params.query, query) ||
+        if (!isEqual(nextProps.query, query) ||
             !isEqual(nextProps.playlist, playlist)) {
             return true
         }
@@ -130,7 +130,9 @@ class SearchCategory extends React.Component<AllProps> {
 
 const mapStateToProps = (state: StoreState, props: OwnProps): PropsFromState => {
     const { auth, entities, objects, player } = state
-    const { match: { params: { query, category } } } = props
+    const { match: { params: { category } }, location: { search: rawSearch } } = props
+
+    const query: string = decodeURI(rawSearch.replace("?", ""))
 
     const playlistObjects = objects[ObjectTypes.PLAYLISTS] || {}
 
@@ -168,7 +170,8 @@ const mapStateToProps = (state: StoreState, props: OwnProps): PropsFromState => 
         objectId,
         auth,
         playlist: dplaylistObject,
-        player
+        player,
+        query
     }
 }
 

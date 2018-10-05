@@ -44,7 +44,7 @@ class Search extends React.Component<AllProps> {
         const { query, searchAll, playlist } = this.props
 
         if (!playlist && query && query.length) {
-            searchAll(query, 40)
+            searchAll(query, 15)
         }
     }
 
@@ -52,7 +52,7 @@ class Search extends React.Component<AllProps> {
         const { query, searchAll, playlist } = this.props
 
         if ((query !== nextProps.query || !playlist) && nextProps.query && nextProps.query.length) {
-            searchAll(nextProps.query, 40)
+            searchAll(nextProps.query, 15)
         }
     }
 
@@ -94,14 +94,6 @@ class Search extends React.Component<AllProps> {
             query
         } = this.props
 
-        if (!playlist || (playlist && !playlist.items.length && playlist.isFetching)) {
-            return (
-                <div className="pt-5 mt-5">
-                    <Spinner contained />
-                </div>
-            )
-        }
-
         if (query === "" || (playlist && !playlist.items.length && !playlist.isFetching)) {
             return (
                 <div className="pt-5 mt-5">
@@ -109,6 +101,14 @@ class Search extends React.Component<AllProps> {
                     <div className="text-center" style={{ fontSize: '5rem' }}>
                         {query ? '😭' : '🕵️‍'}
                     </div>
+                </div>
+            )
+        }
+
+        if (!playlist || (playlist && !playlist.items.length && playlist.isFetching)) {
+            return (
+                <div className="pt-5 mt-5">
+                    <Spinner contained />
                 </div>
             )
         }

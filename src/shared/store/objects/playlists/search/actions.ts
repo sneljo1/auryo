@@ -1,7 +1,7 @@
-import { ObjectTypes } from '../..';
+import { ObjectTypes, fetchMore, canFetchMoreOf } from '../..';
 import { ThunkResult } from '../../../../../types';
 import fetchSearch from '../../../../api/fetchSearch';
-import {  SEARCH_PLAYLISTS_SUFFIX, SEARCH_SUFFIX, SEARCH_TRACKS_SUFFIX, SEARCH_USERS_SUFFIX } from '../../../../constants';
+import { SEARCH_PLAYLISTS_SUFFIX, SEARCH_SUFFIX, SEARCH_TRACKS_SUFFIX, SEARCH_USERS_SUFFIX } from '../../../../constants';
 import { SC } from '../../../../utils';
 import { ObjectsActionTypes } from '../../types';
 
@@ -81,26 +81,40 @@ export function searchAll(query: string, limit?: number, offset?: number): Thunk
             return Promise.resolve();
         }
 
+        let shouldFetchMore = false;
+
 
         if (!tracklist_object || (tracklist_object && !tracklist_object.isFetching && tracklist_object.nextUrl)) {
-            return dispatch<Promise<any>> ({
+            return dispatch<Promise<any>>({
                 type: ObjectsActionTypes.SET,
                 payload: {
                     promise: fetchSearch(SC.searchAllUrl(query, limit, offset))
-                        .then(({ normalized, json }) => ({
-                            objectId,
-                            objectType: ObjectTypes.PLAYLISTS,
-                            entities: normalized.entities,
-                            result: normalized.result,
-                            nextUrl: SC.appendToken(json.next_href),
-                            refresh: true
-                        })),
+                        .then(({ normalized, json }) => {
+
+                            if (normalized.result.length < 15) {
+                                shouldFetchMore = true;
+                            }
+
+                            return {
+                                objectId,
+                                objectType: ObjectTypes.PLAYLISTS,
+                                entities: normalized.entities,
+                                result: normalized.result,
+                                nextUrl: SC.appendToken(json.next_href),
+                                refresh: true
+                            }
+                        }),
                     data: {
                         objectId,
                         objectType: ObjectTypes.PLAYLISTS
                     }
                 }
-            } as any);
+            } as any)
+                .then(() => {
+                    if (shouldFetchMore && dispatch(canFetchMoreOf(objectId, ObjectTypes.PLAYLISTS))) {
+                        dispatch(fetchMore(objectId, ObjectTypes.PLAYLISTS))
+                    }
+                })
         }
 
         return Promise.resolve();

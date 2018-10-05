@@ -48,13 +48,11 @@ class SearchBox extends React.Component<Props, State> {
         ipcRenderer.removeListener('keydown:search', this.focus);
     }
 
-    handleSearch(currentValue: string) {
+    handleSearch(oldValue: string, currentValue: string) {
         const { handleSearch } = this.props;
-        const { query } = this.state;
-
 
         if (handleSearch) {
-            handleSearch(query, currentValue);
+            handleSearch(oldValue, currentValue);
         }
     }
 
@@ -71,11 +69,12 @@ class SearchBox extends React.Component<Props, State> {
     onChange = (event: React.FormEvent<HTMLInputElement>) => {
 
         if (this.search) {
-            this.handleSearchDebounced(event.currentTarget.value);
+            this.handleSearchDebounced(this.state.query, event.currentTarget.value);
         }
 
         this.setState({ query: event.currentTarget.value });
     }
+
     onKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === 'Enter') {
             this.handleSearchDebounced(event.currentTarget.value);

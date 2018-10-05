@@ -42,7 +42,7 @@ class App extends React.Component<AllProps> {
                     <Route path='/track/:songId' component={TrackPage} />
                     <Route path='/user/:artistId' component={ArtistPage} />
                     <Route path='/playlist/:playlistId' component={PlaylistPage} />
-                    <Route path='/search/:query?' component={SearchWrapper} />
+                    <Route path='/search' component={SearchWrapper} />
                 </Switch>
             </Layout>
         );

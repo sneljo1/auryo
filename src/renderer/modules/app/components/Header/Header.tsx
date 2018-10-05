@@ -124,17 +124,25 @@ class Header extends React.Component<AllProps, State> {
     }
 
     handleSearch = (prev: string, rawQuery?: string) => {
+        const { push, replace } = this.props;
+
         if (!rawQuery) {
             replace('/search');
             return;
         }
 
-        const searchQuery = escape(rawQuery.replace('%', ''));
+        const searchQuery = escape(rawQuery.replace('\%', ''));
 
         if (prev) {
-            replace(`/search`, { query: searchQuery });
+            replace({
+                pathname: `/search`,
+                search: searchQuery
+            });
         } else {
-            push(`/search`, { query: searchQuery });
+            push({
+                pathname: `/search`,
+                search: searchQuery
+            });
         }
     }
 
