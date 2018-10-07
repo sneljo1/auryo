@@ -1,6 +1,6 @@
 import { ipcRenderer } from 'electron';
-import debounce from 'lodash/debounce';
-import React from 'react';
+import { debounce } from 'lodash';
+import * as React from 'react';
 
 interface Props {
     handleSearch?: (previousQuery: string, currentValue?: string) => void;
@@ -17,12 +17,12 @@ class SearchBox extends React.Component<Props, State> {
 
     static defaultProps = {
         value: '',
-        className: '',
+        className: 'globalSearch',
         initialValue: null
     };
 
-    private handleSearchDebounced: Function;
-    private search: HTMLInputElement | null;
+    private handleSearchDebounced: (oldValue: string, currentValue?: string) => void;
+    private search: HTMLInputElement | null = null;
 
     constructor(props: Props) {
         super(props);
@@ -48,7 +48,7 @@ class SearchBox extends React.Component<Props, State> {
         ipcRenderer.removeListener('keydown:search', this.focus);
     }
 
-    handleSearch(oldValue: string, currentValue: string) {
+    handleSearch(oldValue: string, currentValue?: string) {
         const { handleSearch } = this.props;
 
         if (handleSearch) {
@@ -77,7 +77,7 @@ class SearchBox extends React.Component<Props, State> {
 
     onKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === 'Enter') {
-            this.handleSearchDebounced(event.currentTarget.value);
+            this.handleSearchDebounced(this.state.query, event.currentTarget.value);
         }
     }
 
@@ -86,26 +86,35 @@ class SearchBox extends React.Component<Props, State> {
         const { query } = this.state;
 
         return (
-            <div id={className ? undefined : 'globalSearch'}
-                className={`input-group search-box d-flex justify-content-center align-items-center ${className}`}>
+            <div
+                id={className}
+                className={`input-group search-box d-flex justify-content-center align-items-center ${className}`}
+            >
                 <div className='input-group-prepend'>
                     <span className='input-group-text'>
                         <i className='search icon-search2' />
                     </span>
                 </div>
-                <input ref={(ref) => this.search = ref} type='text'
+                <input
+                    ref={(ref) => this.search = ref}
+                    type='text'
                     className='form-control'
                     placeholder='Search people, tracks and albums'
                     value={query}
                     onKeyPress={this.onKeyPress}
-                    onChange={this.onChange} />
+                    onChange={this.onChange}
+                />
 
                 <div className='input-group-append'>
                     <span className='input-group-text'>
-                        <a id='clear' href='javascript:void(0)' onClick={() => {
-                            this.setState({ query: '' });
-                            this.handleSearchDebounced();
-                        }}>
+                        <a
+                            id='clear'
+                            href='javascript:void(0)'
+                            onClick={() => {
+                                this.setState({ query: '' });
+                                this.handleSearchDebounced(this.state.query);
+                            }}
+                        >
                             <i id='clear' className='input-group-addon icon-x' />
                         </a>
 

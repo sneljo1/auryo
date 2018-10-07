@@ -1,9 +1,9 @@
-import _ from 'lodash';
+import * as _ from 'lodash';
 import * as path from 'path';
-import { EVENTS } from '../../../shared/constants/events';
-import { IMAGE_SIZES } from '../../../shared/constants/Soundcloud';
-import { ChangeTypes, PlayerStatus } from '../../../shared/store/player';
-import * as SC from '../../../shared/utils/soundcloudUtils';
+import { EVENTS } from '../../../common/constants/events';
+import { IMAGE_SIZES } from '../../../common/constants/Soundcloud';
+import { ChangeTypes, PlayerStatus } from '../../../common/store/player';
+import * as SC from '../../../common/utils/soundcloudUtils';
 import { Logger } from '../../utils/logger';
 import { WatchState } from '../feature';
 import { MprisServiceClient } from './interfaces/mpris-service.interface';
@@ -21,7 +21,7 @@ export default class MprisService extends LinuxFeature {
   private logger: Logger = new Logger('MprisService');
 
   private meta: MprisServiceClient.MetaData = {};
-  private player: MprisServiceClient.Player;
+  private player: MprisServiceClient.Player | null = null;
 
   shouldRun() {
     return super.shouldRun() && !process.env.TOKEN;
@@ -31,7 +31,7 @@ export default class MprisService extends LinuxFeature {
     let mpris;
 
     try {
-      mpris = require('mpris-service'); // eslint-disable-line
+      mpris = require('mpris-service');
 
       this.player = mpris({
         name: 'auryo-player',
@@ -39,121 +39,128 @@ export default class MprisService extends LinuxFeature {
         canRaise: true,
         supportedInterfaces: ['player'],
         desktopEntry: 'Auryo'
+      }) as MprisServiceClient.Player;
+
+
+      this.player.playbackStatus = 'Stopped';
+      this.player.canEditTracks = false;
+      this.player.canSeek = false;
+      // this.player.canGoPrevious = false;
+      // this.player.canGoNext = false;
+      this.player.shuffle = false;
+      this.player.canControl = true;
+      this.player.loopStatus = 'None';
+      this.player.rate = 1.0;
+
+      this.player.metadata = {
+        'xesam:title': 'Auryo',
+        'mpris:artUrl': `file://${path.join(logosPath, 'auryo-128.png')}`
+      };
+
+      this.player.on('raise', () => {
+        if (this.win) {
+          this.win.setSkipTaskbar(false);
+          this.win.show();
+        }
       });
+
+      this.player.on('quit', () => {
+        if (this.win) {
+          this.win.close();
+        }
+      });
+
+      this.player.on('play', () => {
+        this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PlayerStatus.PLAYING);
+      });
+
+      this.player.on('pause', () => {
+        this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PlayerStatus.PAUSED);
+      });
+
+      this.player.on('playpause', () => {
+        this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS);
+      });
+
+      this.player.on('stop', () => {
+        this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PlayerStatus.STOPPED);
+      });
+
+      this.player.on('next', () => {
+        this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, ChangeTypes.NEXT);
+      });
+
+      this.player.on('previous', () => {
+        this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, ChangeTypes.PREV);
+      });
+
+      //
+      // WATCHERS
+      //
+
+      this.on(EVENTS.APP.READY, () => {
+        /**
+         * Update track information
+         */
+        this.subscribe(['player', 'playingTrack'], ({ currentState }) => {
+          const {
+            entities: { trackEntities, userEntities },
+            player: { playingTrack, queue }
+          } = currentState;
+
+          if (playingTrack && this.player) {
+            const trackId = playingTrack.id;
+            const track = trackEntities[trackId];
+            const position = queue.indexOf(playingTrack);
+            const user = userEntities[track.user || track.user_id];
+
+            this.player.canGoPrevious = queue.length > 0 && position > 0;
+            this.player.canGoNext = queue.length > 0 && position + 1 <= queue.length;
+
+            this.meta = {
+              ...this.meta,
+              ...this.player.metadata
+            };
+
+            if (track) {
+              this.meta['mpris:trackId'] = this.player.objectPath(track.id.toString());
+              this.meta['mpris:length'] = track.duration * 1000;
+              this.meta['mpris:artUrl'] = SC.getImageUrl(track, IMAGE_SIZES.SMALL);
+
+              this.meta['xesam:title'] = track.title;
+              this.meta['xesam:artist'] = [user && user.username ? user.username : 'Unknown artist'];
+              this.meta['xesam:url'] = track.uri || '';
+              this.meta['xesam:useCount'] = track.playback_count || 0;
+            } else {
+              this.meta['xesam:title'] = 'Auryo';
+              this.meta['xesam:artist'] = [''];
+              this.meta['xesam:url'] = '';
+              this.meta['mpris:artUrl'] = `file://${path.join(logosPath, 'auryo-128.png')}`;
+            }
+
+            if (!_.isEqual(this.meta, this.player.metadata)) {
+              this.player.metadata = this.meta;
+            }
+          }
+        });
+
+        /**
+         * Update time
+         */
+        this.subscribe(['player', 'status'], this.updateStatus);
+        this.subscribe(['player', 'currentTime'], this.updateTime);
+        this.subscribe(['player', 'duration'], this.updateTime);
+      });
+
     } catch (e) {
       this.logger.warn('Mpris not supported', e);
       return;
     }
 
-    this.player.playbackStatus = 'Stopped';
-    this.player.canEditTracks = false;
-    this.player.canSeek = false;
-    // this.player.canGoPrevious = false;
-    // this.player.canGoNext = false;
-    this.player.shuffle = false;
-    this.player.canControl = true;
-    this.player.loopStatus = 'None';
-    this.player.rate = 1.0;
-
-    this.player.metadata = {
-      'xesam:title': 'Auryo',
-      'mpris:artUrl': `file://${path.join(logosPath, 'auryo-128.png')}`
-    };
-
-    this.player.on('raise', () => {
-      this.win.setSkipTaskbar(false);
-      this.win.show();
-    });
-
-    this.player.on('quit', () => {
-      this.win.close();
-    });
-
-    this.player.on('play', () => {
-      this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PlayerStatus.PLAYING);
-    });
-
-    this.player.on('pause', () => {
-      this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PlayerStatus.PAUSED);
-    });
-
-    this.player.on('playpause', () => {
-      this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS);
-    });
-
-    this.player.on('stop', () => {
-      this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PlayerStatus.STOPPED);
-    });
-
-    this.player.on('next', () => {
-      this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, ChangeTypes.NEXT);
-    });
-
-    this.player.on('previous', () => {
-      this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, ChangeTypes.PREV);
-    });
-
-    //
-    // WATCHERS
-    //
-
-    this.on(EVENTS.APP.READY, () => {
-      /**
-       * Update track information
-       */
-      this.subscribe(['player', 'playingTrack'], ({ currentState }) => {
-        const {
-          entities: { trackEntities, userEntities },
-          player: { playingTrack, queue }
-        } = currentState;
-
-        if (playingTrack) {
-          const trackId = playingTrack.id;
-          const track = trackEntities[trackId];
-          const position = queue.indexOf(playingTrack);
-          const user = userEntities[track.user || track.user_id];
-
-          this.player.canGoPrevious = queue.length > 0 && position > 0;
-          this.player.canGoNext = queue.length > 0 && position + 1 <= queue.length;
-
-          this.meta = {
-            ...this.meta,
-            ...this.player.metadata
-          };
-
-          if (track) {
-            this.meta['mpris:trackId'] = this.player.objectPath(track.id.toString());
-            this.meta['mpris:length'] = track.duration * 1000;
-            this.meta['mpris:artUrl'] = SC.getImageUrl(track, IMAGE_SIZES.SMALL);
-
-            this.meta['xesam:title'] = track.title;
-            this.meta['xesam:artist'] = [user && user.username ? user.username : 'Unknown artist'];
-            this.meta['xesam:url'] = track.uri || '';
-            this.meta['xesam:useCount'] = track.playback_count || 0;
-          } else {
-            this.meta['xesam:title'] = 'Auryo';
-            this.meta['xesam:artist'] = [''];
-            this.meta['xesam:url'] = '';
-            this.meta['mpris:artUrl'] = `file://${path.join(logosPath, 'auryo-128.png')}`;
-          }
-        }
-
-        if (!_.isEqual(this.meta, this.player.metadata)) {
-          this.player.metadata = this.meta;
-        }
-      });
-
-      /**
-       * Update time
-       */
-      this.subscribe(['player', 'status'], this.updateStatus);
-      this.subscribe(['player', 'currentTime'], this.updateTime);
-      this.subscribe(['player', 'duration'], this.updateTime);
-    });
   }
 
   updateStatus({ currentValue }: WatchState<PlayerStatus>) {
-    if (currentValue) {
+    if (currentValue && this.player) {
       this.player.playbackStatus =
         currentValue
           .toLowerCase()
@@ -168,17 +175,19 @@ export default class MprisService extends LinuxFeature {
     }
   }: WatchState<number>) => {
 
-    this.meta = {
-      ...this.meta,
-      ...this.player.metadata
-    };
+    if (this.player) {
+      this.meta = {
+        ...this.meta,
+        ...this.player.metadata
+      };
 
-    this.meta['mpris:length'] = duration * 1e3;
+      this.meta['mpris:length'] = duration * 1e3;
 
-    this.player.position = currentTime * 1e3;
+      this.player.position = currentTime * 1e3;
 
-    if (!_.isEqual(this.meta, this.player.metadata)) {
-      this.player.metadata = this.meta;
+      if (!_.isEqual(this.meta, this.player.metadata)) {
+        this.player.metadata = this.meta;
+      }
     }
   }
 }

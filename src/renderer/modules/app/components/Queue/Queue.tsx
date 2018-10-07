@@ -1,10 +1,10 @@
 import cn from 'classnames';
-import debounce from 'lodash/debounce';
-import React from 'react';
-import ReactList from 'react-list';
-import { PlayerState, playTrack, updateQueue } from '../../../../../shared/store/player';
-import { toggleQueue } from '../../../../../shared/store/ui';
-import { getCurrentPosition } from '../../../../../shared/utils/playerUtils';
+import { debounce } from 'lodash';
+import * as React from 'react';
+import * as ReactList from 'react-list';
+import { PlayerState, playTrack, updateQueue } from '../../../../../common/store/player';
+import { toggleQueue } from '../../../../../common/store/ui';
+import { getCurrentPosition } from '../../../../../common/utils/playerUtils';
 import CustomScroll from '../../../_shared/CustomScroll';
 import Spinner from '../../../_shared/Spinner/Spinner';
 import QueueItem from './QueueItem';
@@ -22,8 +22,8 @@ interface Props {
 
 class Queue extends React.Component<Props> {
 
-    private updateQueueDebounced: Function;
-    private list: ReactList | null;
+    private updateQueueDebounced: () => void;
+    private list: ReactList | null = null;
 
     constructor(props: Props) {
         super(props);
@@ -70,13 +70,13 @@ class Queue extends React.Component<Props> {
         }
     }
 
-    renderTrack = (index: number, key: string) => {
+    renderTrack = (index: number, key: number | string) => {
         const {
             player,
             items,
             playTrack,
         } = this.props;
-        
+
 
         const { queue, currentPlaylistId, currentIndex } = player;
 
@@ -84,16 +84,18 @@ class Queue extends React.Component<Props> {
         const track = items[index];
         const currentPos = getCurrentPosition({ queue, playingTrack: trackData });
 
-        return <QueueItem
-            key={key}
-            index={index}
-            track={track}
-            currentPlaylist={currentPlaylistId || ''}
-            trackData={trackData}
-            played={currentPos < currentIndex}
-            playing={currentPos === currentIndex}
-            playTrack={playTrack}
-        />;
+        return (
+            <QueueItem
+                key={key}
+                index={index}
+                track={track}
+                currentPlaylist={currentPlaylistId || ''}
+                trackData={trackData}
+                played={currentPos < currentIndex}
+                playing={currentPos === currentIndex}
+                playTrack={playTrack}
+            />
+        );
     }
 
     render() {
@@ -102,25 +104,32 @@ class Queue extends React.Component<Props> {
         if (!currentPlaylistId) return null;
 
         return (
-            <aside className={cn('playQueue', {
-                show: showQueue,
-                hide: !showQueue
-            })}>
+            <aside
+                className={cn('playQueue', {
+                    show: showQueue,
+                    hide: !showQueue
+                })}
+            >
                 <div className='playqueue-title d-flex align-items-center justify-content-between'>
                     <div>Play Queue</div>
-                    <a href='javascript:void(0)' onClick={() => {
-                        toggleQueue(false);
-                    }}>
+                    <a
+                        href='javascript:void(0)'
+                        onClick={() => {
+                            toggleQueue(false);
+                        }}
+                    >
                         <i className='icon-close' />
                     </a>
                 </div>
                 <div className='tracks'>
                     {
                         showQueue && (
-                            <CustomScroll heightRelativeToParent='100%'
+                            <CustomScroll
+                                heightRelativeToParent='100%'
                                 allowOuterScroll={true}
                                 onScroll={this.updateQueueDebounced}
-                                loader={<Spinner />}>
+                                loader={<Spinner />}
+                            >
                                 <ReactList
                                     ref={(r) => this.list = r}
                                     pageSize={8}

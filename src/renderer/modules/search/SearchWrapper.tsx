@@ -1,127 +1,93 @@
-import React from 'react';
-import { connect } from 'react-redux';
-import { Route, Switch, withRouter, RouteComponentProps } from 'react-router';
+import { Location } from 'history';
+import * as React from 'react';
 import { NavLink } from 'react-router-dom';
-import { push, replace } from 'react-router-redux';
 import { Nav } from 'reactstrap';
+import { setScrollPosition } from '../../../common/store/ui';
 import Header from '../app/components/Header/Header';
 import CustomScroll from '../_shared/CustomScroll';
 import Spinner from '../_shared/Spinner/Spinner';
 import WithHeaderComponent from '../_shared/WithHeaderComponent';
-import SearchCategoryPage from './Category/SearchCategoryPage';
-import SearchPage from './SearchPage';
-import { setScrollPosition } from '../../../shared/store/ui';
-import { StoreState } from '../../../shared/store';
 
-interface OwnProps extends RouteComponentProps<{ query: string }> {
-}
-
-interface PropsFromState {
+interface OwnProps {
+    children: React.ReactNode;
+    query: string;
+    loadMore: () => void;
+    hasMore: () => boolean;
     previousScrollTop?: number;
-}
-
-interface PropsFromDispatch {
     setScrollPosition: typeof setScrollPosition;
+    location: Location;
 }
 
 interface State {
     scrollTop: number;
 }
 
-type AllProps = OwnProps & PropsFromState & PropsFromDispatch;
-
-class SearchWrapper extends WithHeaderComponent<AllProps, State> {
-
-    private child: any;
+class SearchWrapper extends WithHeaderComponent<OwnProps, State> {
 
     componentDidMount() {
-        super.componentDidMount()
-    }
-
-    loadMore = () => {
-        if (this.child) {
-            const child = this.child.getWrappedInstance()
-            if (child && child.loadMore) {
-                child.loadMore()
-            }
-        }
-    }
-
-    hasMore = () => {
-        if (this.child) {
-            const child = this.child.getWrappedInstance()
-            if (child && child.hasMore) {
-                return child.hasMore()
-            }
-        }
-
-        return false
+        super.componentDidMount();
     }
 
     render() {
-        const { location } = this.props
-        const { search: rawSearch } = location;
-
-        const search = decodeURI(rawSearch.replace("?", ""))
+        const { query, loadMore } = this.props;
 
         return (
             <CustomScroll
-                heightRelativeToParent="100%"
+                heightRelativeToParent='100%'
                 loader={<Spinner />}
-                ref={r => this.scroll = r}
+                ref={(r) => this.scroll = r}
                 onScroll={this.debouncedOnScroll}
-                loadMore={this.loadMore}
-                hasMore={this.hasMore()}
+                loadMore={loadMore}
             >
-                <div id="search-page" className="h-100">
-                    <Header focus query={search}
-                        scrollTop={this.state.scrollTop}>
+                <div id='search-page' className='h-100'>
+                    <Header
+                        focus={true}
+                        query={query}
+                        scrollTop={this.state.scrollTop}
+                    >
 
-                        <Nav className="search-tabs">
-                            <NavLink exact className="nav-link"
-                                to={{ pathname: `/search`, search }}
-                                activeClassName="active">All</NavLink>
-                            <NavLink className="nav-link"
-                                to={{ pathname: `/search/user`, search }}
-                                activeClassName="active">Users</NavLink>
-                            <NavLink className="nav-link"
-                                to={{ pathname: `/search/track`, search }}
-                                activeClassName="active">Tracks</NavLink>
-                            <NavLink className="nav-link"
-                                to={{ pathname: `/search/playlist`, search }}
-                                activeClassName="active">Playlist</NavLink>
+                        <Nav className='search-tabs'>
+                            <NavLink
+                                exact={true}
+                                className='nav-link'
+                                to={{ pathname: `/search`, search: query }}
+                                activeClassName='active'
+                            >
+                                All
+                            </NavLink>
+
+                            <NavLink
+                                className='nav-link'
+                                to={{ pathname: `/search/user`, search: query }}
+                                activeClassName='active'
+                            >
+                                Users
+                            </NavLink>
+                            <NavLink
+                                className='nav-link'
+                                to={{ pathname: `/search/track`, search: query }}
+                                activeClassName='active'
+                            >
+                                Tracks
+                            </NavLink>
+                            <NavLink
+                                className='nav-link'
+                                to={{ pathname: `/search/playlist`, search: query }}
+                                activeClassName='active'
+                            >
+                                Playlist
+                            </NavLink>
                         </Nav>
                     </Header>
 
 
-                    <div className="search-content p-2">
-                        <Switch>
-                            <Route exact path="/search" render={(props) => (
-                                <SearchPage
-                                    query={search}
-                                    ref={ref => this.child = ref}
-                                    {...props} />
-                            )} />
-                            <Route path={`/search/:category`}
-                                render={(props) => (
-                                    <SearchCategoryPage
-                                        ref={ref => this.child = ref}
-                                        {...props} />
-                                )} />
-                        </Switch>
+                    <div className='search-content p-2'>
+                        {this.props.children}
                     </div>
                 </div>
             </CustomScroll>
-        )
+        );
     }
 }
 
-const mapStateToProps = ({ ui }: StoreState, { location, history }: OwnProps): PropsFromState => ({
-    previousScrollTop: history.action === 'POP' ? ui.scrollPosition[location.pathname] : undefined
-})
-
-export default withRouter(connect<PropsFromState>(mapStateToProps, {
-    push,
-    replace,
-    setScrollPosition
-})(SearchWrapper))
+export default SearchWrapper;

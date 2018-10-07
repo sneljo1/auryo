@@ -1,19 +1,19 @@
 import { app, clipboard, ipcMain, IpcMessageEvent, shell } from 'electron';
 import { download } from 'electron-dl';
 import fs from 'fs';
-import _ from 'lodash';
+import * as _ from 'lodash';
 import io from 'socket.io-client';
 import { CONFIG } from '../../config';
-import { setLoginError, setLoginLoading } from '../../shared/store/auth/actions';
-import { setToken } from '../../shared/store/config/actions';
-import { EVENTS } from '../../shared/constants/events';
+import { setLoginError, setLoginLoading } from '../../common/store/auth/actions';
+import { setToken } from '../../common/store/config/actions';
+import { EVENTS } from '../../common/constants/events';
 import { Logger } from '../utils/logger';
 import Feature from './feature';
 
 export default class IPCManager extends Feature {
   private logger = new Logger('IPCManager');
 
-  private socket: SocketIOClient.Socket;
+  private socket: SocketIOClient.Socket | null = null;
 
   register() {
     ipcMain.on(EVENTS.APP.VALID_DIR, (_e: IpcMessageEvent, path: any) => {
@@ -44,9 +44,11 @@ export default class IPCManager extends Feature {
         downloadSettings.directory = config.app.downloadPath;
       }
 
-      download(this.win, url, downloadSettings)
-        .then((dl) => console.log(dl.getSavePath()))
-        .catch(console.error);
+      if (this.win) {
+        download(this.win, url, downloadSettings)
+          .then((dl) => console.log(dl.getSavePath()))
+          .catch(console.error);
+      }
     });
 
     ipcMain.on(EVENTS.APP.AUTH.LOGIN, () => {
@@ -54,14 +56,16 @@ export default class IPCManager extends Feature {
 
       this.startLoginSocket();
 
-      if (this.socket.connected) {
-        this.login();
-      } else {
-        this.socket.on('connect', this.login);
-      }
+      if (this.socket) {
+        if (this.socket.connected) {
+          this.login();
+        } else {
+          this.socket.on('connect', this.login);
+        }
 
-      if (this.socket && !this.socket.connected) {
-        this.socket.connect();
+        if (this.socket && !this.socket.connected) {
+          this.socket.connect();
+        }
       }
 
       // Set timeout for requests
@@ -86,9 +90,11 @@ export default class IPCManager extends Feature {
   }
 
   login = () => {
-    shell.openExternal(CONFIG.getConnectUrl(this.socket.id));
-    this.store.dispatch(setLoginLoading(false));
-    this.socket.removeListener('connect', this.login);
+    if (this.socket) {
+      shell.openExternal(CONFIG.getConnectUrl(this.socket.id));
+      this.store.dispatch(setLoginLoading(false));
+      this.socket.removeListener('connect', this.login);
+    }
   }
 
   startLoginSocket = () => {

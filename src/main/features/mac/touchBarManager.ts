@@ -1,8 +1,8 @@
 import { nativeImage, TouchBar } from 'electron';
 import * as path from 'path';
-import { EVENTS } from '../../../shared/constants/events';
-import { ChangeTypes, PlayerStatus } from '../../../shared/store/player';
-import * as SC from '../../../shared/utils/soundcloudUtils';
+import { EVENTS } from '../../../common/constants/events';
+import { ChangeTypes, PlayerStatus } from '../../../common/store/player';
+import * as SC from '../../../common/utils/soundcloudUtils';
 import { WatchState } from '../feature';
 import MacFeature from './macFeature';
 
@@ -109,7 +109,9 @@ export default class TouchBarManager extends MacFeature {
       ]
     });
 
-    this.win.setTouchBar(touchBar);
+    if (this.win){
+      this.win.setTouchBar(touchBar);
+    }
 
     this.on(EVENTS.APP.READY, () => {
       this.subscribe(['player', 'status'], this.updateStatus);

@@ -1,18 +1,18 @@
 import cn from 'classnames';
 import { denormalize, schema } from 'normalizr';
-import React from 'react';
-import { connect } from 'react-redux';
+import * as React from 'react';
+import { connect, MapDispatchToProps } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
-import { bindActionCreators, Dispatch } from 'redux';
-import { PLAYLISTS } from '../../../shared/constants';
-import playlistSchema from '../../../shared/schemas/playlist';
-import trackSchema from '../../../shared/schemas/track';
-import { StoreState } from '../../../shared/store';
-import { AuthState, getAuthAllPlaylistsIfNeeded, getAuthLikesIfNeeded, getAuthTracksIfNeeded } from '../../../shared/store/auth';
-import { fetchChartsIfNeeded, fetchMore, fetchPlaylistIfNeeded, ObjectState, ObjectTypes } from '../../../shared/store/objects';
-import { PlayerState, playTrack } from '../../../shared/store/player';
-import { SortTypes } from '../../../shared/store/playlist/types';
-import { setScrollPosition } from '../../../shared/store/ui';
+import { bindActionCreators } from 'redux';
+import { PLAYLISTS } from '../../../common/constants';
+import playlistSchema from '../../../common/schemas/playlist';
+import trackSchema from '../../../common/schemas/track';
+import { StoreState } from '../../../common/store';
+import { AuthState, getAuthAllPlaylistsIfNeeded, getAuthLikesIfNeeded, getAuthTracksIfNeeded } from '../../../common/store/auth';
+import { fetchChartsIfNeeded, fetchMore, fetchPlaylistIfNeeded, ObjectState, ObjectTypes } from '../../../common/store/objects';
+import { PlayerState, playTrack } from '../../../common/store/player';
+import { SortTypes } from '../../../common/store/playlist/types';
+import { setScrollPosition } from '../../../common/store/ui';
 import { SoundCloud } from '../../../types';
 import Header from '../app/components/Header/Header';
 import CustomScroll from '../_shared/CustomScroll';
@@ -111,6 +111,28 @@ class PlayListPage extends WithHeaderComponent<AllProps, State> {
         }
     }
 
+    renderChartSort = () => {
+        const {
+            sortTypeChange,
+            sortType,
+        } = this.props;
+
+        return (
+            <div className='float-right'>
+                <div className='bp3-select bp3-minimal'>
+                    <select
+                        defaultValue={sortType}
+                        value={sortType}
+                        onChange={sortTypeChange}
+                    >
+                        <option value={SortTypes.TOP}>{SortTypes.TOP}</option>
+                        <option value={SortTypes.TRENDING}>{SortTypes.TRENDING}</option>
+                    </select>
+                </div>
+            </div>
+        );
+    }
+
     render() {
         const {
             playlistObject,
@@ -120,8 +142,6 @@ class PlayListPage extends WithHeaderComponent<AllProps, State> {
             player,
             auth: { followings },
             chart,
-            sortTypeChange,
-            sortType,
             backgroundImage,
             gradient,
             // Functions
@@ -131,13 +151,13 @@ class PlayListPage extends WithHeaderComponent<AllProps, State> {
         } = this.props;
 
         if (!playlistObject || (playlistObject && playlistObject.items.length === 0 && playlistObject.isFetching)) {
-            return <Spinner contained />;
+            return <Spinner contained={true} />;
         }
 
         return (
             <CustomScroll
                 heightRelativeToParent='100%'
-                //heightMargin={35}
+                // heightMargin={35}
                 allowOuterScroll={true}
                 threshold={300}
                 isFetching={playlistObject.isFetching}
@@ -147,28 +167,21 @@ class PlayListPage extends WithHeaderComponent<AllProps, State> {
                 }}
                 loader={<Spinner />}
                 onScroll={this.debouncedOnScroll}
-                hasMore={!!playlistObject.nextUrl}>
+                hasMore={!!playlistObject.nextUrl}
+            >
 
                 <Header className={cn({ withImage: backgroundImage })} scrollTop={this.state.scrollTop} />
 
                 <PageHeader
                     image={backgroundImage}
-                    gradient={gradient}>
-                    {
-                        chart && (
-                            <div className='float-right'>
-                                <div className='bp3-select bp3-minimal'>
-                                    <select defaultValue={sortType}
-                                        value={sortType}
-                                        onChange={sortTypeChange}>
-                                        <option value={SortTypes.TOP}>{SortTypes.TOP}</option>
-                                        <option value={SortTypes.TRENDING}>{SortTypes.TRENDING}</option>
-                                    </select>
-                                </div>
-                            </div>
-                        )
-                    }
-                    <h2>{title}</h2>
+                    gradient={gradient}
+                >
+                    <>
+                        {
+                            chart && this.renderChartSort()
+                        }
+                        <h2>{title}</h2>
+                    </>
                 </PageHeader>
 
                 {
@@ -226,7 +239,7 @@ const mapStateToProps = (state: StoreState, props: OwnProps): PropsFromState => 
     };
 };
 
-const mapDispatchToProps = (dispatch: Dispatch<any>): PropsFromDispatch => bindActionCreators({
+const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, OwnProps> = (dispatch) => bindActionCreators({
     playTrack,
     fetchPlaylistIfNeeded,
     fetchMore,

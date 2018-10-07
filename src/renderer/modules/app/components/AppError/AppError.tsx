@@ -1,5 +1,5 @@
-import React from 'react';
-import { initApp } from '../../../../../shared/store/app';
+import * as React from 'react';
+import { initApp } from '../../../../../common/store/app';
 
 interface Props {
     error: string;

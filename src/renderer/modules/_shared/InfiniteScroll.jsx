@@ -1,4 +1,4 @@
-import React from 'react'
+import * as React from 'react'
 import InfiniteScroll from 'react-infinite-scroller'
 
 class CustomInfiniteScroll extends InfiniteScroll {

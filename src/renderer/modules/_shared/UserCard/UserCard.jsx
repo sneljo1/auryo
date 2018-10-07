@@ -1,9 +1,9 @@
 import cn from "classnames";
 import PropTypes from "prop-types";
-import React from "react";
+import * as React from "react";
 import { Link } from 'react-router-dom';
-import { IMAGE_SIZES } from "../../../../shared/constants/index";
-import { SC } from "../../../../shared/utils/index";
+import { IMAGE_SIZES } from "../../../../common/constants/index";
+import { SC } from "../../../../common/utils/index";
 import FallbackImage from "../FallbackImage";
 
 const UserCard = ({ user, followings, toggleFollowingFunc }) => {

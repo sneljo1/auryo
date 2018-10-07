@@ -1,13 +1,13 @@
 import cn from 'classnames';
-import React from 'react';
-import { connect } from 'react-redux';
+import * as React from 'react';
+import { connect, MapDispatchToProps } from 'react-redux';
 import { Modal, ModalBody, Nav, NavItem, NavLink, TabContent, TabPane } from 'reactstrap';
+import { bindActionCreators } from 'redux';
 import { connectModal, IModalInjectedProps } from 'redux-modal';
-import { StoreState } from '../../../../../../shared/store';
+import { StoreState } from '../../../../../../common/store';
+import { ConfigState, setConfigKey } from '../../../../../../common/store/config';
 import AboutTab from './about/AboutTab';
 import SettingsTab from './settings/SettingsTab';
-import { ConfigState, setConfigKey } from '../../../../../../shared/store/config';
-import { bindActionCreators, Dispatch } from 'redux';
 
 interface PassedProps {
     activeTab?: TabType;
@@ -110,7 +110,7 @@ const mapStateToProps = ({ config, auth }: StoreState): PropsFromState => ({
     authenticated: !!config.token && !auth.authentication.loading
 });
 
-const mapDispatchToProps = (dispatch: Dispatch<any>): PropsFromDispatch => bindActionCreators({
+const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, {}>  = (dispatch) => bindActionCreators({
     setConfigKey
 }, dispatch);
 

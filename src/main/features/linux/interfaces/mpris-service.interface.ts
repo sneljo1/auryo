@@ -1,28 +1,28 @@
 export namespace MprisServiceClient {
   export interface MetaData {
-    'xesam:title'?: string
-    'mpris:trackId'?: string
-    'mpris:artUrl'?: string
-    'mpris:length'?: microseconds
-    'xesam:artist'?: Array<string>
-    'xesam:asText'?: string
-    'xesam:audioBPM'?: number
-    'xesam:autoRating'?: number
-    'xesam:comment'?: Array<number>
-    'xesam:composer'?: Array<string>
-    'xesam:url'?: string
-    'xesam:lastUsed'?: ISOString
-    'xesam:genre'?: Array<string>
-    'xesam:contentCreated'?: ISOString
-    'xesam:useCount'?: number
+    'xesam:title'?: string;
+    'mpris:trackId'?: string;
+    'mpris:artUrl'?: string;
+    'mpris:length'?: microseconds;
+    'xesam:artist'?: Array<string>;
+    'xesam:asText'?: string;
+    'xesam:audioBPM'?: number;
+    'xesam:autoRating'?: number;
+    'xesam:comment'?: Array<number>;
+    'xesam:composer'?: Array<string>;
+    'xesam:url'?: string;
+    'xesam:lastUsed'?: ISOString;
+    'xesam:genre'?: Array<string>;
+    'xesam:contentCreated'?: ISOString;
+    'xesam:useCount'?: number;
   }
 
   export interface PlayerOptions {
-    name: string
-    identity: string
-    supportedUriSchemes: Array<string>
-    supportedMimeTypes: Array<string>
-    supportedInterfaces: Array<string>
+    name: string;
+    identity: string;
+    supportedUriSchemes: Array<string>;
+    supportedMimeTypes: Array<string>;
+    supportedInterfaces: Array<string>;
   }
 
   export type double = number;

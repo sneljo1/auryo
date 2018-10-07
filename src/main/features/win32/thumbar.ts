@@ -1,10 +1,10 @@
 import { nativeImage } from 'electron';
 import * as is from 'electron-is';
 import * as path from 'path';
-import { EVENTS } from '../../../shared/constants/events';
+import { EVENTS } from '../../../common/constants/events';
 import IFeature from '../feature';
 import { Auryo } from '../../app';
-import { PlayerStatus, ChangeTypes } from '../../../shared/store/player';
+import { PlayerStatus, ChangeTypes } from '../../../common/store/player';
 
 let iconsDirectory: string;
 
@@ -15,18 +15,18 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 interface ThumbarPreset {
-  play: Electron.ThumbarButton
-  playDisabled: Electron.ThumbarButton
-  pause: Electron.ThumbarButton
-  pauseDisabled: Electron.ThumbarButton
-  prev: Electron.ThumbarButton
-  prevDisabled: Electron.ThumbarButton
-  next: Electron.ThumbarButton
-  nextDisabled: Electron.ThumbarButton
+  play: Electron.ThumbarButton;
+  playDisabled: Electron.ThumbarButton;
+  pause: Electron.ThumbarButton;
+  pauseDisabled: Electron.ThumbarButton;
+  prev: Electron.ThumbarButton;
+  prevDisabled: Electron.ThumbarButton;
+  next: Electron.ThumbarButton;
+  nextDisabled: Electron.ThumbarButton;
 }
 
 export default class Thumbar extends IFeature {
-  private thumbarButtons: ThumbarPreset;
+  private thumbarButtons: ThumbarPreset = {} as ThumbarPreset;
 
   constructor(auryo: Auryo) {
     super(auryo, 'waitUntill');
@@ -114,30 +114,32 @@ export default class Thumbar extends IFeature {
       player: { status, queue, currentIndex }
     } = this.store.getState();
 
-    switch (status) {
-      case PlayerStatus.PLAYING:
-        this.win.setThumbarButtons([
-          queue.length > 0 || currentIndex > 0 ? this.thumbarButtons.prev : this.thumbarButtons.prevDisabled,
-          this.thumbarButtons.pause,
-          queue.length > 0 && currentIndex + 1 <= queue.length ? this.thumbarButtons.next : this.thumbarButtons.nextDisabled
-        ]);
-        break;
-      case PlayerStatus.PAUSED:
-        this.win.setThumbarButtons([
-          queue.length > 0 || currentIndex > 0 ? this.thumbarButtons.prev : this.thumbarButtons.prevDisabled,
-          this.thumbarButtons.play,
-          queue.length > 0 && currentIndex + 1 <= queue.length ? this.thumbarButtons.next : this.thumbarButtons.nextDisabled
-        ]);
-        break;
-      case PlayerStatus.STOPPED:
-        this.win.setThumbarButtons([this.thumbarButtons.prevDisabled, this.thumbarButtons.playDisabled, this.thumbarButtons.nextDisabled]);
-        break;
-      default:
-        break;
+    if (this.win) {
+      switch (status) {
+        case PlayerStatus.PLAYING:
+          this.win.setThumbarButtons([
+            queue.length > 0 || currentIndex > 0 ? this.thumbarButtons.prev : this.thumbarButtons.prevDisabled,
+            this.thumbarButtons.pause,
+            queue.length > 0 && currentIndex + 1 <= queue.length ? this.thumbarButtons.next : this.thumbarButtons.nextDisabled
+          ]);
+          break;
+        case PlayerStatus.PAUSED:
+          this.win.setThumbarButtons([
+            queue.length > 0 || currentIndex > 0 ? this.thumbarButtons.prev : this.thumbarButtons.prevDisabled,
+            this.thumbarButtons.play,
+            queue.length > 0 && currentIndex + 1 <= queue.length ? this.thumbarButtons.next : this.thumbarButtons.nextDisabled
+          ]);
+          break;
+        case PlayerStatus.STOPPED:
+          this.win.setThumbarButtons([this.thumbarButtons.prevDisabled, this.thumbarButtons.playDisabled, this.thumbarButtons.nextDisabled]);
+          break;
+        default:
+          break;
+      }
     }
   }
 
-  togglePlay = (newStatus:  PlayerStatus) => {
+  togglePlay = (newStatus: PlayerStatus) => {
     const {
       player: { status }
     } = this.store.getState();

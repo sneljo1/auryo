@@ -1,6 +1,6 @@
 import { Switch } from '@blueprintjs/core';
-import React from 'react';
-import { ConfigState, setConfigKey } from '../../../../../../../../shared/store/config';
+import * as React from 'react';
+import { ConfigState, setConfigKey } from '../../../../../../../../common/store/config';
 
 interface Props {
     config: ConfigState;
@@ -8,7 +8,7 @@ interface Props {
     configKey: string;
     name: string;
     className?: string;
-    onChange?: (value: boolean, setKey: Function) => void;
+    onChange?: (value: boolean, setKey: () => void) => void;
 }
 
 
@@ -19,7 +19,7 @@ class CheckboxConfig extends React.PureComponent<Props> {
 
         if (onChange) {
             onChange(e.target.checked, () => {
-                setConfigKey(configKey, e.target.checked)
+                setConfigKey(configKey, e.target.checked);
             });
         } else {
             setConfigKey(configKey, e.target.checked);
@@ -33,10 +33,13 @@ class CheckboxConfig extends React.PureComponent<Props> {
 
         return (
             <div className='setting'>
-                <Switch inline={true} large={true}
+                <Switch
+                    inline={true}
+                    large={true}
                     label={name}
                     checked={value}
-                    onChange={this.handleChange} />
+                    onChange={this.handleChange}
+                />
             </div>
         );
     }

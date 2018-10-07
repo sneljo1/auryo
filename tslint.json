@@ -5,6 +5,7 @@
     "array-type": [true, "generic"],
     "arrow-parens": true,
     "class-name": true,
+    "jsx-no-multiline-js": false,
     "comment-format": [true, "check-space"],
     "curly": [true, "ignore-same-line"],
     "eofline": true,

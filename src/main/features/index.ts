@@ -6,7 +6,7 @@ import ExceptionManager from './ExceptionManager';
 import IPCManager from './IPCManager';
 import DbusService from './linux/dbusService';
 import MprisService from './linux/mprisService';
-import MediaServiceManager from './mac/mediaServiceManager'
+import MediaServiceManager from './mac/mediaServiceManager';
 import TouchBarManager from './mac/touchBarManager';
 import PowerMonitor from './PowerMonitor';
 import ShortcutManager from './ShortcutManager';

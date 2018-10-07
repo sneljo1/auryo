@@ -1,12 +1,12 @@
 import { app, BrowserWindow, BrowserWindowConstructorOptions, Menu, nativeImage, shell } from 'electron';
-import windowStateKeeper from 'electron-window-state';
+import * as windowStateKeeper from 'electron-window-state';
 import { LocationDescriptorObject } from 'history';
 import * as _ from 'lodash';
 import * as os from 'os';
 import * as path from 'path';
 import { Store } from 'redux';
-import { EVENTS } from '../shared/constants/events';
-import { StoreState } from '../shared/store';
+import { EVENTS } from '../common/constants/events';
+import { StoreState } from '../common/store';
 import Feature from './features/feature';
 import { Logger } from './utils/logger';
 import { Utils } from './utils/utils';
@@ -87,6 +87,7 @@ export class Auryo {
       fullscreen: mainWindowState.isFullScreen,
       webPreferences: {
         nodeIntegrationInWorker: true,
+        webSecurity: process.env.NODE_ENV !== 'development'
       }
     };
 
@@ -194,9 +195,14 @@ export class Auryo {
 
   loadMain() {
     if (this.mainWindow) {
-      console.log(`file:/${path.resolve(__dirname, '..', 'index.html')}`);
 
-      this.mainWindow.loadURL(`file://${path.resolve(__dirname, '..', 'index.html')}`);
+      const url = process.env.NODE_ENV === 'development'
+        ? `http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`
+        : `file://${__dirname}/index.html`;
+
+      this.logger.debug('loading url= ' + url);
+
+      this.mainWindow.loadURL(url);
 
       this.mainWindow.webContents.on('will-navigate', (e, u) => {
         e.preventDefault();

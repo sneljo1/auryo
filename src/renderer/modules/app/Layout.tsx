@@ -1,20 +1,21 @@
 import { Intent, IResizeEntry, IToastOptions, ResizeSensor } from '@blueprintjs/core';
 import cn from 'classnames';
-import is from 'electron-is';
-import debounce from 'lodash/debounce';
+import * as is from 'electron-is';
+import { debounce } from 'lodash';
 import { denormalize, schema } from 'normalizr';
-import React from 'react';
-import { connect } from 'react-redux';
+import * as React from 'react';
+import { connect, MapDispatchToProps } from 'react-redux';
 import { Route, Switch } from 'react-router';
-import { bindActionCreators, Dispatch } from 'redux';
-import playlistSchema from '../../../shared/schemas/playlist';
-import trackSchema from '../../../shared/schemas/track';
-import { StoreState } from '../../../shared/store';
-import { AppState, initApp, setDimensions, stopWatchers, toggleOffline } from '../../../shared/store/app';
-import { AuthState } from '../../../shared/store/auth';
-import { EntitiesState } from '../../../shared/store/objects';
-import { PlayerState, playTrack, updateQueue } from '../../../shared/store/player';
-import { addToast, clearToasts, removeToast, toggleQueue } from '../../../shared/store/ui';
+import { bindActionCreators } from 'redux';
+import playlistSchema from '../../../common/schemas/playlist';
+import trackSchema from '../../../common/schemas/track';
+import { StoreState } from '../../../common/store';
+import { AppState, initApp, setDimensions, stopWatchers, toggleOffline } from '../../../common/store/app';
+import { AuthState } from '../../../common/store/auth';
+import { EntitiesState } from '../../../common/store/objects';
+import { PlayerState, playTrack, updateQueue } from '../../../common/store/player';
+import { addToast, clearToasts, removeToast, toggleQueue } from '../../../common/store/ui';
+import { SoundCloud } from '../../../types';
 import ArtistPage from '../artist/ArtistPage';
 import ChartsDetailsPage from '../charts/ChartsDetailsPage';
 import ChartsPage from '../charts/ChartsPage';
@@ -35,7 +36,6 @@ import IsOffline from './components/Offline/Offline';
 import Queue from './components/Queue/Queue';
 import SideBar from './components/Sidebar/Sidebar';
 import Toastr from './components/Toastr';
-import { SoundCloud } from '../../../types';
 
 interface PropsFromState {
     showQueue: boolean;
@@ -46,8 +46,8 @@ interface PropsFromState {
     player: PlayerState;
     app: AppState;
 
-    userPlayerlists: SoundCloud.Playlist[];
-    queue: SoundCloud.Track[];
+    userPlayerlists: Array<SoundCloud.Playlist>;
+    queue: Array<SoundCloud.Track>;
 }
 
 interface PropsFromDispatch {
@@ -176,13 +176,16 @@ class Layout extends React.Component<AllProps> {
                     {
                         app.loading_error ? <AppError error={app.loading_error} initApp={initApp} /> : null}
 
-                    <main className={cn('d-flex flex-nowrap', {
-                        playing: player.playingTrack
-                    })}>
+                    <main
+                        className={cn('d-flex flex-nowrap', {
+                            playing: player.playingTrack
+                        })}
+                    >
                         <SideBar
                             playing={!!player.playingTrack}
                             currentPlaylistId={player.currentPlaylistId}
-                            playlists={userPlayerlists} />
+                            playlists={userPlayerlists}
+                        />
 
                         <Queue
                             showQueue={showQueue}
@@ -191,7 +194,8 @@ class Layout extends React.Component<AllProps> {
 
                             updateQueue={updateQueue}
                             toggleQueue={toggleQueue}
-                            playTrack={playTrack} />
+                            playTrack={playTrack}
+                        />
 
                         <section className='content'>
                             <Toastr toasts={toasts} clearToasts={clearToasts} />
@@ -226,7 +230,7 @@ const mapStateToProps = (state: StoreState): PropsFromState => {
         playlists: playlistSchema
     }, (input) => `${input.kind}s`), entities);
 
-    const deNormalizedQueue = denormalize(player.queue.map(p => ({ id: p.id, schema: "tracks" })), new schema.Array({
+    const deNormalizedQueue = denormalize(player.queue.map((p) => ({ id: p.id, schema: 'tracks' })), new schema.Array({
         tracks: trackSchema
     }, (input) => `${input.kind}s`), entities);
 
@@ -242,7 +246,7 @@ const mapStateToProps = (state: StoreState): PropsFromState => {
     };
 };
 
-const mapDispatchToProps = (dispatch: Dispatch<any>): PropsFromDispatch => bindActionCreators({
+const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, {}> = (dispatch) => bindActionCreators({
     addToast,
     clearToasts,
     initApp,

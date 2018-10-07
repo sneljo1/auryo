@@ -1,19 +1,19 @@
-import { EVENTS } from '../../../shared/constants/events';
-import { IMAGE_SIZES } from '../../../shared/constants/Soundcloud';
-import { ChangeTypes, PlayerStatus, PlayingTrack } from '../../../shared/store/player';
-import * as SC from '../../../shared/utils/soundcloudUtils';
+import { EVENTS } from '../../../common/constants/events';
+import { IMAGE_SIZES } from '../../../common/constants/Soundcloud';
+import { ChangeTypes, PlayerStatus, PlayingTrack } from '../../../common/store/player';
+import * as SC from '../../../common/utils/soundcloudUtils';
 import { MediaService, MediaStates, MetaData, milliseconds } from './interfaces/electron-media-service.interfaces';
 import MacFeature from './macFeature';
 import { WatchState } from '../feature';
 
 export default class MediaServiceManager extends MacFeature {
-  private myService: MediaService;
+  private myService: MediaService | null = null;
   private meta: MetaData = {
     state: MediaStates.STOPPED
   };
 
   register() {
-    const MediaService = require('electron-media-service'); // eslint-disable-line
+    const MediaService = require('electron-media-service');
 
     const myService = (this.myService = new MediaService());
 
@@ -73,7 +73,7 @@ export default class MediaServiceManager extends MacFeature {
 
           if (track) {
             const user = userEntities[track.user || track.user_id];
-            
+
             this.meta.id = track.id;
             this.meta.title = track.title;
 
@@ -111,7 +111,9 @@ export default class MediaServiceManager extends MacFeature {
     this.meta.currentTime = currentTime;
     this.meta.duration = duration;
 
-    this.myService.setMetaData(this.meta);
+    if (this.myService){
+      this.myService.setMetaData(this.meta);
+    }
   }
 
   unregister() {

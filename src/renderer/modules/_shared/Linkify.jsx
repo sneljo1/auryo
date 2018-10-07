@@ -1,7 +1,7 @@
 /* eslint-disable react/no-danger */
 import autolinker from 'autolinker';
 import PropTypes from 'prop-types';
-import React from 'react';
+import * as React from 'react';
 
 const Linkify = ({ text }) => {
     if (text === null || (text && !text.length)) return null

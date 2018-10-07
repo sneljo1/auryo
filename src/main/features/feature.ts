@@ -1,23 +1,27 @@
 import { BrowserWindow, ipcMain } from 'electron';
-import isEqual from 'lodash/isEqual';
+import { isEqual } from 'lodash';
 import { Store } from 'redux';
-import ReduxWatcher from 'redux-watcher';
-import { StoreState } from '../../shared/store';
+import * as ReduxWatcher from 'redux-watcher';
+import { StoreState } from '../../common/store';
 import { Auryo } from '../app';
 import { IFeature } from './feature.interface';
 
+// tslint:disable-next-line:max-line-length
 export type Handler<T> = (t: { store: Store<StoreState>, selector: string | Array<string>, prevState: StoreState, currentState: StoreState, prevValue: T, currentValue: T }) => void;
 
+// tslint:disable-next-line:max-line-length
 export interface WatchState<T> { store: Store<StoreState>; selector: string | Array<string>; prevState: StoreState; currentState: StoreState; prevValue: T; currentValue: T; }
 
 
 export default class Feature implements IFeature {
 
   public timers: Array<any> = [];
-  public win: BrowserWindow;
+  public win: BrowserWindow | null = null;
   public store: Store<StoreState>;
   public watcher: any;
+  // tslint:disable-next-line:ban-types
   private listeners: Array<{ path: Array<string>; handler: Function }> = [];
+  // tslint:disable-next-line:ban-types
   private ipclisteners: Array<{ name: string; handler: Function }> = [];
 
   constructor(protected app: Auryo, protected waitUntil: string = 'default') {

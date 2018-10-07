@@ -1,5 +1,5 @@
-import React from 'react';
-import { ConfigState, setConfigKey } from '../../../../../../../../shared/store/config';
+import * as React from 'react';
+import { ConfigState, setConfigKey } from '../../../../../../../../common/store/config';
 
 interface Props {
     config: ConfigState;

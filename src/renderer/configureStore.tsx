@@ -2,17 +2,17 @@
 import { ipcRenderer } from 'electron';
 import { createHashHistory } from 'history';
 import { toastr } from 'react-redux-toastr';
-import { routerMiddleware } from 'react-router-redux';
 import { applyMiddleware, compose, createStore, Middleware, Store } from 'redux';
 import { electronEnhancer } from 'redux-electron-store';
-import createLogger from 'redux-logger';
+import { createLogger } from 'redux-logger';
 import promiseMiddleware from 'redux-promise-middleware';
 import thunk from 'redux-thunk';
-import { rootReducer, StoreState } from '../shared/store';
-import { logout } from '../shared/store/auth';
-import { PlayerActionTypes } from '../shared/store/player';
-import { UIActionTypes } from '../shared/store/ui';
+import { rootReducer, StoreState } from '../common/store';
+import { logout } from '../common/store/auth';
+import { PlayerActionTypes } from '../common/store/player';
+import { UIActionTypes } from '../common/store/ui';
 import { REDUX_STATES } from '../types';
+import { connectRouter, routerMiddleware } from 'connected-react-router';
 
 const history = createHashHistory();
 
@@ -44,8 +44,8 @@ const test: Middleware = (store) => (next) => (action) => {
 const logger = createLogger({
     level: 'info',
     collapsed: true,
-    predicate: (_getState, action) => action.type !== UIActionTypes.SET_SCROLL_TOP && action.type !== PlayerActionTypes.SET_TIME
-});
+    predicate: (_getState: () => any, action: any) => action.type !== UIActionTypes.SET_SCROLL_TOP && action.type !== PlayerActionTypes.SET_TIME
+} as any);
 
 const middleware = [
     test,
@@ -82,12 +82,12 @@ const enhancer = composeEnhancers(applyMiddleware(...middleware), electronEnhanc
 }));
 
 const configureStore = (): Store<StoreState> => {
-    const store: Store<StoreState> = createStore(rootReducer, enhancer);
+    const store: Store<StoreState> = createStore(connectRouter(history)(rootReducer), enhancer);
 
     if (module.hot) {
-        module.hot.accept('../shared/store', () => {
+        module.hot.accept('../common/store', () => {
             ipcRenderer.sendSync('renderer-reload');
-            store.replaceReducer(require('../shared/store')); // eslint-disable-line global-require
+            store.replaceReducer(require('../common/store')); // eslint-disable-line global-require
         });
     }
 

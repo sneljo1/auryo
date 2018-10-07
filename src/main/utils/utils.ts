@@ -1,5 +1,5 @@
 import { screen } from 'electron';
-import { ProxyConfig } from '../../shared/store/config';
+import { ProxyConfig } from '../../common/store/config';
 
 export class Utils {
   static getProxyUrlFromConfig(proxy: ProxyConfig) {

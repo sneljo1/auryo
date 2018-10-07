@@ -1,9 +1,9 @@
 
-import { EVENTS } from '../../../../shared/constants/events';
-import { IMAGE_SIZES } from '../../../../shared/constants/Soundcloud';
-import * as SC from '../../../../shared/utils/soundcloudUtils';
+import { EVENTS } from '../../../../common/constants/events';
+import { IMAGE_SIZES } from '../../../../common/constants/Soundcloud';
+import * as SC from '../../../../common/utils/soundcloudUtils';
 import WindowsFeature from '../windowsFeature';
-import { ChangeTypes, PlayerStatus } from '../../../../shared/store/player';
+import { ChangeTypes, PlayerStatus } from '../../../../common/store/player';
 
 export default class Win10MediaService extends WindowsFeature {
 
@@ -12,96 +12,101 @@ export default class Win10MediaService extends WindowsFeature {
   }
 
   register() {
-    const { MediaPlaybackStatus, MediaPlaybackType, SystemMediaTransportControlsButton } = require('@nodert-win10/windows.media');
-    const { BackgroundMediaPlayer } = require('@nodert-win10/windows.media.playback');
-    const { RandomAccessStreamReference } = require('@nodert-win10/windows.storage.streams');
-    const { Uri } = require('@nodert-win10/windows.foundation');
 
-    const Controls = BackgroundMediaPlayer.current.systemMediaTransportControls;
+    try {
+      const { MediaPlaybackStatus, MediaPlaybackType, SystemMediaTransportControlsButton } = require('@nodert-win10/windows.media');
+      const { BackgroundMediaPlayer } = require('@nodert-win10/windows.media.playback');
+      const { RandomAccessStreamReference } = require('@nodert-win10/windows.storage.streams');
+      const { Uri } = require('@nodert-win10/windows.foundation');
 
-    Controls.isChannelDownEnabled = false;
-    Controls.isChannelUpEnabled = false;
-    Controls.isFastForwardEnabled = false;
-    Controls.isNextEnabled = true;
-    Controls.isPauseEnabled = true;
-    Controls.isPlayEnabled = true;
-    Controls.isPreviousEnabled = true;
-    Controls.isRecordEnabled = false;
-    Controls.isRewindEnabled = false;
-    Controls.isStopEnabled = true;
-    Controls.playbackStatus = MediaPlaybackStatus.closed;
-    Controls.displayUpdater.type = MediaPlaybackType.music;
+      const Controls = BackgroundMediaPlayer.current.systemMediaTransportControls;
 
-    Controls.displayUpdater.musicProperties.title = 'Auryo';
-    Controls.displayUpdater.musicProperties.artist = 'No track is playing';
-    Controls.displayUpdater.update();
+      Controls.isChannelDownEnabled = false;
+      Controls.isChannelUpEnabled = false;
+      Controls.isFastForwardEnabled = false;
+      Controls.isNextEnabled = true;
+      Controls.isPauseEnabled = true;
+      Controls.isPlayEnabled = true;
+      Controls.isPreviousEnabled = true;
+      Controls.isRecordEnabled = false;
+      Controls.isRewindEnabled = false;
+      Controls.isStopEnabled = true;
+      Controls.playbackStatus = MediaPlaybackStatus.closed;
+      Controls.displayUpdater.type = MediaPlaybackType.music;
 
-    Controls.on('buttonpressed', (_sender: any, eventArgs: any) => {
-      switch (eventArgs.button) {
-        case SystemMediaTransportControlsButton.play:
-          this.togglePlay(PlayerStatus.PLAYING);
-          break;
-        case SystemMediaTransportControlsButton.pause:
-          this.togglePlay(PlayerStatus.PAUSED);
-          break;
-        case SystemMediaTransportControlsButton.stop:
-          this.togglePlay(PlayerStatus.STOPPED);
-          break;
-        case SystemMediaTransportControlsButton.next:
-          this.changeTrack(ChangeTypes.NEXT);
-          break;
-        case SystemMediaTransportControlsButton.previous:
-          this.changeTrack(ChangeTypes.PREV);
-          break;
-        default:
-          break;
-      }
-    });
+      Controls.displayUpdater.musicProperties.title = 'Auryo';
+      Controls.displayUpdater.musicProperties.artist = 'No track is playing';
+      Controls.displayUpdater.update();
 
-    this.on(EVENTS.APP.READY, () => {
-      this.on(EVENTS.PLAYER.STATUS_CHANGED, () => {
-        const {
-          player: { status }
-        } = this.store.getState();
-
-        const mapping = {
-          [PlayerStatus.STOPPED]: MediaPlaybackStatus.stopped,
-          [PlayerStatus.PAUSED]: MediaPlaybackStatus.paused,
-          [PlayerStatus.PLAYING]: MediaPlaybackStatus.playing
-        };
-
-        Controls.playbackStatus = mapping[status];
+      Controls.on('buttonpressed', (_sender: any, eventArgs: any) => {
+        switch (eventArgs.button) {
+          case SystemMediaTransportControlsButton.play:
+            this.togglePlay(PlayerStatus.PLAYING);
+            break;
+          case SystemMediaTransportControlsButton.pause:
+            this.togglePlay(PlayerStatus.PAUSED);
+            break;
+          case SystemMediaTransportControlsButton.stop:
+            this.togglePlay(PlayerStatus.STOPPED);
+            break;
+          case SystemMediaTransportControlsButton.next:
+            this.changeTrack(ChangeTypes.NEXT);
+            break;
+          case SystemMediaTransportControlsButton.previous:
+            this.changeTrack(ChangeTypes.PREV);
+            break;
+          default:
+            break;
+        }
       });
 
-      this.on(EVENTS.PLAYER.TRACK_CHANGED, () => {
-        const {
-          entities: { trackEntities, userEntities },
-          player: { playingTrack }
-        } = this.store.getState();
+      this.on(EVENTS.APP.READY, () => {
+        this.on(EVENTS.PLAYER.STATUS_CHANGED, () => {
+          const {
+            player: { status }
+          } = this.store.getState();
 
-        if (playingTrack) {
-          const trackId = playingTrack.id;
-          const track = trackEntities[trackId];
-          const user = userEntities[track.user || track.user_id];
-          const image = SC.getImageUrl(track, IMAGE_SIZES.SMALL);
+          const mapping = {
+            [PlayerStatus.STOPPED]: MediaPlaybackStatus.stopped,
+            [PlayerStatus.PAUSED]: MediaPlaybackStatus.paused,
+            [PlayerStatus.PLAYING]: MediaPlaybackStatus.playing
+          };
 
-          if (track) {
-            Controls.displayUpdater.musicProperties.title = track.title || '';
-            Controls.displayUpdater.musicProperties.artist = user && user.username ? user.username : 'Unknown artist';
-            Controls.displayUpdater.musicProperties.albumTitle = track.genre || '';
-            Controls.displayUpdater.thumbnail = image ? RandomAccessStreamReference.createFromUri(new Uri(image)) : '';
+          Controls.playbackStatus = mapping[status];
+        });
+
+        this.on(EVENTS.PLAYER.TRACK_CHANGED, () => {
+          const {
+            entities: { trackEntities, userEntities },
+            player: { playingTrack }
+          } = this.store.getState();
+
+          if (playingTrack) {
+            const trackId = playingTrack.id;
+            const track = trackEntities[trackId];
+            const user = userEntities[track.user || track.user_id];
+            const image = SC.getImageUrl(track, IMAGE_SIZES.SMALL);
+
+            if (track) {
+              Controls.displayUpdater.musicProperties.title = track.title || '';
+              Controls.displayUpdater.musicProperties.artist = user && user.username ? user.username : 'Unknown artist';
+              Controls.displayUpdater.musicProperties.albumTitle = track.genre || '';
+              Controls.displayUpdater.thumbnail = image ? RandomAccessStreamReference.createFromUri(new Uri(image)) : '';
+            } else {
+              Controls.displayUpdater.musicProperties.title = 'Auryo';
+              Controls.displayUpdater.musicProperties.artist = 'No track is playing';
+            }
           } else {
             Controls.displayUpdater.musicProperties.title = 'Auryo';
             Controls.displayUpdater.musicProperties.artist = 'No track is playing';
           }
-        } else {
-          Controls.displayUpdater.musicProperties.title = 'Auryo';
-          Controls.displayUpdater.musicProperties.artist = 'No track is playing';
-        }
 
-        Controls.displayUpdater.update();
+          Controls.displayUpdater.update();
+        });
       });
-    });
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   togglePlay = (new_status: PlayerStatus) => {

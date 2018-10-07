@@ -15,15 +15,15 @@ if (!is.renderer()) {
 export const CONFIG = {
     // SoundCloud
     BASE_URL,
-    CLIENT_ID: process.env.CLIENT_ID,
-    SENTRY_REPORT_URL: process.env.SENTRY_REPORT_URL,
-    FB_APP_ID: process.env.FB_APP_ID,
+    CLIENT_ID: process.env.ELECTRON_WEBPACK_APP_CLIENT_ID,
+    SENTRY_REPORT_URL: process.env.ELECTRON_WEBPACK_APP_SENTRY_REPORT_URL as string,
+    FB_APP_ID: process.env.ELECTRON_WEBPACK_APP_FB_APP_ID,
 
     getConnectUrl: (socketID: string) => `${BASE_URL}/connect?state=${socketID}&env=${process.env.NODE_ENV}`,
 
     // Google
 
-    GOOGLE_GA: process.env.GOOGLE_GA,
+    GOOGLE_GA: process.env.ELECTRON_WEBPACK_APP_GOOGLE_GA as string,
 
     // App
 

@@ -1,6 +1,6 @@
 import cn from 'classnames';
-import isEqual from 'lodash/isEqual';
-import React from 'react';
+import { isEqual} from 'lodash';
+import * as React from 'react';
 import { NavLink, RouteComponentProps, withRouter } from 'react-router-dom';
 import { SoundCloud } from '../../../../../types';
 import CustomScroll from '../../../_shared/CustomScroll';
@@ -30,16 +30,20 @@ class SideBar extends React.Component<AllProps> {
 
         return (
 
-            <aside id='sidebar'
+            <aside
+                id='sidebar'
                 role='navigation'
                 className={cn('sidebar-offcanvas d-flex flex-column', {
                     playing
-                })}>
+                })}
+            >
 
                 <div className='drag-strip' />
 
-                <CustomScroll heightRelativeToParent='100%'
-                    allowOuterScroll={true}>
+                <CustomScroll
+                    heightRelativeToParent='100%'
+                    allowOuterScroll={true}
+                >
                     <div key='sidebar-menu' id='sidebar-menu'>
                         <h2>Discover</h2>
                         <ul className='nav flex-column'>
@@ -77,7 +81,8 @@ class SideBar extends React.Component<AllProps> {
                         <div id='playlists' className='nav flex-column'>
                             <SideBarPlaylist
                                 playlists={playlists}
-                                currentPlaylistId={currentPlaylistId} />
+                                currentPlaylistId={currentPlaylistId}
+                            />
                         </div>
                     </div>
                 </CustomScroll>

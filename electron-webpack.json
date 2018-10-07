@@ -1,0 +1,6 @@
+{
+    "title": "Auryo",
+    "renderer": {
+        "webpackConfig": "webpack.renderer.additions.js"
+    }
+}

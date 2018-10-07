@@ -1,8 +1,8 @@
 import { remote } from 'electron';
 import os from 'os';
-import React from 'react';
+import * as React from 'react';
 import logo_url from '../../../../../../../assets/img/auryo-dark.png';
-import fetchRemainingTracks from '../../../../../../../shared/api/fetchRemainingTracks';
+import fetchRemainingTracks from '../../../../../../../common/api/fetchRemainingTracks';
 
 interface State {
     remainingPlays: number | null;
@@ -12,15 +12,15 @@ class AboutTab extends React.PureComponent<{}, State> {
 
     state: State = {
         remainingPlays: null
-    }
+    };
 
     componentDidMount() {
         fetchRemainingTracks()
             .then((remainingPlays) => {
                 this.setState({
                     remainingPlays
-                })
-            })
+                });
+            });
     }
 
     render() {
@@ -31,8 +31,8 @@ class AboutTab extends React.PureComponent<{}, State> {
                 <section>
                     <img className='logo' src={logo_url} />
                 </section>
-                <section className="app-info">
-                    <table className="container-fluid">
+                <section className='app-info'>
+                    <table className='container-fluid'>
                         <tbody>
                             <tr>
                                 <td>Version</td>
@@ -52,7 +52,7 @@ class AboutTab extends React.PureComponent<{}, State> {
                             </tr>
                             <tr>
                                 <td>Remaining plays</td>
-                                <td><span className="bp3-tag bp3-intent-primary">{remainingPlays ? remainingPlays : "Unknown"}</span></td>
+                                <td><span className='bp3-tag bp3-intent-primary'>{remainingPlays ? remainingPlays : 'Unknown'}</span></td>
                             </tr>
                         </tbody>
                     </table>
@@ -62,14 +62,16 @@ class AboutTab extends React.PureComponent<{}, State> {
                     <div>
                         Created by <a href='https://www.linkedin.com/in/jonas-snellinckx/'>Jonas Snellinckx</a>
                     </div>
-                    <div className="d-flex justify-content-center align-items-center">
-                        <i style={{ color: '#00aced' }}
-                            className='icon-twitter color-twitter' /> <a
-                                href='https://twitter.com/Auryoapp'>@Auryoapp</a>
+                    <div className='d-flex justify-content-center align-items-center'>
+                        <i
+                            style={{ color: '#00aced' }}
+                            className='icon-twitter color-twitter'
+                        />
+                        <a href='https://twitter.com/Auryoapp'>@Auryoapp</a>
                     </div>
                 </section>
             </div>
-        )
+        );
     }
 }
 

@@ -1,6 +1,6 @@
 import { IToastOptions, Toaster, IToasterProps } from '@blueprintjs/core';
-import React from 'react';
-import { clearToasts } from '../../../../shared/store/ui';
+import * as React from 'react';
+import { clearToasts } from '../../../../common/store/ui';
 
 interface Props extends IToasterProps {
     toasts: Array<IToastOptions>;
@@ -9,7 +9,7 @@ interface Props extends IToasterProps {
 
 export default class Toastr extends React.PureComponent<Props> {
 
-    private toaster: Toaster | null;
+    private toaster: Toaster | null = null;
 
     componentDidUpdate() {
         const { toasts, clearToasts } = this.props;

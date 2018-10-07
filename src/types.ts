@@ -1,5 +1,5 @@
 import { ThunkAction } from 'redux-thunk';
-import { StoreState } from './shared/store';
+import { StoreState } from './common/store';
 
 export type ThunkResult<R> = ThunkAction<R, StoreState, undefined, any>;
 
@@ -32,6 +32,7 @@ export interface NormalizedEntities {
 
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 
+// tslint:disable-next-line:no-namespace
 export namespace Normalized {
     export interface Playlist extends Omit<SoundCloud.Playlist, 'tracks' | 'user'> {
         tracks: Array<NormalizedResult>;
@@ -43,6 +44,7 @@ export namespace Normalized {
     }
 }
 
+// tslint:disable-next-line:no-namespace
 export namespace SoundCloud {
     export type DateString = string;
 
@@ -198,7 +200,7 @@ export namespace SoundCloud {
 
         // Will only be added to items fetched by stream
         from_user?: CompactUser;
-        
+
         error?: any;
     }
 
@@ -240,6 +242,8 @@ export namespace SoundCloud {
 
         // Will only be added to items fetched by stream
         from_user?: CompactUser;
+
+        policy?: any;
     }
 
     export interface Quota {

@@ -1,13 +1,13 @@
 import TrackGridUser from '../../_shared/TracksGrid/TrackGridUser';
-import React from 'react';
-import moment from 'moment';
+import * as React from 'react';
+import * as moment from 'moment';
 import { SoundCloud } from '../../../../types';
-import { abbreviate_number } from '../../../../shared/utils';
+import { abbreviate_number } from '../../../../common/utils';
 import ToggleMore from '../../_shared/ToggleMore';
 import Linkify from '../../_shared/Linkify';
 import CommentList from '../../_shared/CommentList/CommentList';
-import { toggleFollowing } from '../../../../shared/store/auth';
-import { ObjectState } from '../../../../shared/store/objects';
+import { toggleFollowing } from '../../../../common/store/auth';
+import { ObjectState } from '../../../../common/store/objects';
 
 interface Props {
     track: SoundCloud.Track;
@@ -36,11 +36,12 @@ export default class TrackOverview extends React.PureComponent<Props> {
                     <div className='row'>
                         <div className='col-6 col-lg-12'>
                             <TrackGridUser
-                                following={following}
-                                user={track.user}
+                                isFollowing={following}
+                                user={track.user as SoundCloud.User} // TODO check if compact user
                                 toggleFollowingFunc={() => {
-                                    toggleFollowing(track.user.id)
-                                }} />
+                                    toggleFollowing(track.user.id);
+                                }}
+                            />
                         </div>
 
                         <div className='col-6 col-lg-12'>
@@ -65,7 +66,8 @@ export default class TrackOverview extends React.PureComponent<Props> {
                 <div className='trackPadding col-12 col-lg'>
                     <div className='flex stats align-items-center justify-content-between'>
                         <div
-                            className='taglist'>
+                            className='taglist'
+                        >
                             {tags.map((tag) => (
                                 <span key={tag} className='badge badge-secondary'>{tag}</span>
                             ))}
@@ -88,7 +90,8 @@ export default class TrackOverview extends React.PureComponent<Props> {
                         track.description && (
                             <ToggleMore className='trackDescription'>
                                 <Linkify
-                                    text={track.description} />
+                                    text={track.description}
+                                />
                             </ToggleMore>
                         )
                     }
@@ -97,7 +100,8 @@ export default class TrackOverview extends React.PureComponent<Props> {
                     {
                         comments && (
                             <CommentList
-                                comments={comments.items} />
+                                comments={comments.items}
+                            />
                         )
                     }
                 </div>

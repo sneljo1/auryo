@@ -1,14 +1,14 @@
 import cn from 'classnames';
 import { isEqual } from 'lodash';
-import React from 'react';
-import TextTruncate from 'react-dotdotdot';
+import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { IMAGE_SIZES } from '../../../../../shared/constants/Soundcloud';
-import { PlayingTrack, playTrack } from '../../../../../shared/store/player';
-import * as SC from '../../../../../shared/utils/soundcloudUtils';
+import { IMAGE_SIZES } from '../../../../../common/constants/Soundcloud';
+import { PlayingTrack, playTrack } from '../../../../../common/store/player';
+import * as SC from '../../../../../common/utils/soundcloudUtils';
 import { SoundCloud } from '../../../../../types';
 import ActionsDropdown from '../../../_shared/ActionsDropdown';
 import FallbackImage from '../../../_shared/FallbackImage';
+import TextShortener from '../../../_shared/TextShortener';
 
 interface Props {
     track: SoundCloud.Track;
@@ -79,14 +79,19 @@ class QueueItem extends React.Component<Props> {
 
         return (
             <div>
-                <div role='button' tabIndex={0} className={cn('track d-flex flex-nowrap align-items-center', {
-                    played,
-                    playing
-                })} onClick={(e) => {
-                    if ((e.target as any).className !== 'icon-more_horiz') {
-                        playTrack(currentPlaylist, trackData);
-                    }
-                }}>
+                <div
+                    role='button'
+                    tabIndex={0}
+                    className={cn('track d-flex flex-nowrap align-items-center', {
+                        played,
+                        playing
+                    })}
+                    onClick={(e) => {
+                        if ((e.target as any).className !== 'icon-more_horiz') {
+                            playTrack(currentPlaylist, trackData);
+                        }
+                    }}
+                >
                     <div className='image-wrap'>
                         <FallbackImage
                             src={SC.getImageUrl(track, IMAGE_SIZES.XSMALL)}
@@ -96,31 +101,34 @@ class QueueItem extends React.Component<Props> {
                     </div>
                     <div className='item-info'>
                         <div className='title'>
-                            <Link onClick={(e) => {
-                                e.stopPropagation();
-                                e.nativeEvent.stopImmediatePropagation();
-                            }}
-                                to={`/track/${track.id}`}>
-                                <TextTruncate
-                                    clamp={1}
-                                >
-                                    {track.title}
-                                </TextTruncate>
+                            <Link
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    e.nativeEvent.stopImmediatePropagation();
+                                }}
+                                to={`/track/${track.id}`}
+                            >
+                                <TextShortener text={track.title} />
                             </Link>
 
                         </div>
                         <div className='stats'>
-                            <Link onClick={(e) => {
-                                e.stopPropagation();
-                                e.nativeEvent.stopImmediatePropagation();
-                            }}
-                                to={`/user/${track.user.id}`}>{track.user.username}</Link>
+                            <Link
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    e.nativeEvent.stopImmediatePropagation();
+                                }}
+                                to={`/user/${track.user.id}`}
+                            >
+                                {track.user.username}
+                            </Link>
                         </div>
                     </div>
                     <div className='no-shrink pl-2'>
                         <ActionsDropdown
                             index={index}
-                            track={track} />
+                            track={track}
+                        />
                     </div>
                 </div>
             </div>

@@ -1,0 +1,36 @@
+import { reducer as toastr, ToastrState } from 'react-redux-toastr';
+import { combineReducers, Reducer } from 'redux';
+import { reducer as modal } from 'redux-modal';
+import { appReducer, AppState } from './app';
+import { authReducer, AuthState } from './auth';
+import { configReducer, ConfigState } from './config';
+import { entitiesReducer, EntitiesState, objectsReducer, ObjectsState } from './objects';
+import { PlayerState, playerReducer } from './player';
+import { uiReducer, UIState } from './ui';
+import { RouterState } from 'connected-react-router';
+
+
+export const rootReducer = combineReducers({
+  auth: authReducer,
+  entities: entitiesReducer,
+  player: playerReducer,
+  objects: objectsReducer,
+  app: appReducer,
+  config: configReducer,
+  ui: uiReducer,
+  toastr,
+  modal: modal as Reducer<any>
+});
+
+export interface StoreState {
+  auth: AuthState;
+  entities: EntitiesState;
+  player: PlayerState;
+  objects: ObjectsState;
+  app: AppState;
+  config: ConfigState;
+  ui: UIState;
+  toastr: ToastrState;
+  routing: RouterState;
+  modal: any;
+}

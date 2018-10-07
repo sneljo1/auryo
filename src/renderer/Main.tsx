@@ -1,12 +1,12 @@
 import { ipcRenderer } from 'electron';
 import { History } from 'history';
-import React from 'react';
+import * as React from 'react';
 import { connect, Provider } from 'react-redux';
-import { ConnectedRouter } from 'react-router-redux';
 import { Store } from 'redux';
-import { EVENTS } from '../shared/constants/events';
-import { StoreState } from '../shared/store';
+import { EVENTS } from '../common/constants/events';
+import { StoreState } from '../common/store';
 import Routes from './routes';
+import { ConnectedRouter } from 'connected-react-router';
 
 interface PropsFromState {
 }

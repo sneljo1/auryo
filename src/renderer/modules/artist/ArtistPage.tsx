@@ -1,23 +1,23 @@
 import { Menu, MenuItem, Popover, Position } from '@blueprintjs/core';
 import cn from 'classnames';
 import { denormalize, schema } from 'normalizr';
-import React from 'react';
-import { connect } from 'react-redux';
+import * as React from 'react';
+import { connect, MapDispatchToProps } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
 import { Col, Row, TabContent, TabPane } from 'reactstrap';
-import { bindActionCreators, Dispatch } from 'redux';
-import { IMAGE_SIZES, USER_LIKES_SUFFIX, USER_TRACKS_PLAYLIST_SUFFIX } from '../../../shared/constants';
-import { userSchema } from '../../../shared/schemas';
-import trackSchema from '../../../shared/schemas/track';
-import { StoreState } from '../../../shared/store';
-import { AppState } from '../../../shared/store/app';
-import { AuthState, toggleFollowing } from '../../../shared/store/auth';
-import { canFetchMoreOf, fetchMore, ObjectState, ObjectTypes } from '../../../shared/store/objects';
-import { PlayerState, PlayerStatus, PlayingTrack, playTrack, toggleStatus } from '../../../shared/store/player';
-import { setScrollPosition } from '../../../shared/store/ui';
-import { fetchArtistIfNeeded } from '../../../shared/store/user/actions';
-import { abbreviate_number, SC } from '../../../shared/utils';
-import { IPC } from '../../../shared/utils/ipc';
+import { bindActionCreators } from 'redux';
+import { IMAGE_SIZES, USER_LIKES_SUFFIX, USER_TRACKS_PLAYLIST_SUFFIX } from '../../../common/constants';
+import { userSchema } from '../../../common/schemas';
+import trackSchema from '../../../common/schemas/track';
+import { StoreState } from '../../../common/store';
+import { AppState } from '../../../common/store/app';
+import { AuthState, toggleFollowing } from '../../../common/store/auth';
+import { canFetchMoreOf, fetchMore, ObjectState, ObjectTypes } from '../../../common/store/objects';
+import { PlayerState, PlayerStatus, PlayingTrack, playTrack, toggleStatus } from '../../../common/store/player';
+import { setScrollPosition } from '../../../common/store/ui';
+import { fetchArtistIfNeeded } from '../../../common/store/user/actions';
+import { abbreviate_number, SC } from '../../../common/utils';
+import { IPC } from '../../../common/utils/ipc';
 import { SoundCloud } from '../../../types';
 import Header from '../app/components/Header/Header';
 import CustomScroll from '../_shared/CustomScroll';
@@ -49,7 +49,7 @@ interface PropsFromState {
     playlists: {
         [PlaylistTypes.LIKES]: ObjectState<SoundCloud.Track> | null,
         [PlaylistTypes.TRACKS]: ObjectState<SoundCloud.Track> | null,
-    },
+    };
     previousScrollTop?: number;
     artistIdParam: number;
 }
@@ -173,7 +173,7 @@ class ArtistPage extends WithHeaderComponent<AllProps, State> {
         const objectId = artistId + (type === PlaylistTypes.LIKES ? USER_LIKES_SUFFIX : USER_TRACKS_PLAYLIST_SUFFIX);
         const playlist = playlists[type];
 
-        if (!playlist) return <Spinner contained />;
+        if (!playlist) return <Spinner contained={true} />;
 
         return (
             <React.Fragment>
@@ -207,8 +207,11 @@ class ArtistPage extends WithHeaderComponent<AllProps, State> {
 
         if (player.currentPlaylistId === playlistId && player.status === PlayerStatus.PLAYING) {
             return (
-                <a href='javascript:void(0)' className='c_btn playing'
-                    onClick={() => toggleStatus()}>
+                <a
+                    href='javascript:void(0)'
+                    className='c_btn playing'
+                    onClick={() => toggleStatus()}
+                >
                     <i className='icon-pause' />
                     Playing
                 </a>
@@ -217,15 +220,18 @@ class ArtistPage extends WithHeaderComponent<AllProps, State> {
 
         const toggle = () => {
             if (player.currentPlaylistId === playlistId.toString()) {
-                toggleStatus()
+                toggleStatus();
             } else {
-                playTrack(playlistId.toString(), { id: first_id })
+                playTrack(playlistId.toString(), { id: first_id });
             }
-        }
+        };
 
         return (
-            <a href='javascript:void(0)' className='c_btn'
-                onClick={toggle}>
+            <a
+                href='javascript:void(0)'
+                className='c_btn'
+                onClick={toggle}
+            >
                 <i className='icon-play_arrow' />
                 Play
             </a>
@@ -237,20 +243,25 @@ class ArtistPage extends WithHeaderComponent<AllProps, State> {
         const { followings, me } = auth;
         const { small, activeTab } = this.state;
 
-        if (!user || (user && user.loading) || user.track_count === null) return <Spinner contained />;
+        if (!user || (user && user.loading) || user.track_count === null) return <Spinner contained={true} />;
 
         const user_img = SC.getImageUrl(user.avatar_url, IMAGE_SIZES.LARGE);
         const following = SC.hasID(user.id, followings);
 
         return (
-            <CustomScroll className='column withHeader' heightRelativeToParent='100%'
+            <CustomScroll
+                className='column withHeader'
+                heightRelativeToParent='100%'
                 allowOuterScroll={true}
-                //heightMargin={35}
+                // heightMargin={35}
                 ref={(r) => this.scroll = r}
                 onScroll={this.debouncedOnScroll}
                 threshold={300}
-                loadMore={this.fetchMore.bind(this)}
-                hasMore={this.canFetchMore()}>
+                loadMore={() => {
+                    this.fetchMore();
+                }}
+                hasMore={this.canFetchMore()}
+            >
 
                 <Header className='withImage' scrollTop={this.state.scrollTop} />
 
@@ -260,7 +271,8 @@ class ArtistPage extends WithHeaderComponent<AllProps, State> {
                             <div className='imageWrapper'>
                                 <FallbackImage
                                     src={user_img}
-                                    id={user.id} />
+                                    id={user.id}
+                                />
                             </div>
                         </Col>
 
@@ -274,14 +286,18 @@ class ArtistPage extends WithHeaderComponent<AllProps, State> {
                                             this.renderPlayButton()
                                         }
                                         {
-                                            me && artistIdParam !== me.id ? <a href='javascript:void(0)'
-                                                className={cn('c_btn', { following })}
-                                                onClick={() => {
-                                                    this.toggleFollow()
-                                                }}>
-                                                {following ? <i className='icon-check' /> : <i className='icon-add' />}
-                                                <span>{following ? 'Following' : 'Follow'}</span>
-                                            </a> : null
+                                            me && artistIdParam !== me.id ? (
+                                                <a
+                                                    href='javascript:void(0)'
+                                                    className={cn('c_btn', { following })}
+                                                    onClick={() => {
+                                                        this.toggleFollow();
+                                                    }}
+                                                >
+                                                    {following ? <i className='icon-check' /> : <i className='icon-add' />}
+                                                    <span>{following ? 'Following' : 'Follow'}</span>
+                                                </a>
+                                            ) : null
                                         }
 
                                         <Popover
@@ -293,11 +309,13 @@ class ArtistPage extends WithHeaderComponent<AllProps, State> {
                                                     <MenuItem
                                                         text='View in browser'
                                                         onClick={() => {
-                                                            IPC.openExternal(user.permalink_url)
-                                                        }} />
+                                                            IPC.openExternal(user.permalink_url);
+                                                        }}
+                                                    />
                                                     <ShareMenuItem
                                                         username={user.username}
-                                                        permalink={user.permalink_url} />
+                                                        permalink={user.permalink_url}
+                                                    />
                                                 </Menu>
                                             )}
                                         >
@@ -331,26 +349,36 @@ class ArtistPage extends WithHeaderComponent<AllProps, State> {
 
 
                     <div className='flex tracktabs row'>
-                        <a href='javascript:void(0)' className={cn({ active: activeTab === TabTypes.TRACKS })}
+                        <a
+                            href='javascript:void(0)'
+                            className={cn({ active: activeTab === TabTypes.TRACKS })}
                             onClick={() => {
                                 this.toggle(TabTypes.TRACKS);
-                            }}>
+                            }}
+                        >
                             <span className='text'>Tracks</span>
                         </a>
-                        <a href='javascript:void(0)' className={cn({ active: activeTab === TabTypes.LIKES })}
+                        <a
+                            href='javascript:void(0)'
+                            className={cn({ active: activeTab === TabTypes.LIKES })}
                             onClick={() => {
                                 this.toggle(TabTypes.LIKES);
-                            }}>
+                            }}
+                        >
                             <span className='text'>Likes</span>
                         </a>
                         {
-                            small ?
-                                <a href='javascript:void(0)' className={cn({ active: activeTab === TabTypes.INFO })}
+                            small ? (
+                                <a
+                                    href='javascript:void(0)'
+                                    className={cn({ active: activeTab === TabTypes.INFO })}
                                     onClick={() => {
                                         this.toggle(TabTypes.INFO);
-                                    }}>
+                                    }}
+                                >
                                     <span className='text'>Info</span>
-                                </a> : null
+                                </a>
+                            ) : null
                         }
                     </div>
                 </PageHeader>
@@ -378,7 +406,8 @@ class ArtistPage extends WithHeaderComponent<AllProps, State> {
                                             </div>
                                             <ArtistProfiles
                                                 className='pt-1'
-                                                profiles={user.profiles} />
+                                                profiles={user.profiles}
+                                            />
                                         </TabPane>
                                     ) : null
                                 }
@@ -441,7 +470,7 @@ const mapStateToProps = (state: StoreState, props: OwnProps): PropsFromState => 
         }), entities);
     }
 
-    const user = denormalize(artistId, userSchema, entities)
+    const user = denormalize(artistId, userSchema, entities);
 
     return {
         app,
@@ -459,7 +488,7 @@ const mapStateToProps = (state: StoreState, props: OwnProps): PropsFromState => 
     };
 };
 
-const mapDispatchToProps = (dispatch: Dispatch<any>): PropsFromDispatch => bindActionCreators({
+const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, OwnProps> = (dispatch) => bindActionCreators({
     fetchArtistIfNeeded,
     setScrollPosition,
     toggleFollowing,

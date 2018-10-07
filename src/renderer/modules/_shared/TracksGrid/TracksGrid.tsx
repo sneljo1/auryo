@@ -1,20 +1,18 @@
 import cn from 'classnames';
-import { isEqual } from 'lodash';
-import React from 'react';
-import ReactList from 'react-list';
-import { Col } from 'reactstrap';
-import { PLAYLISTS } from '../../../../shared/constants';
-import { AuthFollowing, toggleFollowing } from '../../../../shared/store/auth';
-import { fetchPlaylistIfNeeded } from '../../../../shared/store/objects';
-import { PlayingTrack, playTrack } from '../../../../shared/store/player';
-import * as SC from '../../../../shared/utils/soundcloudUtils';
+import * as React from 'react';
+import * as ReactList from 'react-list';
+import { PLAYLISTS } from '../../../../common/constants';
+import { AuthFollowing, toggleFollowing } from '../../../../common/store/auth';
+import { fetchPlaylistIfNeeded } from '../../../../common/store/objects';
+import { PlayingTrack, playTrack } from '../../../../common/store/player';
+import * as SC from '../../../../common/utils/soundcloudUtils';
 import { SoundCloud } from '../../../../types';
 import TrackGridItem from './TrackGridItem';
 import TrackGridUser from './TrackGridUser';
 
 interface Props {
     showInfo?: boolean;
-    items: SoundCloud.All[];
+    items: Array<SoundCloud.All>;
     playingTrack: PlayingTrack | null;
     currentPlaylistId: string | null;
     followings: AuthFollowing;
@@ -51,50 +49,50 @@ class TracksGrid extends React.Component<Props> {
             playTrack,
             fetchPlaylistIfNeeded,
             toggleFollowing
-        } = this.props
+        } = this.props;
 
 
-        const item = { ...items[index] }
+        const item = { ...items[index] };
 
-        console.log("TracksGrid render")
+        console.log('TracksGrid render');
 
         if (!item || typeof item !== 'object' || Object.keys(item) === ['id', 'kind']) {
-            return null
+            return null;
         }
 
         let isPlaying = !!playingTrack;
 
         if (playingTrack) {
-            if (item.kind === 'playlist') {
-                isPlaying = playingTrack.playlistId === item.id.toString()
-            } else {
-                isPlaying = playingTrack.id === item.id && playingTrack.playlistId === currentPlaylistId
-            }
+            // tslint:disable-next-line:max-line-length
+            isPlaying = item.kind === 'playlist' ? playingTrack.playlistId === item.id.toString() : playingTrack.id === item.id && playingTrack.playlistId === currentPlaylistId;
+
         }
 
         if (item.kind === 'user') {
-            const following = SC.hasID(item.id, followings)
+            const following = SC.hasID(item.id, followings);
 
             return (
-                <Col key={`grid-item-${item.kind}-${item.id}`}
-                    xs="12" sm="6" lg="4"
-                    className="userWrapper">
+                <div
+                    key={`grid-item-${item.kind}-${item.id}`}
+                    className='userWrapper col-12 col-sm-6 col-lg-4'
+                >
                     <TrackGridUser
-                        withStats
+                        withStats={true}
                         isFollowing={following}
                         toggleFollowingFunc={() => {
                             if (toggleFollowing) {
-                                toggleFollowing(item.id)
+                                toggleFollowing(item.id);
                             }
                         }}
-                        user={item} />
-                </Col>
-            )
+                        user={item}
+                    />
+                </div>
+            );
         }
 
         const musicAsset = item as SoundCloud.Music;
 
-        if (!musicAsset.user) return null
+        if (!musicAsset.user) return null;
 
         return (
             <TrackGridItem
@@ -104,38 +102,38 @@ class TracksGrid extends React.Component<Props> {
                 isPlaying={isPlaying}
                 track={musicAsset}
                 playTrackFunc={() => {
-                    playTrack(objectId, { id: musicAsset.id }, true)
+                    playTrack(objectId, { id: musicAsset.id }, true);
                 }}
                 fetchPlaylistIfNeededFunc={() => {
-                    if (musicAsset.kind === "playlist") {
-                        fetchPlaylistIfNeeded(musicAsset.id)
+                    if (musicAsset.kind === 'playlist') {
+                        fetchPlaylistIfNeeded(musicAsset.id);
                     }
                 }}
             />
-        )
+        );
     }
 
-    renderWrapper = (items: JSX.Element[], ref: string) => (
-        <div className="row" ref={ref}>{items}</div>
+    renderWrapper = (items: Array<JSX.Element>, ref: string) => (
+        <div className='row' ref={ref}>{items}</div>
     )
 
     render() {
-        const { items } = this.props
+        const { items } = this.props;
 
         return (
             <div className={cn('songs container-fluid')}>
                 <ReactList
                     pageSize={25}
-                    type="uniform"
+                    type='uniform'
                     length={items.length}
                     itemsRenderer={this.renderWrapper}
                     itemRenderer={this.renderItem as any}
-                    useTranslate3d
+                    useTranslate3d={true}
                     threshold={400}
                 />
             </div>
-        )
+        );
     }
 }
 
-export default TracksGrid
+export default TracksGrid;

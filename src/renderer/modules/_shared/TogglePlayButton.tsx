@@ -1,8 +1,8 @@
-import React from "react";
-import { connect } from "react-redux";
-import { StoreState } from '../../../shared/store';
-import { PlayerStatus, toggleStatus } from '../../../shared/store/player';
-import { bindActionCreators, Dispatch } from 'redux';
+import * as React from 'react';
+import { connect, MapDispatchToProps } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { StoreState } from '../../../common/store';
+import { PlayerStatus, toggleStatus } from '../../../common/store/player';
 
 interface OwnProps {
     className?: string;
@@ -37,18 +37,18 @@ class TogglePlayButton extends React.Component<AllProps> {
     render() {
         const { status, className } = this.props;
 
-        let icon = "";
+        let icon = '';
 
         switch (status) {
             // case PlayerStatus.ERROR:
             //     icon = "icon-alert-circle";
             //     break;
             case PlayerStatus.PLAYING:
-                icon = "pause";
+                icon = 'pause';
                 break;
             case PlayerStatus.PAUSED:
             case PlayerStatus.STOPPED:
-                icon = "play_arrow";
+                icon = 'play_arrow';
                 break;
             // case PlayerStatus.LOADING:
             //     icon = "more_horiz";
@@ -58,8 +58,11 @@ class TogglePlayButton extends React.Component<AllProps> {
         }
 
         return (
-            <a href="javascript:void(0)" className={className}
-                onClick={this.togglePlay}>
+            <a
+                href='javascript:void(0)'
+                className={className}
+                onClick={this.togglePlay}
+            >
                 <i className={`icon-${icon}`} />
             </a>
         );
@@ -68,10 +71,10 @@ class TogglePlayButton extends React.Component<AllProps> {
 
 const mapStateToProps = ({ player: { status } }: StoreState): PropsFromState => ({
     status,
-})
+});
 
 
-const mapDispatchToProps = (dispatch: Dispatch<any>): PropsFromDispatch => bindActionCreators({
+const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, OwnProps> = (dispatch) => bindActionCreators({
     toggleStatus
 }, dispatch);
 

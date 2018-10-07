@@ -1,12 +1,12 @@
 import { isEqual } from 'lodash';
-import React from 'react';
-import ReactList from 'react-list';
-import { PlayingTrack, playTrack } from '../../../../shared/store/player';
+import * as React from 'react';
+import * as ReactList from 'react-list';
+import { PlayingTrack, playTrack } from '../../../../common/store/player';
 import { SoundCloud } from '../../../../types';
 import TrackListItem from './TrackListItem';
 
 interface Props {
-    items: SoundCloud.Track[];
+    items: Array<SoundCloud.Track>;
     playingTrack: PlayingTrack | null;
     objectId: string;
     hideFirstTrack?: boolean;
@@ -25,13 +25,13 @@ class TrackList extends React.Component<Props> {
     }
 
     playTrack(id: number, doubleClick: boolean, e: React.MouseEvent<any>) {
-        const { playTrack, objectId } = this.props
+        const { playTrack, objectId } = this.props;
 
         if (doubleClick) {
-            e.preventDefault()
+            e.preventDefault();
         }
 
-        playTrack(objectId, { id })
+        playTrack(objectId, { id });
 
     }
 
@@ -39,15 +39,15 @@ class TrackList extends React.Component<Props> {
         const {
             items,
             playingTrack
-        } = this.props
+        } = this.props;
 
         const track = items[index];
 
         if (!track || (track && track.loading && track.error)) {
-            return null
+            return null;
         }
 
-        console.log("tracklistitem render")
+        console.log('tracklistitem render');
 
         return (
             <TrackListItem
@@ -55,27 +55,27 @@ class TrackList extends React.Component<Props> {
                 track={track}
                 isPlaying={!!playingTrack && track.id === playingTrack.id}
                 playTrackFunc={(e, double) => {
-                    this.playTrack(track.id, double || false, e)
+                    this.playTrack(track.id, double || false, e);
                 }}
             />
-        )
+        );
     }
 
-    renderWrapper = (items: JSX.Element[], ref: string) => (
-        <table className="table table-borderless">
+    renderWrapper = (items: Array<JSX.Element>, ref: string) => (
+        <table className='table table-borderless'>
             <thead>
-                <tr className="trackListHeader">
-                    <th className="row-play" />
-                    <th className="row-title">
+                <tr className='trackListHeader'>
+                    <th className='row-play' />
+                    <th className='row-title'>
                         Title
                         </th>
-                    <th className="trackArtist row-artist">
+                    <th className='trackArtist row-artist'>
                         Artist
                         </th>
-                    <th className="text-xs-center row-timer">
+                    <th className='text-xs-center row-timer'>
                         Time
                         </th>
-                    <th className="trackitemActions row-actions" />
+                    <th className='trackitemActions row-actions' />
                 </tr>
             </thead>
             <tbody ref={ref}>{items}</tbody>
@@ -85,22 +85,22 @@ class TrackList extends React.Component<Props> {
     render() {
         const {
             items
-        } = this.props
+        } = this.props;
 
         return (
-            <div className="trackList">
+            <div className='trackList'>
                 <ReactList
                     pageSize={8}
-                    type="simple"
+                    type='simple'
                     itemsRenderer={this.renderWrapper}
                     length={items.length}
                     itemRenderer={this.renderItem as any}
-                    useTranslate3d
+                    useTranslate3d={true}
                     threshold={400}
                 />
             </div>
-        )
+        );
     }
 }
 
-export default TrackList
+export default TrackList;

@@ -4,7 +4,7 @@ import { autoUpdater } from 'electron-updater';
 import request from 'request';
 import { gt as isVersionGreaterThan, valid as parseVersion } from 'semver';
 import { CONFIG } from '../../config';
-import { EVENTS } from '../../shared/constants/events';
+import { EVENTS } from '../../common/constants/events';
 import { Logger } from '../utils/logger';
 import Feature from './feature';
 
@@ -12,7 +12,7 @@ export default class AppUpdater extends Feature {
   private logger = new Logger('AppUpdater');
 
   private hasUpdate = false;
-  private currentVersion: string | null;
+  private currentVersion = parseVersion(app.getVersion());
 
   // eslint-disable-next-line
   shouldRun() {
@@ -28,8 +28,6 @@ export default class AppUpdater extends Feature {
   }
 
   update = () => {
-    this.currentVersion = parseVersion(app.getVersion());
-
     if (is.linux() || is.macOS()) {
       this.updateLinux();
     } else {

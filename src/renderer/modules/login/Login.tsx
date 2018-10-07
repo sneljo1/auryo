@@ -1,12 +1,12 @@
-import isEqual from 'lodash/isEqual';
-import React from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators, Dispatch } from 'redux';
+import { isEqual } from 'lodash';
+import * as React from 'react';
+import { connect, MapDispatchToProps } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { show } from 'redux-modal';
 import logo_url from '../../../assets/img/auryo-dark.png';
 import url from '../../../assets/img/feetonmusicbox.jpg';
-import { StoreState } from '../../../shared/store';
-import { AuthStatus, login } from '../../../shared/store/auth';
+import { StoreState } from '../../../common/store';
+import { AuthStatus, login } from '../../../common/store/auth';
 import UtilitiesModal from '../app/components/modals/UtilitiesModel/UtilitiesModal';
 import Button from '../_shared/Button/Button';
 
@@ -18,7 +18,7 @@ interface PropsFromDispatch {
     show: typeof show;
 }
 
-type AllProps = PropsFromState & PropsFromDispatch
+type AllProps = PropsFromState & PropsFromDispatch;
 
 class LoginContainer extends React.Component<AllProps> {
 
@@ -26,19 +26,19 @@ class LoginContainer extends React.Component<AllProps> {
         const { error, loading } = this.props;
 
         return !isEqual(nextProps.loading, loading) ||
-            !isEqual(nextProps.error, error)
+            !isEqual(nextProps.error, error);
     }
 
     login = () => {
         const { login, loading } = this.props;
 
         if (!loading) {
-            login()
+            login();
         }
     }
 
     render() {
-        const { loading, error, show } = this.props
+        const { loading, error, show } = this.props;
 
         return (
             <div id='login' className='container-fluid'>
@@ -52,37 +52,47 @@ class LoginContainer extends React.Component<AllProps> {
 
                             {
                                 error ? (
-                                    <div className="alert alert-danger">
+                                    <div className='alert alert-danger'>
                                         {error}
                                     </div>
                                 ) : null
                             }
 
-                            <Button color="primary" loading={loading} block onClick={this.login}
-                                href='javascript:void(0)'>
+                            <Button
+                                color='primary'
+                                loading={loading}
+                                block={true}
+                                onClick={this.login}
+                                href='javascript:void(0)'
+                            >
                                 Login
                             </Button>
 
-                            <a href="javascript:void(0)" className="settings btn btn-link mt-1 btn-block"
+                            <a
+                                href='javascript:void(0)'
+                                className='settings btn btn-link mt-1 btn-block'
                                 onClick={() => {
                                     show('utilities', {
                                         activeTab: 'settings'
-                                    })
-                                }}>
+                                    });
+                                }}
+                            >
                                 Settings
                             </a>
 
                         </div>
 
                     </div>
-                    <div className='login-bg hidden-sm-down col hidden-sm-down grad-blue'
-                        style={{ backgroundImage: `url(${url})` }} />
+                    <div
+                        className='login-bg hidden-sm-down col hidden-sm-down grad-blue'
+                        style={{ backgroundImage: `url(${url})` }}
+                    />
 
                 </div>
-                
+
                 <UtilitiesModal />
             </div>
-        )
+        );
     }
 }
 
@@ -90,9 +100,9 @@ const mapStateToProps = (state: StoreState): PropsFromState => ({
     ...state.auth.authentication
 });
 
-const mapDispatchToProps = (dispatch: Dispatch<any>): PropsFromDispatch => bindActionCreators({
+const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, {}> = (dispatch) => bindActionCreators({
     login,
     show
 }, dispatch);
 
-export default connect(mapStateToProps, mapDispatchToProps)(LoginContainer)
+export default connect(mapStateToProps, mapDispatchToProps)(LoginContainer);

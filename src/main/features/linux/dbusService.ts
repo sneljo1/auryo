@@ -1,6 +1,6 @@
-import { EVENTS } from '../../../shared/constants/events';
+import { EVENTS } from '../../../common/constants/events';
 import LinuxFeature from './linuxFeature';
-import { ChangeTypes, PlayerStatus } from '../../../shared/store/player';
+import { ChangeTypes, PlayerStatus } from '../../../common/store/player';
 
 export default class DbusService extends LinuxFeature {
   private dbus: any;

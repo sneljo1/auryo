@@ -1,7 +1,7 @@
 import cn from 'classnames';
-import debounce from 'lodash/debounce';
-import React from 'react';
-import { ConfigState, setConfigKey } from '../../../../../../../../shared/store/config';
+import { debounce } from 'lodash';
+import * as React from 'react';
+import { ConfigState, setConfigKey } from '../../../../../../../../common/store/config';
 
 interface Props {
     config: ConfigState;
@@ -9,7 +9,7 @@ interface Props {
     configKey: string;
     name: string;
     className?: string;
-    onChange?: (value: string, setKey: Function) => void;
+    onChange?: (value: string, setKey: () => void) => void;
     usePlaceholder: boolean;
     invalid: boolean;
     type: string;
@@ -38,7 +38,7 @@ class InputConfig extends React.PureComponent<Props> {
 
         if (onChange) {
             onChange(event.currentTarget.value, () => {
-                setConfigKey(configKey, event.currentTarget.value)
+                setConfigKey(configKey, event.currentTarget.value);
             });
         } else {
             setConfigKey(configKey, event.currentTarget.value);
@@ -54,15 +54,21 @@ class InputConfig extends React.PureComponent<Props> {
         return (
             <div className={`setting${className}`}>
                 {
-                    !usePlaceholder && <label htmlFor={name}>{name}</label>}
-                <input type={type || 'text'}
+                    !usePlaceholder && (
+                        <label htmlFor={name}>{name}</label>
+                    )
+                }
+
+                <input
+                    type={type || 'text'}
                     className={cn('form-control form-control-sm ', {
                         'is-invalid': invalid
                     })}
                     name={name}
                     onChange={this.saveDebounced}
                     placeholder={usePlaceholder ? name : undefined}
-                    defaultValue={value || ''} />
+                    defaultValue={value || ''}
+                />
             </div>
         );
     }

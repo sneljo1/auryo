@@ -1,23 +1,23 @@
 import { Icon, Menu, MenuDivider, MenuItem, Popover, Position } from '@blueprintjs/core';
 import cn from 'classnames';
 import { ipcRenderer } from 'electron';
-import isEqual from 'lodash/isEqual';
-import React, { ReactNode } from 'react';
-import { connect } from 'react-redux';
+import { isEqual } from 'lodash';
+import * as React from 'react';
+import { connect, MapDispatchToProps } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
-import { push, replace } from 'react-router-redux';
-import { bindActionCreators, Dispatch } from 'redux';
+import { bindActionCreators } from 'redux';
 import { show } from 'redux-modal';
-import { EVENTS } from '../../../../../shared/constants/events';
-import { StoreState } from '../../../../../shared/store';
-import { CanGoHistory, UpdateInfo } from '../../../../../shared/store/app';
-import { AuthUser, logout } from '../../../../../shared/store/auth';
+import { EVENTS } from '../../../../../common/constants/events';
+import { StoreState } from '../../../../../common/store';
+import { CanGoHistory, UpdateInfo } from '../../../../../common/store/app';
+import { AuthUser, logout } from '../../../../../common/store/auth';
 import Sticky from '../../../_shared/Sticky';
 import SearchBox from './Search/SearchBox';
 import User from './User/User';
+import { replace, push } from 'connected-react-router';
 
 interface OwnProps {
-    children: ReactNode;
+    children: React.ReactNode;
     className?: string;
     scrollTop: number;
     query?: string;
@@ -57,8 +57,8 @@ class Header extends React.Component<AllProps, State> {
         height: 0
     };
 
-    private navBarWrapper: HTMLDivElement | null;
-    private search: SearchBox | null;
+    private navBarWrapper: HTMLDivElement | null = null;
+    private search: SearchBox | null = null;
 
     componentDidMount() {
         const { focus } = this.props;
@@ -165,14 +165,18 @@ class Header extends React.Component<AllProps, State> {
                             <div className='d-flex flex-nowrap align-items-center'>
                                 <div className='control-nav'>
                                     <div className='control-nav-inner flex'>
-                                        <a className={cn({ disabled: !back })}
+                                        <a
+                                            className={cn({ disabled: !back })}
                                             href='javascript:void(0)'
-                                            onClick={this.goBack.bind(this)}>
+                                            onClick={this.goBack}
+                                        >
                                             <i className='icon-keyboard_arrow_left' />
                                         </a>
-                                        <a className={cn({ disabled: !next })}
+                                        <a
+                                            className={cn({ disabled: !next })}
                                             href='javascript:void(0)'
-                                            onClick={this.goForward.bind(this)}>
+                                            onClick={this.goForward}
+                                        >
                                             <i className='icon-keyboard_arrow_right' />
                                         </a>
                                     </div>
@@ -181,42 +185,61 @@ class Header extends React.Component<AllProps, State> {
                                 <SearchBox
                                     ref={(r) => this.search = r}
                                     initialValue={query}
-                                    handleSearch={this.handleSearch} />
+                                    handleSearch={this.handleSearch}
+                                />
                             </div>
 
                             <div className='d-flex align-items-center justify-content-between'>
                                 <User me={me} />
 
-                                <Popover autoFocus={false} minimal={true} content={(
-                                    <Menu>
+                                <Popover
+                                    position={Position.BOTTOM_RIGHT}
+                                    autoFocus={false}
+                                    minimal={true}
+                                    content={(
+                                        <Menu>
 
-                                        <MenuItem text='About' icon='info-sign'
-                                            onClick={this.showUtilitiesModal.bind(this, 'about')} />
+                                            <MenuItem
+                                                text='About'
+                                                icon='info-sign'
+                                                onClick={this.showUtilitiesModal.bind(this, 'about')}
+                                            />
 
-                                        <MenuItem text='Settings' icon='cog'
-                                            onClick={this.showUtilitiesModal.bind(this, 'settings')} />
+                                            <MenuItem
+                                                text='Settings'
+                                                icon='cog'
+                                                onClick={this.showUtilitiesModal.bind(this, 'settings')}
+                                            />
 
-                                        {
-                                            update.available && (
-                                                <MenuItem className='text-primary' text='Update' icon='box'
-                                                    onClick={this.doUpdate} />
-                                            )
-                                        }
+                                            {
+                                                update.available && (
+                                                    <MenuItem
+                                                        className='text-primary'
+                                                        text='Update'
+                                                        icon='box'
+                                                        onClick={this.doUpdate}
+                                                    />
+                                                )
+                                            }
 
-                                        <MenuDivider />
+                                            <MenuDivider />
 
-                                        <MenuItem text='Contribute' href='https://github.com/Superjo149/auryo/' />
-                                        <MenuItem text='Report an issue' href='https://github.com/Superjo149/auryo/issues' />
-                                        <MenuItem text='Suggest a feature' href='https://github.com/Superjo149/auryo/issues' />
-                                        <MenuItem text='Donate' href='https://opencollective.com/auryo' />
+                                            <MenuItem text='Contribute' href='https://github.com/Superjo149/auryo/' />
+                                            <MenuItem text='Report an issue' href='https://github.com/Superjo149/auryo/issues' />
+                                            <MenuItem text='Suggest a feature' href='https://github.com/Superjo149/auryo/issues' />
+                                            <MenuItem text='Donate' href='https://opencollective.com/auryo' />
 
-                                        <MenuDivider />
+                                            <MenuDivider />
 
-                                        <MenuItem text='Logout' icon='log-out'
-                                            onClick={logout} />
+                                            <MenuItem
+                                                text='Logout'
+                                                icon='log-out'
+                                                onClick={logout}
+                                            />
 
-                                    </Menu>
-                                )} position={Position.BOTTOM_RIGHT}>
+                                        </Menu>
+                                    )}
+                                >
                                     <a href='javascript:void(0)' className='toggle'>
                                         <Icon icon='more' />
                                         {
@@ -242,7 +265,7 @@ const mapStateToProps = ({ app, auth }: StoreState): PropsFromState => ({
     locHistory: app.history
 });
 
-const mapDispatchToProps = (dispatch: Dispatch<any>): PropsFromDispatch => bindActionCreators({
+const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, OwnProps> = (dispatch) => bindActionCreators({
     logout,
     show,
     push,

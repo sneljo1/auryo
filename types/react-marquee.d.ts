@@ -1,13 +1,14 @@
-declare module 'react-marquee' {
-  import * as React from 'react';
+declare module 'react-marquee';
+// {
+//   import * as React from 'react';
 
-  export interface MarqueeProps {
-    text?: string;
-    hoverToStop?: boolean;
-    loop?: boolean;
-    leading?: number;
-    trailing?: number;
-  }
+//   export interface MarqueeProps {
+//     text?: string;
+//     hoverToStop?: boolean;
+//     loop?: boolean;
+//     leading?: number;
+//     trailing?: number;
+//   }
 
-  export default class Marquee extends React.Component<MarqueeProps> { }
-}
+//   export default class Marquee extends React.Component<MarqueeProps> { }
+// }

@@ -1,8 +1,8 @@
 import { app, Menu, shell, MenuItemConstructorOptions } from 'electron';
-import { EVENTS } from '../../shared/constants/events';
-import * as SC from '../../shared/utils/soundcloudUtils';
+import { EVENTS } from '../../common/constants/events';
+import * as SC from '../../common/utils/soundcloudUtils';
 import Feature from './feature';
-import { PlayerStatus, ChangeTypes, PlayerState, VolumeChangeTypes } from '../../shared/store/player';
+import { PlayerStatus, ChangeTypes, PlayerState, VolumeChangeTypes } from '../../common/store/player';
 import { show } from 'redux-modal';
 
 export default class ApplicationMenu extends Feature {
@@ -62,7 +62,11 @@ export default class ApplicationMenu extends Feature {
           {
             label: 'Search',
             accelerator: 'CmdOrCtrl+F',
-            click: () => this.win.webContents.send('keydown:search')
+            click: () => {
+              if (this.win) {
+                this.win.webContents.send('keydown:search');
+              }
+            }
           }
         ]
       },

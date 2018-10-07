@@ -1,7 +1,7 @@
-import cn from "classnames";
-import React from "react";
-import { Link } from "react-router-dom";
-import { GenreConfig } from '../../../../shared/constants';
+import cn from 'classnames';
+import * as React from 'react';
+import { Link } from 'react-router-dom';
+import { GenreConfig } from '../../../../common/constants';
 
 interface Props {
     genre: GenreConfig;
@@ -10,7 +10,7 @@ interface Props {
 
 const ChartGenre: React.SFC<Props> = ({ genre, img }) => (
     <Link to={`/charts/${genre.key}`}>
-        <div className={cn("chart", { withImage: !!img })}>
+        <div className={cn('chart', { withImage: !!img })}>
             <h1>{genre.name}</h1>
             {
                 img && (
@@ -19,12 +19,16 @@ const ChartGenre: React.SFC<Props> = ({ genre, img }) => (
             }
 
             {
-                genre.gradient && <div className="overlay"
-                    style={{ backgroundImage: genre.gradient }} />
+                genre.gradient && (
+                    <div
+                        className='overlay'
+                        style={{ backgroundImage: genre.gradient }}
+                    />
+                )
             }
 
         </div>
     </Link>
-)
+);
 
 export default ChartGenre;

@@ -1,6 +1,6 @@
 import classNames from 'classnames';
-import isEqual from 'lodash/isEqual';
-import React from 'react';
+import { isEqual } from 'lodash';
+import * as React from 'react';
 import { NavLink, RouteComponentProps, withRouter } from 'react-router-dom';
 import { SoundCloud } from '../../../../../../types';
 import TextShortener from '../../../../_shared/TextShortener';
@@ -29,13 +29,17 @@ class SideBarPlaylist extends React.Component<AllProps> {
             <React.Fragment>
                 {
                     playlists.map((playlist) => (
-                        <div key={`sidebar-${playlist.id}`}
+                        <div
+                            key={`sidebar-${playlist.id}`}
                             className={classNames('navItem', {
-                                playing: currentPlaylistId && playlist.id === currentPlaylistId
-                            })}>
-                            <NavLink to={`/playlist/${playlist.id}`}
+                                playing: currentPlaylistId && playlist.id.toString() === currentPlaylistId
+                            })}
+                        >
+                            <NavLink
+                                to={`/playlist/${playlist.id}`}
                                 className='navLink'
-                                activeClassName='active'>
+                                activeClassName='active'
+                            >
                                 <TextShortener text={playlist.title} />
                             </NavLink>
                         </div>

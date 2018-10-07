@@ -1,23 +1,23 @@
 import { Menu, MenuDivider, MenuItem, Popover, Position } from '@blueprintjs/core';
 import cn from 'classnames';
 import { denormalize, schema } from 'normalizr';
-import React from 'react';
-import { connect } from 'react-redux';
+import * as React from 'react';
+import { connect, MapDispatchToProps } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
 import { Col, Row, TabContent, TabPane } from 'reactstrap';
-import { bindActionCreators, Dispatch } from 'redux';
-import { IMAGE_SIZES, RELATED_PLAYLIST_SUFFIX } from '../../../shared/constants';
-import { commentSchema, playlistSchema } from '../../../shared/schemas';
-import trackSchema from '../../../shared/schemas/track';
-import { StoreState } from '../../../shared/store';
-import { AuthState, toggleFollowing } from '../../../shared/store/auth';
-import { canFetchMoreOf, EntitiesState, fetchMore, ObjectState, ObjectTypes } from '../../../shared/store/objects';
-import { addUpNext, PlayerState, playTrack } from '../../../shared/store/player';
-import { togglePlaylistTrack } from '../../../shared/store/playlist/playlist';
-import { fetchTrackIfNeeded, toggleLike, toggleRepost } from '../../../shared/store/track/actions';
-import { setScrollPosition } from '../../../shared/store/ui';
-import { isCurrentPlaylistPlaying, SC } from '../../../shared/utils';
-import { IPC } from '../../../shared/utils/ipc';
+import { bindActionCreators } from 'redux';
+import { IMAGE_SIZES, RELATED_PLAYLIST_SUFFIX } from '../../../common/constants';
+import { commentSchema, playlistSchema } from '../../../common/schemas';
+import trackSchema from '../../../common/schemas/track';
+import { StoreState } from '../../../common/store';
+import { AuthState, toggleFollowing } from '../../../common/store/auth';
+import { canFetchMoreOf, EntitiesState, fetchMore, ObjectState, ObjectTypes } from '../../../common/store/objects';
+import { addUpNext, PlayerState, playTrack } from '../../../common/store/player';
+import { togglePlaylistTrack } from '../../../common/store/playlist/playlist';
+import { fetchTrackIfNeeded, toggleLike, toggleRepost } from '../../../common/store/track/actions';
+import { setScrollPosition } from '../../../common/store/ui';
+import { isCurrentPlaylistPlaying, SC } from '../../../common/utils';
+import { IPC } from '../../../common/utils/ipc';
 import { SoundCloud } from '../../../types';
 import Header from '../app/components/Header/Header';
 import CustomScroll from '../_shared/CustomScroll';
@@ -43,7 +43,7 @@ interface PropsFromState {
     previousScrollTop?: number;
     track: SoundCloud.Track | null;
     songIdParam: number;
-    userPlaylists: SoundCloud.Playlist[]
+    userPlaylists: Array<SoundCloud.Playlist>;
 }
 
 interface PropsFromDispatch {
@@ -213,19 +213,25 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
                                         </a>
                                 }
 
-                                <a href='javascript:void(0)' className={cn('c_btn', { liked })}
+                                <a
+                                    href='javascript:void(0)'
+                                    className={cn('c_btn', { liked })}
                                     onClick={() => {
                                         toggleLike(track.id);
-                                    }}>
+                                    }}
+                                >
                                     <i className={liked ? 'bx bxs-heart' : 'bx bx-heart'} />
                                     <span>{liked ? 'Liked' : 'Like'}</span>
                                 </a>
 
 
-                                <a href='javascript:void(0)' className={cn('c_btn', { liked: reposted })}
+                                <a
+                                    href='javascript:void(0)'
+                                    className={cn('c_btn', { liked: reposted })}
                                     onClick={() => {
                                         toggleRepost(track.id);
-                                    }}>
+                                    }}
+                                >
                                     <i className='bx bx-repost' />
                                     <span>{reposted ? 'Reposted' : 'Repost'}</span>
                                 </a>
@@ -233,73 +239,88 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
 
                                 {
                                     !track.purchase_url && track.download_url && track.downloadable && (
-                                        <a href='javascript:void(0)' className='c_btn round'
+                                        <a
+                                            href='javascript:void(0)'
+                                            className='c_btn round'
                                             onClick={() => {
                                                 IPC.downloadFile(SC.appendClientId(track.download_url));
-                                            }}>
+                                            }}
+                                        >
                                             <i className='bx bxs-download-alt' />
                                         </a>
                                     )
                                 }
 
-                                <Popover autoFocus={false} minimal={true} content={(
-                                    <Menu>
+                                <Popover
+                                    autoFocus={false}
+                                    minimal={true}
+                                    position={Position.BOTTOM_LEFT}
+                                    content={(
+                                        <Menu>
 
-                                        {
-                                            track.purchase_url && (
-                                                <React.Fragment>
-                                                    {
-                                                        track.purchase_url && (
-                                                            <MenuItem icon='link'
-                                                                text={track.purchase_title || 'Download'}
-                                                                onClick={() => {
-                                                                    IPC.openExternal(track.purchase_url);
-                                                                }} />
-                                                        )
-                                                    }
-
-                                                    <MenuDivider />
-                                                </React.Fragment>
-                                            )
-                                        }
-
-                                        <MenuItem text="Add to playlist">
                                             {
-                                                userPlaylists.map(playlist => {
-                                                    const inPlaylist = !!playlist.tracks.find(t => t.id === track.id)
+                                                track.purchase_url && (
+                                                    <React.Fragment>
+                                                        {
+                                                            track.purchase_url && (
+                                                                <MenuItem
+                                                                    icon='link'
+                                                                    text={track.purchase_title || 'Download'}
+                                                                    onClick={() => {
+                                                                        IPC.openExternal(track.purchase_url);
+                                                                    }}
+                                                                />
+                                                            )
+                                                        }
 
-                                                    return (
-                                                        <MenuItem
-                                                            key={`menu-item-add-to-playlist-${playlist.id}`}
-                                                            className={cn({ 'text-primary': inPlaylist })}
-                                                            onClick={() => {
-                                                                togglePlaylistTrack(track.id, playlist.id)
-                                                            }}
-                                                            text={playlist.title} />
-                                                    )
-                                                })
+                                                        <MenuDivider />
+                                                    </React.Fragment>
+                                                )
                                             }
-                                        </MenuItem>
 
-                                        <MenuItem text='Add to queue'
-                                            onClick={() => {
-                                                addUpNext(track);
-                                            }} />
+                                            <MenuItem text='Add to playlist'>
+                                                {
+                                                    userPlaylists.map((playlist) => {
+                                                        const inPlaylist = !!playlist.tracks.find((t) => t.id === track.id);
 
-                                        <MenuDivider />
+                                                        return (
+                                                            <MenuItem
+                                                                key={`menu-item-add-to-playlist-${playlist.id}`}
+                                                                className={cn({ 'text-primary': inPlaylist })}
+                                                                onClick={() => {
+                                                                    togglePlaylistTrack(track.id, playlist.id);
+                                                                }}
+                                                                text={playlist.title}
+                                                            />
+                                                        );
+                                                    })
+                                                }
+                                            </MenuItem>
 
-                                        <MenuItem
-                                            text='View in browser'
-                                            onClick={() => {
-                                                IPC.openExternal(track.permalink_url);
-                                            }} />
+                                            <MenuItem
+                                                text='Add to queue'
+                                                onClick={() => {
+                                                    addUpNext(track);
+                                                }}
+                                            />
 
-                                        <ShareMenuItem title={track.title}
-                                            permalink={track.permalink_url}
-                                            username={track.user.username} />
-                                    </Menu>
-                                )}
-                                    position={Position.BOTTOM_LEFT}>
+                                            <MenuDivider />
+
+                                            <MenuItem
+                                                text='View in browser'
+                                                onClick={() => {
+                                                    IPC.openExternal(track.permalink_url);
+                                                }}
+                                            />
+
+                                            <ShareMenuItem
+                                                title={track.title}
+                                                permalink={track.permalink_url}
+                                                username={track.user.username}
+                                            />
+                                        </Menu>
+                                    )}
+                                >
                                     <a href='javascript:void(0)' className='c_btn round'>
                                         <i className='icon-more_horiz' />
                                     </a>
@@ -419,7 +440,7 @@ const mapStateToProps = (state: StoreState, props: OwnProps): PropsFromState => 
     };
 };
 
-const mapDispatchToProps = (dispatch: Dispatch<any>): PropsFromDispatch => bindActionCreators({
+const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, OwnProps> = (dispatch) => bindActionCreators({
     setScrollPosition,
     fetchTrackIfNeeded,
     toggleRepost,

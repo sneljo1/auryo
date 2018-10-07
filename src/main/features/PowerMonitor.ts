@@ -1,7 +1,7 @@
 import { powerMonitor } from 'electron';
-import { EVENTS } from '../../shared/constants/events';
+import { EVENTS } from '../../common/constants/events';
 import IFeature from './feature';
-import { PlayerStatus } from '../../shared/store/player';
+import { PlayerStatus } from '../../common/store/player';
 
 /**
  * Pause music on power down or sleep

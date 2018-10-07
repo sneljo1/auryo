@@ -1,5 +1,7 @@
+// tslint:disable:jsx-alignment
+
 import cn from 'classnames';
-import React from 'react';
+import * as React from 'react';
 
 interface Props {
     full ?: boolean;

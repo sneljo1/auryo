@@ -1,6 +1,6 @@
-import React from 'react';
+import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { AuthUser } from '../../../../../../shared/store/auth';
+import { AuthUser } from '../../../../../../common/store/auth';
 
 interface Props {
     me: AuthUser | null;

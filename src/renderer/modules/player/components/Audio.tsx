@@ -1,8 +1,8 @@
 import { Intent } from '@blueprintjs/core';
-import throttle from 'lodash/throttle';
-import React from 'react';
-import { PlayerStatus } from '../../../../shared/store/player';
-import { addToast } from '../../../../shared/store/ui';
+import { throttle } from 'lodash';
+import * as React from 'react';
+import { PlayerStatus } from '../../../../common/store/player';
+import { addToast } from '../../../../common/store/ui';
 
 interface Props {
     url: string;
@@ -21,8 +21,8 @@ interface Props {
 
 class Audio extends React.Component<Props> {
 
-    private throttleUpdateTimeFunc: Function;
-    private _isMounted: boolean;
+    private throttleUpdateTimeFunc: () => void;
+    private _isMounted: boolean = false;
     private player: any | null;
 
     constructor(props: Props) {

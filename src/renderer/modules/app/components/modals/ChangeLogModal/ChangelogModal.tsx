@@ -1,8 +1,8 @@
-import React from 'react';
+import * as React from 'react';
 import Markdown from 'react-markdown';
 import { Modal, ModalBody, ModalHeader } from 'reactstrap';
 import { connectModal, IModalInjectedProps } from 'redux-modal';
-import fetchToJson from '../../../../../../shared/api/helpers/fetchToJson';
+import fetchToJson from '../../../../../../common/api/helpers/fetchToJson';
 import Spinner from '../../../../_shared/Spinner/Spinner';
 
 interface Props {
@@ -25,7 +25,7 @@ class ChangeLogModal extends React.PureComponent<Props & IModalInjectedProps, St
         this.setState({
             loading: true
         });
-        return fetchToJson('https://api.github.com/repos/Superjo149/Auryo/releases/latest')
+        return fetchToJson<{ body: string }>('https://api.github.com/repos/Superjo149/Auryo/releases/latest')
             .then(({ body }) => {
                 this.setState({
                     body,

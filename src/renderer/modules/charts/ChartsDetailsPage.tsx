@@ -1,7 +1,7 @@
-import React from 'react';
+import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
-import { AUDIO_GENRES, GenreConfig, MUSIC_GENRES } from '../../../shared/constants';
-import { SortTypes } from '../../../shared/store/playlist/types';
+import { AUDIO_GENRES, GenreConfig, MUSIC_GENRES } from '../../../common/constants';
+import { SortTypes } from '../../../common/store/playlist/types';
 import PlaylistPage from '../playlists/Playlist';
 import { GENRE_IMAGES } from './ChartsPage';
 
@@ -13,39 +13,41 @@ class ChartsDetailsPage extends React.Component<OwnProps> {
 
     state = {
         sort: SortTypes.TOP
-    }
+    };
 
     sortTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         this.setState({
             sort: event.target.value
-        })
+        });
     }
 
     render() {
-        const { match: { params: { genre } } } = this.props
+        const { match: { params: { genre } } } = this.props;
         const { sort } = this.state;
 
-        let selectedGenre: GenreConfig | undefined = MUSIC_GENRES.find(g => g.key === genre)
+        let selectedGenre: GenreConfig | undefined = MUSIC_GENRES.find((g) => g.key === genre);
 
         if (!selectedGenre) {
-            selectedGenre = AUDIO_GENRES.find(g => g.key === genre)
+            selectedGenre = AUDIO_GENRES.find((g) => g.key === genre);
         }
 
         selectedGenre = selectedGenre as GenreConfig;
 
-        const objectId = `${genre}_${sort}`
+        const objectId = `${genre}_${sort}`;
 
-        return <PlaylistPage
-            showInfo
-            chart
-            backgroundImage={GENRE_IMAGES[selectedGenre.key]}
-            gradient={selectedGenre.gradient}
-            title={selectedGenre.name}
-            objectId={objectId}
-            sortType={sort}
-            sortTypeChange={this.sortTypeChange}
-        />
+        return (
+            <PlaylistPage
+                showInfo={true}
+                chart={true}
+                backgroundImage={GENRE_IMAGES[selectedGenre.key]}
+                gradient={selectedGenre.gradient}
+                title={selectedGenre.name}
+                objectId={objectId}
+                sortType={sort}
+                sortTypeChange={this.sortTypeChange}
+            />
+        );
     }
 }
 
-export default ChartsDetailsPage
+export default ChartsDetailsPage;

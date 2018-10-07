@@ -1,22 +1,32 @@
 import cn from 'classnames';
 import { IpcMessageEvent, ipcRenderer } from 'electron';
-import isEqual from 'lodash/isEqual';
+import { isEqual } from 'lodash';
 import { denormalize } from 'normalizr';
 import Slider from 'rc-slider';
-import React from 'react';
-import { connect } from 'react-redux';
+import * as React from 'react';
+import { connect, MapDispatchToProps } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { bindActionCreators, Dispatch } from 'redux';
-import { IMAGE_SIZES } from '../../../shared/constants';
-import { EVENTS } from '../../../shared/constants/events';
-import { trackSchema } from '../../../shared/schemas';
-import { StoreState } from '../../../shared/store';
-import { AppState } from '../../../shared/store/app';
-import { ConfigState, setConfigKey } from '../../../shared/store/config';
-import { EntitiesState } from '../../../shared/store/objects';
-import { changeTrack, ChangeTypes, PlayerState, PlayerStatus, RepeatTypes, setCurrentTime, setDuration, toggleStatus, updateTime } from '../../../shared/store/player';
-import { addToast, toggleQueue } from '../../../shared/store/ui';
-import { getReadableTime, SC } from '../../../shared/utils';
+import { bindActionCreators } from 'redux';
+import { IMAGE_SIZES } from '../../../common/constants';
+import { EVENTS } from '../../../common/constants/events';
+import { trackSchema } from '../../../common/schemas';
+import { StoreState } from '../../../common/store';
+import { AppState } from '../../../common/store/app';
+import { ConfigState, setConfigKey } from '../../../common/store/config';
+import { EntitiesState } from '../../../common/store/objects';
+import {
+    changeTrack,
+    ChangeTypes,
+    PlayerState,
+    PlayerStatus,
+    RepeatTypes,
+    setCurrentTime,
+    setDuration,
+    toggleStatus,
+    updateTime
+} from '../../../common/store/player';
+import { addToast, toggleQueue } from '../../../common/store/ui';
+import { getReadableTime, SC } from '../../../common/utils';
 import FallbackImage from '../_shared/FallbackImage';
 import TextShortener from '../_shared/TextShortener';
 import Audio from './components/Audio';
@@ -59,7 +69,7 @@ class Player extends React.Component<AllProps, State>{
         offline: false
     };
 
-    private audio: Audio | null;
+    private audio: Audio | null = null;
 
     componentDidMount() {
         const {
@@ -314,9 +324,11 @@ class Player extends React.Component<AllProps, State>{
 
                 <div className='d-flex playerInner'>
                     <div className='playerAlbum'>
-                        <FallbackImage offline={app.offline}
+                        <FallbackImage
+                            offline={app.offline}
                             track_id={track.id}
-                            src={overlay_image} />
+                            src={overlay_image}
+                        />
                     </div>
                     <div className='trackInfo'>
                         <div className='trackTitle' title={track.title}>
@@ -332,28 +344,38 @@ class Player extends React.Component<AllProps, State>{
                     </div>
 
                     <div className='d-flex flex-xs-middle playerControls'>
-                        <a href='javascript:void(0)'
+                        <a
+                            href='javascript:void(0)'
                             onClick={() => {
                                 this.changeSong(ChangeTypes.PREV);
-                            }}>
+                            }}
+                        >
                             <i className='icon-skip_previous' />
                         </a>
-                        <a href='javascript:void(0)' onClick={() => {
-                            toggleStatus()
-                        }}>
+                        <a
+                            href='javascript:void(0)'
+                            onClick={() => {
+                                toggleStatus();
+                            }}
+                        >
                             <i className={`icon-${toggle_play_icon}`} />
                         </a>
-                        <a href='javascript:void(0)' onClick={() => {
-                            this.changeSong(ChangeTypes.NEXT);
-                        }}>
+                        <a
+                            href='javascript:void(0)'
+                            onClick={() => {
+                                this.changeSong(ChangeTypes.NEXT);
+                            }}
+                        >
                             <i className='icon-skip_next' />
                         </a>
                     </div>
 
                     <div className='action-group pr-4'>
-                        <a href='javascript:void(0)'
+                        <a
+                            href='javascript:void(0)'
                             className={cn({ active: repeat !== null })}
-                            onClick={this.toggleRepeat}>
+                            onClick={this.toggleRepeat}
+                        >
                             <i className={repeat === RepeatTypes.ONE ? 'icon-repeat_one' : 'icon-repeat'} />
                         </a>
                     </div>
@@ -399,11 +421,13 @@ class Player extends React.Component<AllProps, State>{
                     </div>
 
                     <div className='action-group'>
-                        <a id='toggleQueueButton'
+                        <a
+                            id='toggleQueueButton'
                             href='javascript:void(0)'
                             onClick={() => {
-                                toggleQueue()
-                            }}>
+                                toggleQueue();
+                            }}
+                        >
                             <i className='icon-playlist_play' />
                         </a>
                     </div>
@@ -425,7 +449,7 @@ const mapStateToProps = (state: StoreState): PropsFromState => {
     };
 };
 
-const mapDispatchToProps = (dispatch: Dispatch<any>): PropsFromDispatch => bindActionCreators({
+const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, {}> = (dispatch) => bindActionCreators({
     updateTime,
     changeTrack,
     toggleStatus,

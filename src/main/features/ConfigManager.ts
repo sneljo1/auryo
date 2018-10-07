@@ -3,10 +3,10 @@ import * as _ from 'lodash';
 import { show } from 'redux-modal';
 import * as semver from 'semver';
 import { CONFIG } from '../../config';
-import { EVENTS } from '../../shared/constants/events';
-import { canGoInHistory } from '../../shared/store/app/actions';
-import { Config } from '../../shared/store/config';
-import { setConfig } from '../../shared/store/config/actions';
+import { EVENTS } from '../../common/constants/events';
+import { canGoInHistory } from '../../common/store/app/actions';
+import { Config } from '../../common/store/config';
+import { setConfig } from '../../common/store/config/actions';
 import { Auryo } from '../app';
 import { settings } from '../settings';
 import { Logger } from '../utils/logger';
@@ -19,8 +19,8 @@ export default class ConfigManager extends Feature {
   private isNewVersion = false;
   private isNewUser = false;
 
-  private writetoConfig: Function;
-  private config: Config;
+  private writetoConfig: (config: Config) => void;
+  private config: Config = CONFIG.DEFAULT_CONFIG;
 
   constructor(auryo: Auryo) {
     super(auryo);
@@ -86,7 +86,7 @@ export default class ConfigManager extends Feature {
     this.on(EVENTS.APP.READY, () => {
       this.notifyNewVersion();
       this.notifyNewUser();
-      console.log("READY")
+      console.log('READY');
       this.on(EVENTS.APP.NAVIGATE, this.checkCanGo);
       this.subscribe(['config'], this.updateConfig);
     });
@@ -103,7 +103,7 @@ export default class ConfigManager extends Feature {
    * On route change, check if can Go from browser webcontents
    */
   checkCanGo = () => {
-    console.log("NAVIGATE")
+    console.log('NAVIGATE');
     if (this.win && this.win.webContents) {
       const back = this.win.webContents.canGoBack();
       const next = this.win.webContents.canGoForward();

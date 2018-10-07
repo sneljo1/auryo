@@ -1,6 +1,6 @@
 {
+  "extends": "./node_modules/electron-webpack/tsconfig-base.json",
   "compilerOptions": {
-    "outDir": "./dist",
     "allowJs": true,
     "experimentalDecorators": true,
     "removeComments": false,
@@ -29,14 +29,26 @@
       "./node_modules/@types",
       "types"
     ],
+    "sourceRoot": "/",
     "baseUrl": ".",
+    "paths": {
+      "@main/*": [
+        "main/*"
+      ],
+      "@renderer/*": [
+        "renderer/*"
+      ],
+      "@shared/*": [
+        "shared/*"
+      ]
+    }
   },
   "include": [
-    "src/**/*",
+    "src",
     "types"
   ],
   "exclude": [
-    "node_modules",
+    "./node_modules",
     "dist"
   ],
   "formatCodeOptions": {

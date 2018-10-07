@@ -18,4 +18,5 @@ declare module "*.jpeg" {
     export default content;
 }
 
+declare module "electron-window-state";
 

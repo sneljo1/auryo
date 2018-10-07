@@ -1,9 +1,9 @@
 import { Settings, JsonValue, SettingsOptions } from './settings.interface';
-import _ from 'lodash';
+import * as _ from 'lodash';
 
 export class MockSettings implements Partial<Settings> {
   private data: any = {};
-  private filePath: string;
+  private filePath: string = '';
 
   has(keyPath: string) {
     return !!_.get(this.data, keyPath);
