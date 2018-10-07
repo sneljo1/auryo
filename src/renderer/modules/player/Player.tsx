@@ -13,7 +13,6 @@ import { trackSchema } from '../../../common/schemas';
 import { StoreState } from '../../../common/store';
 import { AppState } from '../../../common/store/app';
 import { ConfigState, setConfigKey } from '../../../common/store/config';
-import { EntitiesState } from '../../../common/store/objects';
 import {
     changeTrack,
     ChangeTypes,
@@ -30,6 +29,7 @@ import { getReadableTime, SC } from '../../../common/utils';
 import FallbackImage from '../_shared/FallbackImage';
 import TextShortener from '../_shared/TextShortener';
 import Audio from './components/Audio';
+import { EntitiesState } from '../../../common/store/entities';
 
 interface PropsFromState {
     player: PlayerState;

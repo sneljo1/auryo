@@ -1,21 +1,22 @@
-import { Menu, MenuItem, Popover, Position, MenuDivider } from '@blueprintjs/core';
+import { Menu, MenuDivider, MenuItem, Popover, Position } from '@blueprintjs/core';
 import cn from 'classnames';
-import { denormalize, schema } from 'normalizr';
 import * as React from 'react';
 import { connect, MapDispatchToProps } from 'react-redux';
-import { RouteComponentProps, withRouter } from 'react-router-dom';
+import { RouteComponentProps } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
 import { IMAGE_SIZES } from '../../../common/constants';
-import { playlistSchema, trackSchema } from '../../../common/schemas';
 import { StoreState } from '../../../common/store';
 import { AuthState } from '../../../common/store/auth';
-import { canFetchPlaylistTracks, fetchPlaylistIfNeeded, fetchPlaylistTracks, ObjectState, ObjectTypes } from '../../../common/store/objects';
+import { getPlaylistEntity } from '../../../common/store/entities/selectors';
+import { canFetchPlaylistTracks, fetchPlaylistIfNeeded, fetchPlaylistTracks, ObjectState } from '../../../common/store/objects';
+import { getPlaylistObject } from '../../../common/store/objects/selectors';
 import { addUpNext, PlayerState, PlayerStatus, playTrack, toggleStatus } from '../../../common/store/player';
 import { toggleLike } from '../../../common/store/track/actions';
 import { setScrollPosition } from '../../../common/store/ui';
+import { getPreviousScrollTop } from '../../../common/store/ui/selectors';
 import { getReadableTimeFull, SC } from '../../../common/utils';
 import { IPC } from '../../../common/utils/ipc';
-import { SoundCloud } from '../../../types';
+import { NormalizedResult, SoundCloud } from '../../../types';
 import Header from '../app/components/Header/Header';
 import CustomScroll from '../_shared/CustomScroll';
 import PageHeader from '../_shared/PageHeader/PageHeader';
@@ -31,8 +32,8 @@ interface PropsFromState {
     auth: AuthState;
     player: PlayerState;
     previousScrollTop?: number;
-    playlist: SoundCloud.Playlist;
-    playlistObject: ObjectState<SoundCloud.Track> | null;
+    playlist: SoundCloud.Playlist | null;
+    playlistObject: ObjectState<NormalizedResult> | null;
     playlistIdParam: number;
 }
 
@@ -81,6 +82,8 @@ class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
             toggleStatus
         } = this.props;
 
+        if (!playlist) return null;
+
         const first_id = playlist.tracks[0].id;
 
         if (player.currentPlaylistId === playlistIdParam.toString() && player.status === PlayerStatus.PLAYING) {
@@ -121,19 +124,16 @@ class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
             // Vars
             playlistObject,
             playlist,
-            player,
             auth,
             playlistIdParam,
             // Functions
             toggleLike,
-            playTrack,
-            fetchPlaylistIfNeeded,
             fetchPlaylistTracks,
             canFetchPlaylistTracks,
             addUpNext
         } = this.props;
 
-        const { likes, playlists, followings } = auth;
+        const { likes, playlists } = auth;
 
         if (!playlistObject || !playlist || (playlistObject && playlistObject.items.length === 0 && playlistObject.isFetching)) {
             return <Spinner contained={true} />;
@@ -277,13 +277,8 @@ class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
                         </div>
                     ) : (
                             <TracksGrid
-                                followings={followings}
                                 items={playlistObject.items}
-                                playingTrack={player.playingTrack}
-                                currentPlaylistId={player.currentPlaylistId}
                                 objectId={playlistIdParam.toString()}
-                                playTrack={playTrack}
-                                fetchPlaylistIfNeeded={fetchPlaylistIfNeeded}
                             />
 
                         )
@@ -294,32 +289,17 @@ class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
 }
 
 const mapStateToProps = (state: StoreState, props: OwnProps): PropsFromState => {
-    const { entities, objects, player, auth, ui } = state;
+    const { player, auth } = state;
 
-    const { match: { params: { playlistId } }, location, history } = props;
-
-    const playlistObjects = objects[ObjectTypes.PLAYLISTS] || {};
-    const playlistObject = playlistObjects[playlistId];
-
-    const playlist = denormalize(playlistId, playlistSchema, entities);
-
-    let dPlaylistObject: ObjectState<SoundCloud.Track> | null = null;
-
-    if (playlistObject) {
-        dPlaylistObject = denormalize(playlistObject, new schema.Object({
-            items: new schema.Array({
-                tracks: trackSchema
-            }, (input) => `${input.kind}s`)
-        }), entities);
-    }
+    const { match: { params: { playlistId } } } = props;
 
     return {
         auth,
         player,
-        playlist,
-        playlistObject: dPlaylistObject,
+        playlist: getPlaylistEntity(+playlistId)(state),
+        playlistObject: getPlaylistObject(playlistId)(state),
         playlistIdParam: +playlistId,
-        previousScrollTop: history.action === 'POP' ? ui.scrollPosition[location.pathname] : undefined
+        previousScrollTop: getPreviousScrollTop(state)
     };
 };
 
@@ -334,4 +314,4 @@ const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, OwnProps> = (dis
     toggleStatus,
 }, dispatch);
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(PlaylistContainer));
+export default connect(mapStateToProps, mapDispatchToProps)(PlaylistContainer);

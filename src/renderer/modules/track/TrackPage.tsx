@@ -3,22 +3,25 @@ import cn from 'classnames';
 import { denormalize, schema } from 'normalizr';
 import * as React from 'react';
 import { connect, MapDispatchToProps } from 'react-redux';
-import { RouteComponentProps, withRouter } from 'react-router-dom';
+import { RouteComponentProps } from 'react-router-dom';
 import { Col, Row, TabContent, TabPane } from 'reactstrap';
 import { bindActionCreators } from 'redux';
-import { IMAGE_SIZES, RELATED_PLAYLIST_SUFFIX } from '../../../common/constants';
-import { commentSchema, playlistSchema } from '../../../common/schemas';
-import trackSchema from '../../../common/schemas/track';
+import { IMAGE_SIZES } from '../../../common/constants';
+import { playlistSchema } from '../../../common/schemas';
 import { StoreState } from '../../../common/store';
 import { AuthState, toggleFollowing } from '../../../common/store/auth';
-import { canFetchMoreOf, EntitiesState, fetchMore, ObjectState, ObjectTypes } from '../../../common/store/objects';
+import { EntitiesState } from '../../../common/store/entities';
+import { getTrackEntity } from '../../../common/store/entities/selectors';
+import { canFetchMoreOf, fetchMore, ObjectState, ObjectTypes, PlaylistTypes } from '../../../common/store/objects';
+import { getCommentObject, getPlaylistName, getRelatedTracksPlaylistObject } from '../../../common/store/objects/selectors';
 import { addUpNext, PlayerState, playTrack } from '../../../common/store/player';
 import { togglePlaylistTrack } from '../../../common/store/playlist/playlist';
 import { fetchTrackIfNeeded, toggleLike, toggleRepost } from '../../../common/store/track/actions';
 import { setScrollPosition } from '../../../common/store/ui';
+import { getPreviousScrollTop } from '../../../common/store/ui/selectors';
 import { isCurrentPlaylistPlaying, SC } from '../../../common/utils';
 import { IPC } from '../../../common/utils/ipc';
-import { SoundCloud } from '../../../types';
+import { NormalizedResult, SoundCloud } from '../../../types';
 import Header from '../app/components/Header/Header';
 import CustomScroll from '../_shared/CustomScroll';
 import FallbackImage from '../_shared/FallbackImage';
@@ -38,8 +41,8 @@ interface PropsFromState {
     player: PlayerState;
     relatedPlaylistId: string;
     auth: AuthState;
-    relatedTracks: ObjectState<SoundCloud.Track> | null;
-    comments: ObjectState<SoundCloud.Comment> | null;
+    relatedTracks: ObjectState<NormalizedResult> | null;
+    comments: ObjectState<NormalizedResult> | null;
     previousScrollTop?: number;
     track: SoundCloud.Track | null;
     songIdParam: number;
@@ -146,7 +149,7 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
     render() {
         const {
             // Vars
-            auth: { likes, followings, reposts },
+            auth: { likes, reposts },
             player,
             relatedPlaylistId,
             comments,
@@ -154,8 +157,6 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
             track,
 
             // Functions
-            toggleFollowing,
-            playTrack,
             userPlaylists,
             toggleLike,
             toggleRepost,
@@ -168,7 +169,6 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
 
         const liked = SC.hasID(track.id, likes.track);
         const reposted = SC.hasID(track.id, reposts);
-        const following = SC.hasID(track.user_id, followings);
 
         const playlistPlaying = isCurrentPlaylistPlaying(player, relatedPlaylistId);
 
@@ -358,8 +358,6 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
                         <TabPane tabId={TabTypes.OVERVIEW} className='overview'>
                             <TrackOverview
                                 track={track}
-                                following={following}
-                                toggleFollowing={toggleFollowing}
                                 comments={comments}
                             />
                         </TabPane>
@@ -373,9 +371,6 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
                                         objectId={relatedPlaylistId}
                                         items={relatedTracks.items}
                                         hideFirstTrack={true}
-                                        playingTrack={player.playingTrack}
-
-                                        playTrack={playTrack}
                                     />
                                 )
                             }
@@ -389,54 +384,22 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
 }
 
 const mapStateToProps = (state: StoreState, props: OwnProps): PropsFromState => {
-    const { location, history } = props;
     const { songId } = props.match.params;
-    const { entities, player, objects, auth, ui } = state;
-
-    const playlistObjects = objects[ObjectTypes.PLAYLISTS] || {};
-    const commentObjects = objects[ObjectTypes.COMMENTS] || {};
-
-    const relatedPlaylistId = songId + RELATED_PLAYLIST_SUFFIX;
-    const relatedTracksObject = playlistObjects[relatedPlaylistId];
-    const commentsObject = commentObjects[songId];
-
-    let dRelatedTracksObject: ObjectState<SoundCloud.Track> | null = null;
-
-
-    if (relatedTracksObject) {
-        dRelatedTracksObject = denormalize(relatedTracksObject, new schema.Object({
-            items: new schema.Array({
-                tracks: trackSchema
-            }, (input) => `${input.kind}s`)
-        }), entities);
-    }
-
-    let dcommentsObject: ObjectState<SoundCloud.Comment> | null = null;
-
-    if (commentsObject) {
-        dcommentsObject = denormalize(commentsObject, new schema.Object({
-            items: new schema.Array({
-                comments: commentSchema
-            }, (input) => `${input.kind}s`)
-        }), entities);
-    }
+    const { entities, player, auth } = state;
 
     const userPlaylists = denormalize(auth.playlists, new schema.Array({ playlists: playlistSchema }, (input) => `${input.kind}s`), entities);
-
-    const track = denormalize(songId, trackSchema, entities);
-
 
     return {
         entities,
         player,
-        relatedPlaylistId,
+        relatedPlaylistId: getPlaylistName(songId, PlaylistTypes.RELATED),
         auth,
-        track,
+        track: getTrackEntity(+songId)(state),
         userPlaylists,
         songIdParam: +songId,
-        relatedTracks: dRelatedTracksObject,
-        comments: dcommentsObject,
-        previousScrollTop: history.action === 'POP' ? ui.scrollPosition[location.pathname] : undefined
+        relatedTracks: getRelatedTracksPlaylistObject(songId)(state),
+        comments: getCommentObject(songId)(state),
+        previousScrollTop: getPreviousScrollTop(state)
     };
 };
 
@@ -453,4 +416,4 @@ const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, OwnProps> = (dis
     togglePlaylistTrack
 }, dispatch);
 
-export default withRouter(connect<PropsFromState, PropsFromDispatch, OwnProps, StoreState>(mapStateToProps, mapDispatchToProps)(TrackPage));
+export default connect<PropsFromState, PropsFromDispatch, OwnProps, StoreState>(mapStateToProps, mapDispatchToProps)(TrackPage);

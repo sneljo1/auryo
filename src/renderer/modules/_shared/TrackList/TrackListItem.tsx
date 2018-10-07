@@ -1,41 +1,51 @@
 import cn from 'classnames';
 import * as React from 'react';
+import { connect, MapDispatchToProps } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { bindActionCreators } from 'redux';
 import { IMAGE_SIZES } from '../../../../common/constants';
+import { StoreState } from '../../../../common/store';
+import {  playTrack } from '../../../../common/store/player';
 import { abbreviate_number, getReadableTime, SC } from '../../../../common/utils';
-import { SoundCloud } from '../../../../types';
+import { NormalizedResult, SoundCloud } from '../../../../types';
 import ActionsDropdown from '../ActionsDropdown';
 import FallbackImage from '../FallbackImage';
 import TextShortener from '../TextShortener';
 import TogglePlayButton from '../TogglePlayButton';
+import { isPlaying } from '../../../../common/store/player/selectors';
+import { getTrackEntity } from '../../../../common/store/entities/selectors';
 
-interface Props {
-    track: SoundCloud.Track;
-    isPlaying: boolean;
-
-    playTrackFunc: (event: React.MouseEvent<any>, double?: boolean) => void;
+interface OwnProps {
+    idResult: NormalizedResult;
+    currentPlaylistId: string;
 }
 
-class TrackListItem extends React.Component<Props> {
+interface PropsFromState {
+    track: SoundCloud.Track | null;
+    isPlaying: boolean;
+}
 
-    shouldComponentUpdate(nextProps: Props) {
+interface PropsFromDispatch {
+    playTrack: typeof playTrack;
+}
 
-        const { track, isPlaying } = this.props;
+type AllProps = OwnProps & PropsFromState & PropsFromDispatch;
 
-        if (nextProps.track.id !== track.id) {
-            return true;
+class TrackListItem extends React.PureComponent<AllProps> {
+
+    playTrack(doubleClick: boolean, e: React.MouseEvent<any>) {
+        const { playTrack, currentPlaylistId, idResult } = this.props;
+
+        if (doubleClick) {
+            e.preventDefault();
         }
 
-        if (nextProps.isPlaying !== isPlaying) {
-            return true;
-        }
-
-        return false;
+        playTrack(currentPlaylistId, { id: idResult.id });
 
     }
 
     renderToggleButton = () => {
-        const { isPlaying, playTrackFunc } = this.props;
+        const { isPlaying } = this.props;
 
         if (isPlaying) {
             return <TogglePlayButton className='toggleButton' />;
@@ -49,7 +59,7 @@ class TrackListItem extends React.Component<Props> {
                 href='javascript:void(0)'
                 className='toggleButton'
                 onClick={(e) => {
-                    playTrackFunc(e, true);
+                    this.playTrack(true, e);
                 }}
             >
                 <i className={`icon-${icon}`} />
@@ -61,16 +71,15 @@ class TrackListItem extends React.Component<Props> {
         const {
             track,
             isPlaying,
-            playTrackFunc
         } = this.props;
 
-        if (!track.title) return null;
+        if (!track || !track.title) return null;
 
         return (
             <tr
                 className={cn('trackItem', { isPlaying })}
                 onDoubleClick={(e) => {
-                    playTrackFunc(e);
+                    this.playTrack(false, e);
                 }}
             >
                 <td>
@@ -117,4 +126,18 @@ class TrackListItem extends React.Component<Props> {
     }
 }
 
-export default TrackListItem;
+
+const mapStateToProps = (state: StoreState, props: OwnProps): PropsFromState => {
+    const { idResult, currentPlaylistId } = props;
+
+    return {
+        isPlaying: isPlaying(idResult, currentPlaylistId)(state),
+        track: getTrackEntity(idResult.id)(state)
+    };
+};
+
+const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, OwnProps> = (dispatch) => bindActionCreators({
+    playTrack
+}, dispatch);
+
+export default connect<PropsFromState, PropsFromDispatch, OwnProps, StoreState>(mapStateToProps, mapDispatchToProps)(TrackListItem);

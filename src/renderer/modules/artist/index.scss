@@ -12,7 +12,7 @@
 
 .artistSide {
   background: #F5F5F5;
-  padding: 30px 50px;
+  padding: 30px 30px;
   font-size: .9rem;
   .artistInfo {
     padding: 10px;
@@ -38,8 +38,8 @@
 
 .artistStats {
   list-style-type: none;
-  padding: 0 0 20px 0;
-  color: #fff;
+  padding: 0;
+  color:#999;
 
   li {
     padding: 0 10px;
@@ -48,10 +48,11 @@
   span {
     display: block;
     &:first-child {
-      font-size: 1.5rem;
+      font-size: 1.2rem;
+      color:#797979;
     }
     &:last-child {
-      font-size: 1.1rem;
+      font-size: .9rem;
       font-weight: 400;
     }
   }

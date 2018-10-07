@@ -8,7 +8,7 @@ export interface GetPlaylistOptions {
     appendId?: number | null;
 }
 
-export interface NormalizedResult { schema: 'users' | 'tracks' | 'playlists'; id: number; }
+export interface NormalizedResult { schema: 'users' | 'tracks' | 'playlists' | 'comments'; id: number; }
 
 export interface NormalizedResponse {
     entities: NormalizedEntities;

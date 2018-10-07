@@ -1,16 +1,16 @@
+import { Intent } from '@blueprintjs/core';
 import * as moment from 'moment';
 import { toastr } from 'react-redux-toastr';
 import { ThunkResult } from '../../../types';
 import fetchTrack from '../../api/fetchTrack';
 import fetchToJson from '../../api/helpers/fetchToJson';
-import { RELATED_PLAYLIST_SUFFIX } from '../../constants';
 import { SC } from '../../utils';
 import { IPC } from '../../utils/ipc';
 import { AuthActionTypes } from '../auth';
-import { getComments, getPlaylist, ObjectTypes } from '../objects';
-import { TrackActionTypes } from './types';
+import {  getComments, getPlaylist, PlaylistTypes } from '../objects';
 import { addToast } from '../ui';
-import { Intent } from '@blueprintjs/core';
+import { TrackActionTypes } from './types';
+import { getPlaylistName, getRelatedTracksPlaylistObject, getCommentObject } from '../objects/selectors';
 
 export function toggleLike(trackId: number, playlist: boolean = false): ThunkResult<any> {
     return (dispatch, getState) => {
@@ -105,10 +105,9 @@ export function toggleRepost(trackId: number, playlist: boolean = false): ThunkR
 
 export function fetchTrackIfNeeded(trackId: number): ThunkResult<any> {
     return (dispatch, getState) => {
-        const { entities: { trackEntities }, objects } = getState();
-        const playlists = objects[ObjectTypes.PLAYLISTS] || {};
-        const comments = objects[ObjectTypes.COMMENTS] || {};
-        const current_playlist = String(trackId + RELATED_PLAYLIST_SUFFIX);
+        const state = getState();
+        const { entities: { trackEntities } } = state;
+        const relatedTracksPlaylistId = getPlaylistName(trackId.toString(), PlaylistTypes.RELATED);
 
         const track = trackEntities[trackId];
 
@@ -116,13 +115,11 @@ export function fetchTrackIfNeeded(trackId: number): ThunkResult<any> {
             dispatch(getTrack(trackId));
         }
 
-        if (!(current_playlist in playlists)) {
-            dispatch(getPlaylist(SC.getRelatedUrl(trackId), trackId + RELATED_PLAYLIST_SUFFIX, { appendId: trackId }));
+        if (!getRelatedTracksPlaylistObject(trackId.toString())(state)) {
+            dispatch(getPlaylist(SC.getRelatedUrl(trackId), relatedTracksPlaylistId, { appendId: trackId }));
         }
 
-        const comment = comments[trackId];
-
-        if (!comment) {
+        if (!getCommentObject(trackId.toString())(state)) {
             dispatch(getComments(trackId));
         }
 

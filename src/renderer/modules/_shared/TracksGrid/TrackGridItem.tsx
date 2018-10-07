@@ -1,68 +1,71 @@
 
 import cn from 'classnames';
 import * as React from 'react';
+import { connect, MapDispatchToProps } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { IMAGE_SIZES } from '../../../../common/constants';
+import { StoreState } from '../../../../common/store';
 import { abbreviate_number, SC } from '../../../../common/utils';
 import { getReadableTime } from '../../../../common/utils/appUtils';
-import { SoundCloud } from '../../../../types';
+import { NormalizedResult, SoundCloud } from '../../../../types';
 import ActionsDropdown from '../ActionsDropdown';
 import FallbackImage from '../FallbackImage';
 import TextShortener from '../TextShortener';
 import TogglePlayButton from '../TogglePlayButton';
+import { playTrack } from '../../../../common/store/player';
+import { fetchPlaylistIfNeeded } from '../../../../common/store/objects';
+import { bindActionCreators } from 'redux';
+import { isPlaying } from '../../../../common/store/player/selectors';
+import { getMusicEntity } from '../../../../common/store/entities/selectors';
 
-
-interface Props {
-    track: SoundCloud.Music;
+interface OwnProps {
+    idResult: NormalizedResult;
     isPlaying: boolean;
+    currentPlaylistId: string;
     showInfo?: boolean;
     showReposts: boolean;
-
-    fetchPlaylistIfNeededFunc: () => void;
-    playTrackFunc: () => void;
 }
 
-class TrackGridItem extends React.Component<Props> {
+interface PropsFromState {
+    isPlaying: boolean;
+    track: SoundCloud.Music | null;
+}
 
-    static defaultProps: Partial<Props> = {
+interface PropsFromDispatch {
+    playTrack: typeof playTrack;
+    fetchPlaylistIfNeeded: typeof fetchPlaylistIfNeeded;
+}
+
+type AllProps = OwnProps & PropsFromState & PropsFromDispatch;
+
+class TrackGridItem extends React.PureComponent<AllProps> {
+
+    static defaultProps: Partial<AllProps> = {
         showInfo: false
     };
 
     componentDidMount() {
-        const { track, fetchPlaylistIfNeededFunc } = this.props;
+        const { track, fetchPlaylistIfNeeded } = this.props;
 
-        if (track.kind === 'playlist' && track.track_count && !track.tracks) {
-            fetchPlaylistIfNeededFunc();
+        if (track && track.kind === 'playlist' && track.track_count && !track.tracks) {
+            fetchPlaylistIfNeeded(track.id);
         }
     }
 
-    componentWillReceiveProps(nextProps: Props) {
-        const { track, fetchPlaylistIfNeededFunc } = this.props;
+    componentWillReceiveProps(nextProps: AllProps) {
+        const { track, fetchPlaylistIfNeeded } = this.props;
 
-        if (nextProps.track.id !== track.id) {
+        if ((track === null && nextProps.track != null) || (nextProps.track && track && nextProps.track.id !== track.id)) {
             if (nextProps.track.kind === 'playlist' && nextProps.track.track_count && !nextProps.track.tracks) {
-                fetchPlaylistIfNeededFunc();
+                fetchPlaylistIfNeeded(nextProps.track.id);
             }
         }
     }
 
-    // shouldComponentUpdate(nextProps: Props) {
-    //     const { track, isPlaying } = this.props
-
-    //     if (nextProps.track.id !== track.id) {
-    //         return true
-    //     }
-
-    //     if (nextProps.isPlaying !== isPlaying) {
-    //         return true
-    //     }
-
-    //     return false
-
-    // }
-
     renderArtist = () => {
         const { track, showReposts } = this.props;
+
+        if (!track) return null;
 
         if (track.from_user && showReposts) {
             return (
@@ -91,7 +94,9 @@ class TrackGridItem extends React.Component<Props> {
     }
 
     renderToggleButton = () => {
-        const { isPlaying, playTrackFunc } = this.props;
+        const { isPlaying, playTrack, currentPlaylistId, track } = this.props;
+
+        if (!track) return null;
 
         if (isPlaying) {
             return <TogglePlayButton className='toggleButton minimal' />;
@@ -100,7 +105,13 @@ class TrackGridItem extends React.Component<Props> {
         const icon = isPlaying ? 'pause' : 'play_arrow';
 
         return (
-            <a href='javascript:void(0)' className='toggleButton minimal' onClick={playTrackFunc}>
+            <a
+                href='javascript:void(0)'
+                className='toggleButton minimal'
+                onClick={() => {
+                    playTrack(currentPlaylistId, { id: track.id });
+                }}
+            >
                 <i className={`icon-${icon}`} />
             </a>
         );
@@ -108,6 +119,8 @@ class TrackGridItem extends React.Component<Props> {
 
     renderStats() {
         const { track, showInfo } = this.props;
+
+        if (!track) return null;
 
         return (
             <div className='trackFooter d-flex justify-content-between align-items-center'>
@@ -144,6 +157,8 @@ class TrackGridItem extends React.Component<Props> {
 
     renderInfo() {
         const { track } = this.props;
+
+        if (!track) return null;
 
         const object_url = (track.kind === 'playlist' ? '/playlist/' : '/track/') + track.id;
 
@@ -189,6 +204,8 @@ class TrackGridItem extends React.Component<Props> {
         } = this.props;
 
         const image = SC.getImageUrl(track, IMAGE_SIZES.LARGE);
+
+        if (!track) return null;
 
         return (
             <div
@@ -245,4 +262,18 @@ class TrackGridItem extends React.Component<Props> {
     }
 }
 
-export default TrackGridItem;
+const mapStateToProps = (state: StoreState, props: OwnProps): PropsFromState => {
+    const { idResult, currentPlaylistId } = props;
+
+    return {
+        isPlaying: isPlaying(idResult, currentPlaylistId)(state),
+        track: getMusicEntity(idResult)(state)
+    };
+};
+
+const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, OwnProps> = (dispatch) => bindActionCreators({
+    playTrack,
+    fetchPlaylistIfNeeded
+}, dispatch);
+
+export default connect<PropsFromState, PropsFromDispatch, OwnProps, StoreState>(mapStateToProps, mapDispatchToProps)(TrackGridItem);

@@ -1,10 +1,16 @@
-import { SoundCloud, Normalized, NormalizedResult } from '../../../types';
+import { NormalizedResult } from '../../../types';
 
 // TYPES
 
 export enum ObjectTypes {
     PLAYLISTS = 'PLAYLISTS',
     COMMENTS = 'COMMENTS',
+}
+
+export enum PlaylistTypes {
+    RELATED = 'RELATED',
+    ARTIST_LIKES = 'ARTIST_LIKES',
+    ARTIST_TRACKS = 'ARTIST_TRACKS',
 }
 
 export interface ObjectsState extends Readonly<{
@@ -25,21 +31,6 @@ export interface ObjectState<T> {
     nextUrl: string | null;
     fetchedItems: number;
 }
-
-export interface EntitiesState extends Readonly<{
-    playlistEntities: {
-        [playlistId: number]: Normalized.Playlist
-    },
-    trackEntities: {
-        [trackId: number]: Normalized.Track
-    },
-    userEntities: {
-        [userId: number]: SoundCloud.User
-    },
-    commentEntities: {
-        [commentId: number]: SoundCloud.Comment
-    }
-}> { }
 
 // ACTIONS
 

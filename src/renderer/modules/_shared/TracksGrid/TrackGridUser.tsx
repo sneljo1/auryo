@@ -1,45 +1,50 @@
 import cn from 'classnames';
-import { isEqual } from 'lodash';
 import * as React from 'react';
+import { connect, MapDispatchToProps } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { bindActionCreators } from 'redux';
 import { IMAGE_SIZES } from '../../../../common/constants';
+import { StoreState } from '../../../../common/store';
+import { isFollowing, toggleFollowing } from '../../../../common/store/auth';
 import { abbreviate_number, SC } from '../../../../common/utils';
-import { SoundCloud } from '../../../../types';
+import { NormalizedResult, SoundCloud } from '../../../../types';
 import FallbackImage from '../FallbackImage';
+import { getUserEntity } from '../../../../common/store/entities/selectors';
 
-interface Props {
-    user: SoundCloud.User;
-    isFollowing?: boolean;
+interface OwnProps {
+    idResult: NormalizedResult;
     withStats?: boolean;
-
-    toggleFollowingFunc: () => void;
 }
 
-class TrackGridUser extends React.Component<Props> {
+interface PropsFromState {
+    user: SoundCloud.User | null;
+    isFollowing: boolean;
+}
 
-    static defaultProps: Partial<Props> = {
+interface PropsFromDispatch {
+    toggleFollowing: typeof toggleFollowing;
+}
+
+type AllProps = OwnProps & PropsFromState & PropsFromDispatch;
+
+class TrackGridUser extends React.PureComponent<AllProps> {
+
+    static defaultProps: Partial<AllProps> = {
         withStats: false,
-        isFollowing: false
     };
-
-    shouldComponentUpdate(nextProps: Props) {
-        const { user, isFollowing } = this.props;
-
-        if (!isEqual(user, nextProps.user) ||
-            isFollowing !== nextProps.isFollowing) {
-            return true;
-        }
-        return false;
-    }
 
     render() {
 
         const {
-            user: { id, username, avatar_url, followers_count, track_count },
+            user,
             isFollowing,
-            toggleFollowingFunc,
+            toggleFollowing,
             withStats
         } = this.props;
+
+        if (!user) return null;
+
+        const { id, username, avatar_url, followers_count, track_count } = user;
 
         const img_url = SC.getImageUrl(avatar_url, IMAGE_SIZES.SMALL);
 
@@ -67,7 +72,9 @@ class TrackGridUser extends React.Component<Props> {
                             <a
                                 href='javascript:void(0)'
                                 className={cn('c_btn outline', { following: isFollowing })}
-                                onClick={toggleFollowingFunc}
+                                onClick={() => {
+                                    toggleFollowing(id);
+                                }}
                             >
                                 {isFollowing ? <i className='icon-check' /> : <i className='icon-add' />}
                                 <span>{isFollowing ? 'Following' : 'Follow'}</span>
@@ -80,4 +87,17 @@ class TrackGridUser extends React.Component<Props> {
     }
 }
 
-export default TrackGridUser;
+const mapStateToProps = (state: StoreState, props: OwnProps): PropsFromState => {
+    const { idResult } = props;
+
+    return {
+        isFollowing: isFollowing(idResult.id)(state),
+        user: getUserEntity(idResult.id)(state)
+    };
+};
+
+const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, OwnProps> = (dispatch) => bindActionCreators({
+    toggleFollowing,
+}, dispatch);
+
+export default connect<PropsFromState, PropsFromDispatch, OwnProps, StoreState>(mapStateToProps, mapDispatchToProps)(TrackGridUser);

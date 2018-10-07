@@ -1,24 +1,21 @@
-import TrackGridUser from '../../_shared/TracksGrid/TrackGridUser';
-import * as React from 'react';
 import * as moment from 'moment';
-import { SoundCloud } from '../../../../types';
-import { abbreviate_number } from '../../../../common/utils';
-import ToggleMore from '../../_shared/ToggleMore';
-import Linkify from '../../_shared/Linkify';
-import CommentList from '../../_shared/CommentList/CommentList';
-import { toggleFollowing } from '../../../../common/store/auth';
+import * as React from 'react';
 import { ObjectState } from '../../../../common/store/objects';
+import { abbreviate_number } from '../../../../common/utils';
+import { SoundCloud, NormalizedResult } from '../../../../types';
+import CommentList from '../../_shared/CommentList/CommentList';
+import Linkify from '../../_shared/Linkify';
+import ToggleMore from '../../_shared/ToggleMore';
+import TrackGridUser from '../../_shared/TracksGrid/TrackGridUser';
 
 interface Props {
     track: SoundCloud.Track;
-    following: boolean;
-    toggleFollowing: typeof toggleFollowing;
-    comments: ObjectState<SoundCloud.Comment> | null;
+    comments: ObjectState<NormalizedResult> | null;
 }
 
 export default class TrackOverview extends React.PureComponent<Props> {
     render() {
-        const { track, following, toggleFollowing, comments } = this.props;
+        const { track, comments } = this.props;
 
         const tags = track.tag_list
             .split(/\s(?=(?:[^'"`]*(['"`])[^'"`]*\1)*[^'"`]*$)/g)
@@ -36,11 +33,7 @@ export default class TrackOverview extends React.PureComponent<Props> {
                     <div className='row'>
                         <div className='col-6 col-lg-12'>
                             <TrackGridUser
-                                isFollowing={following}
-                                user={track.user as SoundCloud.User} // TODO check if compact user
-                                toggleFollowingFunc={() => {
-                                    toggleFollowing(track.user.id);
-                                }}
+                                idResult={{ id: track.user_id, schema: 'users' }}
                             />
                         </div>
 

@@ -1,32 +1,33 @@
-import { isEqual } from 'lodash';
 import * as moment from 'moment';
 import * as React from 'react';
+import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Col, Row } from 'reactstrap';
 import fallback_url from '../../../../assets/img/avatar_placeholder.jpg';
 import { IMAGE_SIZES } from '../../../../common/constants';
+import { StoreState } from '../../../../common/store';
 import { SC } from '../../../../common/utils';
-import { SoundCloud } from '../../../../types';
+import { NormalizedResult, SoundCloud } from '../../../../types';
 import FallbackImage from '../FallbackImage';
 import Linkify from '../Linkify';
+import { getCommentEntity } from '../../../../common/store/entities/selectors';
 
-interface Props {
-    comment: SoundCloud.Comment;
+interface OwnProps {
+    idResult: NormalizedResult;
 }
 
-class CommentListItem extends React.Component<Props> {
+interface PropsFromState {
+    comment: SoundCloud.Comment | null;
+}
 
-    shouldComponentUpdate(nextProps: Props) {
-        const { comment } = this.props;
+type AllProps = OwnProps & PropsFromState;
 
-        if (!isEqual(comment, nextProps.comment)) {
-            return true;
-        }
-        return false;
-    }
+class CommentListItem extends React.PureComponent<AllProps> {
 
     render() {
         const { comment } = this.props;
+
+        if (!comment) return null;
 
         const img = SC.getImageUrl(comment.user.avatar_url, IMAGE_SIZES.XSMALL);
 
@@ -54,4 +55,8 @@ class CommentListItem extends React.Component<Props> {
     }
 }
 
-export default CommentListItem;
+const mapStateToProps = (state: StoreState, { idResult }: OwnProps): PropsFromState => ({
+    comment: getCommentEntity(idResult.id)(state)
+});
+
+export default connect<PropsFromState, {}, OwnProps, StoreState>(mapStateToProps)(CommentListItem);

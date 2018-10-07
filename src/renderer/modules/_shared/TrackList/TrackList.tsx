@@ -1,62 +1,31 @@
-import { isEqual } from 'lodash';
 import * as React from 'react';
 import * as ReactList from 'react-list';
-import { PlayingTrack, playTrack } from '../../../../common/store/player';
-import { SoundCloud } from '../../../../types';
+import { NormalizedResult } from '../../../../types';
 import TrackListItem from './TrackListItem';
 
 interface Props {
-    items: Array<SoundCloud.Track>;
-    playingTrack: PlayingTrack | null;
+    items: Array<NormalizedResult>;
     objectId: string;
     hideFirstTrack?: boolean;
-
-    playTrack: typeof playTrack;
 }
 
-class TrackList extends React.Component<Props> {
-
-    shouldComponentUpdate(nextProps: Props) {
-        const { playingTrack, objectId, items } = this.props;
-
-        return !isEqual(playingTrack, nextProps.playingTrack) ||
-            !isEqual(items, nextProps.items) ||
-            !isEqual(objectId, nextProps.objectId);
-    }
-
-    playTrack(id: number, doubleClick: boolean, e: React.MouseEvent<any>) {
-        const { playTrack, objectId } = this.props;
-
-        if (doubleClick) {
-            e.preventDefault();
-        }
-
-        playTrack(objectId, { id });
-
-    }
+class TrackList extends React.PureComponent<Props> {
 
     renderItem = (index: number) => {
         const {
             items,
-            playingTrack
+            objectId,
         } = this.props;
 
-        const track = items[index];
-
-        if (!track || (track && track.loading && track.error)) {
-            return null;
-        }
+        const item = items[index];
 
         console.log('tracklistitem render');
 
         return (
             <TrackListItem
-                key={`track-list-${track.id}`}
-                track={track}
-                isPlaying={!!playingTrack && track.id === playingTrack.id}
-                playTrackFunc={(e, double) => {
-                    this.playTrack(track.id, double || false, e);
-                }}
+                key={`track-list-${item.id}`}
+                currentPlaylistId={objectId}
+                idResult={item}
             />
         );
     }
@@ -78,7 +47,9 @@ class TrackList extends React.Component<Props> {
                     <th className='trackitemActions row-actions' />
                 </tr>
             </thead>
-            <tbody ref={ref}>{items}</tbody>
+            <tbody ref={ref}>
+                {items}
+            </tbody>
         </table>
     )
 

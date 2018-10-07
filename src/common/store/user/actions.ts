@@ -1,17 +1,17 @@
 import { SoundCloud, ThunkResult } from '../../../types';
 import fetchToJson from '../../api/helpers/fetchToJson';
-import { USER_LIKES_SUFFIX, USER_TRACKS_PLAYLIST_SUFFIX } from '../../constants';
 import { SC } from '../../utils';
-import { ObjectTypes } from '../objects';
+import { PlaylistTypes } from '../objects';
 import { getPlaylist } from '../objects/actions';
+import { getArtistLikesPlaylistObject, getArtistTracksPlaylistObject, getPlaylistName } from '../objects/selectors';
 import { UserActionTypes } from './types';
 
 
 export function fetchArtistIfNeeded(userId: number): ThunkResult<any> {
     return (dispatch, getState) => {
-        const { entities, objects } = getState();
+        const state = getState();
+        const { entities } = state;
         const { userEntities } = entities;
-        const playlistObjects = objects[ObjectTypes.PLAYLISTS];
 
         const user = userEntities[userId];
 
@@ -23,18 +23,12 @@ export function fetchArtistIfNeeded(userId: number): ThunkResult<any> {
             dispatch(getUserProfiles(userId));
         }
 
-        const tracksPlaylistId = userId + USER_TRACKS_PLAYLIST_SUFFIX;
-        const tracksPlaylist = playlistObjects[tracksPlaylistId];
-
-        if (!tracksPlaylist) {
-            dispatch(getPlaylist(SC.getUserTracksUrl(userId), tracksPlaylistId));
+        if (!getArtistTracksPlaylistObject(userId.toString())(state)) {
+            dispatch(getPlaylist(SC.getUserTracksUrl(userId), getPlaylistName(userId.toString(), PlaylistTypes.ARTIST_TRACKS)));
         }
 
-        const likesPlaylistId = userId + USER_LIKES_SUFFIX;
-        const likesPlaylist = playlistObjects[tracksPlaylistId];
-
-        if (!likesPlaylist) {
-            dispatch(getPlaylist(SC.getUserLikesUrl(userId), likesPlaylistId));
+        if (!getArtistLikesPlaylistObject(userId.toString())(state)) {
+            dispatch(getPlaylist(SC.getUserLikesUrl(userId), getPlaylistName(userId.toString(), PlaylistTypes.ARTIST_LIKES)));
         }
     };
 }

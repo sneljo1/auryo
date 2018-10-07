@@ -1,19 +1,18 @@
 import cn from 'classnames';
-import { denormalize, schema } from 'normalizr';
 import * as React from 'react';
 import { connect, MapDispatchToProps } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
 import { PLAYLISTS } from '../../../common/constants';
-import playlistSchema from '../../../common/schemas/playlist';
-import trackSchema from '../../../common/schemas/track';
 import { StoreState } from '../../../common/store';
 import { AuthState, getAuthAllPlaylistsIfNeeded, getAuthLikesIfNeeded, getAuthTracksIfNeeded } from '../../../common/store/auth';
-import { fetchChartsIfNeeded, fetchMore, fetchPlaylistIfNeeded, ObjectState, ObjectTypes } from '../../../common/store/objects';
-import { PlayerState, playTrack } from '../../../common/store/player';
+import { fetchChartsIfNeeded, fetchMore, ObjectState, ObjectTypes } from '../../../common/store/objects';
+import { getPlaylistObject } from '../../../common/store/objects/selectors';
+import { PlayerState } from '../../../common/store/player';
 import { SortTypes } from '../../../common/store/playlist/types';
 import { setScrollPosition } from '../../../common/store/ui';
-import { SoundCloud } from '../../../types';
+import { getPreviousScrollTop } from '../../../common/store/ui/selectors';
+import { NormalizedResult } from '../../../types';
 import Header from '../app/components/Header/Header';
 import CustomScroll from '../_shared/CustomScroll';
 import PageHeader from '../_shared/PageHeader/PageHeader';
@@ -35,13 +34,11 @@ interface OwnProps extends RouteComponentProps<{}> {
 interface PropsFromState {
     auth: AuthState;
     player: PlayerState;
-    playlistObject: ObjectState<SoundCloud.Music> | null;
+    playlistObject: ObjectState<NormalizedResult> | null;
     previousScrollTop?: number;
 }
 
 interface PropsFromDispatch {
-    playTrack: typeof playTrack;
-    fetchPlaylistIfNeeded: typeof fetchPlaylistIfNeeded;
     fetchMore: typeof fetchMore;
     setScrollPosition: typeof setScrollPosition;
     fetchChartsIfNeeded: typeof fetchChartsIfNeeded;
@@ -139,14 +136,9 @@ class PlayListPage extends WithHeaderComponent<AllProps, State> {
             objectId,
             showInfo,
             title,
-            player,
-            auth: { followings },
             chart,
             backgroundImage,
             gradient,
-            // Functions
-            playTrack,
-            fetchPlaylistIfNeeded,
             fetchMore,
         } = this.props;
 
@@ -193,18 +185,11 @@ class PlayListPage extends WithHeaderComponent<AllProps, State> {
                             </div>
                         </div>
                     ) : (
-                            <div>
-                                <TracksGrid
-                                    followings={followings}
-                                    items={playlistObject.items}
-                                    playingTrack={player.playingTrack}
-                                    currentPlaylistId={player.currentPlaylistId}
-                                    objectId={objectId}
-                                    showInfo={showInfo}
-                                    playTrack={playTrack}
-                                    fetchPlaylistIfNeeded={fetchPlaylistIfNeeded}
-                                />
-                            </div>
+                            <TracksGrid
+                                items={playlistObject.items}
+                                objectId={objectId}
+                                showInfo={showInfo}
+                            />
                         )
                 }
 
@@ -214,34 +199,18 @@ class PlayListPage extends WithHeaderComponent<AllProps, State> {
 }
 
 const mapStateToProps = (state: StoreState, props: OwnProps): PropsFromState => {
-    const { auth, entities, objects, player, ui } = state;
-    const { objectId, location, history } = props;
-
-    const playlist_objects = objects[ObjectTypes.PLAYLISTS] || {};
-    const playlistObject = playlist_objects[objectId];
-
-    let dPlaylistObject: ObjectState<SoundCloud.Music> | null = null;
-
-    if (playlistObject) {
-        dPlaylistObject = denormalize(playlistObject, new schema.Object({
-            items: new schema.Array({
-                playlists: playlistSchema,
-                tracks: trackSchema
-            }, (input) => `${input.kind}s`)
-        }), entities);
-    }
+    const { auth, player } = state;
+    const { objectId } = props;
 
     return {
         auth,
         player,
-        playlistObject: dPlaylistObject,
-        previousScrollTop: history.action === 'POP' ? ui.scrollPosition[location.pathname] : undefined
+        playlistObject: getPlaylistObject(objectId)(state),
+        previousScrollTop: getPreviousScrollTop(state)
     };
 };
 
 const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, OwnProps> = (dispatch) => bindActionCreators({
-    playTrack,
-    fetchPlaylistIfNeeded,
     fetchMore,
     setScrollPosition,
     fetchChartsIfNeeded,

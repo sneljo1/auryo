@@ -49,10 +49,7 @@ module.exports = {
     }]
   },
   devServer: {
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Headers': '*',
-    }
+    open:false
   },
   plugins: [
     new webpack.EnvironmentPlugin(['NODE_ENV', ...flags]),

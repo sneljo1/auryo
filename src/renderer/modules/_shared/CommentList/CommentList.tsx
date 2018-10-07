@@ -1,33 +1,25 @@
 import * as React from 'react';
 import * as ReactList from 'react-list';
-import { SoundCloud } from '../../../../types';
+import { NormalizedResult } from '../../../../types';
 import CommentListItem from './CommentListitem';
-import { isEqual } from 'lodash';
 
 interface Props {
-    comments: Array<SoundCloud.Comment>;
+    comments: Array<NormalizedResult>;
 }
 
-class CommentList extends React.Component<Props> {
-
-    shouldComponentUpdate(nextProps: Props) {
-        const { comments } = this.props;
-
-        return !isEqual(comments, nextProps.comments);
-    }
-
+class CommentList extends React.PureComponent<Props> {
 
     renderItem = (index: number) => {
         const { comments } = this.props;
 
-        const comment = comments[index];
+        const item = comments[index];
 
         console.log('CommentList render');
 
         return (
             <CommentListItem
-                key={`comment-${comment.id}`}
-                comment={comment}
+                key={`comment-${item.id}`}
+                idResult={item}
             />
         );
     }
@@ -45,7 +37,6 @@ class CommentList extends React.Component<Props> {
                     length={items.length}
                     itemRenderer={this.renderItem}
                     useTranslate3d={true}
-                    threshold={400}
                 />
             </div>
         );

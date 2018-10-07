@@ -2,17 +2,13 @@ import { Intent, IResizeEntry, IToastOptions, ResizeSensor } from '@blueprintjs/
 import cn from 'classnames';
 import * as is from 'electron-is';
 import { debounce } from 'lodash';
-import { denormalize, schema } from 'normalizr';
 import * as React from 'react';
 import { connect, MapDispatchToProps } from 'react-redux';
 import { Route, Switch } from 'react-router';
 import { bindActionCreators } from 'redux';
-import playlistSchema from '../../../common/schemas/playlist';
-import trackSchema from '../../../common/schemas/track';
 import { StoreState } from '../../../common/store';
 import { AppState, initApp, setDimensions, stopWatchers, toggleOffline } from '../../../common/store/app';
 import { AuthState } from '../../../common/store/auth';
-import { EntitiesState } from '../../../common/store/objects';
 import { PlayerState, playTrack, updateQueue } from '../../../common/store/player';
 import { addToast, clearToasts, removeToast, toggleQueue } from '../../../common/store/ui';
 import { SoundCloud } from '../../../types';
@@ -36,6 +32,7 @@ import IsOffline from './components/Offline/Offline';
 import Queue from './components/Queue/Queue';
 import SideBar from './components/Sidebar/Sidebar';
 import Toastr from './components/Toastr';
+import { EntitiesState } from '../../../common/store/entities';
 
 interface PropsFromState {
     showQueue: boolean;
@@ -226,17 +223,17 @@ class Layout extends React.Component<AllProps> {
 const mapStateToProps = (state: StoreState): PropsFromState => {
     const { auth, app, player, entities, ui } = state;
 
-    const deNormalizedPlaylists = denormalize(auth.playlists, new schema.Array({
-        playlists: playlistSchema
-    }, (input) => `${input.kind}s`), entities);
+    // const deNormalizedPlaylists = denormalize(auth.playlists, new schema.Array({
+    //     playlists: playlistSchema
+    // }, (input) => `${input.kind}s`), entities);
 
-    const deNormalizedQueue = denormalize(player.queue.map((p) => ({ id: p.id, schema: 'tracks' })), new schema.Array({
-        tracks: trackSchema
-    }, (input) => `${input.kind}s`), entities);
+    // const deNormalizedQueue = denormalize(player.queue.map((p) => ({ id: p.id, schema: 'tracks' })), new schema.Array({
+    //     tracks: trackSchema
+    // }, (input) => `${input.kind}s`), entities);
 
     return {
-        userPlayerlists: deNormalizedPlaylists,
-        queue: deNormalizedQueue,
+        userPlayerlists: [],
+        queue: [],
         auth,
         player,
         app,

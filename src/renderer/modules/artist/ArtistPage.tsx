@@ -1,24 +1,24 @@
 import { Menu, MenuItem, Popover, Position } from '@blueprintjs/core';
 import cn from 'classnames';
-import { denormalize, schema } from 'normalizr';
 import * as React from 'react';
 import { connect, MapDispatchToProps } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
 import { Col, Row, TabContent, TabPane } from 'reactstrap';
 import { bindActionCreators } from 'redux';
-import { IMAGE_SIZES, USER_LIKES_SUFFIX, USER_TRACKS_PLAYLIST_SUFFIX } from '../../../common/constants';
-import { userSchema } from '../../../common/schemas';
-import trackSchema from '../../../common/schemas/track';
+import { IMAGE_SIZES } from '../../../common/constants';
 import { StoreState } from '../../../common/store';
-import { AppState } from '../../../common/store/app';
+import { AppState, Dimensions } from '../../../common/store/app';
 import { AuthState, toggleFollowing } from '../../../common/store/auth';
-import { canFetchMoreOf, fetchMore, ObjectState, ObjectTypes } from '../../../common/store/objects';
+import { getUserEntity } from '../../../common/store/entities/selectors';
+import { canFetchMoreOf, fetchMore, ObjectState, ObjectTypes, PlaylistTypes } from '../../../common/store/objects';
+import { getArtistLikesPlaylistObject, getArtistTracksPlaylistObject, getPlaylistName } from '../../../common/store/objects/selectors';
 import { PlayerState, PlayerStatus, PlayingTrack, playTrack, toggleStatus } from '../../../common/store/player';
 import { setScrollPosition } from '../../../common/store/ui';
+import { getPreviousScrollTop } from '../../../common/store/ui/selectors';
 import { fetchArtistIfNeeded } from '../../../common/store/user/actions';
 import { abbreviate_number, SC } from '../../../common/utils';
 import { IPC } from '../../../common/utils/ipc';
-import { SoundCloud } from '../../../types';
+import { NormalizedResult, SoundCloud } from '../../../types';
 import Header from '../app/components/Header/Header';
 import CustomScroll from '../_shared/CustomScroll';
 import FallbackImage from '../_shared/FallbackImage';
@@ -34,21 +34,14 @@ import ArtistProfiles from './components/ArtistProfiles/ArtistProfiles';
 interface OwnProps extends RouteComponentProps<{ artistId: string }> {
 }
 
-
-enum PlaylistTypes {
-    TRACKS = 'TRACKS',
-    LIKES = 'LIKRS',
-}
-
 interface PropsFromState {
-    app: AppState;
-    playingTrack: PlayingTrack | null;
+    dimensions: Dimensions;
     player: PlayerState;
     auth: AuthState;
-    user: SoundCloud.User;
+    user: SoundCloud.User | null;
     playlists: {
-        [PlaylistTypes.LIKES]: ObjectState<SoundCloud.Track> | null,
-        [PlaylistTypes.TRACKS]: ObjectState<SoundCloud.Track> | null,
+        [PlaylistTypes.ARTIST_LIKES]: ObjectState<NormalizedResult> | null,
+        [PlaylistTypes.ARTIST_TRACKS]: ObjectState<NormalizedResult> | null,
     };
     previousScrollTop?: number;
     artistIdParam: number;
@@ -95,7 +88,7 @@ class ArtistPage extends WithHeaderComponent<AllProps, State> {
     }
 
     componentWillReceiveProps(nextProps: AllProps) {
-        const { fetchArtistIfNeeded, artistIdParam, app: { dimensions } } = nextProps;
+        const { fetchArtistIfNeeded, artistIdParam, dimensions } = nextProps;
         const { activeTab } = this.state;
 
         fetchArtistIfNeeded(artistIdParam);
@@ -136,9 +129,9 @@ class ArtistPage extends WithHeaderComponent<AllProps, State> {
         let playlist_name = null;
 
         if (activeTab === TabTypes.TRACKS) {
-            playlist_name = artistId + USER_TRACKS_PLAYLIST_SUFFIX;
+            playlist_name = getPlaylistName(artistId, PlaylistTypes.ARTIST_TRACKS);
         } else if (activeTab === TabTypes.LIKES) {
-            playlist_name = artistId + USER_LIKES_SUFFIX;
+            playlist_name = getPlaylistName(artistId, PlaylistTypes.ARTIST_TRACKS);
         }
 
         if (playlist_name) {
@@ -152,9 +145,9 @@ class ArtistPage extends WithHeaderComponent<AllProps, State> {
         let playlist_name = null;
 
         if (activeTab === TabTypes.TRACKS) {
-            playlist_name = artistId + USER_TRACKS_PLAYLIST_SUFFIX;
+            playlist_name = getPlaylistName(artistId, PlaylistTypes.ARTIST_TRACKS);
         } else if (activeTab === TabTypes.LIKES) {
-            playlist_name = artistId + USER_LIKES_SUFFIX;
+            playlist_name = getPlaylistName(artistId, PlaylistTypes.ARTIST_TRACKS);
         }
 
         if (playlist_name) {
@@ -164,13 +157,11 @@ class ArtistPage extends WithHeaderComponent<AllProps, State> {
 
     renderPlaylist = (type: PlaylistTypes) => {
         const {
-            player,
             match: { params: { artistId } },
-            playTrack,
             playlists
         } = this.props;
 
-        const objectId = artistId + (type === PlaylistTypes.LIKES ? USER_LIKES_SUFFIX : USER_TRACKS_PLAYLIST_SUFFIX);
+        const objectId = getPlaylistName(artistId, type);
         const playlist = playlists[type];
 
         if (!playlist) return <Spinner contained={true} />;
@@ -179,8 +170,6 @@ class ArtistPage extends WithHeaderComponent<AllProps, State> {
             <React.Fragment>
                 <TrackList
                     items={playlist.items}
-                    playingTrack={player.playingTrack}
-                    playTrack={playTrack}
                     objectId={objectId}
                 />
                 {playlist.isFetching ? <Spinner /> : null}
@@ -198,8 +187,8 @@ class ArtistPage extends WithHeaderComponent<AllProps, State> {
             playlists
         } = this.props;
 
-        const playlistId = artistId + USER_TRACKS_PLAYLIST_SUFFIX;
-        const tracksPlaylists = playlists[PlaylistTypes.TRACKS];
+        const playlistId = getPlaylistName(artistId, PlaylistTypes.ARTIST_TRACKS);
+        const tracksPlaylists = playlists[PlaylistTypes.ARTIST_TRACKS];
 
         if (!tracksPlaylists || !tracksPlaylists.items.length) return null;
 
@@ -277,72 +266,52 @@ class ArtistPage extends WithHeaderComponent<AllProps, State> {
                         </Col>
 
                         <Col xs='12' md='8' xl='' className='trackInfo text-md-left text-xs-center'>
-                            <Row className='justify-content-md-between'>
-                                <Col xs='12' md='6'>
-                                    <h2>{user.username}</h2>
-                                    <h3 className='trackArtist'>{user.city}{user.city && user.country ? ' , ' : null}{user.country}</h3>
-                                    <div className='button-group'>
-                                        {
-                                            this.renderPlayButton()
-                                        }
-                                        {
-                                            me && artistIdParam !== me.id ? (
-                                                <a
-                                                    href='javascript:void(0)'
-                                                    className={cn('c_btn', { following })}
-                                                    onClick={() => {
-                                                        this.toggleFollow();
-                                                    }}
-                                                >
-                                                    {following ? <i className='icon-check' /> : <i className='icon-add' />}
-                                                    <span>{following ? 'Following' : 'Follow'}</span>
-                                                </a>
-                                            ) : null
-                                        }
 
-                                        <Popover
-                                            autoFocus={false}
-                                            minimal={true}
-                                            position={Position.BOTTOM_LEFT}
-                                            content={(
-                                                <Menu>
-                                                    <MenuItem
-                                                        text='View in browser'
-                                                        onClick={() => {
-                                                            IPC.openExternal(user.permalink_url);
-                                                        }}
-                                                    />
-                                                    <ShareMenuItem
-                                                        username={user.username}
-                                                        permalink={user.permalink_url}
-                                                    />
-                                                </Menu>
-                                            )}
+                            <h2>{user.username}</h2>
+                            <h3 className='trackArtist'>{user.city}{user.city && user.country ? ' , ' : null}{user.country}</h3>
+                            <div className='button-group'>
+                                {
+                                    this.renderPlayButton()
+                                }
+                                {
+                                    me && artistIdParam !== me.id ? (
+                                        <a
+                                            href='javascript:void(0)'
+                                            className={cn('c_btn', { following })}
+                                            onClick={() => {
+                                                this.toggleFollow();
+                                            }}
                                         >
-                                            <a href='javascript:void(0)' className='c_btn round'>
-                                                <i className='icon-more_horiz' />
-                                            </a>
-                                        </Popover>
-                                    </div>
-                                </Col>
+                                            {following ? <i className='icon-check' /> : <i className='icon-add' />}
+                                            <span>{following ? 'Following' : 'Follow'}</span>
+                                        </a>
+                                    ) : null
+                                }
 
-                                <Col xs='12' md=''>
-                                    <ul className='artistStats d-flex justify-content-start justify-content-lg-end'>
-                                        <li>
-                                            <span>{abbreviate_number(user.followers_count)}</span>
-                                            <span>Followers</span>
-                                        </li>
-                                        <li>
-                                            <span>{abbreviate_number(user.followings_count)}</span>
-                                            <span>Following</span>
-                                        </li>
-                                        <li>
-                                            <span>{abbreviate_number(user.track_count)}</span>
-                                            <span>Tracks</span>
-                                        </li>
-                                    </ul>
-                                </Col>
-                            </Row>
+                                <Popover
+                                    autoFocus={false}
+                                    minimal={true}
+                                    position={Position.BOTTOM_LEFT}
+                                    content={(
+                                        <Menu>
+                                            <MenuItem
+                                                text='View in browser'
+                                                onClick={() => {
+                                                    IPC.openExternal(user.permalink_url);
+                                                }}
+                                            />
+                                            <ShareMenuItem
+                                                username={user.username}
+                                                permalink={user.permalink_url}
+                                            />
+                                        </Menu>
+                                    )}
+                                >
+                                    <a href='javascript:void(0)' className='c_btn round'>
+                                        <i className='icon-more_horiz' />
+                                    </a>
+                                </Popover>
+                            </div>
                         </Col>
 
                     </Row>
@@ -389,25 +358,19 @@ class ArtistPage extends WithHeaderComponent<AllProps, State> {
                             <TabContent activeTab={this.state.activeTab} className='px-4'>
                                 {/* Tracks */}
                                 <TabPane tabId={TabTypes.TRACKS}>
-                                    {this.renderPlaylist(PlaylistTypes.TRACKS)}
+                                    {this.renderPlaylist(PlaylistTypes.ARTIST_TRACKS)}
                                 </TabPane>
 
                                 {/* Likes */}
                                 <TabPane tabId={TabTypes.LIKES}>
-                                    {this.renderPlaylist(PlaylistTypes.LIKES)}
+                                    {this.renderPlaylist(PlaylistTypes.ARTIST_LIKES)}
                                 </TabPane>
 
                                 {/* Tab for info on smaller screens */}
                                 {
                                     small ? (
                                         <TabPane tabId={TabTypes.INFO}>
-                                            <div className='artistInfo p-1  pt-5'>
-                                                <Linkify text={user.description} />
-                                            </div>
-                                            <ArtistProfiles
-                                                className='pt-1'
-                                                profiles={user.profiles}
-                                            />
+                                            {this.renderInfo()}
                                         </TabPane>
                                     ) : null
                                 }
@@ -417,14 +380,7 @@ class ArtistPage extends WithHeaderComponent<AllProps, State> {
                         {
                             !small ? (
                                 <Col xs='4' className='artistSide'>
-
-                                    <ToggleMoreComponent>
-                                        <div className='artistInfo'>
-                                            <Linkify text={user.description} />
-                                        </div>
-                                    </ToggleMoreComponent>
-
-                                    <ArtistProfiles profiles={user.profiles} />
+                                    {this.renderInfo(true)}
                                 </Col>
                             ) : null
                         }
@@ -434,56 +390,65 @@ class ArtistPage extends WithHeaderComponent<AllProps, State> {
             </CustomScroll>
         );
     }
+
+    renderInfo = (toggleMore: boolean = false) => {
+        const { user } = this.props;
+
+        if (!user) return null;
+
+        return (
+            <>
+                <ul className='artistStats d-flex'>
+                    <li>
+                        <span>{abbreviate_number(user.followers_count)}</span>
+                        <span>Followers</span>
+                    </li>
+                    <li>
+                        <span>{abbreviate_number(user.followings_count)}</span>
+                        <span>Following</span>
+                    </li>
+                    <li>
+                        <span>{abbreviate_number(user.track_count)}</span>
+                        <span>Tracks</span>
+                    </li>
+                </ul>
+                {
+                    toggleMore ? (
+                        <ToggleMoreComponent>
+                            <div className='artistInfo'>
+                                <Linkify text={user.description} />
+                            </div>
+                        </ToggleMoreComponent>
+                    ) : (
+                            <div className='artistInfo p-1  pt-5'>
+                                <Linkify text={user.description} />
+                            </div>
+                        )
+                }
+
+                <ArtistProfiles
+                    className='pt-1'
+                    profiles={user.profiles}
+                />
+            </>
+        );
+    }
 }
 
 const mapStateToProps = (state: StoreState, props: OwnProps): PropsFromState => {
-    const { entities, auth, app, player, objects, ui } = state;
-    const { match: { params: { artistId } }, history, location } = props;
-
-    const playlistObjects = objects[ObjectTypes.PLAYLISTS] || {};
-
-    // Denormalize and fetch tracks
-    const tracksObjectId = artistId + USER_TRACKS_PLAYLIST_SUFFIX;
-    const tracksPlaylistObject = playlistObjects[tracksObjectId];
-
-    let dtracksPlaylistObject: ObjectState<SoundCloud.Track> | null = null;
-
-    if (tracksPlaylistObject) {
-        dtracksPlaylistObject = denormalize(tracksPlaylistObject, new schema.Object({
-            items: new schema.Array({
-                tracks: trackSchema
-            }, (input) => `${input.kind}s`)
-        }), entities);
-    }
-
-    // Denormalize and fetch likes
-    const likesObjectId = artistId + USER_LIKES_SUFFIX;
-    const likesPlaylistObject = playlistObjects[likesObjectId];
-
-    let dlikesPlaylistObject: ObjectState<SoundCloud.Track> | null = null;
-
-    if (likesPlaylistObject) {
-        dlikesPlaylistObject = denormalize(likesPlaylistObject, new schema.Object({
-            items: new schema.Array({
-                tracks: trackSchema
-            }, (input) => `${input.kind}s`)
-        }), entities);
-    }
-
-    const user = denormalize(artistId, userSchema, entities);
+    const { auth, app: { dimensions }, player } = state;
+    const { match: { params: { artistId } } } = props;
 
     return {
-        app,
+        dimensions,
         auth,
         player,
-        playingTrack: player.playingTrack,
-        user,
-
+        user: getUserEntity(+artistId)(state),
         playlists: {
-            [PlaylistTypes.LIKES]: dlikesPlaylistObject,
-            [PlaylistTypes.TRACKS]: dtracksPlaylistObject,
+            [PlaylistTypes.ARTIST_LIKES]: getArtistTracksPlaylistObject(artistId)(state),
+            [PlaylistTypes.ARTIST_TRACKS]: getArtistLikesPlaylistObject(artistId)(state),
         },
-        previousScrollTop: history.action === 'POP' ? ui.scrollPosition[location.pathname] : undefined,
+        previousScrollTop: getPreviousScrollTop(state),
         artistIdParam: +artistId
     };
 };

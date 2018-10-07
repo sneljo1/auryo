@@ -1,7 +1,7 @@
 import { merge } from 'lodash';
 import { Reducer } from 'redux';
-import { EntitiesState } from './types';
 import { AppActionTypes } from '../app';
+import { EntitiesState } from '.';
 
 const initialState = {
     playlistEntities: {},

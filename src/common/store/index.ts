@@ -4,10 +4,11 @@ import { reducer as modal } from 'redux-modal';
 import { appReducer, AppState } from './app';
 import { authReducer, AuthState } from './auth';
 import { configReducer, ConfigState } from './config';
-import { entitiesReducer, EntitiesState, objectsReducer, ObjectsState } from './objects';
+import { objectsReducer, ObjectsState } from './objects';
 import { PlayerState, playerReducer } from './player';
 import { uiReducer, UIState } from './ui';
 import { RouterState } from 'connected-react-router';
+import { EntitiesState, entitiesReducer } from './entities';
 
 
 export const rootReducer = combineReducers({
@@ -31,6 +32,6 @@ export interface StoreState {
   config: ConfigState;
   ui: UIState;
   toastr: ToastrState;
-  routing: RouterState;
+  router: RouterState;
   modal: any;
 }
