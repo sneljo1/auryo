@@ -1,43 +1,46 @@
 import cn from 'classnames';
-import { isEqual } from 'lodash';
 import * as React from 'react';
+import { connect, MapDispatchToProps } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { IMAGE_SIZES } from '../../../../../common/constants/Soundcloud';
+import { StoreState } from '../../../../../common/store';
+import { getTrackEntity } from '../../../../../common/store/entities/selectors';
 import { PlayingTrack, playTrack } from '../../../../../common/store/player';
+import { getCurrentPlaylistId } from '../../../../../common/store/player/selectors';
 import * as SC from '../../../../../common/utils/soundcloudUtils';
 import { SoundCloud } from '../../../../../types';
 import ActionsDropdown from '../../../_shared/ActionsDropdown';
 import FallbackImage from '../../../_shared/FallbackImage';
 import TextShortener from '../../../_shared/TextShortener';
+import { bindActionCreators } from 'redux';
 
-interface Props {
-    track: SoundCloud.Track;
+interface OwnProps {
     trackData: PlayingTrack;
     index: number;
-    currentPlaylist: string;
 
     played: boolean;
     playing: boolean;
+}
 
+interface PropsFromState {
+    track: SoundCloud.Track | null;
+    currentPlaylistId: string | null;
+}
+
+interface PropsFromDispatch {
     playTrack: typeof playTrack;
 }
 
-class QueueItem extends React.Component<Props> {
+type AllProps = OwnProps & PropsFromState & PropsFromDispatch;
 
-    shouldComponentUpdate(nextProps: Props) {
-        const { track, playing, played } = this.props;
-
-        return !isEqual(nextProps.track, track) ||
-            !isEqual(nextProps.playing, playing) ||
-            !isEqual(nextProps.played, played);
-    }
+class QueueItem extends React.PureComponent<AllProps> {
 
     render() {
         const {
             // Vars
             track,
             index,
-            currentPlaylist,
+            currentPlaylistId,
             playing,
             played,
             trackData,
@@ -46,6 +49,8 @@ class QueueItem extends React.Component<Props> {
             playTrack,
 
         } = this.props;
+
+        if (!currentPlaylistId) return null;
 
 
         if (!track || !track.user || (track && track.loading && !track.title)) {
@@ -88,7 +93,7 @@ class QueueItem extends React.Component<Props> {
                     })}
                     onClick={(e) => {
                         if ((e.target as any).className !== 'icon-more_horiz') {
-                            playTrack(currentPlaylist, trackData);
+                            playTrack(currentPlaylistId, trackData);
                         }
                     }}
                 >
@@ -108,7 +113,7 @@ class QueueItem extends React.Component<Props> {
                                 }}
                                 to={`/track/${track.id}`}
                             >
-                                <TextShortener text={track.title} />
+                                <TextShortener text={track.title} clamp={1} />
                             </Link>
 
                         </div>
@@ -136,4 +141,17 @@ class QueueItem extends React.Component<Props> {
     }
 }
 
-export default QueueItem;
+const mapStateToProps = (state: StoreState, props: OwnProps): PropsFromState => {
+    const { trackData } = props;
+
+    return {
+        track: getTrackEntity(trackData.id)(state),
+        currentPlaylistId: getCurrentPlaylistId(state)
+    };
+};
+
+const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, OwnProps> = (dispatch) => bindActionCreators({
+    playTrack
+}, dispatch);
+
+export default connect<PropsFromState, PropsFromDispatch, OwnProps, StoreState>(mapStateToProps, mapDispatchToProps)(QueueItem);

@@ -30,8 +30,11 @@
       "types"
     ],
     "sourceRoot": "/",
-    "baseUrl": ".",
+    "baseUrl": "./",
     "paths": {
+      "src/*": [
+        "src/*"
+      ],
       "@main/*": [
         "main/*"
       ],

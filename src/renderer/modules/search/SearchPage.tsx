@@ -1,20 +1,16 @@
-import { isEqual } from 'lodash';
-import { denormalize, schema } from 'normalizr';
 import * as React from 'react';
 import { connect, MapDispatchToProps, MapStateToPropsParam } from 'react-redux';
-import { RouteComponentProps, withRouter } from 'react-router';
+import { RouteComponentProps } from 'react-router';
 import { bindActionCreators } from 'redux';
-import { SEARCH_SUFFIX } from '../../../common/constants';
-import { userSchema } from '../../../common/schemas';
-import playlistSchema from '../../../common/schemas/playlist';
-import trackSchema from '../../../common/schemas/track';
 import { StoreState } from '../../../common/store';
-import { AuthState, toggleFollowing } from '../../../common/store/auth';
-import { canFetchMoreOf, fetchMore, fetchPlaylistIfNeeded, ObjectState, ObjectTypes } from '../../../common/store/objects';
+import { toggleFollowing } from '../../../common/store/auth';
+import { canFetchMoreOf, fetchMore, ObjectState, ObjectTypes, PlaylistTypes } from '../../../common/store/objects';
 import { searchAll } from '../../../common/store/objects/playlists/search/actions';
-import { PlayerState, playTrack } from '../../../common/store/player';
+import { getPlaylistName, getPlaylistObject } from '../../../common/store/objects/selectors';
+import { playTrack } from '../../../common/store/player';
 import { setScrollPosition } from '../../../common/store/ui';
-import { SoundCloud } from '../../../types';
+import { getPreviousScrollTop } from '../../../common/store/ui/selectors';
+import { NormalizedResult } from '../../../types';
 import Spinner from '../_shared/Spinner/Spinner';
 import TracksGrid from '../_shared/TracksGrid/TracksGrid';
 import SearchWrapper from './SearchWrapper';
@@ -23,10 +19,8 @@ interface OwnProps extends RouteComponentProps<{}> {
 }
 
 interface PropsFromState {
-    playlist: ObjectState<SoundCloud.All> | null;
+    playlist: ObjectState<NormalizedResult> | null;
     objectId: string;
-    auth: AuthState;
-    player: PlayerState;
     query: string;
     previousScrollTop?: number;
 }
@@ -35,9 +29,6 @@ interface PropsFromDispatch {
     searchAll: typeof searchAll;
     canFetchMoreOf: typeof canFetchMoreOf;
     fetchMore: typeof fetchMore;
-    toggleFollowing: typeof toggleFollowing;
-    playTrack: typeof playTrack;
-    fetchPlaylistIfNeeded: typeof fetchPlaylistIfNeeded;
     setScrollPosition: typeof setScrollPosition;
 }
 
@@ -61,18 +52,6 @@ class Search extends React.Component<AllProps> {
         }
     }
 
-    shouldComponentUpdate(nextProps: AllProps) {
-        const { query, playlist, player } = this.props;
-
-        if (!isEqual(nextProps.query, query) ||
-            !isEqual(nextProps.playlist, playlist) ||
-            !isEqual(nextProps.player.playingTrack, player.playingTrack)) {
-            return true;
-        }
-        return false;
-
-    }
-
     hasMore = () => {
         const { canFetchMoreOf, objectId } = this.props;
 
@@ -89,11 +68,6 @@ class Search extends React.Component<AllProps> {
 
     renderContent() {
         const {
-            player,
-            auth: { followings },
-            fetchPlaylistIfNeeded,
-            toggleFollowing,
-            playTrack,
             playlist,
             objectId,
             query
@@ -112,23 +86,15 @@ class Search extends React.Component<AllProps> {
 
         if (!playlist || (playlist && !playlist.items.length && playlist.isFetching)) {
             return (
-                <div className='pt-5 mt-5'>
-                    <Spinner contained={true} />
-                </div>
+                <Spinner contained={true} />
             );
         }
 
         return (
             <div>
                 <TracksGrid
-                    followings={followings}
                     items={playlist.items}
-                    playingTrack={player.playingTrack}
-                    currentPlaylistId={player.currentPlaylistId}
                     objectId={objectId}
-                    toggleFollowing={toggleFollowing}
-                    playTrack={playTrack}
-                    fetchPlaylistIfNeeded={fetchPlaylistIfNeeded}
                 />
 
                 {
@@ -140,6 +106,7 @@ class Search extends React.Component<AllProps> {
 
     render() {
         const { query, location, setScrollPosition, previousScrollTop } = this.props;
+
         return (
             <SearchWrapper
                 loadMore={this.loadMore}
@@ -156,35 +123,17 @@ class Search extends React.Component<AllProps> {
 }
 
 const mapStateToProps: MapStateToPropsParam<PropsFromState, OwnProps, StoreState> = (state, props) => {
-    const { auth, entities, objects, player, ui } = state;
-    const { history, location: { search: rawSearch } } = props;
+    const { location: { search: rawSearch } } = props;
 
     const query: string = decodeURI(rawSearch.replace('?', ''));
 
-    const objectId = query + SEARCH_SUFFIX;
-
-    const playlistObjects = objects[ObjectTypes.PLAYLISTS] || {};
-    const playlistObject = playlistObjects[objectId];
-
-    let dplaylistObject: ObjectState<SoundCloud.All> | null = null;
-
-    if (playlistObject) {
-        dplaylistObject = denormalize(playlistObject, new schema.Object({
-            items: new schema.Array({
-                playlists: playlistSchema,
-                tracks: trackSchema,
-                users: userSchema
-            }, (input) => `${input.kind}s`)
-        }), entities);
-    }
+    const objectId = getPlaylistName(query, PlaylistTypes.SEARCH);
 
     return {
-        auth,
-        player,
         query,
-        playlist: dplaylistObject,
+        playlist: getPlaylistObject(objectId)(state),
         objectId,
-        previousScrollTop: history.action === 'POP' ? ui.scrollPosition[location.pathname] : undefined
+        previousScrollTop: getPreviousScrollTop(state)
 
     };
 };
@@ -195,8 +144,7 @@ const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, OwnProps> = (dis
     fetchMore,
     toggleFollowing,
     playTrack,
-    fetchPlaylistIfNeeded,
     setScrollPosition
 }, dispatch);
 
-export default withRouter(connect<PropsFromState, PropsFromDispatch, OwnProps, StoreState>(mapStateToProps, mapDispatchToProps)(Search));
+export default connect<PropsFromState, PropsFromDispatch, OwnProps, StoreState>(mapStateToProps, mapDispatchToProps)(Search);

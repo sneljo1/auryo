@@ -1,4 +1,4 @@
-import { app, protocol } from 'electron';
+import { app } from 'electron';
 import { Auryo } from './app';
 import { configureStore } from './store';
 import * as CrashReporter from './utils/raven';
@@ -38,16 +38,6 @@ app.on('ready', () => {
   if (process.env.NODE_ENV === 'development') {
     Utils.installExtensions();
   }
-
-  // const fetch = require('node-fetch');
-
-  // protocol.interceptBufferProtocol('https', (request, result) => {
-  //   fetch(request.url)
-  //     .then((res: any) => {
-  //       result(res);
-  //     });
-
-  // });
 
   auryo.start();
 });

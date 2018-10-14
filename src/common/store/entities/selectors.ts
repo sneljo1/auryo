@@ -20,12 +20,12 @@ export const getTrackEntity = (id: number) => getDenormalizedEntity<SoundCloud.T
 export const getPlaylistEntity = (id: number) => getDenormalizedEntity<SoundCloud.Playlist | null>({ id, schema: 'playlists' });
 export const getCommentEntity = (id: number) => getDenormalizedEntity<SoundCloud.Comment | null>({ id, schema: 'comments' });
 
-export const getDenormalizedEntity = <T>(result: NormalizedResult) => createSelector<StoreState, Array<T> | Array<null>, T | null>(
+export const getDenormalizedEntity = <T>(result: NormalizedResult) => createSelector<StoreState, Array<T>, T | null>(
     getDenormalizedEntities([result]),
     (entities) => entities[0]
 );
 
-export const getDenormalizedEntities = <T>(result: Array<NormalizedResult>) => createSelector<StoreState, EntitiesState, Array<T> | Array<null>>(
+export const getDenormalizedEntities = <T>(result: Array<NormalizedResult>) => createSelector<StoreState, EntitiesState, Array<T>>(
     getEntities,
     (entities) => denormalize(result, deNormSchema, entities)
 );

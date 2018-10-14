@@ -53,9 +53,21 @@ export default class ApplicationMenu extends Feature {
         label: 'Edit',
         role: 'edit',
         submenu: [
-          { label: 'Cut', accelerator: 'CmdOrCtrl+X' },
-          { label: 'Copy', accelerator: 'CmdOrCtrl+C' },
-          { label: 'Paste', accelerator: 'CmdOrCtrl+V' },
+          {
+            label: 'Cut',
+            accelerator: 'CmdOrCtrl+X',
+            selector: 'cut:'
+          } as any,
+          {
+            label: 'Copy',
+            accelerator: 'CmdOrCtrl+C',
+            selector: 'copy:'
+          } as any,
+          {
+            label: 'Paste',
+            accelerator: 'CmdOrCtrl+V',
+            selector: 'paste:'
+          } as any,
           {
             type: 'separator'
           },

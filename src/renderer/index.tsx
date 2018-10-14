@@ -1,23 +1,23 @@
-import { remote } from 'electron';
-import * as React from 'react';
-import { render } from 'react-dom';
-import { CONFIG } from '../config';
-import { SC } from '../common/utils';
-import { configureStore, history } from './configureStore';
-import Main from './Main';
-
-// Import CSS
-import '../assets/fonts/iconmoon/style.css';
-// tslint:disable-next-line:no-submodule-imports
-import 'rc-slider/dist/rc-slider.css';
 // tslint:disable-next-line:no-submodule-imports
 import '@blueprintjs/core/lib/css/blueprint.css';
 // tslint:disable-next-line:no-submodule-imports
 import '@blueprintjs/icons/lib/css/blueprint-icons.css';
 // tslint:disable-next-line:no-submodule-imports
 import 'boxicons/css/boxicons.min.css';
+import { remote } from 'electron';
+// tslint:disable-next-line:no-submodule-imports
+import 'rc-slider/dist/rc-slider.css';
+import * as React from 'react';
+import { render } from 'react-dom';
+import { AppContainer } from 'react-hot-loader';
+// Import CSS
+import '../assets/fonts/iconmoon/style.css';
+import { SC } from '../common/utils';
+import { CONFIG } from '../config';
+import { configureStore, history } from './configureStore';
 // tslint:disable-next-line:no-submodule-imports
 import './css/app.scss';
+import Main from './Main';
 
 const app = remote.app;
 
@@ -62,20 +62,21 @@ if (token) {
 }
 
 render(
-    // <AppContainer>
-    <Main store={store} history={history} />,
-    // </AppContainer>,
+    <AppContainer>
+        <Main store={store} history={history} />
+    </AppContainer>,
     document.getElementById('app')
 );
 
-// if (module.hot) {
-//     module.hot.accept('./Main', () => {
-//         const NextRoot = require('./Main');
-//         render(
-//             <AppContainer>
-//                 <NextRoot store={store} history={history} />
-//             </AppContainer>,
-//             document.getElementById('root')
-//         );
-//     });
-// }
+if (module.hot) {
+    module.hot.accept('./Main', () => {
+        const NextRoot = require('./Main');
+
+        render(
+            <AppContainer>
+                <NextRoot store={store} history={history} />
+            </AppContainer>,
+            document.getElementById('app')
+        );
+    });
+}

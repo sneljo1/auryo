@@ -1,22 +1,23 @@
 import { ipcMain, IpcMessageEvent } from 'electron';
-import { applyMiddleware, compose, createStore, Store, Action } from 'redux';
+import { Action, applyMiddleware, compose, createStore, Store } from 'redux';
 import { electronEnhancer } from 'redux-electron-store';
 import thunk from 'redux-thunk';
-import { StoreState, rootReducer } from '../common/store';
+import { rootReducer, StoreState } from '../common/store';
 
 const enhancer = compose(
   applyMiddleware(thunk),
   electronEnhancer()
 );
 
+
 const configureStore = () => {
-  const store: Store<StoreState> = createStore<StoreState, Action<any>, any, any>(rootReducer, enhancer as any);
+  const store: Store<StoreState> = createStore<StoreState, Action<any>, any, any>(rootReducer as any, enhancer as any);
 
   ipcMain.on('renderer-reload', (event: IpcMessageEvent) => {
     delete require.cache[require.resolve('../common/store')];
     import('../common/store')
       .then(({ rootReducer }) => {
-        store.replaceReducer(rootReducer);
+        store.replaceReducer(rootReducer as any);
         event.returnValue = true;
       });
   });
@@ -25,3 +26,4 @@ const configureStore = () => {
 };
 
 export { configureStore };
+

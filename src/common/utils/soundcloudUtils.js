@@ -238,6 +238,16 @@ export function searchTracksUrl(query, limit = 15, offset = 0) {
     });
 }
 
+export function discoverPlaylistsUrl(tag, limit = 15, offset = 0) {
+    return makeUrl("playlists/discovery", {
+        oauth_token: true,
+        tag,
+        limit,
+        offset,
+        linked_partitioning: 1,
+    },true);
+}
+
 export function searchUsersUrl(query, limit = 15, offset = 0) {
     return makeUrl("users", {
         oauth_token: true,

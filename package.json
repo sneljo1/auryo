@@ -3,36 +3,18 @@
   "repository": "Superjo149/auryo",
   "homepage": "http://auryo.com",
   "productName": "Auryo",
-  "version": "2.1.2",
+  "version": "2.2.0",
   "description": "Listen to SoundCloud® from the comfort of your desktop. Use keyboard shortcuts to navigate through your music. Be more productive.",
   "main": "dist/main/main.js",
   "scripts": {
-    "postinstall": "electron-builder install-app-deps",
+    "postinstall": "electron-rebuild",
+    "build": "electron-webpack",
     "dev": "electron-webpack dev",
-    "electron:start:with-url": "ELECTRON_START_URL=http://localhost:1234 electron .",
-    "lint:style": "stylelint ./src/less/*.less --fix",
-    "lint:ts": "tslint -c tslint.json -p tsconfig.json  'src/**/*{.ts,.tsx}'",
-    "lint:tests": "tslint ./tests/**/*.ts{,x} -c tslint.json --fix",
-    "lint:templates": "standard ./static/templates/**/*.js",
-    "lint": "npm-run-all lint:*",
-    "make": "electron-forge make",
-    "package": "electron-forge package",
-    "publish": "electron-forge publish",
-    "start": "rimraf ./dist && electron-forge start",
-    "lint-fix": "npm run lint -- --fix",
-    "watch-renderer": "webpack-dev-server --config webpack.config.renderer.dev.js  --watch --mode development",
-    "watch-main": "webpack --config webpack.config.main.js --watch --mode development",
-    "build-renderer": "webpack --config webpack.config.renderer.prod.js",
-    "build-main": "webpack --config webpack.config.main.js --mode production",
-    "build": "env-cmd .env concurrently \"npm run build-renderer\" \"npm run build-main\" electron-builder ",
-    "build-win": "npm run build && electron-builder -w -p always",
-    "build-mac": "npm run build && electron-builder -m -p always",
-    "build-linux": "npm run build && electron-builder -l -p always",
-    "prebuild": "electron-rebuild",
-    "build-test": "cross-env NODE_ENV=test BABEL_DISABLE_CACHE=1 npm run build-main && npm run build-renderer",
-    "test": "cross-env NODE_ENV=test BABEL_DISABLE_CACHE=1 mocha --retries 2 --compilers js:babel-register --recursive --require test/**/*.spec.js",
-    "test-watch": "npm test -- --watch",
+    "lint": "tslint -c tslint.json 'src/**/*.{ts,tsx}' -t stylish",
+    "lint:fix": "yarn lint --fix",
+    "lint:check": "tslint-config-prettier-check ./tslint.json",
     "test-e2e": "cross-env NODE_ENV=test BABEL_DISABLE_CACHE=1 mocha test/e2e/**.spec.js test/e2e/**/*.spec.js --compilers js:babel-core/register -R spec-xunit-file --full-trace ",
+    "package": "npm run build && build --publish never",
     "package:dir": "npm run build && build --dir",
     "package:win": "build --win --x64",
     "package:mac": "build --mac",
@@ -41,11 +23,7 @@
     "release": "build -wl --ia32 --x64 --publish onTagOrDraft",
     "release:win": "build -w --ia32 --x64 --publish onTagOrDraft",
     "release:linux": "build -l --x64 --publish onTagOrDraft",
-    "release:mac": "build -m --x64 --publish onTagOrDraft",
-    "cleanup": "mop -v"
-  },
-  "config": {
-    "forge": "./forge.config.js"
+    "release:mac": "build -m --x64 --publish onTagOrDraft"
   },
   "devDependencies": {
     "@babel/core": "^7",
@@ -60,6 +38,7 @@
     "@types/bootstrap": "^4.1.2",
     "@types/classnames": "^2.2.6",
     "@types/debounce": "^1.0.0",
+    "@types/electron-builder": "^2.8.0",
     "@types/electron-debug": "^1.1.0",
     "@types/electron-devtools-installer": "^2.0.2",
     "@types/electron-settings": "^3.1.1",
@@ -102,6 +81,7 @@
     "@types/webpack": "^4.4.14",
     "@types/webpack-dev-server": "^3.1.1",
     "@types/webpack-merge": "^4.1.3",
+    "@types/webpack-node-externals": "^1.6.3",
     "@types/why-did-you-update": "0.0.9",
     "asar": "^0.14.0",
     "awesome-typescript-loader": "^5.2.0",
@@ -114,7 +94,7 @@
     "cross-env": "^3.1.4",
     "devtron": "^1.4.0",
     "dotenv": "^6.0.0",
-    "electron": "2.0.9",
+    "electron": "^3.0.3",
     "electron-builder": "^20.28.4",
     "electron-devtools-installer": "^2.2.4",
     "electron-download": "^4.1.1",
@@ -122,17 +102,12 @@
     "electron-webpack": "^2.3.1",
     "electron-webpack-ts": "^2.1.1",
     "env-cmd": "^8.0.2",
-    "express": "^4.14.0",
-    "fbjs-scripts": "^0.7.1",
     "husky": "^0.14.3",
-    "json-loader": "^0.5.4",
     "mocha": "^3.2.0",
     "node-sass": "^4.9.3",
-    "parcel-bundler": "^1.9.7",
     "prettier": "^1.14.3",
     "redux-devtools-extension": "^2.13.5",
     "redux-logger": "^3.0.6",
-    "rimraf": "^2.6.2",
     "sass": "^1.14.0",
     "sass-loader": "^7.1.0",
     "spec-xunit-file": "^0.0.1-3",
@@ -142,13 +117,97 @@
     "tslint-loader": "^3.6.0",
     "tslint-microsoft-contrib": "^5.2.1",
     "tslint-react": "^3.6.0",
-    "typescript": "^3.0.3",
+    "typescript": "^3.1.3",
     "webpack": "^4.20.2",
     "webpack-build-notifier": "^0.1.29",
-    "webpack-dev-server": "^3.1.9",
-    "webpack-loader": "^0.0.1",
-    "webpack-merge": "^4.1.4",
     "why-did-you-update": "^0.1.1"
+  },
+  "build": {
+    "generateUpdatesFilesForAllChannels": true,
+    "productName": "Auryo",
+    "files": [
+      "dist/**/*",
+      "node_modules/",
+      "renderer/app.html",
+      "assets/img/icons/*",
+      "assets/img/logos/*",
+      "main.js",
+      "main.js.map",
+      "package.json",
+      "!**/node_modules/**/{*.md,README,readme,test,__tests__,tests,.*,LICENSE,license,powered-test,example,examples,*.d.ts,Makefile}",
+      "!**/node_modules/.bin",
+      "!**/*.{o,hprof,orig,pyc,pyo,rbc}",
+      "!**/{.DS_Store,.git,.hg,.svn,CVS,RCS,SCCS,__pycache__,thumbs.db,.gitignore,.gitattributes,.editorconfig,.flowconfig,.yarn-metadata.json,.idea,appveyor.yml,.travis.yml,circle.yml,npm-debug.log,.nyc_output,yarn.lock,.yarn-integrity}"
+    ],
+    "appId": "be.sneljo.auryo",
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "Superjo149",
+        "repo": "auryo"
+      }
+    ],
+    "mac": {
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "category": "public.app-category.music"
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "zip"
+      ]
+    },
+    "linux": {
+      "category": "Audio",
+      "target": [
+        "deb",
+        "rpm",
+        "AppImage",
+        "pacman"
+      ]
+    },
+    "snap": {
+      "useTemplateApp": false,
+      "summary": "A SoundCloud client for your desktop",
+      "buildPackages": [
+        "execstack"
+      ],
+      "stagePackages": [
+        "libasound2",
+        "libgconf2-4",
+        "libnotify4",
+        "libnspr4",
+        "libnss3",
+        "libpcre3",
+        "libpulse0",
+        "libxss1",
+        "libxtst6"
+      ],
+      "plugs": [
+        "bluez",
+        "browser-support",
+        "gsettings",
+        "browser-support",
+        "gsettings",
+        "home",
+        "mount-observe",
+        "network",
+        "opengl",
+        "pulseaudio",
+        "unity7",
+        "x11",
+        "mpris"
+      ],
+      "category": "Audio"
+    },
+    "directories": {
+      "buildResources": "resources",
+      "output": "release",
+      "app": "src"
+    }
   },
   "dependencies": {
     "@blueprintjs/core": "^3.2.0",
@@ -190,7 +249,7 @@
     "react-click-outside": "^2.3.1",
     "react-dom": "^16.2.0",
     "react-dotdotdot": "^1.2.3",
-    "react-hot-loader": "^4.0.0",
+    "react-hot-loader": "^4.3.11",
     "react-infinite-scroller": "^1.2.0",
     "react-input-autosize": "^1.1.0",
     "react-lazyload": "^2.3.0",
@@ -204,7 +263,7 @@
     "react-redux": "^5.0.7",
     "react-redux-toastr": "^7.4.0",
     "react-router": "^4.2.0",
-    "react-router-dom": "^4.2.2",
+    "react-router-dom": "^4.3.1",
     "react-stickky": "^3.0.2",
     "react-virtualized": "^9.10.1",
     "react-window": "^1.1.1",

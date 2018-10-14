@@ -1,7 +1,7 @@
 import { isEqual, uniqWith } from 'lodash';
 import { normalize, schema } from 'normalizr';
 import { PLAYLISTS } from '../constants';
-import { playlistSchema, trackSchema } from '../schemas';
+import { playlistSchema, trackSchema, userSchema } from '../schemas';
 import { asJson, status } from '../utils';
 import { NormalizedResponse, SoundCloud } from '../../types';
 
@@ -68,7 +68,8 @@ export default function fetchPlaylist(url: string, objectId: string, hideReposts
 
                 normalized = normalize(processedColletion, new schema.Array({
                     playlists: playlistSchema,
-                    tracks: trackSchema
+                    tracks: trackSchema,
+                    users: userSchema
                 }, (input) => `${input.kind}s`));
 
                 // Stream could have duplicate items
@@ -92,7 +93,8 @@ export default function fetchPlaylist(url: string, objectId: string, hideReposts
 
                     normalized = normalize(items, new schema.Array({
                         playlists: playlistSchema,
-                        tracks: trackSchema
+                        tracks: trackSchema,
+                        users: userSchema
                     }, (input) => `${input.kind}s`));
                 } else {
                     normalized = normalize(json, playlistSchema);

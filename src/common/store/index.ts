@@ -10,7 +10,6 @@ import { uiReducer, UIState } from './ui';
 import { RouterState } from 'connected-react-router';
 import { EntitiesState, entitiesReducer } from './entities';
 
-
 export const rootReducer = combineReducers({
   auth: authReducer,
   entities: entitiesReducer,

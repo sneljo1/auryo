@@ -131,7 +131,7 @@ class Header extends React.Component<AllProps, State> {
             return;
         }
 
-        const searchQuery = escape(rawQuery.replace('\%', ''));
+        const searchQuery = rawQuery;
 
         if (prev) {
             replace({

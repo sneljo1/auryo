@@ -31,7 +31,7 @@ class SearchBox extends React.Component<Props, State> {
             query: props.initialValue || props.value || ''
         };
 
-        this.handleSearchDebounced = debounce(this.handleSearch, 150);
+        this.handleSearchDebounced = debounce(this.handleSearch, 250);
     }
 
     componentDidMount() {

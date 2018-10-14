@@ -1,5 +1,5 @@
 import { remote } from 'electron';
-import os from 'os';
+import * as os from 'os';
 import * as React from 'react';
 import logo_url from '../../../../../../../assets/img/auryo-dark.png';
 import fetchRemainingTracks from '../../../../../../../common/api/fetchRemainingTracks';

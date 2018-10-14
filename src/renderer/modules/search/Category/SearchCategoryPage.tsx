@@ -1,21 +1,17 @@
-import { isEqual } from 'lodash';
-import { denormalize, schema } from 'normalizr';
 import * as React from 'react';
 import { connect, MapDispatchToProps } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import { bindActionCreators } from 'redux';
-import { SEARCH_PLAYLISTS_SUFFIX, SEARCH_TRACKS_SUFFIX, SEARCH_USERS_SUFFIX } from '../../../../common/constants';
-import { userSchema } from '../../../../common/schemas';
-import playlistSchema from '../../../../common/schemas/playlist';
-import trackSchema from '../../../../common/schemas/track';
 import { StoreState } from '../../../../common/store';
-import { AuthState, toggleFollowing } from '../../../../common/store/auth';
-import { canFetchMoreOf, fetchMore, fetchPlaylistIfNeeded, ObjectState, ObjectTypes } from '../../../../common/store/objects';
-import { search } from '../../../../common/store/objects/playlists/search/actions';
-import { PlayerState, playTrack } from '../../../../common/store/player';
-import { SoundCloud } from '../../../../types';
+import { canFetchMoreOf, fetchMore, ObjectState, ObjectTypes, PlaylistTypes } from '../../../../common/store/objects';
+import { searchType } from '../../../../common/store/objects/playlists/search/actions';
+import { getPlaylistName, getPlaylistObject } from '../../../../common/store/objects/selectors';
+import { NormalizedResult } from '../../../../types';
 import Spinner from '../../_shared/Spinner/Spinner';
 import TracksGrid from '../../_shared/TracksGrid/TracksGrid';
+import SearchWrapper from '../SearchWrapper';
+import { setScrollPosition } from '../../../../common/store/ui';
+import { getPreviousScrollTop } from '../../../../common/store/ui/selectors';
 
 interface OwnProps extends RouteComponentProps<{
     category: 'user' | 'playlist' | 'track';
@@ -24,60 +20,43 @@ interface OwnProps extends RouteComponentProps<{
 }
 
 interface PropsFromState {
-    playlist: ObjectState<SoundCloud.All> | null;
+    playlist: ObjectState<NormalizedResult> | null;
     objectId: string;
-    auth: AuthState;
-    player: PlayerState;
     query: string;
+    previousScrollTop?: number;
 }
 
 interface PropsFromDispatch {
-    search: typeof search;
+    searchType: typeof searchType;
     canFetchMoreOf: typeof canFetchMoreOf;
     fetchMore: typeof fetchMore;
-    fetchPlaylistIfNeeded: typeof fetchPlaylistIfNeeded;
-    playTrack: typeof playTrack;
-    toggleFollowing: typeof toggleFollowing;
+    setScrollPosition: typeof setScrollPosition;
 }
 
 type AllProps = OwnProps & PropsFromState & PropsFromDispatch;
 
 class SearchCategory extends React.Component<AllProps> {
-    state = {
-        loading: false
-    };
 
     componentDidMount() {
-        const { query, playlist, objectId, search } = this.props;
+        const { query, playlist, objectId, searchType } = this.props;
 
         if (!playlist && query && query.length) {
-            search(objectId, query, 25);
+            searchType(objectId, query, 25);
         }
     }
 
     componentWillReceiveProps(nextProps: AllProps) {
-        const { query, playlist, objectId, search } = this.props;
+        const { query, playlist, objectId, searchType } = this.props;
 
         if ((query !== nextProps.query || !playlist) && query && query.length) {
-            search(objectId, nextProps.query, 25);
+            searchType(objectId, nextProps.query, 25);
         }
     }
 
-    shouldComponentUpdate(nextProps: AllProps) {
-        const { query, playlist } = this.props;
-
-        if (!isEqual(nextProps.query, query) ||
-            !isEqual(nextProps.playlist, playlist)) {
-            return true;
-        }
-        return false;
-
-    }
-
-    hasMore = () => {
+    hasMore = (): boolean => {
         const { objectId, canFetchMoreOf } = this.props;
 
-        return canFetchMoreOf(objectId, ObjectTypes.PLAYLISTS);
+        return canFetchMoreOf(objectId, ObjectTypes.PLAYLISTS) as any;
     }
 
     loadMore = () => {
@@ -90,98 +69,75 @@ class SearchCategory extends React.Component<AllProps> {
 
     render() {
         const {
-            player,
-            auth: { followings },
-            fetchPlaylistIfNeeded,
-            playTrack,
             objectId,
             playlist,
-            toggleFollowing
+            location,
+            previousScrollTop,
+            query,
         } = this.props;
 
         if (!playlist || (playlist && !playlist.items.length && playlist.isFetching)) {
             return (
-                <div className='pt-5 mt-5'>
-                    <Spinner contained={true} />
-                </div>
+                <Spinner contained={true} />
             );
         }
 
         return (
-            <div>
+            <SearchWrapper
+                loadMore={this.loadMore}
+                hasMore={this.hasMore}
+                location={location}
+                setScrollPosition={setScrollPosition}
+                previousScrollTop={previousScrollTop}
+                query={query}
+            >
                 <TracksGrid
-                    toggleFollowing={toggleFollowing}
-                    followings={followings}
                     items={playlist.items}
-                    playingTrack={player.playingTrack}
-                    currentPlaylistId={player.currentPlaylistId}
                     objectId={objectId}
-                    playTrack={playTrack}
-                    fetchPlaylistIfNeeded={fetchPlaylistIfNeeded}
                 />
 
                 {
                     playlist && playlist.isFetching && <Spinner />
                 }
-            </div>
+            </SearchWrapper>
         );
     }
 }
 
 const mapStateToProps = (state: StoreState, props: OwnProps): PropsFromState => {
-    const { auth, entities, objects, player } = state;
     const { match: { params: { category } }, location: { search: rawSearch } } = props;
 
     const query: string = decodeURI(rawSearch.replace('?', ''));
-
-    const playlistObjects = objects[ObjectTypes.PLAYLISTS] || {};
 
     let objectId: string = '';
 
     switch (category) {
         case 'user':
-            objectId = query + SEARCH_USERS_SUFFIX;
+            objectId = getPlaylistName(query, PlaylistTypes.SEARCH_USER);
             break;
         case 'playlist':
-            objectId = query + SEARCH_PLAYLISTS_SUFFIX;
+            objectId = getPlaylistName(query, PlaylistTypes.SEARCH_PLAYLIST);
             break;
         case 'track':
-            objectId = query + SEARCH_TRACKS_SUFFIX;
+            objectId = getPlaylistName(query, PlaylistTypes.SEARCH_TRACK);
             break;
         default:
             break;
     }
 
-    const playlistObject = playlistObjects[objectId];
-
-    let dplaylistObject: ObjectState<SoundCloud.All> | null = null;
-
-    if (playlistObject) {
-        dplaylistObject = denormalize(playlistObject, new schema.Object({
-            items: new schema.Array({
-                playlists: playlistSchema,
-                tracks: trackSchema,
-                users: userSchema
-            }, (input) => `${input.kind}s`)
-        }), entities);
-    }
-
     return {
         objectId,
-        auth,
-        playlist: dplaylistObject,
-        player,
-        query
+        playlist: getPlaylistObject(objectId)(state),
+        query,
+        previousScrollTop: getPreviousScrollTop(state)
     };
 };
 
 const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, OwnProps> = (dispatch) => bindActionCreators({
-    search,
+    searchType,
     canFetchMoreOf,
     fetchMore,
-    fetchPlaylistIfNeeded,
-    playTrack,
-    toggleFollowing,
+    setScrollPosition
 }, dispatch);
 
 export default connect<PropsFromState, PropsFromDispatch, OwnProps, StoreState>(mapStateToProps, mapDispatchToProps)(SearchCategory);

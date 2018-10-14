@@ -9,9 +9,12 @@ import { bindActionCreators } from 'redux';
 import { StoreState } from '../../../common/store';
 import { AppState, initApp, setDimensions, stopWatchers, toggleOffline } from '../../../common/store/app';
 import { AuthState } from '../../../common/store/auth';
-import { PlayerState, playTrack, updateQueue } from '../../../common/store/player';
+import { getUserPlaylists } from '../../../common/store/auth/selectors';
+import { EntitiesState } from '../../../common/store/entities';
+import { PlayerState, PlayingTrack, updateQueue } from '../../../common/store/player';
+import { getQueue } from '../../../common/store/player/selectors';
 import { addToast, clearToasts, removeToast, toggleQueue } from '../../../common/store/ui';
-import { SoundCloud } from '../../../types';
+import { NormalizedResult } from '../../../types';
 import ArtistPage from '../artist/ArtistPage';
 import ChartsDetailsPage from '../charts/ChartsDetailsPage';
 import ChartsPage from '../charts/ChartsPage';
@@ -32,7 +35,6 @@ import IsOffline from './components/Offline/Offline';
 import Queue from './components/Queue/Queue';
 import SideBar from './components/Sidebar/Sidebar';
 import Toastr from './components/Toastr';
-import { EntitiesState } from '../../../common/store/entities';
 
 interface PropsFromState {
     showQueue: boolean;
@@ -43,8 +45,8 @@ interface PropsFromState {
     player: PlayerState;
     app: AppState;
 
-    userPlayerlists: Array<SoundCloud.Playlist>;
-    queue: Array<SoundCloud.Track>;
+    userPlayerlists: Array<NormalizedResult>;
+    queue: Array<PlayingTrack>;
 }
 
 interface PropsFromDispatch {
@@ -56,7 +58,6 @@ interface PropsFromDispatch {
     setDimensions: typeof setDimensions;
     toggleQueue: typeof toggleQueue;
     updateQueue: typeof updateQueue;
-    playTrack: typeof playTrack;
 }
 
 type AllProps = PropsFromState & PropsFromDispatch;
@@ -152,7 +153,6 @@ class Layout extends React.Component<AllProps> {
             player,
             children,
             // Functions
-            playTrack,
             updateQueue,
             toggleQueue,
             initApp,
@@ -166,7 +166,13 @@ class Layout extends React.Component<AllProps> {
                 onResize={this.debouncedHandleResize}
             >
 
-                <div className={cn('body auryo', { development: !(process.env.NODE_ENV === 'production'), mac: is.osx() })}>
+                <div
+                    className={cn('body auryo', {
+                        development: !(process.env.NODE_ENV === 'production'),
+                        mac: is.osx(),
+                        playing: !!player.playingTrack
+                    })}
+                >
                     {
                         !app.loaded && !app.offline && !app.loading_error ? <Spinner full={true} /> : null}
 
@@ -178,20 +184,16 @@ class Layout extends React.Component<AllProps> {
                             playing: player.playingTrack
                         })}
                     >
-                        <SideBar
-                            playing={!!player.playingTrack}
-                            currentPlaylistId={player.currentPlaylistId}
-                            playlists={userPlayerlists}
-                        />
+                        <SideBar items={userPlayerlists} />
 
                         <Queue
                             showQueue={showQueue}
                             items={queue}
-                            player={player}
+                            currentIndex={player.currentIndex}
+                            playingTrack={player.playingTrack}
 
                             updateQueue={updateQueue}
                             toggleQueue={toggleQueue}
-                            playTrack={playTrack}
                         />
 
                         <section className='content'>
@@ -223,17 +225,9 @@ class Layout extends React.Component<AllProps> {
 const mapStateToProps = (state: StoreState): PropsFromState => {
     const { auth, app, player, entities, ui } = state;
 
-    // const deNormalizedPlaylists = denormalize(auth.playlists, new schema.Array({
-    //     playlists: playlistSchema
-    // }, (input) => `${input.kind}s`), entities);
-
-    // const deNormalizedQueue = denormalize(player.queue.map((p) => ({ id: p.id, schema: 'tracks' })), new schema.Array({
-    //     tracks: trackSchema
-    // }, (input) => `${input.kind}s`), entities);
-
     return {
-        userPlayerlists: [],
-        queue: [],
+        userPlayerlists: getUserPlaylists(state),
+        queue: getQueue(state),
         auth,
         player,
         app,
@@ -247,7 +241,6 @@ const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, {}> = (dispatch)
     addToast,
     clearToasts,
     initApp,
-    playTrack,
     removeToast,
     setDimensions,
     toggleOffline,

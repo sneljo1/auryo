@@ -11,6 +11,10 @@ export enum PlaylistTypes {
     RELATED = 'RELATED',
     ARTIST_LIKES = 'ARTIST_LIKES',
     ARTIST_TRACKS = 'ARTIST_TRACKS',
+    SEARCH = 'SEARCH',
+    SEARCH_USER = 'SEARCH_USER',
+    SEARCH_TRACK = 'SEARCH_TRACK',
+    SEARCH_PLAYLIST = 'SEARCH_PLAYLIST',
 }
 
 export interface ObjectsState extends Readonly<{

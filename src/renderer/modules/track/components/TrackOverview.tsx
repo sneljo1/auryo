@@ -7,6 +7,7 @@ import CommentList from '../../_shared/CommentList/CommentList';
 import Linkify from '../../_shared/Linkify';
 import ToggleMore from '../../_shared/ToggleMore';
 import TrackGridUser from '../../_shared/TracksGrid/TrackGridUser';
+import { Link } from 'react-router-dom';
 
 interface Props {
     track: SoundCloud.Track;
@@ -62,7 +63,9 @@ export default class TrackOverview extends React.PureComponent<Props> {
                             className='taglist'
                         >
                             {tags.map((tag) => (
-                                <span key={tag} className='badge badge-secondary'>{tag}</span>
+                                <Link key={tag} to={`/tags/${tag}`}>
+                                    <span className='badge badge-secondary'>{tag}</span>
+                                </Link>
                             ))}
                         </div>
                         <div className='d-flex align-items-center'>

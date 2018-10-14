@@ -2,22 +2,20 @@ import cn from 'classnames';
 import { debounce } from 'lodash';
 import * as React from 'react';
 import * as ReactList from 'react-list';
-import { PlayerState, playTrack, updateQueue } from '../../../../../common/store/player';
+import { PlayingTrack, updateQueue } from '../../../../../common/store/player';
 import { toggleQueue } from '../../../../../common/store/ui';
-import { getCurrentPosition } from '../../../../../common/utils/playerUtils';
 import CustomScroll from '../../../_shared/CustomScroll';
 import Spinner from '../../../_shared/Spinner/Spinner';
 import QueueItem from './QueueItem';
-import { SoundCloud } from '../../../../../types';
 
 interface Props {
+    playingTrack: PlayingTrack | null;
+    currentIndex: number;
     showQueue: boolean;
-    player: PlayerState;
-    items: Array<SoundCloud.Track>;
+    items: Array<PlayingTrack>;
 
     toggleQueue: typeof toggleQueue;
     updateQueue: typeof updateQueue;
-    playTrack: typeof playTrack;
 }
 
 class Queue extends React.Component<Props> {
@@ -32,12 +30,10 @@ class Queue extends React.Component<Props> {
     }
 
     componentDidMount() {
-        const { player: { currentIndex, playingTrack } } = this.props;
+        const { currentIndex, playingTrack } = this.props;
 
-        if (playingTrack) {
-            if (playingTrack.id && this.list) {
-                this.list.scrollTo(currentIndex);
-            }
+        if (playingTrack && playingTrack.id && this.list) {
+            this.list.scrollTo(currentIndex);
         }
     }
 
@@ -45,18 +41,17 @@ class Queue extends React.Component<Props> {
         const { showQueue } = this.props;
 
         if (showQueue !== nextProps.showQueue && nextProps.showQueue === true) {
-            const { player: { currentIndex, playingTrack } } = nextProps;
+            const { currentIndex, playingTrack } = nextProps;
 
-            if (playingTrack) {
-                if (playingTrack.id && this.list) {
-                    this.list.scrollTo(currentIndex);
-                }
+            if (playingTrack && playingTrack.id && this.list) {
+                this.list.scrollTo(currentIndex);
             }
         }
     }
 
     handleClickOutside = () => {
         const { showQueue, toggleQueue } = this.props;
+
         if (showQueue) {
             toggleQueue(false);
         }
@@ -72,36 +67,25 @@ class Queue extends React.Component<Props> {
 
     renderTrack = (index: number, key: number | string) => {
         const {
-            player,
             items,
-            playTrack,
+            currentIndex
         } = this.props;
 
-
-        const { queue, currentPlaylistId, currentIndex } = player;
-
-        const trackData = queue[index];
-        const track = items[index];
-        const currentPos = getCurrentPosition({ queue, playingTrack: trackData });
+        const item = items[index];
 
         return (
             <QueueItem
                 key={key}
                 index={index}
-                track={track}
-                currentPlaylist={currentPlaylistId || ''}
-                trackData={trackData}
-                played={currentPos < currentIndex}
-                playing={currentPos === currentIndex}
-                playTrack={playTrack}
+                trackData={item}
+                played={index < currentIndex}
+                playing={index === currentIndex}
             />
         );
     }
 
     render() {
-        const { toggleQueue, player: { queue, currentIndex, currentPlaylistId }, showQueue } = this.props;
-
-        if (!currentPlaylistId) return null;
+        const { toggleQueue, items, currentIndex , showQueue } = this.props;
 
         return (
             <aside
@@ -135,7 +119,7 @@ class Queue extends React.Component<Props> {
                                     pageSize={8}
                                     type='uniform'
                                     initialIndex={currentIndex}
-                                    length={queue.length}
+                                    length={items.length}
                                     useTranslate3d={true}
                                     itemRenderer={this.renderTrack}
                                 />

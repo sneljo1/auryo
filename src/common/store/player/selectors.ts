@@ -10,6 +10,16 @@ export const getPlayingTrack = createSelector<StoreState, PlayerState, PlayingTr
     (player) => player.playingTrack
 );
 
+export const getQueue = createSelector<StoreState, PlayerState, Array<PlayingTrack>>(
+    [getPlayer],
+    (player) => player.queue || []
+);
+
+export const getCurrentPlaylistId = createSelector<StoreState, PlayerState, string | null>(
+    [getPlayer],
+    (player) => player.currentPlaylistId || null
+);
+
 export const isPlaying = (result: NormalizedResult, playlistId: string) => createSelector<StoreState, PlayingTrack | null, boolean>(
     [getPlayingTrack],
     (playingTrack) => {

@@ -87,7 +87,11 @@ const configureStore = (): Store<StoreState> => {
     if (module.hot) {
         module.hot.accept('../common/store', () => {
             ipcRenderer.sendSync('renderer-reload');
-            store.replaceReducer(require('../common/store')); // eslint-disable-line global-require
+
+            import('../common/store')
+                .then(({ rootReducer }) => {
+                    store.replaceReducer(connectRouter(history)(rootReducer) as any);
+                });
         });
     }
 

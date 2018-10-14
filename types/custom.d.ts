@@ -19,4 +19,5 @@ declare module "*.jpeg" {
 }
 
 declare module "electron-window-state";
+declare module "react-dotdotdot";
 

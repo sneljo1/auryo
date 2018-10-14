@@ -7,12 +7,12 @@ import { Col, Row, TabContent, TabPane } from 'reactstrap';
 import { bindActionCreators } from 'redux';
 import { IMAGE_SIZES } from '../../../common/constants';
 import { StoreState } from '../../../common/store';
-import { AppState, Dimensions } from '../../../common/store/app';
+import { Dimensions } from '../../../common/store/app';
 import { AuthState, toggleFollowing } from '../../../common/store/auth';
 import { getUserEntity } from '../../../common/store/entities/selectors';
 import { canFetchMoreOf, fetchMore, ObjectState, ObjectTypes, PlaylistTypes } from '../../../common/store/objects';
 import { getArtistLikesPlaylistObject, getArtistTracksPlaylistObject, getPlaylistName } from '../../../common/store/objects/selectors';
-import { PlayerState, PlayerStatus, PlayingTrack, playTrack, toggleStatus } from '../../../common/store/player';
+import { PlayerState, PlayerStatus, playTrack, toggleStatus } from '../../../common/store/player';
 import { setScrollPosition } from '../../../common/store/ui';
 import { getPreviousScrollTop } from '../../../common/store/ui/selectors';
 import { fetchArtistIfNeeded } from '../../../common/store/user/actions';
@@ -445,8 +445,8 @@ const mapStateToProps = (state: StoreState, props: OwnProps): PropsFromState => 
         player,
         user: getUserEntity(+artistId)(state),
         playlists: {
-            [PlaylistTypes.ARTIST_LIKES]: getArtistTracksPlaylistObject(artistId)(state),
-            [PlaylistTypes.ARTIST_TRACKS]: getArtistLikesPlaylistObject(artistId)(state),
+            [PlaylistTypes.ARTIST_TRACKS]: getArtistTracksPlaylistObject(artistId)(state),
+            [PlaylistTypes.ARTIST_LIKES]: getArtistLikesPlaylistObject(artistId)(state),
         },
         previousScrollTop: getPreviousScrollTop(state),
         artistIdParam: +artistId

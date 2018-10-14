@@ -65,7 +65,7 @@ class TrackGridItem extends React.PureComponent<AllProps> {
     renderArtist = () => {
         const { track, showReposts } = this.props;
 
-        if (!track) return null;
+        if (!track || !track.user) return null;
 
         if (track.from_user && showReposts) {
             return (
@@ -120,7 +120,7 @@ class TrackGridItem extends React.PureComponent<AllProps> {
     renderStats() {
         const { track, showInfo } = this.props;
 
-        if (!track) return null;
+        if (!track || !track.user) return null;
 
         return (
             <div className='trackFooter d-flex justify-content-between align-items-center'>
@@ -205,7 +205,7 @@ class TrackGridItem extends React.PureComponent<AllProps> {
 
         const image = SC.getImageUrl(track, IMAGE_SIZES.LARGE);
 
-        if (!track) return null;
+        if (!track || !track.user) return null;
 
         return (
             <div
@@ -249,7 +249,7 @@ class TrackGridItem extends React.PureComponent<AllProps> {
                             this.renderStats()
                         }
                         {
-                            track.genre ? <a className='trackGenre'>{track.genre}</a> : null}
+                            track.genre && track.genre !== '' ? <Link to={`/tags/${track.genre}`} className='trackGenre'>{track.genre}</Link> : null}
 
                     </div>
 

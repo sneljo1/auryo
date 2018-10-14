@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
 import { IMAGE_SIZES } from '../../../../common/constants';
 import { StoreState } from '../../../../common/store';
-import {  playTrack } from '../../../../common/store/player';
+import { playTrack } from '../../../../common/store/player';
 import { abbreviate_number, getReadableTime, SC } from '../../../../common/utils';
 import { NormalizedResult, SoundCloud } from '../../../../types';
 import ActionsDropdown from '../ActionsDropdown';
@@ -94,7 +94,7 @@ class TrackListItem extends React.PureComponent<AllProps> {
                 <td>
                     <div className='trackTitle'>
                         <Link to={`/track/${track.id}`}>
-                            <TextShortener text={track.title} />
+                            <TextShortener text={track.title} clamp={1} />
                         </Link>
                     </div>
                     <div className='stats d-flex align-items-center'>

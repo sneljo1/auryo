@@ -69,8 +69,6 @@ class Player extends React.Component<AllProps, State>{
         offline: false
     };
 
-    private audio: Audio | null = null;
-
     componentDidMount() {
         const {
             updateTime
@@ -305,7 +303,6 @@ class Player extends React.Component<AllProps, State>{
                 </div>
 
                 <Audio
-                    ref={(ref) => this.audio = ref}
                     url={url}
                     playStatus={status}
                     volume={volume}

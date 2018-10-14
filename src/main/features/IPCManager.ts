@@ -2,7 +2,7 @@ import { app, clipboard, ipcMain, IpcMessageEvent, shell } from 'electron';
 import { download } from 'electron-dl';
 import fs from 'fs';
 import * as _ from 'lodash';
-import io from 'socket.io-client';
+import * as io from 'socket.io-client';
 import { CONFIG } from '../../config';
 import { setLoginError, setLoginLoading } from '../../common/store/auth/actions';
 import { setToken } from '../../common/store/config/actions';

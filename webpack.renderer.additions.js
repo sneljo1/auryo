@@ -19,6 +19,11 @@ if (process.env.SENTRY_AUTH_TOKEN) {
   }))
 }
 
+const externals = {
+  ...packageJson.dependencies,
+  ...packageJson.optionalDependencies
+}
+
 module.exports = {
   resolve: {
     plugins: [
@@ -48,11 +53,12 @@ module.exports = {
       }
     }]
   },
-  devServer: {
-    open:false
-  },
+  // devServer: {
+  //   open:false
+  // },
   plugins: [
     new webpack.EnvironmentPlugin(['NODE_ENV', ...flags]),
     ...plugins
-  ]
+  ],
+  externals: Object.keys(externals || {})
 }

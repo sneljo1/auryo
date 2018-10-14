@@ -76,7 +76,7 @@ type AllProps = OwnProps & PropsFromState & PropsFromDispatch;
 
 class TrackPage extends WithHeaderComponent<AllProps, State> {
 
-    state: State = {
+    readonly state: State = {
         activeTab: TabTypes.OVERVIEW,
         scrollTop: 0
     };

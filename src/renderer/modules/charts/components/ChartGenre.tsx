@@ -9,7 +9,7 @@ interface Props {
 }
 
 const ChartGenre: React.SFC<Props> = ({ genre, img }) => (
-    <Link to={`/charts/${genre.key}`}>
+    <Link to={`/charts/genre/${genre.key}`}>
         <div className={cn('chart', { withImage: !!img })}>
             <h1>{genre.name}</h1>
             {

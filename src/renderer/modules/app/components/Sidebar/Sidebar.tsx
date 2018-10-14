@@ -1,41 +1,25 @@
-import cn from 'classnames';
-import { isEqual} from 'lodash';
 import * as React from 'react';
 import { NavLink, RouteComponentProps, withRouter } from 'react-router-dom';
-import { SoundCloud } from '../../../../../types';
+import { NormalizedResult } from '../../../../../types';
 import CustomScroll from '../../../_shared/CustomScroll';
 import SideBarPlaylist from './playlist/SideBarPlaylist';
 
 interface Props {
-    currentPlaylistId: string | null;
-    playlists: Array<SoundCloud.Playlist>;
-    playing: boolean;
+    items: Array<NormalizedResult>;
 }
 
 type AllProps = Props & RouteComponentProps<{}>;
 
-class SideBar extends React.Component<AllProps> {
-
-    shouldComponentUpdate(nextProps: AllProps) {
-        const { playing, playlists, location, currentPlaylistId } = this.props;
-
-        return !isEqual(playing, nextProps.playing) ||
-            !isEqual(playlists, nextProps.playlists) ||
-            !isEqual(location, nextProps.location) ||
-            !isEqual(currentPlaylistId, nextProps.currentPlaylistId);
-    }
-
+class SideBar extends React.PureComponent<AllProps> {
     render() {
-        const { playlists, playing, currentPlaylistId } = this.props;
+        const { items } = this.props;
 
         return (
 
             <aside
                 id='sidebar'
                 role='navigation'
-                className={cn('sidebar-offcanvas d-flex flex-column', {
-                    playing
-                })}
+                className='sidebar-offcanvas d-flex flex-column'
             >
 
                 <div className='drag-strip' />
@@ -79,10 +63,7 @@ class SideBar extends React.Component<AllProps> {
                         </ul>
                         <h2>Playlists</h2>
                         <div id='playlists' className='nav flex-column'>
-                            <SideBarPlaylist
-                                playlists={playlists}
-                                currentPlaylistId={currentPlaylistId}
-                            />
+                            <SideBarPlaylist items={items} />
                         </div>
                     </div>
                 </CustomScroll>

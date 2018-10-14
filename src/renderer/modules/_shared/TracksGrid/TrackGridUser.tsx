@@ -5,11 +5,12 @@ import { Link } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
 import { IMAGE_SIZES } from '../../../../common/constants';
 import { StoreState } from '../../../../common/store';
-import { isFollowing, toggleFollowing } from '../../../../common/store/auth';
 import { abbreviate_number, SC } from '../../../../common/utils';
 import { NormalizedResult, SoundCloud } from '../../../../types';
 import FallbackImage from '../FallbackImage';
 import { getUserEntity } from '../../../../common/store/entities/selectors';
+import { toggleFollowing } from '../../../../common/store/auth';
+import { isFollowing } from '../../../../common/store/auth/selectors';
 
 interface OwnProps {
     idResult: NormalizedResult;

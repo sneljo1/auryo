@@ -20,6 +20,7 @@ export const getCommentObject = (trackId: string) => createSelector<StoreState, 
 );
 
 export const getPlaylistName = (id: string, playlistType: PlaylistTypes) => [id, playlistType].join('|');
+export const getPlaylistType = (objectId: string): PlaylistTypes => objectId.split('|')[1] as PlaylistTypes;
 
 export const getRelatedTracksPlaylistObject = (trackId: string) => getPlaylistObject(getPlaylistName(trackId, PlaylistTypes.RELATED));
 

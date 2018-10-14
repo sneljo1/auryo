@@ -2,11 +2,12 @@ import cn from 'classnames';
 import * as React from 'react';
 import Masonry from 'react-masonry-css';
 import { connect } from 'react-redux';
-import { RouteComponentProps, withRouter } from 'react-router-dom';
-import { Nav, NavLink, TabContent, TabPane } from 'reactstrap';
+import { RouteComponentProps, NavLink } from 'react-router-dom';
+import { Nav, TabContent, TabPane } from 'reactstrap';
 import { AUDIO_GENRES, MUSIC_GENRES } from '../../../common/constants';
 import { StoreState } from '../../../common/store';
 import { setScrollPosition } from '../../../common/store/ui';
+import { getPreviousScrollTop } from '../../../common/store/ui/selectors';
 import Header from '../app/components/Header/Header';
 import CustomScroll from '../_shared/CustomScroll';
 import PageHeader from '../_shared/PageHeader/PageHeader';
@@ -47,7 +48,7 @@ export const GENRE_IMAGES = {
     world: require('../../../assets/img/genres/world.jpg')
 };
 
-interface OwnProps extends RouteComponentProps<{ songId: string }> {
+interface OwnProps extends RouteComponentProps<{ type?: string }> {
 }
 
 interface PropsFromState {
@@ -59,7 +60,6 @@ interface PropsFromDispatch {
 }
 
 interface State {
-    activeTab: TabTypes;
     scrollTop: number;
 }
 
@@ -72,15 +72,14 @@ type AllProps = OwnProps & PropsFromState & PropsFromDispatch;
 
 class ChartsPage extends WithHeaderComponent<AllProps, State> {
 
-    state: State = {
-        activeTab: TabTypes.MUSIC,
+    state = {
         scrollTop: 0
     };
 
     shouldComponentUpdate(_nextProps: AllProps, nextState: State) {
-        const { activeTab, scrollTop } = this.state;
+        const { scrollTop } = this.state;
 
-        return activeTab !== nextState.activeTab ||
+        return this.props.match.params !== _nextProps.match.params ||
             (scrollTop < 52 && nextState.scrollTop > 52) ||
             (scrollTop > 52 && nextState.scrollTop < 52);
 
@@ -90,15 +89,10 @@ class ChartsPage extends WithHeaderComponent<AllProps, State> {
         super.componentDidMount();
     }
 
-    toggle = (tab: TabTypes) => {
-        if (this.state.activeTab !== tab) {
-            this.setState({
-                activeTab: tab
-            });
-        }
-    }
-
     render() {
+
+        const { match: { params } } = this.props;
+        const type = params.type || TabTypes.MUSIC;
 
         return (
             <CustomScroll
@@ -119,26 +113,23 @@ class ChartsPage extends WithHeaderComponent<AllProps, State> {
                 <div className='container-fluid charts'>
                     <Nav className='tabs' tabs={true}>
                         <NavLink
-                            className={cn({ active: this.state.activeTab === TabTypes.MUSIC })}
-                            onClick={() => {
-                                this.toggle(TabTypes.MUSIC);
-                            }}
+                            className={cn('nav-link')}
+                            to={`/charts/${TabTypes.MUSIC}`}
                             activeClassName='active'
                         >
                             Music
                         </NavLink>
+
                         <NavLink
-                            className={cn({ active: this.state.activeTab === TabTypes.AUDIO })}
-                            onClick={() => {
-                                this.toggle(TabTypes.AUDIO);
-                            }}
+                            className={cn('nav-link')}
                             activeClassName='active'
+                            to={`/charts/${TabTypes.AUDIO}`}
                         >
                             Audio
                         </NavLink>
                     </Nav>
 
-                    <TabContent activeTab={this.state.activeTab}>
+                    <TabContent activeTab={type}>
                         <TabPane tabId={TabTypes.MUSIC}>
                             <div>
                                 <Masonry
@@ -174,8 +165,8 @@ class ChartsPage extends WithHeaderComponent<AllProps, State> {
     }
 }
 
-const mapStateToProps = ({ ui }: StoreState, { location, history }: OwnProps): PropsFromState => ({
-    previousScrollTop: history.action === 'POP' ? ui.scrollPosition[location.pathname] : undefined
+const mapStateToProps = (state: StoreState): PropsFromState => ({
+    previousScrollTop: getPreviousScrollTop(state)
 });
 
-export default withRouter(connect(mapStateToProps)(ChartsPage));
+export default connect(mapStateToProps)(ChartsPage);

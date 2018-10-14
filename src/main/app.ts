@@ -48,20 +48,11 @@ export class Auryo {
 
     app.setAppUserModelId('com.auryo.core');
 
-    // Make the app a single-instance app
-    const shouldQuit = app.makeSingleInstance(() => {
-      if (this.mainWindow) {
-        if (this.mainWindow.isMinimized()) { this.mainWindow.restore(); }
-        this.mainWindow.focus();
-        this.mainWindow.show();
-        this.mainWindow.setSkipTaskbar(false);
-        if (app.dock && app.dock.show) { app.dock.show(); }
-      }
-    });
+    app.requestSingleInstanceLock();
 
-    if (shouldQuit) {
+    app.on('second-instance', () => {
       app.exit();
-    }
+    });
   }
 
   start() {

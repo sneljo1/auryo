@@ -15,6 +15,7 @@ import SearchPage from '../search/SearchPage';
 import TrackPage from '../track/TrackPage';
 import IsOffline from './components/Offline/Offline';
 import Layout from './Layout';
+import TagsPage from '../tags/TagsPage';
 
 interface PropsFromState {
     offline: boolean;
@@ -35,8 +36,8 @@ class App extends React.Component<AllProps> {
             <Layout>
                 <Switch>
                     <Route exact={true} path='/' component={FeedPlaylistPage} />
-                    <Route exact={true} path='/charts' component={ChartsPage} />
-                    <Route path='/charts/:genre' component={ChartsDetailsPage} />
+                    <Route path='/charts/genre/:genre' component={ChartsDetailsPage} />
+                    <Route path='/charts/:type?' component={ChartsPage} />
                     <Route path='/likes' component={LikesPlaylistPage} />
                     <Route path='/mytracks' component={MyTracksPage} />
                     <Route path='/myplaylists' component={MyPlaylistsPage} />
@@ -45,6 +46,7 @@ class App extends React.Component<AllProps> {
                     <Route path='/playlist/:playlistId' component={PlaylistPage} />
                     <Route exact={true} path='/search' component={SearchPage} />
                     <Route path='/search/:category' component={SearchCategoryPage} />
+                    <Route path='/tags/:tag/:type?' component={TagsPage} />
                 </Switch>
             </Layout>
         );

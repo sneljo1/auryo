@@ -80,7 +80,6 @@ class SearchWrapper extends WithHeaderComponent<OwnProps, State> {
                         </Nav>
                     </Header>
 
-
                     <div className='search-content p-2'>
                         {this.props.children}
                     </div>

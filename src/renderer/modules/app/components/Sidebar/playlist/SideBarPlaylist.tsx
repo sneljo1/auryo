@@ -1,34 +1,32 @@
 import classNames from 'classnames';
-import { isEqual } from 'lodash';
 import * as React from 'react';
-import { NavLink, RouteComponentProps, withRouter } from 'react-router-dom';
-import { SoundCloud } from '../../../../../../types';
+import { connect } from 'react-redux';
+import { NavLink } from 'react-router-dom';
+import { StoreState } from '../../../../../../common/store';
+import { getDenormalizedEntities } from '../../../../../../common/store/entities/selectors';
+import { getCurrentPlaylistId } from '../../../../../../common/store/player/selectors';
+import { NormalizedResult, SoundCloud } from '../../../../../../types';
 import TextShortener from '../../../../_shared/TextShortener';
 
-interface Props {
-    currentPlaylistId: string | null;
-    playlists: Array<SoundCloud.Playlist>;
+interface OwnProps {
+    items: Array<NormalizedResult>;
 }
 
-type AllProps = Props & RouteComponentProps<{}>;
+interface PropsFromState {
+    playlists: Array<SoundCloud.Playlist>;
+    currentPlaylistId: string | null;
+}
 
-class SideBarPlaylist extends React.Component<AllProps> {
+type AllProps = OwnProps & PropsFromState;
 
-    shouldComponentUpdate(nextProps: AllProps) {
-        const { playlists, location, currentPlaylistId } = this.props;
-
-        return !isEqual(playlists.length, nextProps.playlists.length) ||
-            !isEqual(location, nextProps.location) ||
-            !isEqual(currentPlaylistId, nextProps.currentPlaylistId);
-    }
-
+class SideBarPlaylist extends React.PureComponent<AllProps> {
     render() {
         const { playlists, currentPlaylistId } = this.props;
 
         return (
             <React.Fragment>
                 {
-                    playlists.map((playlist) => (
+                    playlists.map((playlist: SoundCloud.Playlist) => (
                         <div
                             key={`sidebar-${playlist.id}`}
                             className={classNames('navItem', {
@@ -50,4 +48,13 @@ class SideBarPlaylist extends React.Component<AllProps> {
     }
 }
 
-export default withRouter(SideBarPlaylist);
+const mapStateToProps = (state: StoreState, props: OwnProps): PropsFromState => {
+    const { items } = props;
+
+    return {
+        playlists: getDenormalizedEntities<SoundCloud.Playlist>(items)(state),
+        currentPlaylistId: getCurrentPlaylistId(state)
+    };
+};
+
+export default connect<PropsFromState, {}, OwnProps, StoreState>(mapStateToProps)(SideBarPlaylist);

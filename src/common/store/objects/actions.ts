@@ -216,7 +216,7 @@ export function fetchPlaylistIfNeeded(playlistId: number): ThunkResult<Promise<a
         const playlist_objects = objects[ObjectTypes.PLAYLISTS];
         const playlist_object = playlist_objects[playlistId];
 
-        if (!playlist_object || (playlist_object && playlist_object.fetchedItems === undefined)) {
+        if (!playlist_object || (playlist_object && playlist_object.fetchedItems === 0)) {
             return dispatch<Promise<any>>({
                 type: ObjectsActionTypes.SET,
                 payload: {
@@ -338,7 +338,10 @@ export function fetchPlaylistTracks(playlistId: number, size: number = 20, ids?:
             }
 
             ids = playlist_object.items.slice(playlist_object.fetchedItems, new_count);
-        } else if (ids && ids.length) {
+
+        }
+
+        if (ids && ids.length) {
             return dispatch<Promise<any>>({
                 type: ObjectsActionTypes.SET_TRACKS,
                 payload: {
