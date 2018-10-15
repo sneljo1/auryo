@@ -8,13 +8,9 @@ import MacFeature from './macFeature';
 
 const { TouchBarButton, TouchBarSpacer } = TouchBar;
 
-let iconsDirectory: string;
-
-if (process.env.NODE_ENV === 'development') {
-  iconsDirectory = path.resolve(__dirname, '..', '..', '..', 'assets', 'img', 'icons');
-} else {
-  iconsDirectory = path.resolve(__dirname, './assets/img/icons');
-}
+const iconsDirectory = process.env.NODE_ENV === 'development' ?
+  path.resolve(__dirname, '..', '..', '..', 'assets', 'img', 'icons') :
+  path.resolve(__dirname, './assets/img/icons');
 
 export default class TouchBarManager extends MacFeature {
   likestates = {
@@ -109,7 +105,7 @@ export default class TouchBarManager extends MacFeature {
       ]
     });
 
-    if (this.win){
+    if (this.win) {
       this.win.setTouchBar(touchBar);
     }
 

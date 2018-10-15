@@ -44,7 +44,8 @@ class SelectConfig extends React.PureComponent<Props> {
                 <select
                     className='form-control form-control-sm'
                     onChange={this.handleChange}
-                    defaultValue={value || ''}>
+                    defaultValue={value || ''}
+                >
                     {
                         data.map(({ k, v }) => (
                             <option value={v}>{k}</option>

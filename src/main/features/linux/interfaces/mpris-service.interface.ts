@@ -1,3 +1,4 @@
+// tslint:disable-next-line:no-namespace
 export namespace MprisServiceClient {
   export interface MetaData {
     'xesam:title'?: string;
@@ -46,16 +47,17 @@ export namespace MprisServiceClient {
     canControl: boolean;
     canEditTracks: boolean;
 
+    // tslint:disable-next-line:no-misused-new
     constructor(options: PlayerOptions): void;
 
     seeked(delta: double): void;
     objectPath(trackId: string): string;
 
+    // tslint:disable-next-line:ban-types
     on(event: 'next' | 'previous' | 'pause' | 'playpause' | 'stop' | 'play' | 'raise' | 'quit', callback: Function): void;
-
     on(event: 'seek', data: { delta: number; position: number }): void;
-    on(event: 'position', data: { trackId: string; position: number }): void;
-    on(event: 'open', data: { trackId: string; position: number }): void;
+    on(event: 'position' | 'open', data: { trackId: string; position: number }): void;
+
   }
 
   export type microseconds = number;

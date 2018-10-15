@@ -6,13 +6,9 @@ import IFeature from '../feature';
 import { Auryo } from '../../app';
 import { PlayerStatus, ChangeTypes } from '../../../common/store/player';
 
-let iconsDirectory: string;
-
-if (process.env.NODE_ENV === 'development') {
-  iconsDirectory = path.resolve(__dirname, '..', '..', '..', 'assets', 'img', 'icons');
-} else {
-  iconsDirectory = path.resolve(__dirname, './assets/img/icons');
-}
+const iconsDirectory = process.env.NODE_ENV === 'development' ?
+path.resolve(__dirname, '..', '..', '..', 'assets', 'img', 'icons') :
+path.resolve(__dirname, './assets/img/icons');
 
 interface ThumbarPreset {
   play: Electron.ThumbarButton;
@@ -26,7 +22,7 @@ interface ThumbarPreset {
 }
 
 export default class Thumbar extends IFeature {
-  private thumbarButtons: ThumbarPreset = {} as ThumbarPreset;
+  private thumbarButtons: ThumbarPreset | null = null;
 
   constructor(auryo: Auryo) {
     super(auryo, 'waitUntill');
@@ -114,7 +110,7 @@ export default class Thumbar extends IFeature {
       player: { status, queue, currentIndex }
     } = this.store.getState();
 
-    if (this.win) {
+    if (this.win && this.thumbarButtons) {
       switch (status) {
         case PlayerStatus.PLAYING:
           this.win.setThumbarButtons([

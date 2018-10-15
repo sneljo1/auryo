@@ -17,13 +17,9 @@ if (process.env.NODE_ENV === 'development') {
   require('module').globalPaths.push(p); // eslint-disable-line
 }
 
-let logosPath;
-
-if (process.env.NODE_ENV === 'development') {
-  logosPath = path.resolve(__dirname, '..', '..', '..', 'assets', 'img', 'logos');
-} else {
-  logosPath = path.resolve(__dirname, './assets/img/logos');
-}
+const logosPath = process.env.NODE_ENV === 'development' ?
+  path.resolve(__dirname, '..', '..', '..', 'assets', 'img', 'logos') :
+  path.resolve(__dirname, './assets/img/logos');
 
 const icons = {
   256: nativeImage.createFromPath(path.join(logosPath, 'auryo.png')),

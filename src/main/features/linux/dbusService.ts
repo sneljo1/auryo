@@ -21,28 +21,32 @@ export default class DbusService extends LinuxFeature {
   }
 
   registerBindings = (desktopEnv: string) => {
-    this.session.getInterface(`org.${desktopEnv}.SettingsDaemon`, `/org/${desktopEnv}/SettingsDaemon/MediaKeys`, `org.${desktopEnv}.SettingsDaemon.MediaKeys`, (err: Error, iface: any) => {
-      if (!err) {
-        iface.on('MediaPlayerKeyPressed', (_: any, keyName: string) => {
-          switch (keyName) {
-            case 'Next':
-              this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, ChangeTypes.NEXT);
-              break;
-            case 'Previous':
-              this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, ChangeTypes.PREV);
-              break;
-            case 'Play':
-              this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS);
-              break;
-            case 'Stop':
-              this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PlayerStatus.STOPPED);
-              break;
-            default:
-          }
-        });
+    this.session.getInterface(
+      `org.${desktopEnv}.SettingsDaemon`,
+      `/org/${desktopEnv}/SettingsDaemon/MediaKeys`,
+      `org.${desktopEnv}.SettingsDaemon.MediaKeys`,
+      (err: Error, iface: any) => {
+        if (!err) {
+          iface.on('MediaPlayerKeyPressed', (_: any, keyName: string) => {
+            switch (keyName) {
+              case 'Next':
+                this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, ChangeTypes.NEXT);
+                break;
+              case 'Previous':
+                this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, ChangeTypes.PREV);
+                break;
+              case 'Play':
+                this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS);
+                break;
+              case 'Stop':
+                this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PlayerStatus.STOPPED);
+                break;
+              default:
+            }
+          });
 
-        iface.GrabMediaPlayerKeys(0, `org.${desktopEnv}.SettingsDaemon.MediaKeys`); // eslint-disable-line
-      }
-    });
+          iface.GrabMediaPlayerKeys(0, `org.${desktopEnv}.SettingsDaemon.MediaKeys`); // eslint-disable-line
+        }
+      });
   }
 }
