@@ -4,7 +4,7 @@
 |-----------|-------|----|
 |[![Build Status](https://travis-ci.org/Superjo149/auryo.svg?branch=master)](https://travis-ci.org/Superjo149/auryo)|[![Build status](https://ci.appveyor.com/api/projects/status/qrnwwqa9yvb26daa/branch/master?svg=true)](https://ci.appveyor.com/project/Superjo149/auryo/branch/master)|[![Snap Status](https://build.snapcraft.io/badge/auryo/auryo-snap.svg)](https://build.snapcraft.io/user/auryo/auryo-snap)|
 
-A beautiful SoundCloud app for your desktop. Using the power of [electron](electronjs.org) we are able to integrate this webapp with native features like touchbar and media key support.
+A beautiful SoundCloud app for your desktop. Using the power of [electron](https://electronjs.org/) we are able to integrate this webapp with native features like touchbar and media key support.
 
 ## Table of Contents
 - [Installation](#installation)
