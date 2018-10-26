@@ -36,7 +36,7 @@ You can help us grow! [Become a backer](https://opencollective.com/auryo)
 
 
 ## Author
-This application has been built by [Jonas Snellinckx](www.linkedin.com/in/jonas-snellinckx). It started out as a learning journey back in college-university Oct 2016, to start learning React, Redux and Electron. Since the first release in August 2017, the journey was incredibly educational. Over the next few months, Auryo has matured from a learning side-project into an escalated one. In a good sense.
+This application has been built by [Jonas Snellinckx](https://www.linkedin.com/in/jonas-snellinckx). It started out as a learning journey back in college-university Oct 2016, to start learning React, Redux and Electron. Since the first release in August 2017, the journey was incredibly educational. Over the next few months, Auryo has matured from a learning side-project into an escalated one. In a good sense.
 
 As of release 2.0.0, Auryo also has been open-sourced. See the list of [contributors](https://github.com/Superjo149/auryo/contributors) who participated in this project.
 
