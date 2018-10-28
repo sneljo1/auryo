@@ -1,4 +1,4 @@
-import { PLAYLISTS } from '../../../common/constants';
 import playlistPage from './playListPageWrapper';
+import { PlaylistTypes } from '../../../common/store/objects';
 
-export default playlistPage('Likes', PLAYLISTS.LIKES, false);
+export default playlistPage('Likes', PlaylistTypes.LIKES, false);

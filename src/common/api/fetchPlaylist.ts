@@ -1,9 +1,9 @@
 import { isEqual, uniqWith } from 'lodash';
 import { normalize, schema } from 'normalizr';
-import { PLAYLISTS } from '../constants';
-import { playlistSchema, trackSchema, userSchema } from '../schemas';
-import { asJson, status } from '../utils';
 import { NormalizedResponse, SoundCloud } from '../../types';
+import { playlistSchema, trackSchema, userSchema } from '../schemas';
+import { PlaylistTypes } from '../store/objects';
+import { asJson, status } from '../utils';
 
 interface CollectionItem {
     type: 'playlist' | 'track' | 'track-repost' | 'playlist-repost';
@@ -45,13 +45,13 @@ export default function fetchPlaylist(url: string, objectId: string, hideReposts
 
             let normalized = null;
 
-            if (objectId === PLAYLISTS.STREAM || objectId === PLAYLISTS.PLAYLISTS) {
+            if (objectId === PlaylistTypes.STREAM || objectId === PlaylistTypes.PLAYLISTS) {
                 const { collection } = json as CollectionResponse;
 
                 const processedColletion = collection
                     .filter((info) => {
 
-                        if (objectId === PLAYLISTS.STREAM && hideReposts) {
+                        if (objectId === PlaylistTypes.STREAM && hideReposts) {
                             return info.type.split('-')[1] !== 'repost';
                         }
 

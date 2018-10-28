@@ -39,7 +39,7 @@ export function searchByTag(objectId: string, tag: string, limit?: number, offse
 
         switch (getPlaylistType(objectId)) {
             case PlaylistTypes.SEARCH_TRACK:
-                url = SC.searchTracksUrl('', limit, offset) + `&filter.genre=${tag}`; break;
+                url = SC.searchTagurl(tag, limit, offset); break;
             case PlaylistTypes.SEARCH_PLAYLIST:
                 url = SC.discoverPlaylistsUrl(tag, limit, offset);
                 break;

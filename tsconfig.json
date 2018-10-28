@@ -30,21 +30,6 @@
       "types"
     ],
     "sourceRoot": "/",
-    "baseUrl": "./",
-    "paths": {
-      "src/*": [
-        "src/*"
-      ],
-      "@main/*": [
-        "main/*"
-      ],
-      "@renderer/*": [
-        "renderer/*"
-      ],
-      "@shared/*": [
-        "shared/*"
-      ]
-    }
   },
   "include": [
     "src",

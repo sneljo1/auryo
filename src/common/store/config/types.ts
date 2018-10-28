@@ -3,6 +3,7 @@ import { RepeatTypes } from '../player';
 // TYPES
 
 export interface Config extends Object {
+    lastChanged: number | null;
     token: string | null;
     volume: number;
     repeat: RepeatTypes | null;
@@ -19,6 +20,7 @@ export interface AppConfig {
     analytics: boolean;
     crashReports: boolean;
     downloadPath: string;
+    showTrackChangeNotification: boolean;
 }
 
 export interface ProxyConfig {

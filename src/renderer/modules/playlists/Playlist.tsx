@@ -3,10 +3,9 @@ import * as React from 'react';
 import { connect, MapDispatchToProps } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
-import { PLAYLISTS } from '../../../common/constants';
 import { StoreState } from '../../../common/store';
 import { AuthState, getAuthAllPlaylistsIfNeeded, getAuthLikesIfNeeded, getAuthTracksIfNeeded } from '../../../common/store/auth';
-import { fetchChartsIfNeeded, fetchMore, ObjectState, ObjectTypes } from '../../../common/store/objects';
+import { fetchChartsIfNeeded, fetchMore, ObjectState, ObjectTypes, PlaylistTypes } from '../../../common/store/objects';
 import { getPlaylistObject } from '../../../common/store/objects/selectors';
 import { PlayerState } from '../../../common/store/player';
 import { SortTypes } from '../../../common/store/playlist/types';
@@ -89,13 +88,13 @@ class PlayListPage extends WithHeaderComponent<AllProps, State> {
                 fetchChartsIfNeeded(objectId, sortType);
             } else {
                 switch (objectId) {
-                    case PLAYLISTS.LIKES:
+                    case PlaylistTypes.LIKES:
                         getAuthLikesIfNeeded();
                         break;
-                    case PLAYLISTS.MYTRACKS:
+                    case PlaylistTypes.MYTRACKS:
                         getAuthTracksIfNeeded();
                         break;
-                    case PLAYLISTS.PLAYLISTS:
+                    case PlaylistTypes.PLAYLISTS:
                         getAuthAllPlaylistsIfNeeded();
                         break;
                     default:

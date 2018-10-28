@@ -1,10 +1,10 @@
 import cn from 'classnames';
 import * as React from 'react';
 import * as ReactList from 'react-list';
-import { PLAYLISTS } from '../../../../common/constants';
 import { NormalizedResult } from '../../../../types';
 import TrackGridItem from './TrackGridItem';
 import TrackGridUser from './TrackGridUser';
+import { PlaylistTypes } from '../../../../common/store/objects';
 
 interface Props {
     showInfo?: boolean;
@@ -42,7 +42,7 @@ class TracksGrid extends React.PureComponent<Props> {
 
         return (
             <TrackGridItem
-                showReposts={objectId === PLAYLISTS.STREAM}
+                showReposts={objectId === PlaylistTypes.STREAM}
                 key={`grid-item-${item.schema}-${item.id}`}
                 showInfo={showInfo}
                 idResult={item}

@@ -4,6 +4,9 @@ import { EVENTS } from '../../../../../../../common/constants/events';
 import { ConfigState, setConfigKey } from '../../../../../../../common/store/config';
 import CheckboxConfig from './components/CheckboxConfig';
 import InputConfig from './components/InputConfig';
+import { connect, MapDispatchToProps } from 'react-redux';
+import { StoreState } from '../../../../../../../common/store';
+import { bindActionCreators } from 'redux';
 
 interface Props {
     config: ConfigState;
@@ -16,7 +19,18 @@ interface State {
     validDir: boolean;
 }
 
-class SettingsTab extends React.Component<Props, State> {
+interface PropsFromState {
+    config: ConfigState;
+    authenticated?: boolean;
+}
+
+interface PropsFromDispatch {
+    setConfigKey: typeof setConfigKey;
+}
+
+type AllProps = Props & PropsFromState & PropsFromDispatch;
+
+class SettingsTab extends React.Component<AllProps, State> {
 
     static defaultProps: Partial<Props> = {
         authenticated: false
@@ -50,6 +64,8 @@ class SettingsTab extends React.Component<Props, State> {
         } = this.props;
 
         const { restartMsg, validDir } = this.state;
+
+        console.log(config);
 
         return (
             <div>
@@ -87,6 +103,13 @@ class SettingsTab extends React.Component<Props, State> {
                                     invalid={!validDir}
                                     {...this.props}
                                     onChange={(value, setKey) => this.isValidDirectory(value, setKey)}
+                                />
+
+                                <CheckboxConfig
+                                    name='Show notification on track change'
+                                    configKey='app.showTrackChangeNotification'
+                                    config={config}
+                                    setConfigKey={setConfigKey}
                                 />
 
                             </div>
@@ -180,4 +203,14 @@ class SettingsTab extends React.Component<Props, State> {
     }
 }
 
-export default SettingsTab;
+const mapStateToProps = ({ config, auth }: StoreState): PropsFromState => ({
+    config,
+    authenticated: !!config.token && !auth.authentication.loading
+});
+
+const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, {}> = (dispatch) => bindActionCreators({
+    setConfigKey
+}, dispatch);
+
+export default connect(mapStateToProps, mapDispatchToProps)(SettingsTab);
+

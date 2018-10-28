@@ -34,6 +34,7 @@ export const CONFIG = {
     // Config
 
     DEFAULT_CONFIG: {
+        lastChanged: null,
         token: process.env.TOKEN ? process.env.TOKEN : null,
         volume: .5,
         repeat: null,
@@ -49,7 +50,8 @@ export const CONFIG = {
         app: {
             analytics: true,
             crashReports: true,
-            downloadPath
+            downloadPath,
+            showTrackChangeNotification: true
         }
     }
 };

@@ -1,4 +1,4 @@
-import { PLAYLISTS } from '../../../common/constants';
 import playlistPage from './playListPageWrapper';
+import { PlaylistTypes } from '../../../common/store/objects';
 
-export default playlistPage('Stream', PLAYLISTS.STREAM);
+export default playlistPage('Stream', PlaylistTypes.STREAM);

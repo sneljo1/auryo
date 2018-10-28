@@ -120,7 +120,7 @@ export default class MprisService extends LinuxFeature {
 
             if (track) {
               this.meta['mpris:trackId'] = this.player.objectPath(track.id.toString());
-              this.meta['mpris:length'] = track.duration * 1000;
+              this.meta['mpris:length'] = track.duration;
               this.meta['mpris:artUrl'] = SC.getImageUrl(track, IMAGE_SIZES.SMALL);
 
               this.meta['xesam:title'] = track.title;
@@ -177,9 +177,9 @@ export default class MprisService extends LinuxFeature {
         ...this.player.metadata
       };
 
-      this.meta['mpris:length'] = duration * 1e3;
+      this.meta['mpris:length'] = duration;
 
-      this.player.position = currentTime * 1e3;
+      this.player.position = currentTime;
 
       if (!_.isEqual(this.meta, this.player.metadata)) {
         this.player.metadata = this.meta;

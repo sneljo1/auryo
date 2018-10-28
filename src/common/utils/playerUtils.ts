@@ -1,5 +1,5 @@
-import { findIndex} from 'lodash';
-import { PlayerStatus, PlayerState, PlayingTrack } from '../store/player';
+import { findIndex } from 'lodash';
+import { PlayerState, PlayerStatus, PlayingTrack } from '../store/player';
 
 export function isCurrentPlaylistPlaying(player: PlayerState, playlistId: string): boolean {
     return player.currentPlaylistId === playlistId && (player.status === PlayerStatus.PLAYING);

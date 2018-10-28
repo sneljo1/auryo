@@ -50,7 +50,7 @@ export default class MediaServiceManager extends MacFeature {
     });
 
     myService.on('seek', (to: milliseconds) => {
-      this.sendToWebContents(EVENTS.PLAYER.SEEK, to);
+      this.sendToWebContents(EVENTS.PLAYER.SEEK, to / 1000);
     });
 
     //
@@ -108,8 +108,8 @@ export default class MediaServiceManager extends MacFeature {
     }
   }: WatchState<number>) => {
 
-    this.meta.currentTime = currentTime;
-    this.meta.duration = duration;
+    this.meta.currentTime = currentTime * 1000;
+    this.meta.duration = duration * 1000;
 
     if (this.myService){
       this.myService.setMetaData(this.meta);

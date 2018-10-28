@@ -1,13 +1,10 @@
 import cn from 'classnames';
 import * as React from 'react';
-import { connect, MapDispatchToProps } from 'react-redux';
 import { Modal, ModalBody, Nav, NavItem, NavLink, TabContent, TabPane } from 'reactstrap';
-import { bindActionCreators } from 'redux';
 import { connectModal, IModalInjectedProps } from 'redux-modal';
-import { StoreState } from '../../../../../../common/store';
-import { ConfigState, setConfigKey } from '../../../../../../common/store/config';
 import AboutTab from './about/AboutTab';
 import SettingsTab from './settings/SettingsTab';
+import { connect } from 'react-redux';
 
 interface PassedProps {
     activeTab?: TabType;
@@ -17,27 +14,14 @@ interface State {
     activeTab: TabType;
 }
 
-interface PropsFromState {
-    config: ConfigState;
-    authenticated?: boolean;
-}
-
-interface PropsFromDispatch {
-    setConfigKey: typeof setConfigKey;
-}
-
 enum TabType {
     ABOUT = 'about',
     SETTINGS = 'settings'
 }
 
-type Props = PassedProps & PropsFromState & PropsFromDispatch & IModalInjectedProps;
+type Props = PassedProps & IModalInjectedProps;
 
-class UtilitiesModal extends React.PureComponent<Props, State> {
-
-    static defaultProps: Partial<Props> = {
-        authenticated: false
-    };
+class UtilitiesModal extends React.Component<Props, State> {
 
     constructor(props: Props) {
         super(props);
@@ -60,6 +44,8 @@ class UtilitiesModal extends React.PureComponent<Props, State> {
     render() {
         const { show, handleHide } = this.props;
         const { activeTab } = this.state;
+
+        console.log('not really connected');
 
         return (
             <Modal isOpen={show} toggle={handleHide} className='utilities'>
@@ -105,13 +91,4 @@ class UtilitiesModal extends React.PureComponent<Props, State> {
     }
 }
 
-const mapStateToProps = ({ config, auth }: StoreState): PropsFromState => ({
-    config,
-    authenticated: !!config.token && !auth.authentication.loading
-});
-
-const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, {}>  = (dispatch) => bindActionCreators({
-    setConfigKey
-}, dispatch);
-
-export default connectModal<PassedProps>({ name: 'utilities' })(connect(mapStateToProps, mapDispatchToProps)(UtilitiesModal) as any);
+export default connect()(connectModal<PassedProps>({ name: 'utilities' })(UtilitiesModal as any));

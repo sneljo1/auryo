@@ -12,7 +12,7 @@ interface Props {
 }
 
 
-class CheckboxConfig extends React.PureComponent<Props> {
+class CheckboxConfig extends React.Component<Props> {
 
     handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { configKey, setConfigKey, onChange } = this.props;

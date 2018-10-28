@@ -55,6 +55,11 @@ export function getRemainingTracks() {
         client_id: true,
     });
 }
+export function registerPlayUrl() {
+    return makeUrl("me/play-history", {
+        oauth_token: true,
+    }, true);
+}
 
 export function getUserUrl(artistID) {
     return makeUrl(`users/${artistID}`, {
@@ -238,6 +243,17 @@ export function searchTracksUrl(query, limit = 15, offset = 0) {
     });
 }
 
+export function searchTagurl(genre, limit = 15, offset = 0) {
+    return makeUrl("search/tracks", {
+        oauth_token: true,
+        q: '',
+        "filter.genre": genre,
+        limit,
+        offset,
+        linked_partitioning: 1,
+    }, true);
+}
+
 export function discoverPlaylistsUrl(tag, limit = 15, offset = 0) {
     return makeUrl("playlists/discovery", {
         oauth_token: true,
@@ -245,7 +261,7 @@ export function discoverPlaylistsUrl(tag, limit = 15, offset = 0) {
         limit,
         offset,
         linked_partitioning: 1,
-    },true);
+    }, true);
 }
 
 export function searchUsersUrl(query, limit = 15, offset = 0) {

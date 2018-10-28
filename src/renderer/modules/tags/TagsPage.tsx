@@ -5,7 +5,7 @@ import { NavLink, RouteComponentProps } from 'react-router-dom';
 import { Nav } from 'reactstrap';
 import { bindActionCreators } from 'redux';
 import { canFetchMoreOf, fetchMore, ObjectState, ObjectTypes, PlaylistTypes } from '../../../common/store/objects';
-import { NormalizedResult } from 'src/types';
+import { NormalizedResult } from '../../../types';
 import { StoreState } from '../../../common/store';
 import { searchByTag } from '../../../common/store/objects/playlists/search/actions';
 import { getPlaylistName, getPlaylistObject } from '../../../common/store/objects/selectors';

@@ -3,13 +3,14 @@ import { flattenDeep } from 'lodash';
 import { action } from 'typesafe-actions';
 import { SoundCloud, ThunkResult } from '../../../types';
 import { EVENTS } from '../../constants/events';
-import { PLAYLISTS } from '../../constants/playlist';
 import { getCurrentPosition } from '../../utils/playerUtils';
-import { ObjectTypes } from '../objects';
+import { ObjectTypes, PlaylistTypes } from '../objects';
 import { fetchMore, fetchPlaylistIfNeeded, fetchPlaylistTracks, fetchTracks } from '../objects/actions';
 import { ChangeTypes, PlayerActionTypes, PlayerStatus, PlayingPositionState, PlayingTrack, RepeatTypes } from './types';
 import { addToast } from '../ui';
 import { Intent } from '@blueprintjs/core';
+import { getPlaylistType } from '../objects/selectors';
+import { SC } from '../../utils';
 
 /**
  * Get playlist from ID if needed
@@ -98,10 +99,10 @@ export function toggleStatus(newStatus?: PlayerStatus): ThunkResult<void> {
         } = getState();
 
         const playlists = objects[ObjectTypes.PLAYLISTS] || {};
-        const stream_playlist = playlists[PLAYLISTS.STREAM];
+        const stream_playlist = playlists[PlaylistTypes.STREAM];
 
         if (currentPlaylistId === null && newStatus === PlayerStatus.PLAYING) {
-            dispatch(playTrack(PLAYLISTS.STREAM, { id: stream_playlist.items[0].id }));
+            dispatch(playTrack(PlaylistTypes.STREAM, { id: stream_playlist.items[0].id }));
         }
 
         if (!newStatus) {
@@ -596,5 +597,32 @@ export function changeTrack(changeType: ChangeTypes): ThunkResult<void> {
         if (!nextTrack) return;
 
         dispatch(playTrack(currentPlaylistId, nextTrack, false, changeType));
+    };
+}
+
+export function registerPlay(): ThunkResult<void> {
+    return (_dispatch, getState) => {
+        const {
+            player: { playingTrack },
+        } = getState();
+
+        if (playingTrack) {
+            const { id, playlistId } = playingTrack;
+
+            const params: any = {
+                track_urn: `soundcloud:tracks:${id}`
+            };
+
+            const type = getPlaylistType(playlistId);
+
+            if (!type || !(playlistId in PlaylistTypes)) {
+                params.context_urn = `soundcloud:playlists:${playlistId}`;
+            }
+
+            fetch(SC.registerPlayUrl(), {
+                method: 'POST',
+                body: JSON.stringify(params)
+            });
+        }
     };
 }

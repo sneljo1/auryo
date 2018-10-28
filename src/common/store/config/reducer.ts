@@ -21,7 +21,8 @@ export const configReducer: Reducer<ConfigState> = (state = initialState, action
             };
         case ConfigActionTypes.SET_KEY:
             return {
-                ...setToValue(state, payload.value, payload.key)
+                ...setToValue(state, payload.value, payload.key),
+                lastChanged: new Date().getTime(),
             };
         default:
             return state;

@@ -14,6 +14,7 @@ import Thumbar from './win32/thumbar';
 import Win10MediaService from './win32/win10/win10MediaService';
 import { IFeature } from './feature.interface';
 import Feature from './feature';
+import NotificationManager from './NotificationManager';
 
 export const tools: Array<typeof Feature> = [
   AppUpdater,
@@ -23,6 +24,7 @@ export const tools: Array<typeof Feature> = [
   ExceptionManager,
   ConfigManager,
   ApplicationMenu,
+  NotificationManager,
 
   // Mac
   TouchBarManager,

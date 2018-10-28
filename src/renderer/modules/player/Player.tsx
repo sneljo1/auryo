@@ -1,15 +1,16 @@
+import { Intent } from '@blueprintjs/core';
 import cn from 'classnames';
 import { IpcMessageEvent, ipcRenderer } from 'electron';
-import { isEqual } from 'lodash';
-import { denormalize } from 'normalizr';
+import { debounce, isEqual } from 'lodash';
 import Slider from 'rc-slider';
 import * as React from 'react';
 import { connect, MapDispatchToProps } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
+import { getTrackEntity } from '../../../common/store/entities/selectors';
+import { SoundCloud } from '../../../types';
 import { IMAGE_SIZES } from '../../../common/constants';
 import { EVENTS } from '../../../common/constants/events';
-import { trackSchema } from '../../../common/schemas';
 import { StoreState } from '../../../common/store';
 import { AppState } from '../../../common/store/app';
 import { ConfigState, setConfigKey } from '../../../common/store/config';
@@ -18,6 +19,7 @@ import {
     ChangeTypes,
     PlayerState,
     PlayerStatus,
+    registerPlay,
     RepeatTypes,
     setCurrentTime,
     setDuration,
@@ -29,13 +31,12 @@ import { getReadableTime, SC } from '../../../common/utils';
 import FallbackImage from '../_shared/FallbackImage';
 import TextShortener from '../_shared/TextShortener';
 import Audio from './components/Audio';
-import { EntitiesState } from '../../../common/store/entities';
 
 interface PropsFromState {
     player: PlayerState;
     config: ConfigState;
-    entities: EntitiesState;
     app: AppState;
+    track: SoundCloud.Track | null;
 }
 
 interface PropsFromDispatch {
@@ -47,6 +48,7 @@ interface PropsFromDispatch {
     addToast: typeof addToast;
     setDuration: typeof setDuration;
     toggleQueue: typeof toggleQueue;
+    registerPlay: typeof registerPlay;
 }
 
 interface State {
@@ -55,25 +57,32 @@ interface State {
     isVolumeSeeking: boolean;
     muted: boolean;
     offline: boolean;
+    volume: number;
 }
 
 type AllProps = PropsFromState & PropsFromDispatch;
 
 class Player extends React.Component<AllProps, State>{
 
-    state: State = {
-        nextTime: 0,
-        isSeeking: false,
-        isVolumeSeeking: false,
-        muted: false,
-        offline: false
-    };
+    private audio: Audio | null = null;
+    private debouncedSetVolume: (value: number) => void;
+
+    constructor(props: AllProps) {
+        super(props);
+
+        this.state = {
+            nextTime: 0,
+            isSeeking: false,
+            isVolumeSeeking: false,
+            muted: false,
+            offline: false,
+            volume: this.props.config.volume
+        };
+
+        this.debouncedSetVolume = debounce((value: number) => this.props.setConfigKey('volume', value), 100);
+    }
 
     componentDidMount() {
-        const {
-            updateTime
-        } = this.props;
-
         const { isSeeking } = this.state;
 
         let stopSeeking: any;
@@ -84,19 +93,36 @@ class Player extends React.Component<AllProps, State>{
                     isSeeking: true
                 });
             }
+
             clearTimeout(stopSeeking);
 
-            this.setState({
-                nextTime: to
-            });
+            this.seekChange(to);
 
             stopSeeking = setTimeout(() => {
-                updateTime(to);
                 this.setState({
-                    isSeeking: false
+                    isSeeking: false,
                 });
+
+                if (this.audio && this.audio.instance) {
+                    this.audio.instance.currentTime = to;
+                }
+
+                setCurrentTime(to);
+
             }, 100);
         });
+    }
+
+    componentWillReceiveProps(nextProps: AllProps) {
+        const { player } = this.props;
+
+        if (this.audio && nextProps.player.playingTrack !== player.playingTrack) {
+            this.audio.clearTime();
+        }
+
+        if (this.audio && nextProps.player.status !== this.audio.getStatus()) {
+            this.audio.setNewStatus(nextProps.player.status);
+        }
     }
 
     shouldComponentUpdate(nextProps: AllProps, nextState: State) {
@@ -160,11 +186,11 @@ class Player extends React.Component<AllProps, State>{
 
     renderProgressBar() {
         const {
-            updateTime,
             player: {
                 currentTime,
                 duration
-            }
+            },
+            setCurrentTime
         } = this.props;
 
         const {
@@ -175,8 +201,8 @@ class Player extends React.Component<AllProps, State>{
             <Slider
                 min={0}
                 max={duration}
-                value={(isSeeking && nextTime !== -1) ? nextTime : currentTime}
-                step={1000}
+                value={isSeeking ? nextTime : currentTime}
+                step={1}
                 onChange={this.seekChange}
                 onBeforeChange={() => {
                     this.setState({
@@ -184,44 +210,44 @@ class Player extends React.Component<AllProps, State>{
                     });
                 }}
                 onAfterChange={(val) => {
-                    updateTime(val);
-
                     this.setState({
                         isSeeking: false,
-                        nextTime: -1
                     });
+
+                    if (this.audio && this.audio.instance) {
+                        this.audio.instance.currentTime = val;
+                    }
+
+                    setCurrentTime(val);
                 }}
             />
         );
     }
 
 
-    seekChange = (val: number) => {
-        const { setCurrentTime } = this.props;
-
-        // TODO perhaps debounce this
-
-        setCurrentTime(val);
-
+    seekChange = (nextTime: number) => {
         this.setState({
-            nextTime: val
+            nextTime
         });
     }
 
-    volumeChange = (value: number) => {
-        const { setConfigKey } = this.props;
+    volumeChange = (volume: number) => {
+        this.setState({ volume });
+        this.debouncedSetVolume(volume);
 
-        setConfigKey('volume', value);
     }
 
     // PLAYER LISTENERS
 
-    onLoad = (duration: number) => {
+    onLoad = (_e: Event, duration: number) => {
         const {
-            setDuration
+            setDuration,
+            registerPlay
         } = this.props;
 
         setDuration(duration);
+
+        registerPlay();
     }
 
     onPlaying = (position: number) => {
@@ -251,16 +277,15 @@ class Player extends React.Component<AllProps, State>{
 
         const {
             player,
-            entities,
             app,
             toggleQueue,
             addToast,
-            updateTime,
-            config: { volume, repeat },
-            toggleStatus
+            config: { volume: configVolume, repeat },
+            toggleStatus,
+            track
         } = this.props;
 
-        const { muted, nextTime, isVolumeSeeking } = this.state;
+        const { muted, isVolumeSeeking } = this.state;
 
         const {
             status,
@@ -269,22 +294,18 @@ class Player extends React.Component<AllProps, State>{
             duration
         } = player;
 
-        if (!playingTrack || (playingTrack && !playingTrack.id)) return null;
-
-        const trackId = playingTrack.id;
-
-        const track = denormalize(trackId, trackSchema, entities);
-
         /**
          * If Track ID is empty, just exit here
          */
-        if (!track || (track && track.loading)) return null;
+        if (!track || !playingTrack) return null;
 
         if ((track.loading && !track.title) || !track.user) return <div>Loading</div>;
 
         const overlay_image = SC.getImageUrl(track, IMAGE_SIZES.XSMALL);
 
         const toggle_play_icon = status === PlayerStatus.PLAYING ? 'pause' : 'play_arrow';
+
+        const volume = this.state.isVolumeSeeking ? this.state.volume : configVolume;
 
         let volume_icon = 'volume_up';
 
@@ -294,7 +315,7 @@ class Player extends React.Component<AllProps, State>{
             volume_icon = 'volume_down';
         }
 
-        const url = `/tracks/${track.id}`;
+        const url = track.stream_url ? SC.appendClientId(track.stream_url) : SC.appendClientId(`${track.uri}/stream`);
 
         return (
             <div className='player'>
@@ -303,20 +324,24 @@ class Player extends React.Component<AllProps, State>{
                 </div>
 
                 <Audio
-                    url={url}
-                    playStatus={status}
+                    ref={(r) => this.audio = r}
+                    src={url}
+                    autoPlay={status === PlayerStatus.PLAYING}
                     volume={volume}
-                    playFromPosition={nextTime}
                     muted={muted}
                     // TODO change back to un
                     id={`${''}-${playingTrack.id}`}
-                    onLoading={this.onLoad}
-                    onPlaying={this.onPlaying}
-                    onFinishedPlaying={this.onFinishedPlaying}
-                    onTimeUpdate={() => {
-                        updateTime(-1);
+                    onLoadedMetadata={this.onLoad}
+                    onListen={this.onPlaying}
+                    onEnded={this.onFinishedPlaying}
+                    onError={(e: ErrorEvent, message: string) => {
+                        console.log('Player - error', e);
+
+                        addToast({
+                            message,
+                            intent: Intent.DANGER
+                        });
                     }}
-                    addToast={addToast}
                 />
 
                 <div className='d-flex playerInner'>
@@ -380,11 +405,11 @@ class Player extends React.Component<AllProps, State>{
                     <div style={{ flexGrow: 1 }}>
                         <div className='playerTimeLine'>
                             <div className='d-flex align-items-center progressWrapper'>
-                                <div className='time'> {getReadableTime(currentTime, true, true)} </div>
+                                <div className='time'> {getReadableTime(currentTime, false, true)} </div>
                                 <div className='progressInner'>
                                     <div className='playerProgress'>{this.renderProgressBar()} </div>
                                 </div>
-                                <div className='time'> {getReadableTime(duration, true, true)} </div>
+                                <div className='time'> {getReadableTime(duration, false, true)} </div>
                             </div>
                         </div>
                     </div>
@@ -398,7 +423,7 @@ class Player extends React.Component<AllProps, State>{
                             <Slider
                                 min={0}
                                 max={1}
-                                value={volume}
+                                value={this.state.volume || volume}
                                 step={0.05}
                                 vertical={true}
                                 onChange={this.volumeChange}
@@ -436,12 +461,22 @@ class Player extends React.Component<AllProps, State>{
 }
 
 const mapStateToProps = (state: StoreState): PropsFromState => {
-    const { entities, player, app, config } = state;
+    const { player, app, config } = state;
+
+    let track = null;
+
+    if (player.playingTrack && player.playingTrack.id) {
+        track = getTrackEntity(player.playingTrack.id)(state);
+
+        if (!track || (track && track.loading)) {
+            track = null;
+        }
+    }
 
     return {
+        track,
         player,
         config,
-        entities,
         app
     };
 };
@@ -455,6 +490,7 @@ const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, {}> = (dispatch)
     addToast,
     setDuration,
     toggleQueue,
+    registerPlay
 }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(Player);

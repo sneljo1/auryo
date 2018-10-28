@@ -1,7 +1,7 @@
 
 
 import { createSelector } from 'reselect';
-import { ObjectTypes, ObjectGroup, ObjectState } from '.';
+import { ObjectGroup, ObjectState, ObjectTypes } from '.';
 import { StoreState } from '..';
 import { NormalizedResult } from '../../../types';
 import { PlaylistTypes } from './types';
@@ -20,7 +20,21 @@ export const getCommentObject = (trackId: string) => createSelector<StoreState, 
 );
 
 export const getPlaylistName = (id: string, playlistType: PlaylistTypes) => [id, playlistType].join('|');
-export const getPlaylistType = (objectId: string): PlaylistTypes => objectId.split('|')[1] as PlaylistTypes;
+
+export const getPlaylistType = (objectId: string): PlaylistTypes | null => {
+
+    if (objectId in PlaylistTypes) {
+        return objectId as PlaylistTypes;
+    }
+
+    const split = objectId.split('|');
+
+    if (split.length !== 2) {
+        return null;
+    }
+
+    return objectId.split('|')[1] as PlaylistTypes;
+};
 
 export const getRelatedTracksPlaylistObject = (trackId: string) => getPlaylistObject(getPlaylistName(trackId, PlaylistTypes.RELATED));
 

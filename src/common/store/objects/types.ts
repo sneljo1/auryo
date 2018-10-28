@@ -8,6 +8,14 @@ export enum ObjectTypes {
 }
 
 export enum PlaylistTypes {
+    // Without ids
+    LIKES = 'LIKES',
+    STREAM = 'STREAM',
+    MYTRACKS = 'MYTRACKS',
+    PLAYLIST = 'PLAYLIST',
+    PLAYLISTS = 'PLAYLISTS',
+
+    // With ids
     RELATED = 'RELATED',
     ARTIST_LIKES = 'ARTIST_LIKES',
     ARTIST_TRACKS = 'ARTIST_TRACKS',

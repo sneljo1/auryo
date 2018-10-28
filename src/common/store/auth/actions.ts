@@ -5,12 +5,11 @@ import { ThunkResult, SoundCloud } from '../../../types';
 import { getPlaylist, setObject } from '../objects/actions';
 import fetchToJson from '../../api/helpers/fetchToJson';
 import fetchToObject from '../../api/helpers/fetchToObject';
-import { PLAYLISTS } from '../../constants';
 import { EVENTS } from '../../constants/events';
 import { SC } from '../../utils';
 import { setToken } from '../config/actions';
 import { AuthActionTypes } from './types';
-import { ObjectTypes } from '../objects';
+import { ObjectTypes, PlaylistTypes } from '../objects';
 import fetchPlaylists from '../../api/fetchPlaylists';
 import { replace } from 'connected-react-router';
 
@@ -63,10 +62,10 @@ export function getAuthTracksIfNeeded(): ThunkResult<void> {
         if (!me || !me.id) return;
 
         const playlist_objects = objects[ObjectTypes.PLAYLISTS];
-        const playlist_object = playlist_objects[PLAYLISTS.MYTRACKS];
+        const playlist_object = playlist_objects[PlaylistTypes.MYTRACKS];
 
         if (!playlist_object) {
-            dispatch(getPlaylist(SC.getUserTracksUrl(me.id), PLAYLISTS.MYTRACKS));
+            dispatch(getPlaylist(SC.getUserTracksUrl(me.id), PlaylistTypes.MYTRACKS));
         }
     };
 }
@@ -78,10 +77,10 @@ export function getAuthAllPlaylistsIfNeeded(): ThunkResult<void> {
         if (!me || !me.id) return;
 
         const playlist_objects = objects[ObjectTypes.PLAYLISTS];
-        const playlist_object = playlist_objects[PLAYLISTS.PLAYLISTS];
+        const playlist_object = playlist_objects[PlaylistTypes.PLAYLISTS];
 
         if (!playlist_object) {
-            dispatch(getPlaylist(SC.getAllUserPlaylistsUrl(me.id), PLAYLISTS.PLAYLISTS));
+            dispatch(getPlaylist(SC.getAllUserPlaylistsUrl(me.id), PlaylistTypes.PLAYLISTS));
         }
     };
 }
@@ -115,10 +114,10 @@ export function getAuthLikesIfNeeded(): ThunkResult<void> {
         const { objects } = getState();
 
         const playlist_objects = objects[ObjectTypes.PLAYLISTS];
-        const playlist_object = playlist_objects[PLAYLISTS.LIKES];
+        const playlist_object = playlist_objects[PlaylistTypes.LIKES];
 
         if (!playlist_object) {
-            dispatch(getPlaylist(SC.getLikesUrl(), PLAYLISTS.LIKES));
+            dispatch(getPlaylist(SC.getLikesUrl(), PlaylistTypes.LIKES));
         }
     };
 }
@@ -162,7 +161,7 @@ export function getAuthFeed(refresh?: boolean): ThunkResult<Promise<any>> {
     return (dispatch, getState) => {
         const { config: { hideReposts } } = getState();
 
-        return dispatch<Promise<any>>(getPlaylist(SC.getFeedUrl(hideReposts ? 40 : 20), PLAYLISTS.STREAM, { refresh }));
+        return dispatch<Promise<any>>(getPlaylist(SC.getFeedUrl(hideReposts ? 40 : 20), PlaylistTypes.STREAM, { refresh }));
     };
 }
 

@@ -1,10 +1,9 @@
 import { uniqWith, isEqual } from 'lodash';
 import { Reducer } from 'redux';
-import { PLAYLISTS } from '../../constants';
 import { isLoading, onError, onSuccess } from '../../utils/reduxUtils';
 import { AppActionTypes } from '../app';
 import { AuthActionTypes } from '../auth';
-import { ObjectGroup, ObjectsActionTypes, ObjectsState, ObjectState, ObjectTypes } from './types';
+import { ObjectGroup, ObjectsActionTypes, ObjectsState, ObjectState, ObjectTypes, PlaylistTypes } from './types';
 
 const initialObjectsState = {
     isFetching: false,
@@ -96,7 +95,7 @@ const initialObjectGroupState = {};
 const objectGroup: Reducer<ObjectGroup> = (state = initialObjectGroupState, action) => {
     const { type, payload } = action;
 
-    const playlistName = payload.playlist ? PLAYLISTS.PLAYLISTS : PLAYLISTS.LIKES;
+    const playlistName = payload.playlist ? PlaylistTypes.PLAYLISTS : PlaylistTypes.LIKES;
 
     switch (type) {
         case isLoading(ObjectsActionTypes.SET):
