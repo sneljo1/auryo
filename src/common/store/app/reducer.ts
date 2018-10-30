@@ -18,7 +18,8 @@ const initialState = {
     dimensions: {
         width: 0,
         height: 0
-    }
+    },
+    remainingPlays: null
 };
 
 export const appReducer: Reducer<AppState> = (state = initialState, action) => {
@@ -32,6 +33,14 @@ export const appReducer: Reducer<AppState> = (state = initialState, action) => {
                     ...state.history,
                     next: payload.next,
                     back: payload.back
+                }
+            };
+        case onSuccess(AppActionTypes.SET_REMAINING_PLAYS):
+            return {
+                ...state,
+                remainingPlays: {
+                    ...payload,
+                    updatedAt: Date.now()
                 }
             };
         case AppActionTypes.TOGGLE_OFFLINE:

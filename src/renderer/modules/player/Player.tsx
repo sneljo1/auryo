@@ -1,4 +1,4 @@
-import { Intent } from '@blueprintjs/core';
+import { Intent, Tag } from '@blueprintjs/core';
 import cn from 'classnames';
 import { IpcMessageEvent, ipcRenderer } from 'electron';
 import { debounce, isEqual } from 'lodash';
@@ -7,30 +7,25 @@ import * as React from 'react';
 import { connect, MapDispatchToProps } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
-import { getTrackEntity } from '../../../common/store/entities/selectors';
-import { SoundCloud } from '../../../types';
 import { IMAGE_SIZES } from '../../../common/constants';
 import { EVENTS } from '../../../common/constants/events';
 import { StoreState } from '../../../common/store';
 import { AppState } from '../../../common/store/app';
 import { ConfigState, setConfigKey } from '../../../common/store/config';
+import { getTrackEntity } from '../../../common/store/entities/selectors';
 import {
     changeTrack,
     ChangeTypes,
     PlayerState,
-    PlayerStatus,
-    registerPlay,
-    RepeatTypes,
-    setCurrentTime,
-    setDuration,
-    toggleStatus,
-    updateTime
+    PlayerStatus, registerPlay, RepeatTypes, setCurrentTime, setDuration, toggleStatus, updateTime
 } from '../../../common/store/player';
 import { addToast, toggleQueue } from '../../../common/store/ui';
 import { getReadableTime, SC } from '../../../common/utils';
+import { SoundCloud } from '../../../types';
 import FallbackImage from '../_shared/FallbackImage';
 import TextShortener from '../_shared/TextShortener';
 import Audio from './components/Audio';
+import * as moment from 'moment';
 
 interface PropsFromState {
     player: PlayerState;
@@ -76,7 +71,7 @@ class Player extends React.Component<AllProps, State>{
             isVolumeSeeking: false,
             muted: false,
             offline: false,
-            volume: this.props.config.volume
+            volume: this.props.config.volume,
         };
 
         this.debouncedSetVolume = debounce((value: number) => this.props.setConfigKey('volume', value), 100);
@@ -84,7 +79,7 @@ class Player extends React.Component<AllProps, State>{
 
     componentDidMount() {
         const { isSeeking } = this.state;
-        const {setCurrentTime} = this.props;
+        const { setCurrentTime } = this.props;
 
         let stopSeeking: any;
 
@@ -111,28 +106,30 @@ class Player extends React.Component<AllProps, State>{
                 setCurrentTime(to);
             }, 100);
         });
+
     }
 
-    componentWillReceiveProps(nextProps: AllProps) {
-        const { player } = this.props;
+    componentDidUpdate(prevProps: AllProps) {
+        const { player: { playingTrack, status } } = this.props;
 
-        if (this.audio && nextProps.player.playingTrack !== player.playingTrack) {
+        if (this.audio && prevProps.player.playingTrack !== playingTrack) {
             this.audio.clearTime();
         }
 
-        if (this.audio && nextProps.player.status !== this.audio.getStatus()) {
-            this.audio.setNewStatus(nextProps.player.status);
+        if (this.audio && status !== this.audio.getStatus()) {
+            this.audio.setNewStatus(status);
         }
     }
 
     shouldComponentUpdate(nextProps: AllProps, nextState: State) {
-        const { player, config } = this.props;
+        const { player, config, app } = this.props;
 
         return !isEqual(nextState, this.state) ||
             !isEqual(nextProps.player.playingTrack, player.playingTrack) ||
             !isEqual(nextProps.player.currentTime, player.currentTime) ||
             !isEqual(nextProps.player.status, player.status) ||
             !isEqual(nextProps.config.repeat, config.repeat) ||
+            !isEqual(nextProps.app.remainingPlays, app.remainingPlays) ||
             !isEqual(nextProps.config.volume, config.volume);
     }
 
@@ -279,7 +276,6 @@ class Player extends React.Component<AllProps, State>{
             player,
             app,
             toggleQueue,
-            addToast,
             config: { volume: configVolume, repeat },
             toggleStatus,
             track
@@ -315,34 +311,13 @@ class Player extends React.Component<AllProps, State>{
             volume_icon = 'volume_down';
         }
 
-        const url = track.stream_url ? SC.appendClientId(track.stream_url) : SC.appendClientId(`${track.uri}/stream`);
-
         return (
             <div className='player'>
                 <div className='imgOverlay'>
                     <FallbackImage overflow={true} offline={app.offline} track_id={track.id} src={overlay_image} />
                 </div>
 
-                <Audio
-                    ref={(r) => this.audio = r}
-                    src={url}
-                    autoPlay={status === PlayerStatus.PLAYING}
-                    volume={volume}
-                    muted={muted}
-                    // TODO change back to un
-                    id={`${''}-${playingTrack.id}`}
-                    onLoadedMetadata={this.onLoad}
-                    onListen={this.onPlaying}
-                    onEnded={this.onFinishedPlaying}
-                    onError={(e: ErrorEvent, message: string) => {
-                        console.log('Player - error', e);
-
-                        addToast({
-                            message,
-                            intent: Intent.DANGER
-                        });
-                    }}
-                />
+                {this.renderAudio()}
 
                 <div className='d-flex playerInner'>
                     <div className='playerAlbum'>
@@ -455,6 +430,63 @@ class Player extends React.Component<AllProps, State>{
                     </div>
                 </div>
             </div>
+        );
+    }
+
+    renderAudio = () => {
+        const {
+            player,
+            addToast,
+            config: { volume: configVolume },
+            track,
+            app: { remainingPlays }
+        } = this.props;
+
+        const { muted } = this.state;
+
+        const {
+            status,
+            playingTrack,
+        } = player;
+
+        if (!track || !playingTrack) return null;
+
+        const volume = this.state.isVolumeSeeking ? this.state.volume : configVolume;
+
+        const url = track.stream_url ? SC.appendClientId(track.stream_url) : SC.appendClientId(`${track.uri}/stream`);
+
+        const limitReached = remainingPlays && remainingPlays.remaining === 0;
+
+        if (remainingPlays && limitReached) {
+            return (
+                <div className='rateLimit'>
+                    Stream limit reached! Unfortunately the API enforces a 15K plays/day limit.
+                    This limit will expire in <Tag className='ml-2' intent={Intent.PRIMARY}>{moment(remainingPlays.resetTime).fromNow()}</Tag>
+                </div>
+            );
+        }
+
+        return (
+            <Audio
+                ref={(r) => this.audio = r}
+                src={url}
+                autoPlay={status === PlayerStatus.PLAYING}
+                volume={volume}
+                muted={muted}
+                // TODO change back to un
+                id={`${''}-${playingTrack.id}`}
+                onLoadedMetadata={this.onLoad}
+                onListen={this.onPlaying}
+                onEnded={this.onFinishedPlaying}
+                onError={(e: ErrorEvent, message: string) => {
+                    console.log('Player - error', e);
+
+                    addToast({
+                        message,
+                        intent: Intent.DANGER
+                    });
+                }}
+            />
         );
     }
 

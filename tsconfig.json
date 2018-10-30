@@ -21,7 +21,6 @@
     "noEmitHelpers": true,
     "module": "commonjs",
     "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
     "pretty": true,
     "target": "es2017",
     "jsx": "react",

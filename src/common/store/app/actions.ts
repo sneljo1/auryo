@@ -9,6 +9,14 @@ import { setConfigKey } from '../config';
 import { changeTrack, ChangeTypes, PlayerStatus, toggleStatus, VolumeChangeTypes } from '../player';
 import { toggleLike, toggleRepost } from '../track/actions';
 import { AppActionTypes, CanGoHistory, Dimensions } from './types';
+import fetchRemainingPlays from '../../api/fetchRemainingTracks';
+
+export function getRemainingPlays() {
+    return {
+        type: AppActionTypes.SET_REMAINING_PLAYS,
+        payload: fetchRemainingPlays()
+    };
+}
 
 export function initApp(): ThunkResult<void> {
     return (dispatch, getState) => {
@@ -36,8 +44,11 @@ export function initApp(): ThunkResult<void> {
             dispatch(getAuthFeed()),
             dispatch(getAuthLikesIfNeeded()),
             dispatch(getAuthLikeIds()),
-            dispatch(getAuthPlaylists())
-        ])));
+            dispatch(getAuthPlaylists()),
+            dispatch(getRemainingPlays()),
+        ]).then(() => {
+            setInterval(() => dispatch(getRemainingPlays()), 30000);
+        })));
     };
 }
 

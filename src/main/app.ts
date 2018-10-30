@@ -2,11 +2,9 @@ import { Intent } from '@blueprintjs/core';
 import { app, BrowserWindow, BrowserWindowConstructorOptions, Menu, nativeImage, shell } from 'electron';
 import * as windowStateKeeper from 'electron-window-state';
 import * as _ from 'lodash';
-import * as moment from 'moment';
 import * as os from 'os';
 import * as path from 'path';
 import { Store } from 'redux';
-import * as request from 'request';
 import { EVENTS } from '../common/constants/events';
 import { StoreState } from '../common/store';
 import { addToast } from '../common/store/ui';
@@ -219,7 +217,7 @@ export class Auryo {
       this.mainWindow.webContents.session.webRequest.onCompleted((details) => {
         if (this.mainWindow && (details.url.indexOf('/stream?client_id=') !== -1 || details.url.indexOf('cf-media.sndcdn.com') !== -1)) {
           if (details.statusCode < 200 && details.statusCode > 300) {
-            this.handleError(details.statusCode, details.url);
+            this.handleError(details.statusCode);
           }
         }
       }
@@ -233,40 +231,13 @@ export class Auryo {
     }
   }
 
-  handleError = (status: number, url: string) => {
+  handleError = (status: number) => {
     switch (status) {
       case 404:
         this.store.dispatch(addToast({
           message: 'This resource might not exists anymore',
           intent: Intent.DANGER
         }));
-        break;
-      case 429:
-        if (!url) return;
-
-        request(url, (error, response, body) => {
-          if (!error && response.statusCode === 200) {
-            const obj = JSON.parse(body);
-            if (!obj) return;
-
-            if (obj.errors && obj.errors.length > 0) {
-              const error = obj.errors[0];
-
-              if (error.meta.rate_limit) {
-
-                this.store.dispatch(addToast({
-                  intent: Intent.DANGER,
-                  // tslint:disable-next-line:max-line-length
-                  message: `Stream limit reached! Unfortunately the API enforces a 15K plays/hour limit. This limit will expire in ${moment(error.meta.reset_time).toNow()}`
-                }));
-
-              }
-            }
-
-          } else {
-            this.logger.error(error);
-          }
-        });
         break;
       default:
         break;

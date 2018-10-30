@@ -46,8 +46,9 @@ export function canFetchMoreOf(objectId: string, type: ObjectTypes): ThunkResult
     return (_dispatch, getState) => {
         const { objects } = getState();
         const object_group = objects[type] || {};
+        const object = object_group[objectId];
 
-        return canFetchMore(object_group[objectId]);
+        return canFetchMore(object);
     };
 
 }
@@ -403,3 +404,8 @@ export function fetchTracks(ids: Array<number>): ThunkResult<void> {
 
     };
 }
+
+export const unset = (objectId: string) => action(ObjectsActionTypes.UNSET, {
+    objectId,
+    objectType: ObjectTypes.PLAYLISTS
+});

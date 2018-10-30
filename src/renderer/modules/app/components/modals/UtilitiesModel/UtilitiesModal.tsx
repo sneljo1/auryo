@@ -5,9 +5,15 @@ import { connectModal, IModalInjectedProps } from 'redux-modal';
 import AboutTab from './about/AboutTab';
 import SettingsTab from './settings/SettingsTab';
 import { connect } from 'react-redux';
+import { StoreState } from '../../../../../../common/store';
+import { RemainingPlays } from '../../../../../../common/store/app';
 
 interface PassedProps {
     activeTab?: TabType;
+}
+
+interface PropsFromState {
+    remainingPlays: RemainingPlays | null;
 }
 
 interface State {
@@ -19,7 +25,7 @@ enum TabType {
     SETTINGS = 'settings'
 }
 
-type Props = PassedProps & IModalInjectedProps;
+type Props = PropsFromState & PassedProps & IModalInjectedProps;
 
 class UtilitiesModal extends React.Component<Props, State> {
 
@@ -30,6 +36,10 @@ class UtilitiesModal extends React.Component<Props, State> {
             activeTab: props.activeTab || TabType.ABOUT
         };
     }
+
+    // getDerivedStateFromProps(props: Props, state: State) {
+    //     if(props.activeTab)
+    // }
 
     toggle = (tab: TabType) => {
         const { activeTab } = this.state;
@@ -42,10 +52,8 @@ class UtilitiesModal extends React.Component<Props, State> {
     }
 
     render() {
-        const { show, handleHide } = this.props;
+        const { show, handleHide, remainingPlays } = this.props;
         const { activeTab } = this.state;
-
-        console.log('not really connected');
 
         return (
             <Modal isOpen={show} toggle={handleHide} className='utilities'>
@@ -79,7 +87,9 @@ class UtilitiesModal extends React.Component<Props, State> {
                     </Nav>
                     <TabContent activeTab={activeTab}>
                         <TabPane tabId='about'>
-                            <AboutTab />
+                            <AboutTab
+                                remainingPlays={remainingPlays}
+                            />
                         </TabPane>
                         <TabPane tabId='settings'>
                             <SettingsTab {...this.props} />
@@ -91,4 +101,8 @@ class UtilitiesModal extends React.Component<Props, State> {
     }
 }
 
-export default connect()(connectModal<PassedProps>({ name: 'utilities' })(UtilitiesModal as any));
+const mapStateToProps = ({ app }: StoreState): PropsFromState => ({
+    remainingPlays: app.remainingPlays
+});
+
+export default connect(mapStateToProps)(connectModal<PassedProps>({ name: 'utilities' })(UtilitiesModal as any));

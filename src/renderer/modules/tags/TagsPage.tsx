@@ -6,7 +6,6 @@ import { Nav } from 'reactstrap';
 import { bindActionCreators } from 'redux';
 import { StoreState } from '../../../common/store';
 import { canFetchMoreOf, fetchMore, ObjectState, ObjectTypes, PlaylistTypes } from '../../../common/store/objects';
-import { searchByTag } from '../../../common/store/objects/playlists/search/actions';
 import { getPlaylistName, getPlaylistObject } from '../../../common/store/objects/selectors';
 import { setScrollPosition } from '../../../common/store/ui';
 import { getPreviousScrollTop } from '../../../common/store/ui/selectors';
@@ -17,6 +16,7 @@ import PageHeader from '../_shared/PageHeader/PageHeader';
 import Spinner from '../_shared/Spinner/Spinner';
 import TracksGrid from '../_shared/TracksGrid/TracksGrid';
 import WithHeaderComponent from '../_shared/WithHeaderComponent';
+import { search } from '../../../common/store/objects/playlists/search/actions';
 
 interface OwnProps extends RouteComponentProps<{ tag: string, type: string }> {
 }
@@ -33,7 +33,7 @@ interface PropsFromDispatch {
     canFetchMoreOf: typeof canFetchMoreOf;
     fetchMore: typeof fetchMore;
     setScrollPosition: typeof setScrollPosition;
-    searchByTag: typeof searchByTag;
+    search: typeof search;
 }
 
 interface State {
@@ -50,18 +50,18 @@ type AllProps = OwnProps & PropsFromState & PropsFromDispatch;
 class TagsPage extends WithHeaderComponent<AllProps, State> {
 
     componentDidMount() {
-        const { tag, playlist, objectId, searchByTag } = this.props;
+        const { tag, playlist, objectId, search } = this.props;
 
         if (!playlist && tag && tag.length) {
-            searchByTag(objectId, tag, 25);
+            search({ tag }, objectId, 25);
         }
     }
 
     componentWillReceiveProps(nextProps: AllProps) {
-        const { tag, playlist, objectId, searchByTag, showType } = this.props;
+        const { tag, playlist, objectId, search, showType } = this.props;
 
         if ((tag !== nextProps.tag || !playlist) && tag && tag.length || showType !== nextProps.showType) {
-            searchByTag(objectId, nextProps.tag, 25);
+            search({ tag: nextProps.tag }, objectId, 25);
         }
     }
 
@@ -135,10 +135,6 @@ class TagsPage extends WithHeaderComponent<AllProps, State> {
                     items={playlist.items}
                     objectId={objectId}
                 />
-
-                {
-                    playlist && playlist.isFetching && <Spinner />
-                }
             </CustomScroll>
         );
     }
@@ -161,7 +157,7 @@ const mapStateToProps = (state: StoreState, props: OwnProps): PropsFromState => 
 };
 
 const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, OwnProps> = (dispatch) => bindActionCreators({
-    searchByTag,
+    search,
     canFetchMoreOf,
     fetchMore,
     setScrollPosition

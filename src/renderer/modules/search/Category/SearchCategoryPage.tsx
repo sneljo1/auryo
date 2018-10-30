@@ -4,14 +4,14 @@ import { RouteComponentProps } from 'react-router';
 import { bindActionCreators } from 'redux';
 import { StoreState } from '../../../../common/store';
 import { canFetchMoreOf, fetchMore, ObjectState, ObjectTypes, PlaylistTypes } from '../../../../common/store/objects';
-import { searchType } from '../../../../common/store/objects/playlists/search/actions';
+import { search } from '../../../../common/store/objects/playlists/search/actions';
 import { getPlaylistName, getPlaylistObject } from '../../../../common/store/objects/selectors';
+import { setScrollPosition } from '../../../../common/store/ui';
+import { getPreviousScrollTop } from '../../../../common/store/ui/selectors';
 import { NormalizedResult } from '../../../../types';
 import Spinner from '../../_shared/Spinner/Spinner';
 import TracksGrid from '../../_shared/TracksGrid/TracksGrid';
 import SearchWrapper from '../SearchWrapper';
-import { setScrollPosition } from '../../../../common/store/ui';
-import { getPreviousScrollTop } from '../../../../common/store/ui/selectors';
 
 interface OwnProps extends RouteComponentProps<{
     category: 'user' | 'playlist' | 'track';
@@ -27,7 +27,7 @@ interface PropsFromState {
 }
 
 interface PropsFromDispatch {
-    searchType: typeof searchType;
+    search: typeof search;
     canFetchMoreOf: typeof canFetchMoreOf;
     fetchMore: typeof fetchMore;
     setScrollPosition: typeof setScrollPosition;
@@ -38,18 +38,18 @@ type AllProps = OwnProps & PropsFromState & PropsFromDispatch;
 class SearchCategory extends React.Component<AllProps> {
 
     componentDidMount() {
-        const { query, playlist, objectId, searchType } = this.props;
+        const { query, playlist, objectId, search } = this.props;
 
         if (!playlist && query && query.length) {
-            searchType(objectId, query, 25);
+            search({ query }, objectId, 25);
         }
     }
 
-    componentWillReceiveProps(nextProps: AllProps) {
-        const { query, playlist, objectId, searchType } = this.props;
+    componentDidUpdate(prevProps: AllProps) {
+        const { query, playlist, objectId, search } = this.props;
 
-        if ((query !== nextProps.query || !playlist) && query && query.length) {
-            searchType(objectId, nextProps.query, 25);
+        if ((query !== prevProps.query || !playlist) && query && query.length) {
+            search({ query }, objectId, 25);
         }
     }
 
@@ -134,7 +134,7 @@ const mapStateToProps = (state: StoreState, props: OwnProps): PropsFromState => 
 };
 
 const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, OwnProps> = (dispatch) => bindActionCreators({
-    searchType,
+    search,
     canFetchMoreOf,
     fetchMore,
     setScrollPosition

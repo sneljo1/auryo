@@ -5,7 +5,6 @@ import { bindActionCreators } from 'redux';
 import { StoreState } from '../../../common/store';
 import { toggleFollowing } from '../../../common/store/auth';
 import { canFetchMoreOf, fetchMore, ObjectState, ObjectTypes, PlaylistTypes } from '../../../common/store/objects';
-import { searchAll } from '../../../common/store/objects/playlists/search/actions';
 import { getPlaylistName, getPlaylistObject } from '../../../common/store/objects/selectors';
 import { playTrack } from '../../../common/store/player';
 import { setScrollPosition } from '../../../common/store/ui';
@@ -14,6 +13,7 @@ import { NormalizedResult } from '../../../types';
 import Spinner from '../_shared/Spinner/Spinner';
 import TracksGrid from '../_shared/TracksGrid/TracksGrid';
 import SearchWrapper from './SearchWrapper';
+import { search } from '../../../common/store/objects/playlists/search/actions';
 
 interface OwnProps extends RouteComponentProps<{}> {
 }
@@ -26,7 +26,7 @@ interface PropsFromState {
 }
 
 interface PropsFromDispatch {
-    searchAll: typeof searchAll;
+    search: typeof search;
     canFetchMoreOf: typeof canFetchMoreOf;
     fetchMore: typeof fetchMore;
     setScrollPosition: typeof setScrollPosition;
@@ -37,18 +37,18 @@ type AllProps = OwnProps & PropsFromState & PropsFromDispatch;
 class Search extends React.Component<AllProps> {
 
     componentDidMount() {
-        const { query, searchAll, playlist } = this.props;
+        const { query, search, playlist, objectId } = this.props;
 
         if (!playlist && query && query.length) {
-            searchAll(query, 15);
+            search({ query }, objectId, 15);
         }
     }
 
     componentWillReceiveProps(nextProps: AllProps) {
-        const { query, searchAll, playlist } = this.props;
+        const { query, search, playlist, objectId } = this.props;
 
         if ((query !== nextProps.query || !playlist) && nextProps.query && nextProps.query.length) {
-            searchAll(nextProps.query, 15);
+            search({ query: nextProps.query }, objectId, 15);
         }
     }
 
@@ -139,7 +139,7 @@ const mapStateToProps: MapStateToPropsParam<PropsFromState, OwnProps, StoreState
 };
 
 const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, OwnProps> = (dispatch) => bindActionCreators({
-    searchAll,
+    search,
     canFetchMoreOf,
     fetchMore,
     toggleFollowing,

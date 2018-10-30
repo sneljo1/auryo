@@ -9,9 +9,13 @@ interface OwnProps extends RouteComponentProps<{ genre: string }> {
 
 }
 
+interface State {
+    sort: SortTypes;
+}
+
 class ChartsDetailsPage extends React.Component<OwnProps> {
 
-    state = {
+    readonly state: State = {
         sort: SortTypes.TOP
     };
 

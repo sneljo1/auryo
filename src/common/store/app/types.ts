@@ -8,7 +8,14 @@ export interface AppState extends Readonly<{
     update: UpdateInfo
     last_checked: number
     dimensions: Dimensions
+    remainingPlays: RemainingPlays | null
 }> { }
+
+export interface RemainingPlays {
+    remaining: number;
+    resetTime: number;
+    updatedAt?: number;
+}
 
 export interface CanGoHistory {
     back: boolean;
@@ -32,4 +39,5 @@ export const enum AppActionTypes {
     SET_UPDATE_AVAILABLE = '@@app/SET_UPDATE_AVAILABLE',
     SET_CAN_GO = '@@app/SET_CAN_GO',
     RESET_STORE = '@@app/RESET_STORE',
+    SET_REMAINING_PLAYS = '@@app/SET_REMAINING_PLAYS',
 }

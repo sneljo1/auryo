@@ -1,3 +1,4 @@
+import { RemainingPlays } from '../store/app';
 import { asJson, SC, status } from '../utils';
 
 interface JsonResponse {
@@ -12,10 +13,10 @@ interface Status {
         name: 'plays' | 'search'
     };
     remaining_requests: number;
-    reset_time: string | null;
+    reset_time: string;
 }
 
-export default function fetchRemainingTracks(): Promise<number | null> {
+export default function fetchRemainingPlays(): Promise<RemainingPlays | null> {
     return fetch(SC.getRemainingTracks())
         .then(status)
         .then(asJson)
@@ -24,7 +25,10 @@ export default function fetchRemainingTracks(): Promise<number | null> {
                 const plays = json.statuses.find((t) => t.rate_limit.name === 'plays');
 
                 if (plays) {
-                    return plays.remaining_requests;
+                    return {
+                        remaining: plays.remaining_requests,
+                        resetTime: new Date(plays.reset_time).getTime()
+                    };
                 }
             }
 

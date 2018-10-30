@@ -65,8 +65,6 @@ class SettingsTab extends React.Component<AllProps, State> {
 
         const { restartMsg, validDir } = this.state;
 
-        console.log(config);
-
         return (
             <div>
 
