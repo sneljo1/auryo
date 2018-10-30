@@ -20,13 +20,10 @@ export class Utils {
   }
 
   static async installExtensions() {
-    const installer = require('electron-devtools-installer'); // eslint-disable-line global-require
+    const { default: installExtension, REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } = require('electron-devtools-installer');
 
-    const extensions = ['REACT_DEVELOPER_TOOLS', 'REDUX_DEVTOOLS'];
-    const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
-
-    extensions.forEach(async (name) => {
-      await installer.default(installer[name], forceDownload);
-    });
+    await installExtension([REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS])
+      .then((name: string) => console.log(`Added Extension:  ${name}`))
+      .catch((err: any) => console.log('An error occurred: ', err));
   }
 }

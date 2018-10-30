@@ -84,6 +84,7 @@ class Player extends React.Component<AllProps, State>{
 
     componentDidMount() {
         const { isSeeking } = this.state;
+        const {setCurrentTime} = this.props;
 
         let stopSeeking: any;
 
@@ -108,7 +109,6 @@ class Player extends React.Component<AllProps, State>{
                 }
 
                 setCurrentTime(to);
-
             }, 100);
         });
     }
@@ -285,7 +285,7 @@ class Player extends React.Component<AllProps, State>{
             track
         } = this.props;
 
-        const { muted, isVolumeSeeking } = this.state;
+        const { muted, isVolumeSeeking, nextTime, isSeeking } = this.state;
 
         const {
             status,
@@ -405,7 +405,7 @@ class Player extends React.Component<AllProps, State>{
                     <div style={{ flexGrow: 1 }}>
                         <div className='playerTimeLine'>
                             <div className='d-flex align-items-center progressWrapper'>
-                                <div className='time'> {getReadableTime(currentTime, false, true)} </div>
+                                <div className='time'> {getReadableTime(isSeeking ? nextTime : currentTime, false, true)} </div>
                                 <div className='progressInner'>
                                     <div className='playerProgress'>{this.renderProgressBar()} </div>
                                 </div>

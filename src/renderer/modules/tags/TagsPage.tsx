@@ -4,13 +4,13 @@ import { connect, MapDispatchToProps } from 'react-redux';
 import { NavLink, RouteComponentProps } from 'react-router-dom';
 import { Nav } from 'reactstrap';
 import { bindActionCreators } from 'redux';
-import { canFetchMoreOf, fetchMore, ObjectState, ObjectTypes, PlaylistTypes } from '../../../common/store/objects';
-import { NormalizedResult } from '../../../types';
 import { StoreState } from '../../../common/store';
+import { canFetchMoreOf, fetchMore, ObjectState, ObjectTypes, PlaylistTypes } from '../../../common/store/objects';
 import { searchByTag } from '../../../common/store/objects/playlists/search/actions';
 import { getPlaylistName, getPlaylistObject } from '../../../common/store/objects/selectors';
 import { setScrollPosition } from '../../../common/store/ui';
 import { getPreviousScrollTop } from '../../../common/store/ui/selectors';
+import { NormalizedResult } from '../../../types';
 import Header from '../app/components/Header/Header';
 import CustomScroll from '../_shared/CustomScroll';
 import PageHeader from '../_shared/PageHeader/PageHeader';
@@ -58,9 +58,9 @@ class TagsPage extends WithHeaderComponent<AllProps, State> {
     }
 
     componentWillReceiveProps(nextProps: AllProps) {
-        const { tag, playlist, objectId, searchByTag } = this.props;
+        const { tag, playlist, objectId, searchByTag, showType } = this.props;
 
-        if ((tag !== nextProps.tag || !playlist) && tag && tag.length) {
+        if ((tag !== nextProps.tag || !playlist) && tag && tag.length || showType !== nextProps.showType) {
             searchByTag(objectId, nextProps.tag, 25);
         }
     }
@@ -147,7 +147,7 @@ class TagsPage extends WithHeaderComponent<AllProps, State> {
 const mapStateToProps = (state: StoreState, props: OwnProps): PropsFromState => {
     const { match: { params: { tag, type } } } = props;
 
-    const showType = type as TabTypes || TabTypes.TRACKS;
+    const showType = (type as TabTypes) || TabTypes.TRACKS;
 
     const objectId = getPlaylistName(tag, showType === TabTypes.TRACKS ? PlaylistTypes.SEARCH_TRACK : PlaylistTypes.SEARCH_PLAYLIST);
 

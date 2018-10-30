@@ -7,7 +7,6 @@ import { ObjectsActionTypes, PlaylistTypes } from '../../types';
 import { Utils } from '../../../../../common/utils/utils';
 
 export function isSoundCloudUrl(query: string) {
-    console.log(decodeURIComponent(query));
     return /https?:\/\/(www.)?soundcloud\.com\//g.exec(query) !== null;
 }
 

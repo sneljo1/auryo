@@ -1,4 +1,4 @@
-import { Position, Menu, MenuDivider, MenuItem, Popover } from '@blueprintjs/core';
+import { Menu, MenuDivider, MenuItem, Popover, Position } from '@blueprintjs/core';
 import cn from 'classnames';
 import { isEqual } from 'lodash';
 import * as React from 'react';
@@ -6,13 +6,13 @@ import { connect, MapDispatchToProps } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { StoreState } from '../../../common/store';
 import { AuthLikes, AuthReposts } from '../../../common/store/auth';
-import { ObjectGroup, ObjectTypes } from '../../../common/store/objects';
+import { CombinedUserPlaylistState, getUserPlaylistsCombined, getLikes, getReposts } from '../../../common/store/auth/selectors';
 import { addUpNext } from '../../../common/store/player';
 import { togglePlaylistTrack } from '../../../common/store/playlist/playlist';
 import { toggleLike, toggleRepost } from '../../../common/store/track/actions';
 import { SC } from '../../../common/utils';
 import { IPC } from '../../../common/utils/ipc';
-import { Normalized, SoundCloud } from '../../../types';
+import { SoundCloud } from '../../../types';
 import ShareMenuItem from './ShareMenuItem';
 
 interface OwnProps {
@@ -23,8 +23,7 @@ interface OwnProps {
 interface PropsFromState {
     likes: AuthLikes;
     reposts: AuthReposts;
-    playlists: Array<Normalized.Playlist>;
-    playlistObjects: ObjectGroup;
+    userPlaylists: Array<CombinedUserPlaylistState>;
 }
 
 interface PropsFromDispatch {
@@ -39,13 +38,13 @@ type AllProps = OwnProps & PropsFromState & PropsFromDispatch;
 class ActionsDropdown extends React.Component<AllProps> {
 
     shouldComponentUpdate(nextProps: AllProps) {
-        const { track, likes, index, reposts, playlists } = this.props;
+        const { track, likes, index, reposts, userPlaylists } = this.props;
 
         return track.id !== nextProps.track.id ||
             index !== nextProps.index ||
             !isEqual(likes, nextProps.likes) ||
             !isEqual(reposts, nextProps.reposts) ||
-            !isEqual(playlists, nextProps.playlists);
+            !isEqual(userPlaylists, nextProps.userPlaylists);
     }
 
     render() {
@@ -57,9 +56,8 @@ class ActionsDropdown extends React.Component<AllProps> {
             track,
             addUpNext,
             index,
-            playlists,
+            userPlaylists,
             togglePlaylistTrack,
-            playlistObjects
         } = this.props;
 
         const trackId = track.id;
@@ -93,16 +91,15 @@ class ActionsDropdown extends React.Component<AllProps> {
                             track.kind !== 'playlist' ? (
                                 <MenuItem text='Add to playlist'>
                                     {
-                                        playlists.map((playlist) => {
-                                            const items = playlistObjects[playlist.id].items || [];
-                                            const inPlaylist = !!items.find((t) => t.id === trackId);
+                                        userPlaylists.map((playlist) => {
+                                            const inPlaylist = !!playlist.items.find((t) => t.id === track.id);
 
                                             return (
                                                 <MenuItem
                                                     key={`menu-item-add-to-playlist-${playlist.id}`}
                                                     className={cn({ 'text-primary': inPlaylist })}
                                                     onClick={() => {
-                                                        togglePlaylistTrack(trackId, playlist.id);
+                                                        togglePlaylistTrack(track.id, playlist.id);
                                                     }}
                                                     text={playlist.title}
                                                 />
@@ -145,20 +142,11 @@ class ActionsDropdown extends React.Component<AllProps> {
     }
 }
 
-const mapStateToProps = (state: StoreState): PropsFromState => {
-    const { auth: { playlists, likes, reposts }, entities, objects } = state;
-    const { playlistEntities } = entities;
-
-    const playlistObjects = objects[ObjectTypes.PLAYLISTS] || {};
-
-
-    return {
-        playlists: playlists.map((result) => playlistEntities[result.id]),
-        likes,
-        playlistObjects,
-        reposts
-    };
-};
+const mapStateToProps = (state: StoreState): PropsFromState => ({
+    userPlaylists: getUserPlaylistsCombined(state),
+    likes: getLikes(state),
+    reposts: getReposts(state)
+});
 
 const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, OwnProps> = (dispatch) => bindActionCreators({
     addUpNext,

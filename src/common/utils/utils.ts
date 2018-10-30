@@ -11,13 +11,16 @@ export class Utils {
                 switch (json.kind) {
                     case 'track':
                         return history.replace(`/track/${json.id}`);
+                    case 'playlist':
+                        return history.replace(`/playlist/${json.id}`);
                     case 'user':
                         return history.replace(`/user/${json.id}`);
                     default:
-                        throw Error('Not implemented');
+                        console.error('Resolve not implemented for', json.kind);
                 }
             })
-            .catch(() => {
+            .catch((err) => {
+                console.error(err);
                 history.goBack();
                 IPC.openExternal(unescape(url));
             });

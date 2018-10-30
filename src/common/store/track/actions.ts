@@ -1,6 +1,5 @@
 import { Intent } from '@blueprintjs/core';
 import * as moment from 'moment';
-import { toastr } from 'react-redux-toastr';
 import { ThunkResult } from '../../../types';
 import fetchTrack from '../../api/fetchTrack';
 import fetchToJson from '../../api/helpers/fetchToJson';
@@ -49,8 +48,11 @@ export function toggleLike(trackId: number, playlist: boolean = false): ThunkRes
                                 const error = res.errors[0];
 
                                 if (error && error.reason_phrase === 'info: too many likes') {
-                                    // tslint:disable-next-line:max-line-length
-                                    toastr.error('Unable to like track', `You have liked too quick, you can like again ${moment(error.release_at).fromNow()}`);
+
+                                    dispatch(addToast({
+                                        message: `Please slow down your likes, you can like again ${moment(error.release_at).fromNow()}`,
+                                        intent: Intent.DANGER
+                                    }));
                                 }
                             }
                         });

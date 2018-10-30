@@ -68,15 +68,15 @@ render(
     document.getElementById('app')
 );
 
-if (module.hot) {
-    module.hot.accept('./Main', () => {
-        const NextRoot = require('./Main');
+// if (module.hot) {
+//     module.hot.accept('./Main', () => {
+//         const NextRoot = require('./Main');
 
-        render(
-            <AppContainer>
-                <NextRoot store={store} history={history} />
-            </AppContainer>,
-            document.getElementById('app')
-        );
-    });
-}
+//         render(
+//             <AppContainer>
+//                 <NextRoot store={store} history={history} />
+//             </AppContainer>,
+//             document.getElementById('app')
+//         );
+//     });
+// }

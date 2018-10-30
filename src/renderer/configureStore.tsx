@@ -1,7 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 import { ipcRenderer } from 'electron';
 import { createHashHistory } from 'history';
-import { toastr } from 'react-redux-toastr';
 import { applyMiddleware, compose, createStore, Middleware, Store } from 'redux';
 import { electronEnhancer } from 'redux-electron-store';
 import { createLogger } from 'redux-logger';
@@ -10,9 +9,10 @@ import thunk from 'redux-thunk';
 import { rootReducer, StoreState } from '../common/store';
 import { logout } from '../common/store/auth';
 import { PlayerActionTypes } from '../common/store/player';
-import { UIActionTypes } from '../common/store/ui';
+import { UIActionTypes, addToast } from '../common/store/ui';
 import { REDUX_STATES } from '../types';
 import { connectRouter, routerMiddleware } from 'connected-react-router';
+import { Intent } from '@blueprintjs/core';
 
 const history = createHashHistory();
 
@@ -30,7 +30,10 @@ const test: Middleware = (store) => (next) => (action) => {
         } else if (response && response.status === 401) {
             store.dispatch<any>(logout());
         } else if (message) {
-            toastr.error('Something went wrong', message, { showCloseButton: false });
+            store.dispatch(addToast({
+                message: 'Something went wrong',
+                intent: Intent.DANGER
+            }));
         }
     }
     try {
@@ -73,10 +76,12 @@ const enhancer = composeEnhancers(applyMiddleware(...middleware), electronEnhanc
             currentPlaylistId: true,
             playingTrack: true
         },
-        routing: true,
         modal: true,
         auth: {
             authentication: true
+        },
+        ui: {
+            toasts: true
         }
     }
 }));

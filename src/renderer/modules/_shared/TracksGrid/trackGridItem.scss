@@ -186,6 +186,21 @@
     i {
       color: #6e727d;
       padding-right: 8px;
+
+      &.icon-favorite{
+        width: 40px;
+        height: 40px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 100%;
+        background: white;
+        color: theme-color("primary");
+        border: 1px solid #eaeaea;
+        padding-right: 0;
+        margin-right: .8rem;
+        padding-right: 0;
+      }
     }
 
     .trackTitle {
@@ -286,14 +301,4 @@
     }
 
   }
-}
-
-.explicit {
-  background: #f55a57;
-  color: #fff;
-  font-size: 10px;
-  padding: 2px 8px;
-  text-transform: uppercase;
-  border-radius: 8px;
-  float: right;
 }

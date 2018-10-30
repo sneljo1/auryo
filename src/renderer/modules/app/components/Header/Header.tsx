@@ -85,9 +85,10 @@ class Header extends React.Component<AllProps, State> {
     }
 
     shouldComponentUpdate(nextProps: AllProps, nextState: State) {
-        const { scrollTop, locHistory, me, update } = this.props;
+        const { scrollTop, locHistory, me, update, location } = this.props;
 
         return !isEqual(locHistory, nextProps.locHistory) ||
+            !isEqual(location.pathname, nextProps.location.pathname) ||
             me !== nextProps.me ||
             (this.navBarWrapper && nextState.height !== this.navBarWrapper.clientHeight) ||
             nextProps.update !== update ||

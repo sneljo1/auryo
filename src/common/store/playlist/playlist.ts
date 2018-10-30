@@ -1,4 +1,3 @@
-import { toastr } from 'react-redux-toastr';
 import { NormalizedResult, ThunkResult } from '../../../types';
 import fetchToJson from '../../api/helpers/fetchToJson';
 import { SC } from '../../utils';
@@ -117,7 +116,7 @@ export function createPlaylist(title: string, type: string, tracks: Array<Normal
 // This method is unused because a playlist only gets deleted after a while,
 // not sure if we can check if it's pending deletion. Otherwise it would be bad UX
 export function deletePlaylist(playlistId: string): ThunkResult<any> {
-    return (_dispatch, getState) => {
+    return (dispatch, getState) => {
         const {
             entities: {
                 playlistEntities
@@ -132,10 +131,16 @@ export function deletePlaylist(playlistId: string): ThunkResult<any> {
                 method: 'DELETE'
             })
                 .then(() => {
-                    toastr.info(playlist_entitity.title, 'Playlist has been deleted!');
+                    dispatch(addToast({
+                        message: `Playlist has been deleted`,
+                        intent: Intent.SUCCESS
+                    }));
                 })
                 .catch(() => {
-                    toastr.error(playlist_entitity.title, 'Unable to delete playlist!');
+                    dispatch(addToast({
+                        message: `Unable to delete playlist`,
+                        intent: Intent.DANGER
+                    }));
                 });
         }
     };

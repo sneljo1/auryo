@@ -97,19 +97,19 @@ class SettingsTab extends React.Component<AllProps, State> {
                                     setConfigKey={setConfigKey}
                                 />
 
+                                <CheckboxConfig
+                                    name='Show notification on track change'
+                                    configKey='app.showTrackChangeNotification'
+                                    config={config}
+                                    setConfigKey={setConfigKey}
+                                />
+
                                 <InputConfig
                                     name='Download path'
                                     configKey='app.downloadPath'
                                     invalid={!validDir}
                                     {...this.props}
                                     onChange={(value, setKey) => this.isValidDirectory(value, setKey)}
-                                />
-
-                                <CheckboxConfig
-                                    name='Show notification on track change'
-                                    configKey='app.showTrackChangeNotification'
-                                    config={config}
-                                    setConfigKey={setConfigKey}
                                 />
 
                             </div>

@@ -276,10 +276,12 @@ class ReactAudioPlayer extends React.Component<AllProps, State> {
                 setTimeout(() => {
                     console.log('retry-ing');
                     if (this.audioEl) {
+                        const fromTime = this.audioEl.currentTime;
                         this.audioEl.load();
+                        this.audioEl.currentTime = fromTime;
                         this.play();
                     }
-                }, 5000);
+                }, 3000);
                 break;
             case e.target.error.MEDIA_ERR_DECODE:
             case e.target.error.MEDIA_ERR_SRC_NOT_SUPPORTED:

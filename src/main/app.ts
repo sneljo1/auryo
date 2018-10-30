@@ -1,12 +1,15 @@
+import { Intent } from '@blueprintjs/core';
 import { app, BrowserWindow, BrowserWindowConstructorOptions, Menu, nativeImage, shell } from 'electron';
 import * as windowStateKeeper from 'electron-window-state';
-import { LocationDescriptorObject } from 'history';
 import * as _ from 'lodash';
+import * as moment from 'moment';
 import * as os from 'os';
 import * as path from 'path';
 import { Store } from 'redux';
+import * as request from 'request';
 import { EVENTS } from '../common/constants/events';
 import { StoreState } from '../common/store';
+import { addToast } from '../common/store/ui';
 import Feature from './features/feature';
 import { Logger } from './utils/logger';
 import { Utils } from './utils/utils';
@@ -197,15 +200,7 @@ export class Auryo {
         if (/^(https?:\/\/)/g.exec(u) !== null) {
           if (/https?:\/\/(www.)?soundcloud\.com\//g.exec(u) !== null) {
             if (this.mainWindow) {
-              const goto: LocationDescriptorObject = {
-                pathname: '/resolve',
-                key: 'resolve',
-                state: {
-                  url: escape(u)
-                }
-              };
-
-              this.mainWindow.webContents.send('navigate', goto);
+              this.mainWindow.webContents.send(EVENTS.APP.PUSH_NAVIGATION, '/resolve', u);
             }
           } else {
             shell.openExternal(u);
@@ -221,26 +216,60 @@ export class Auryo {
         }
       });
 
-      this.mainWindow.webContents.session.webRequest.onCompleted(
-        {
-          urls: ['/stream?client_id=', 'cf-media.sndcdn.com']
-        },
-        (details) => {
-          if (this.mainWindow) {
-            this.mainWindow.webContents.send(EVENTS.APP.STREAMED);
-
-            if (details.statusCode < 200 && details.statusCode > 300) {
-              this.mainWindow.webContents.send(EVENTS.APP.STREAM_ERROR, details.statusCode, details.url);
-            }
+      this.mainWindow.webContents.session.webRequest.onCompleted((details) => {
+        if (this.mainWindow && (details.url.indexOf('/stream?client_id=') !== -1 || details.url.indexOf('cf-media.sndcdn.com') !== -1)) {
+          if (details.statusCode < 200 && details.statusCode > 300) {
+            this.handleError(details.statusCode, details.url);
           }
         }
+      }
       );
 
-      this.mainWindow.webContents.session.webRequest.onErrorOccurred({ urls: ['*/stream?client_id=*'] }, (details) => {
-        if (details.error === 'net::ERR_INTERNET_DISCONNECTED' && this.mainWindow) {
-          this.mainWindow.webContents.send(EVENTS.APP.STREAM_ERROR, -1);
-        }
-      });
+      // this.mainWindow.webContents.session.webRequest.onErrorOccurred({ urls: ['*/stream?client_id=*'] }, (details) => {
+      //   if (details.error === 'net::ERR_INTERNET_DISCONNECTED' && this.mainWindow) {
+      //     this.handleError(-1);
+      //   }
+      // });
+    }
+  }
+
+  handleError = (status: number, url: string) => {
+    switch (status) {
+      case 404:
+        this.store.dispatch(addToast({
+          message: 'This resource might not exists anymore',
+          intent: Intent.DANGER
+        }));
+        break;
+      case 429:
+        if (!url) return;
+
+        request(url, (error, response, body) => {
+          if (!error && response.statusCode === 200) {
+            const obj = JSON.parse(body);
+            if (!obj) return;
+
+            if (obj.errors && obj.errors.length > 0) {
+              const error = obj.errors[0];
+
+              if (error.meta.rate_limit) {
+
+                this.store.dispatch(addToast({
+                  intent: Intent.DANGER,
+                  // tslint:disable-next-line:max-line-length
+                  message: `Stream limit reached! Unfortunately the API enforces a 15K plays/hour limit. This limit will expire in ${moment(error.meta.reset_time).toNow()}`
+                }));
+
+              }
+            }
+
+          } else {
+            this.logger.error(error);
+          }
+        });
+        break;
+      default:
+        break;
     }
   }
 }

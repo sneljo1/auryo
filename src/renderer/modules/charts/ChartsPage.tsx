@@ -2,7 +2,7 @@ import cn from 'classnames';
 import * as React from 'react';
 import Masonry from 'react-masonry-css';
 import { connect } from 'react-redux';
-import { RouteComponentProps, NavLink } from 'react-router-dom';
+import { NavLink, RouteComponentProps } from 'react-router-dom';
 import { Nav, TabContent, TabPane } from 'reactstrap';
 import { AUDIO_GENRES, MUSIC_GENRES } from '../../../common/constants';
 import { StoreState } from '../../../common/store';
@@ -113,7 +113,7 @@ class ChartsPage extends WithHeaderComponent<AllProps, State> {
                 <div className='container-fluid charts'>
                     <Nav className='tabs' tabs={true}>
                         <NavLink
-                            className={cn('nav-link')}
+                            className={cn('nav-link', { active: type === TabTypes.MUSIC })}
                             to={`/charts/${TabTypes.MUSIC}`}
                             activeClassName='active'
                         >

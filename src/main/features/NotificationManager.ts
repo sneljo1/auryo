@@ -8,6 +8,7 @@ import Feature from './feature';
 export default class NotificationManager extends Feature {
 
   register() {
+    // TODO  - https://github.com/felixrieseberg/electron-notification-state
     this.on(EVENTS.PLAYER.TRACK_CHANGED, () => {
 
       if (!this.win || (this.win && this.win.isFocused())) {

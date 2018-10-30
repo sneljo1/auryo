@@ -202,6 +202,8 @@ export namespace SoundCloud {
         from_user?: CompactUser;
 
         error?: any;
+
+        type?: string;
     }
 
     export interface Playlist extends Asset<AssetType.PLAYLIST> {
@@ -244,6 +246,7 @@ export namespace SoundCloud {
         from_user?: CompactUser;
 
         policy?: any;
+
     }
 
     export interface Quota {

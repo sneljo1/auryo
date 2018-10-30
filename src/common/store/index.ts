@@ -1,4 +1,3 @@
-import { reducer as toastr, ToastrState } from 'react-redux-toastr';
 import { combineReducers, Reducer } from 'redux';
 import { reducer as modal } from 'redux-modal';
 import { appReducer, AppState } from './app';
@@ -18,7 +17,6 @@ export const rootReducer = combineReducers({
   app: appReducer,
   config: configReducer,
   ui: uiReducer,
-  toastr,
   modal: modal as Reducer<any>
 });
 
@@ -30,7 +28,6 @@ export interface StoreState {
   app: AppState;
   config: ConfigState;
   ui: UIState;
-  toastr: ToastrState;
   router: RouterState;
   modal: any;
 }

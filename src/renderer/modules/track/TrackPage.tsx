@@ -1,15 +1,14 @@
 import { Menu, MenuDivider, MenuItem, Popover, Position } from '@blueprintjs/core';
 import cn from 'classnames';
-import { denormalize, schema } from 'normalizr';
 import * as React from 'react';
 import { connect, MapDispatchToProps } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
 import { Col, Row, TabContent, TabPane } from 'reactstrap';
 import { bindActionCreators } from 'redux';
 import { IMAGE_SIZES } from '../../../common/constants';
-import { playlistSchema } from '../../../common/schemas';
 import { StoreState } from '../../../common/store';
 import { AuthState, toggleFollowing } from '../../../common/store/auth';
+import { CombinedUserPlaylistState, getUserPlaylistsCombined } from '../../../common/store/auth/selectors';
 import { EntitiesState } from '../../../common/store/entities';
 import { getTrackEntity } from '../../../common/store/entities/selectors';
 import { canFetchMoreOf, fetchMore, ObjectState, ObjectTypes, PlaylistTypes } from '../../../common/store/objects';
@@ -46,7 +45,7 @@ interface PropsFromState {
     previousScrollTop?: number;
     track: SoundCloud.Track | null;
     songIdParam: number;
-    userPlaylists: Array<SoundCloud.Playlist>;
+    userPlaylists: Array<CombinedUserPlaylistState>;
 }
 
 interface PropsFromDispatch {
@@ -160,7 +159,8 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
             userPlaylists,
             toggleLike,
             toggleRepost,
-            addUpNext
+            addUpNext,
+            togglePlaylistTrack
         } = this.props;
 
         if (!track || (track && track.loading)) {
@@ -281,7 +281,7 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
                                             <MenuItem text='Add to playlist'>
                                                 {
                                                     userPlaylists.map((playlist) => {
-                                                        const inPlaylist = !!playlist.tracks.find((t) => t.id === track.id);
+                                                        const inPlaylist = !!playlist.items.find((t) => t.id === track.id);
 
                                                         return (
                                                             <MenuItem
@@ -387,15 +387,13 @@ const mapStateToProps = (state: StoreState, props: OwnProps): PropsFromState => 
     const { songId } = props.match.params;
     const { entities, player, auth } = state;
 
-    const userPlaylists = denormalize(auth.playlists, new schema.Array({ playlists: playlistSchema }, (input) => `${input.kind}s`), entities);
-
     return {
         entities,
         player,
         relatedPlaylistId: getPlaylistName(songId, PlaylistTypes.RELATED),
         auth,
         track: getTrackEntity(+songId)(state),
-        userPlaylists,
+        userPlaylists: getUserPlaylistsCombined(state),
         songIdParam: +songId,
         relatedTracks: getRelatedTracksPlaylistObject(songId)(state),
         comments: getCommentObject(songId)(state),

@@ -1,12 +1,15 @@
 import { app, shell } from 'electron';
-import is from 'electron-is';
+import * as is from 'electron-is';
 import { autoUpdater } from 'electron-updater';
-import request from 'request';
+import * as request from 'request';
 import { gt as isVersionGreaterThan, valid as parseVersion } from 'semver';
 import { CONFIG } from '../../config';
 import { EVENTS } from '../../common/constants/events';
 import { Logger } from '../utils/logger';
 import Feature from './feature';
+import { setUpdateAvailable } from '../../common/store/app';
+import { addToast } from '../../common/store/ui';
+import { Intent } from '@blueprintjs/core';
 
 export default class AppUpdater extends Feature {
   private logger = new Logger('AppUpdater');
@@ -27,6 +30,15 @@ export default class AppUpdater extends Feature {
     this.timers.push(timer);
   }
 
+  notify = (version: string) => {
+    this.store.dispatch(setUpdateAvailable(version));
+
+    this.store.dispatch(addToast({
+      message: `Update available`,
+      intent: Intent.SUCCESS
+    }));
+  }
+
   update = () => {
     if (is.linux() || is.macOS()) {
       this.updateLinux();
@@ -37,11 +49,7 @@ export default class AppUpdater extends Feature {
       });
 
       autoUpdater.addListener('update-downloaded', (info) => {
-        this.sendToWebContents(EVENTS.APP.UPDATE_AVAILABLE, {
-          status: 'update-available',
-          version: info.version,
-          current_version: this.currentVersion
-        });
+        this.notify(info.version);
 
         this.listenUpdate();
       });
@@ -99,12 +107,7 @@ export default class AppUpdater extends Feature {
             this.logger.info('New update available');
             this.hasUpdate = true;
 
-            this.sendToWebContents(EVENTS.APP.UPDATE_AVAILABLE, {
-              status: 'update-available-linux',
-              version: latest,
-              current_version: this.currentVersion,
-              url: 'http://auryo.com#downloads'
-            });
+            this.notify(latest);
 
             this.listenUpdate();
           }

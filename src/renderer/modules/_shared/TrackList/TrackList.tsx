@@ -15,7 +15,12 @@ class TrackList extends React.PureComponent<Props> {
         const {
             items,
             objectId,
+            hideFirstTrack,
         } = this.props;
+
+        if (hideFirstTrack) {
+            items.shift();
+        }
 
         const item = items[index];
 
@@ -55,7 +60,8 @@ class TrackList extends React.PureComponent<Props> {
 
     render() {
         const {
-            items
+            items,
+            hideFirstTrack
         } = this.props;
 
         return (
@@ -64,7 +70,7 @@ class TrackList extends React.PureComponent<Props> {
                     pageSize={8}
                     type='simple'
                     itemsRenderer={this.renderWrapper}
-                    length={items.length}
+                    length={items.length - (hideFirstTrack ? 1 : 0)}
                     itemRenderer={this.renderItem as any}
                     useTranslate3d={true}
                     threshold={400}

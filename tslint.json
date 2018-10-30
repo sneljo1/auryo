@@ -39,7 +39,7 @@
     "only-arrow-functions": [false],
     "ordered-imports": [false],
     "no-default-export": [false],
-    "no-shadowed-variable": [false],
+    "no-shadowed-variable": ["warning"],
     "member-access": [false],
     "one-variable-per-declaration": [true],
     "one-line": [false,

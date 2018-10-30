@@ -163,23 +163,23 @@ class TrackGridItem extends React.PureComponent<AllProps> {
         const object_url = (track.kind === 'playlist' ? '/playlist/' : '/track/') + track.id;
 
         // TODO check if liked playlists still work
-        // if (track.info && track.info.type.indexOf('like') !== -1) {
-        //     return (
-        //         <div className="trackInfo flex align-items-center">
-        //             <i className="icon icon-favorite" />
-        //             <div>
-        //                 <div className="trackTitle">
-        //                     <Link to={object_url}>
-        //                         <TextShortener text={track.title} />
-        //                     </Link>
-        //                 </div>
-        //                 {
-        //                     this.renderArtist()
-        //                 }
-        //             </div>
-        //         </div>
-        //     )
-        // }
+        if (track.type && track.type.indexOf('like') !== -1) {
+            return (
+                <div className='trackInfo flex align-items-center'>
+                    <i className='icon icon-favorite' />
+                    <div>
+                        <div className='trackTitle'>
+                            <Link to={object_url}>
+                                <TextShortener text={track.title} />
+                            </Link>
+                        </div>
+                        {
+                            this.renderArtist()
+                        }
+                    </div>
+                </div>
+            );
+        }
 
         return (
             <div className='trackInfo'>

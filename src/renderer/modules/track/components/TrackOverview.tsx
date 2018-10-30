@@ -1,13 +1,13 @@
 import * as moment from 'moment';
 import * as React from 'react';
+import { Link } from 'react-router-dom';
 import { ObjectState } from '../../../../common/store/objects';
 import { abbreviate_number } from '../../../../common/utils';
-import { SoundCloud, NormalizedResult } from '../../../../types';
+import { NormalizedResult, SoundCloud } from '../../../../types';
 import CommentList from '../../_shared/CommentList/CommentList';
 import Linkify from '../../_shared/Linkify';
 import ToggleMore from '../../_shared/ToggleMore';
 import TrackGridUser from '../../_shared/TracksGrid/TrackGridUser';
-import { Link } from 'react-router-dom';
 
 interface Props {
     track: SoundCloud.Track;
@@ -63,7 +63,7 @@ export default class TrackOverview extends React.PureComponent<Props> {
                             className='taglist'
                         >
                             {tags.map((tag) => (
-                                <Link key={tag} to={`/tags/${tag}`}>
+                                <Link key={tag} to={`/tags/${tag.replace('#', '')}`}>
                                     <span className='badge badge-secondary'>{tag}</span>
                                 </Link>
                             ))}

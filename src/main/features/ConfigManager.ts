@@ -103,7 +103,6 @@ export default class ConfigManager extends Feature {
    * On route change, check if can Go from browser webcontents
    */
   checkCanGo = () => {
-    console.log('NAVIGATE');
     if (this.win && this.win.webContents) {
       const back = this.win.webContents.canGoBack();
       const next = this.win.webContents.canGoForward();

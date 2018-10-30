@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { Route, RouteComponentProps, Switch, withRouter } from 'react-router';
+import { Route, RouteComponentProps, Switch, withRouter, StaticContext, Redirect } from 'react-router';
 import { StoreState } from '../../../common/store';
 import ArtistPage from '../artist/ArtistPage';
 import ChartsDetailsPage from '../charts/ChartsDetailsPage';
@@ -16,6 +16,8 @@ import TrackPage from '../track/TrackPage';
 import IsOffline from './components/Offline/Offline';
 import Layout from './Layout';
 import TagsPage from '../tags/TagsPage';
+import Spinner from '../_shared/Spinner/Spinner';
+import { Utils } from '../../../common/utils/utils';
 
 interface PropsFromState {
     offline: boolean;
@@ -25,6 +27,21 @@ interface PropsFromState {
 type AllProps = PropsFromState & RouteComponentProps<{}>;
 
 class App extends React.Component<AllProps> {
+
+    handleResolve = (props: RouteComponentProps<any, StaticContext>) => {
+        const { location: { search } } = props;
+
+        const url = search.replace('?', '');
+
+        if (!url || (url && !url.length)) {
+            return <Redirect to='/' />;
+        }
+
+        Utils.resolveUrl(url);
+
+        return <Spinner contained={true} />;
+    }
+
     render() {
         const { loaded, offline } = this.props;
 
@@ -47,6 +64,7 @@ class App extends React.Component<AllProps> {
                     <Route exact={true} path='/search' component={SearchPage} />
                     <Route path='/search/:category' component={SearchCategoryPage} />
                     <Route path='/tags/:tag/:type?' component={TagsPage} />
+                    <Route path='/resolve' render={this.handleResolve} />
                 </Switch>
             </Layout>
         );

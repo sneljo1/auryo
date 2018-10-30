@@ -16,10 +16,8 @@ export const EVENTS = {
     },
     APP: {
         NAVIGATE: "app/navigate",
+        PUSH_NAVIGATION: "app/pus-navigation",
         UPDATE: "app/update",
-        STREAM_ERROR: "app/stream/error",
-        STREAMED: "app/stream",
-        UPDATE_AVAILABLE: "app/update/available",
         READY: "app/ready",
         RESTART: "app/restart",
         VALID_DIR: "app/valid_dir",

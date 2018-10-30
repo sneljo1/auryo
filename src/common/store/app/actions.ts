@@ -1,20 +1,14 @@
+import { push, replace } from 'connected-react-router';
 import { ipcRenderer } from 'electron';
-import * as moment from 'moment';
-import { toastr } from 'react-redux-toastr';
-import { Dimensions } from 'react-virtualized';
 import { action } from 'typesafe-actions';
-import fetchToJson from '../../api/helpers/fetchToJson';
+import { ThunkResult } from '../../../types';
 import { EVENTS } from '../../constants/events';
 import { SC } from '../../utils';
 import { getAuth, getAuthFeed, getAuthFollowings, getAuthLikeIds, getAuthLikesIfNeeded, getAuthPlaylists, getAuthReposts } from '../auth/actions';
 import { setConfigKey } from '../config';
 import { changeTrack, ChangeTypes, PlayerStatus, toggleStatus, VolumeChangeTypes } from '../player';
 import { toggleLike, toggleRepost } from '../track/actions';
-import { AppActionTypes, CanGoHistory } from './types';
-import { addToast } from '../ui';
-import { Intent } from '@blueprintjs/core';
-import { ThunkResult } from '../../../types';
-import { replace, push } from 'connected-react-router';
+import { AppActionTypes, CanGoHistory, Dimensions } from './types';
 
 export function initApp(): ThunkResult<void> {
     return (dispatch, getState) => {
@@ -65,9 +59,12 @@ export function initWatchers(): ThunkResult<any> {
 
         if (!listeners.length) {
             listeners.push({
-                event: 'navigate',
-                handler: (_e: any, data: any) => {
-                    dispatch(push(data));
+                event: EVENTS.APP.PUSH_NAVIGATION,
+                handler: (_e: any, path: string, url: string) => {
+                    dispatch(push({
+                        pathname: path,
+                        search: url
+                    }));
                 }
             });
 
@@ -129,72 +126,6 @@ export function initWatchers(): ThunkResult<any> {
                     if (trackId) {
                         dispatch(toggleRepost(+trackId, false));
                     }
-                }
-            });
-
-            listeners.push({
-                event: EVENTS.APP.STREAMED,
-                handler: () => {
-                    // TODO can we do this in main?
-
-                    const { config: { app: { analytics } } } = getState();
-
-                    if (process.env.NODE_ENV === 'production' && analytics) {
-                        const ua = require('../../utils/universalAnalytics');
-                        ua().event('SoundCloud', 'Play').send();
-                    }
-                }
-            });
-
-            listeners.push({
-                event: EVENTS.APP.STREAM_ERROR,
-                handler: (_e: any, httpResponse: number, url: string): void => {
-
-                    // TODO replace toastr
-                    const { config: { app: { analytics } } } = getState();
-
-                    switch (httpResponse) {
-                        case 404:
-                            toastr.error('Not found!', 'This resource might not exists anymore');
-                            break;
-                        case 429:
-                            if (!url) return;
-
-                            fetchToJson(url)
-                                .then((json: any) => {
-                                    // TODO can we do this in main?
-                                    if (json.errors && json.errors.length > 0) {
-                                        const error = json.errors[0];
-
-                                        if (error.meta.rate_limit) {
-
-                                            // tslint:disable-next-line:max-line-length
-                                            toastr.error('Stream limit reached!', `Unfortunately the API enforces a 15K plays/hour limit. this limit will expire in ${moment(error.meta.reset_time).toNow()}`);
-
-                                            if (process.env.NODE_ENV === 'production' && analytics) {
-                                                const ua = require('../../utils/universalAnalytics');
-                                                ua().event('SoundCloud', 'Play').send();
-                                            }
-                                        }
-                                    }
-                                });
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            });
-
-            listeners.push({
-                event: EVENTS.APP.UPDATE_AVAILABLE,
-                handler: (_e: any, data: { currentVersion: string, version: string }) => {
-                    dispatch(setUpdateAvailable(data.version));
-
-                    dispatch(addToast({
-                        message: `Update available`,
-                        intent: Intent.SUCCESS
-                    }));
-
                 }
             });
 

@@ -58,10 +58,10 @@ export default function fetchPlaylist(url: string, objectId: string, hideReposts
                         return (info.track) || (info.playlist && info.playlist.track_count);
                     })
                     .map((item) => {
-                        const info = item;
                         const obj: any = item.track || item.playlist;
 
-                        obj.from_user = info.user;
+                        obj.from_user = item.user;
+                        obj.type = item.type;
 
                         return obj;
                     });

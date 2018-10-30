@@ -10,8 +10,8 @@ const enhancer = compose(
 );
 
 
-const configureStore = () => {
-  const store: Store<StoreState> = createStore<StoreState, Action<any>, any, any>(rootReducer as any, enhancer as any);
+const configureStore = (): Store<StoreState> => {
+  const store: Store<StoreState> = createStore<any, Action<any>, any, any>(rootReducer, enhancer as any);
 
   ipcMain.on('renderer-reload', (event: IpcMessageEvent) => {
     delete require.cache[require.resolve('../common/store')];
