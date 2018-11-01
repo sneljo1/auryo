@@ -7,6 +7,7 @@ import * as _ from 'lodash';
 const initialState = {
     status: PlayerStatus.STOPPED,
     queue: [],
+    originalQueue: [],
     playingTrack: null,
     currentPlaylistId: null,
     currentIndex: 0,
@@ -25,9 +26,9 @@ export const playerReducer: Reducer<PlayerState> = (state = initialState, action
 
     switch (type) {
         case PlayerActionTypes.SET_TRACK:
-            const position = _.findIndex(state.queue, payload.nextTrack); // eslint-disable-line
+            const position = _.findIndex(state.queue, payload.nextTrack);
 
-            const new_state = { // eslint-disable-line
+            const new_state = {
                 ...state,
                 playingTrack: payload.nextTrack,
                 status: payload.status,
@@ -78,7 +79,7 @@ export const playerReducer: Reducer<PlayerState> = (state = initialState, action
         case onSuccess(PlayerActionTypes.SET_PLAYLIST):
         case PlayerActionTypes.SET_PLAYLIST:
 
-            const nextTrackPosition = _.findIndex(payload.items, payload.nextTrack); // eslint-disable-line
+            const nextTrackPosition = _.findIndex(payload.items, payload.nextTrack);
 
             if (nextTrackPosition !== -1 && state.upNext.length > 0) {
 
@@ -90,6 +91,7 @@ export const playerReducer: Reducer<PlayerState> = (state = initialState, action
                         ...state.queue.slice(state.upNext.start, state.upNext.start + state.upNext.length),
                         ...payload.items.slice(nextTrackPosition + 1),
                     ],
+                    originalQueue: payload.originalItems,
                     upNext: {
                         ...state.upNext,
                         start: nextTrackPosition + 1
@@ -100,6 +102,7 @@ export const playerReducer: Reducer<PlayerState> = (state = initialState, action
                 ...state,
                 currentPlaylistId: payload.playlistId,
                 queue: payload.items,
+                originalQueue: payload.originalItems,
                 containsPlaylists: payload.containsPlaylists
             };
         case onSuccess(PlayerActionTypes.QUEUE_INSERT):
@@ -110,6 +113,10 @@ export const playerReducer: Reducer<PlayerState> = (state = initialState, action
                     ...state.queue.slice(0, payload.index),
                     ...payload.items,
                     ...state.queue.slice(payload.index + 1),
+                ],
+                originalQueue: [
+                    ...state.originalQueue,
+                    ...payload.items
                 ]
             };
         case PlayerActionTypes.ADD_UP_NEXT:
@@ -163,6 +170,26 @@ export const playerReducer: Reducer<PlayerState> = (state = initialState, action
                     length: state.upNext.length + payload.next.length
                 }
 
+            };
+
+        case PlayerActionTypes.TOGGLE_SHUFFLE:
+
+            if (payload.value) {
+                const before = state.queue.slice(0, state.currentIndex + 1);
+                const after = state.queue.slice(state.currentIndex + 1);
+
+                const items = _.shuffle(after);
+
+                return {
+                    ...state,
+                    queue: [...before, ...items]
+                };
+            }
+            const after = state.originalQueue.slice(state.currentIndex + 1);
+
+            return {
+                ...state,
+                queue: [...state.queue.slice(0, state.currentIndex), ...after]
             };
 
         case AppActionTypes.RESET_STORE:

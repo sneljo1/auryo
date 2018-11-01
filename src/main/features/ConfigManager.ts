@@ -25,7 +25,11 @@ export default class ConfigManager extends Feature {
   constructor(auryo: Auryo) {
     super(auryo);
 
-    this.writetoConfig = _.debounce((config) => settings.setAll(config), 250);
+    this.writetoConfig = _.debounce((config) => {
+      if (!_.isEqual(settings.getAll(), config)) {
+        settings.setAll(config);
+      }
+    }, 250);
   }
 
   register() {

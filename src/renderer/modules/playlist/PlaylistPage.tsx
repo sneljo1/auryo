@@ -9,7 +9,7 @@ import { StoreState } from '../../../common/store';
 import { AuthState } from '../../../common/store/auth';
 import { getPlaylistEntity } from '../../../common/store/entities/selectors';
 import { canFetchPlaylistTracks, fetchPlaylistIfNeeded, fetchPlaylistTracks, ObjectState } from '../../../common/store/objects';
-import { getPlaylistObject } from '../../../common/store/objects/selectors';
+import { getPlaylistObjectSelector } from '../../../common/store/objects/selectors';
 import { addUpNext, PlayerState, PlayerStatus, playTrack, toggleStatus } from '../../../common/store/player';
 import { toggleLike } from '../../../common/store/track/actions';
 import { setScrollPosition } from '../../../common/store/ui';
@@ -297,7 +297,7 @@ const mapStateToProps = (state: StoreState, props: OwnProps): PropsFromState => 
         auth,
         player,
         playlist: getPlaylistEntity(+playlistId)(state),
-        playlistObject: getPlaylistObject(playlistId)(state),
+        playlistObject: getPlaylistObjectSelector(playlistId)(state),
         playlistIdParam: +playlistId,
         previousScrollTop: getPreviousScrollTop(state)
     };

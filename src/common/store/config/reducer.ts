@@ -2,6 +2,7 @@ import { Reducer } from 'redux';
 import { CONFIG } from '../../../config';
 import { setToValue } from '../../utils';
 import { ConfigActionTypes, ConfigState } from './types';
+import { PlayerActionTypes } from '../player';
 
 const initialState = CONFIG.DEFAULT_CONFIG;
 
@@ -22,6 +23,12 @@ export const configReducer: Reducer<ConfigState> = (state = initialState, action
         case ConfigActionTypes.SET_KEY:
             return {
                 ...setToValue(state, payload.value, payload.key),
+                lastChanged: new Date().getTime(),
+            };
+        case PlayerActionTypes.TOGGLE_SHUFFLE:
+            return {
+                ...state,
+                shuffle: payload.value,
                 lastChanged: new Date().getTime(),
             };
         default:

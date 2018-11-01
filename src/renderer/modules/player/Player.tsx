@@ -17,7 +17,7 @@ import {
     changeTrack,
     ChangeTypes,
     PlayerState,
-    PlayerStatus, registerPlay, RepeatTypes, setCurrentTime, setDuration, toggleStatus, updateTime
+    PlayerStatus, registerPlay, RepeatTypes, setCurrentTime, setDuration, toggleStatus, updateTime, toggleShuffle
 } from '../../../common/store/player';
 import { addToast, toggleQueue } from '../../../common/store/ui';
 import { getReadableTime, SC } from '../../../common/utils';
@@ -44,6 +44,7 @@ interface PropsFromDispatch {
     setDuration: typeof setDuration;
     toggleQueue: typeof toggleQueue;
     registerPlay: typeof registerPlay;
+    toggleShuffle: typeof toggleShuffle;
 }
 
 interface State {
@@ -130,7 +131,7 @@ class Player extends React.Component<AllProps, State>{
             !isEqual(nextProps.player.status, player.status) ||
             !isEqual(nextProps.config.repeat, config.repeat) ||
             !isEqual(nextProps.app.remainingPlays, app.remainingPlays) ||
-            !isEqual(nextProps.config.volume, config.volume);
+            !isEqual(nextProps.config, config);
     }
 
     componentWillUnmount() {
@@ -144,8 +145,9 @@ class Player extends React.Component<AllProps, State>{
     }
 
     toggleShuffle = () => {
-        // TODO implement, same as repeat
+        const { config: { shuffle }, toggleShuffle } = this.props;
 
+        toggleShuffle(!shuffle);
     }
 
     toggleRepeat = () => {
@@ -276,7 +278,7 @@ class Player extends React.Component<AllProps, State>{
             player,
             app,
             toggleQueue,
-            config: { volume: configVolume, repeat },
+            config: { volume: configVolume, repeat, shuffle },
             toggleStatus,
             track
         } = this.props;
@@ -340,6 +342,16 @@ class Player extends React.Component<AllProps, State>{
                         </div>
                     </div>
 
+                    <div className='action-group pr-4'>
+                        <a
+                            href='javascript:void(0)'
+                            className={cn({ active: repeat !== null })}
+                            onClick={this.toggleRepeat}
+                        >
+                            <i className={repeat === RepeatTypes.ONE ? 'icon-repeat_one' : 'icon-repeat'} />
+                        </a>
+                    </div>
+
                     <div className='d-flex flex-xs-middle playerControls'>
                         <a
                             href='javascript:void(0)'
@@ -367,15 +379,19 @@ class Player extends React.Component<AllProps, State>{
                         </a>
                     </div>
 
-                    <div className='action-group pr-4'>
-                        <a
-                            href='javascript:void(0)'
-                            className={cn({ active: repeat !== null })}
-                            onClick={this.toggleRepeat}
-                        >
-                            <i className={repeat === RepeatTypes.ONE ? 'icon-repeat_one' : 'icon-repeat'} />
-                        </a>
-                    </div>
+                    {
+
+                        <div className='action-group pr-4'>
+                            <a
+                                href='javascript:void(0)'
+                                className={cn({ active: shuffle })}
+                                onClick={this.toggleShuffle}
+                            >
+                                <i className='icon-shuffle' />
+                            </a>
+                        </div>
+
+                    }
 
                     <div style={{ flexGrow: 1 }}>
                         <div className='playerTimeLine'>
@@ -522,7 +538,8 @@ const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, {}> = (dispatch)
     addToast,
     setDuration,
     toggleQueue,
-    registerPlay
+    registerPlay,
+    toggleShuffle
 }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(Player);

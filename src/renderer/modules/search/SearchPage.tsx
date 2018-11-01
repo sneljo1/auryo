@@ -5,7 +5,7 @@ import { bindActionCreators } from 'redux';
 import { StoreState } from '../../../common/store';
 import { toggleFollowing } from '../../../common/store/auth';
 import { canFetchMoreOf, fetchMore, ObjectState, ObjectTypes, PlaylistTypes } from '../../../common/store/objects';
-import { getPlaylistName, getPlaylistObject } from '../../../common/store/objects/selectors';
+import { getPlaylistName, getPlaylistObjectSelector } from '../../../common/store/objects/selectors';
 import { playTrack } from '../../../common/store/player';
 import { setScrollPosition } from '../../../common/store/ui';
 import { getPreviousScrollTop } from '../../../common/store/ui/selectors';
@@ -131,7 +131,7 @@ const mapStateToProps: MapStateToPropsParam<PropsFromState, OwnProps, StoreState
 
     return {
         query,
-        playlist: getPlaylistObject(objectId)(state),
+        playlist: getPlaylistObjectSelector(objectId)(state),
         objectId,
         previousScrollTop: getPreviousScrollTop(state)
 

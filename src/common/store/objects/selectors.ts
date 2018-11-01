@@ -9,7 +9,7 @@ import { PlaylistTypes } from './types';
 export const getPlaylistsObjects = (state: StoreState) => state.objects[ObjectTypes.PLAYLISTS] || {};
 export const getCommentsObjects = (state: StoreState) => state.objects[ObjectTypes.COMMENTS] || {};
 
-export const getPlaylistObject = (playlistId: string) => createSelector<StoreState, ObjectGroup, ObjectState<NormalizedResult> | null>(
+export const getPlaylistObjectSelector = (playlistId: string) => createSelector<StoreState, ObjectGroup, ObjectState<NormalizedResult> | null>(
     [getPlaylistsObjects],
     (playlists) => (playlistId in playlists) ? playlists[playlistId] : null
 );
@@ -36,7 +36,7 @@ export const getPlaylistType = (objectId: string): PlaylistTypes | null => {
     return objectId.split('|')[1] as PlaylistTypes;
 };
 
-export const getRelatedTracksPlaylistObject = (trackId: string) => getPlaylistObject(getPlaylistName(trackId, PlaylistTypes.RELATED));
+export const getRelatedTracksPlaylistObject = (trackId: string) => getPlaylistObjectSelector(getPlaylistName(trackId, PlaylistTypes.RELATED));
 
-export const getArtistLikesPlaylistObject = (artistId: string) => getPlaylistObject(getPlaylistName(artistId, PlaylistTypes.ARTIST_LIKES));
-export const getArtistTracksPlaylistObject = (artistId: string) => getPlaylistObject(getPlaylistName(artistId, PlaylistTypes.ARTIST_TRACKS));
+export const getArtistLikesPlaylistObject = (artistId: string) => getPlaylistObjectSelector(getPlaylistName(artistId, PlaylistTypes.ARTIST_LIKES));
+export const getArtistTracksPlaylistObject = (artistId: string) => getPlaylistObjectSelector(getPlaylistName(artistId, PlaylistTypes.ARTIST_TRACKS));

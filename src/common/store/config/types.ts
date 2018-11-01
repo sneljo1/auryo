@@ -7,6 +7,7 @@ export interface Config extends Object {
     token: string | null;
     volume: number;
     repeat: RepeatTypes | null;
+    shuffle: boolean;
     version: string;
     hideReposts: boolean;
     enableProxy: boolean;

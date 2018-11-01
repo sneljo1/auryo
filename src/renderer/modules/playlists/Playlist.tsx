@@ -6,7 +6,7 @@ import { bindActionCreators } from 'redux';
 import { StoreState } from '../../../common/store';
 import { AuthState, getAuthAllPlaylistsIfNeeded, getAuthLikesIfNeeded, getAuthTracksIfNeeded } from '../../../common/store/auth';
 import { fetchChartsIfNeeded, fetchMore, ObjectState, ObjectTypes, PlaylistTypes } from '../../../common/store/objects';
-import { getPlaylistObject } from '../../../common/store/objects/selectors';
+import { getPlaylistObjectSelector } from '../../../common/store/objects/selectors';
 import { PlayerState } from '../../../common/store/player';
 import { SortTypes } from '../../../common/store/playlist/types';
 import { setScrollPosition } from '../../../common/store/ui';
@@ -204,7 +204,7 @@ const mapStateToProps = (state: StoreState, props: OwnProps): PropsFromState => 
     return {
         auth,
         player,
-        playlistObject: getPlaylistObject(objectId)(state),
+        playlistObject: getPlaylistObjectSelector(objectId)(state),
         previousScrollTop: getPreviousScrollTop(state)
     };
 };

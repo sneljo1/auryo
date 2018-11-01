@@ -3,6 +3,7 @@
 export interface PlayerState extends Readonly<{
     status: PlayerStatus;
     queue: Array<PlayingTrack>;
+    originalQueue: Array<PlayingTrack>;
     playingTrack: PlayingTrack | null;
     currentPlaylistId: string | null;
     currentIndex: number;
@@ -60,4 +61,5 @@ export const enum PlayerActionTypes {
     SET_PLAYLIST = '@@player/SET_PLAYLIST',
     QUEUE_INSERT = '@@player/QUEUE_INSERT',
     ADD_UP_NEXT = '@@player/ADD_UP_NEXT',
+    TOGGLE_SHUFFLE = '@@player/TOGGLE_SHUFFLE',
 }

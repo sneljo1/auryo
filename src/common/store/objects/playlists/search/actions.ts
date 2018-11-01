@@ -3,7 +3,7 @@ import { Utils } from '../../../../../common/utils/utils';
 import { ThunkResult } from '../../../../../types';
 import fetchSearch from '../../../../api/fetchSearch';
 import { SC } from '../../../../utils';
-import { getPlaylistObject, getPlaylistType } from '../../selectors';
+import { getPlaylistObjectSelector, getPlaylistType } from '../../selectors';
 import { ObjectsActionTypes, PlaylistTypes } from '../../types';
 
 export function isSoundCloudUrl(query: string) {
@@ -21,7 +21,7 @@ export function search(filter: { query?: string, tag?: string }, objectId: strin
         const state = getState();
         const { query, tag } = filter;
 
-        const tracklist_object = getPlaylistObject(objectId)(state);
+        const tracklist_object = getPlaylistObjectSelector(objectId)(state);
 
         if (query && isSoundCloudUrl(query)) {
             return Promise.resolve(tryAndResolveQueryAsSoundCloudUrl(query)) as any;

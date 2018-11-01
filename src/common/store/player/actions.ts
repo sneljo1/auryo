@@ -1,17 +1,17 @@
+import { Intent } from '@blueprintjs/core';
 import { ipcRenderer } from 'electron';
-import { flattenDeep } from 'lodash';
+import * as _ from 'lodash';
 import { action } from 'typesafe-actions';
 import { SoundCloud, ThunkResult } from '../../../types';
 import { EVENTS } from '../../constants/events';
+import { SC } from '../../utils';
 import { getCurrentPosition } from '../../utils/playerUtils';
+import { getPlaylistEntity, getTrackEntity } from '../entities/selectors';
 import { ObjectTypes, PlaylistTypes } from '../objects';
 import { fetchMore, fetchPlaylistIfNeeded, fetchPlaylistTracks, fetchTracks } from '../objects/actions';
-import { ChangeTypes, PlayerActionTypes, PlayerStatus, PlayingPositionState, PlayingTrack, RepeatTypes } from './types';
+import { getPlaylistObjectSelector, getPlaylistType } from '../objects/selectors';
 import { addToast } from '../ui';
-import { Intent } from '@blueprintjs/core';
-import { getPlaylistType } from '../objects/selectors';
-import { SC } from '../../utils';
-
+import { ChangeTypes, PlayerActionTypes, PlayerStatus, PlayingPositionState, PlayingTrack, RepeatTypes } from './types';
 /**
  * Get playlist from ID if needed
  *
@@ -87,21 +87,21 @@ export function getPlaylistObject(playlistId: string, position: number): ThunkRe
 export const setCurrentTime = (time: number) => action(PlayerActionTypes.SET_TIME, { time });
 export const updateTime = (time: number) => action(PlayerActionTypes.UPDATE_TIME, { time });
 export const setDuration = (time: number) => action(PlayerActionTypes.SET_DURATION, { time });
+export const toggleShuffle = (value: boolean) => action(PlayerActionTypes.TOGGLE_SHUFFLE, { value });
 
 export function toggleStatus(newStatus?: PlayerStatus): ThunkResult<void> {
     return (dispatch, getState) => {
+        const state = getState();
         const {
             player: {
                 status,
                 currentPlaylistId
             },
-            objects
-        } = getState();
+        } = state;
 
-        const playlists = objects[ObjectTypes.PLAYLISTS] || {};
-        const stream_playlist = playlists[PlaylistTypes.STREAM];
+        const stream_playlist = getPlaylistObjectSelector(PlaylistTypes.STREAM)(state);
 
-        if (currentPlaylistId === null && newStatus === PlayerStatus.PLAYING) {
+        if (stream_playlist && currentPlaylistId === null && newStatus === PlayerStatus.PLAYING) {
             dispatch(playTrack(PlaylistTypes.STREAM, { id: stream_playlist.items[0].id }));
         }
 
@@ -109,16 +109,12 @@ export function toggleStatus(newStatus?: PlayerStatus): ThunkResult<void> {
             newStatus = PlayerStatus.PLAYING === status ? PlayerStatus.PAUSED : PlayerStatus.PLAYING;
         }
 
-        // TODO RE-Add player error
-
-        // if (!status !== PlayerStatus.ERROR) {
         dispatch({
             type: PlayerActionTypes.TOGGLE_PLAYING,
             payload: {
                 status: newStatus
             }
         });
-        // }
 
         ipcRenderer.send(EVENTS.PLAYER.STATUS_CHANGED);
     };
@@ -132,65 +128,75 @@ export function toggleStatus(newStatus?: PlayerStatus): ThunkResult<void> {
  */
 export function setCurrentPlaylist(playlistId: string, nextTrack: PlayingTrack | null): ThunkResult<Promise<any>> {
     return (dispatch, getState) => {
+        const state = getState();
+
         const {
-            objects,
-            entities,
             player: {
                 currentPlaylistId
-            }
-        } = getState();
+            },
+            config: { shuffle }
+        } = state;
 
-        const playlists = objects[ObjectTypes.PLAYLISTS] || {};
-        const playlistObject = playlists[playlistId.toString()];
-        const { playlistEntities, trackEntities } = entities;
+        const playlistObject = getPlaylistObjectSelector(playlistId.toString())(state);
 
         const containsPlaylists: Array<PlayingPositionState> = [];
 
-        if ((playlistObject && playlistId !== currentPlaylistId) || nextTrack) {
+        if (playlistObject && (nextTrack || playlistId !== currentPlaylistId)) {
+
+            const items = _.flattenDeep(playlistObject.items
+                .filter((trackIdSchema) => (trackIdSchema && trackIdSchema.schema !== 'users'))
+                .map((trackIdSchema, i: number) => {
+                    const id = trackIdSchema.id;
+                    const playlist = getPlaylistEntity(id)(state);
+
+                    if (playlist) {
+                        containsPlaylists.push({
+                            id: playlist.id,
+                            start: i,
+                            end: i + playlist.tracks.length
+                        });
+
+                        return playlist.tracks.map((trackIdResult) => {
+
+                            const trackId = trackIdResult.id;
+                            const track = getTrackEntity(trackId)(state);
+
+                            if (track && !track.streamable) {
+                                return null;
+                            }
+
+                            return {
+                                id: trackId,
+                                playlistId: id.toString(),
+                                // un: new Date().getTime()
+                            };
+                        }).filter((t) => t != null);
+                    }
+
+                    const track = getTrackEntity(id)(state);
+
+                    if (track && !track.streamable) {
+                        return null;
+                    }
+
+                    return {
+                        id,
+                        playlistId,
+                        // un: new Date().getTime()
+                    };
+                })).filter((t) => t != null);
+
+            const [firstItem, ...rest] = items;
+
+            const processedItems = shuffle ? _.shuffle(rest) : rest;
+
             return dispatch<Promise<any>>({
                 type: PlayerActionTypes.SET_PLAYLIST,
                 payload: {
                     promise: Promise.resolve({
                         playlistId,
-                        items: flattenDeep(playlistObject.items
-                            .filter((trackIdSchema) => (trackIdSchema && trackIdSchema.schema !== 'users'))
-                            .map((trackIdSchema, i: number) => {
-                                const id = trackIdSchema.id;
-                                const playlist = playlistEntities[id];
-
-                                if (playlist) {
-                                    containsPlaylists.push({
-                                        id: playlist.id,
-                                        start: i,
-                                        end: i + playlist.tracks.length
-                                    });
-
-                                    return playlist.tracks.map((trackIdResult) => {
-
-                                        const trackId = trackIdResult.id;
-
-                                        if (trackEntities[trackId] && !trackEntities[trackId].streamable) {
-                                            return null;
-                                        }
-
-                                        return {
-                                            id: trackId,
-                                            playlistId: id.toString(),
-                                            // un: new Date().getTime()
-                                        };
-                                    }).filter((t) => t != null);
-                                }
-
-                                if (trackEntities[id] && !trackEntities[id].streamable) {
-                                    return null;
-                                }
-
-                                return {
-                                    id,
-                                    playlistId,
-                                    // un: new Date().getTime()
-                                };
-                            })).filter((t) => t != null),
+                        items: [firstItem, ...processedItems],
+                        originalItems: items,
                         nextTrack,
                         containsPlaylists
                     })
