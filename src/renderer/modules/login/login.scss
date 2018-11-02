@@ -1,46 +1,49 @@
 #login {
   height: 100vh;
+  
+  .row {
+    padding: 5rem;
+  }
+
+  strong {
+    display: block;
+    margin-bottom: 1rem;
+  }
+
+  .btn.btn-primary {
+    background-image: linear-gradient(135deg, #6fa6ce 0%, #0275d8 100%);
+    border: none !important;
+    color: #fff !important;
+    padding: .8rem 1.3rem;
+    box-shadow: 5px 8px 30px rgba(0, 0, 0, 0.2);
+    &:hover {
+      box-shadow: 5px 8px 30px rgba(0, 0, 0, 0.3);
+    }
+  }
   .settings {
     font-size: .9rem;
     border: none !important;
     text-decoration: underline;
-    color: #6c757d;
+    color: #797979;
     background: transparent;
     &:hover {
-      color: darken(#6c757d, 5%)
+      color: darken(#797979, 5%)
     }
   }
-
   .row {
     height: 100%;
   }
-
   .login-wrap {
     position: relative;
     z-index: 1;
-    max-width: 400px;
-    min-width: 300px;
+    max-width: 375px;
   }
-
-  .login-bg {
-    -webkit-app-region: drag;
-    background-size: cover;
-    position: relative;
-    z-index: 1;
-    height: 100%;
-
-    &:after {
-      content: '';
-      width: 100%;
-      height: 100%;
-      position: absolute;
-      display: block;
-      background: linear-gradient(#457DC6, #2f343f);
-      left: 0;
-      top: 0;
-      opacity: 0.7;
-      z-index: -1;
-    }
+  .login-img-wrap {
+    max-width: 200px;
+  }
+  .sub-title {
+    color: #797979;
+    padding: 2rem 0 3.5rem;
   }
 }
 
@@ -55,4 +58,30 @@ div#login:before {
   content: "";
   right: 0;
   -webkit-app-region: drag;
+}
+
+.login_svg {
+  width: 85vw;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  margin-right: -7rem;
+  max-height: 90vh;
+  -webkit-app-region: drag;
+}
+
+.sponsors {
+  display: inline-block;
+  background: white;
+  box-shadow: 5px 8px 30px rgba(0, 0, 0, 0.15);
+  padding: 1rem;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  margin: 3rem;
+  width: 350px;
+}
+
+.login_section{
+  max-width: 300px;
 }

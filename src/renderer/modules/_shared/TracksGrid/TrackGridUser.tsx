@@ -63,10 +63,10 @@ class TrackGridUser extends React.PureComponent<AllProps> {
                             {
                                 withStats && <div className='d-flex stats'>
                                     <div className='d-flex align-items-center'>
-                                        <i className='icon-people' /><span>{abbreviate_number(followers_count)}</span>
+                                        <i className='bx bx-user-group' /><span>{abbreviate_number(followers_count)}</span>
                                     </div>
                                     <div className='d-flex align-items-center'>
-                                        <i className='icon-disc' /><span>{abbreviate_number(track_count)}</span>
+                                        <i className='bx bx-album' /><span>{abbreviate_number(track_count)}</span>
                                     </div>
                                 </div>
                             }
@@ -77,7 +77,7 @@ class TrackGridUser extends React.PureComponent<AllProps> {
                                     toggleFollowing(id);
                                 }}
                             >
-                                {isFollowing ? <i className='icon-check' /> : <i className='icon-add' />}
+                                {isFollowing ? <i className='bx bx-check' /> : <i className='bx bx-plus' />}
                                 <span>{isFollowing ? 'Following' : 'Follow'}</span>
                             </a>
                         </div>

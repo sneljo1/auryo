@@ -1,3 +1,4 @@
+@import "../../../css/vars.scss";
 
 .user_card {
   position: relative;
@@ -46,7 +47,7 @@
     }
     .c_btn.following {
 
-      background: #2980b9;
+      background: theme-color("primary");
       color: #fff !important;
       border: none;
     }

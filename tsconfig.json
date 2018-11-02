@@ -1,5 +1,4 @@
 {
-  "extends": "./node_modules/electron-webpack/tsconfig-base.json",
   "compilerOptions": {
     "allowJs": true,
     "experimentalDecorators": true,
@@ -26,13 +25,12 @@
     "jsx": "react",
     "typeRoots": [
       "./node_modules/@types",
-      "types"
+      "src/types"
     ],
     "sourceRoot": "/",
   },
   "include": [
     "src",
-    "types"
   ],
   "exclude": [
     "./node_modules",

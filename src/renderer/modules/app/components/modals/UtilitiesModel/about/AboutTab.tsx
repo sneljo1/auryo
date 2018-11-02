@@ -1,8 +1,9 @@
 import { remote } from 'electron';
 import * as os from 'os';
 import * as React from 'react';
-import logo_url from '../../../../../../../assets/img/auryo-dark.png';
 import { RemainingPlays } from '../../../../../../../common/store/app';
+
+const logo_url = require('../../../../../../../assets/img/auryo-dark.png');
 
 interface Props {
     remainingPlays: RemainingPlays | null;
@@ -47,7 +48,7 @@ const AboutTab: React.SFC<Props> = ({ remainingPlays }) => (
             <div className='d-flex justify-content-center align-items-center'>
                 <i
                     style={{ color: '#00aced' }}
-                    className='icon-twitter color-twitter'
+                    className='bx bx-twitter color-twitter'
                 />
                 <a href='https://twitter.com/Auryoapp'>@Auryoapp</a>
             </div>

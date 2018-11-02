@@ -1,4 +1,9 @@
 {
     "tslint.enable": true,
-    "tslint.configFile": "tslint.json"
+    "tslint.configFile": "tslint.json",
+    "files.exclude": {
+        ".cache-loader": true,
+        ".vscode": true,
+        "node_modules": true,
+    }
 }

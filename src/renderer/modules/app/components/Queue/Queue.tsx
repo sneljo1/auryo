@@ -102,7 +102,7 @@ class Queue extends React.Component<Props> {
                             toggleQueue(false);
                         }}
                     >
-                        <i className='icon-close' />
+                        <i className='bx bx-x' />
                     </a>
                 </div>
                 <div className='tracks'>

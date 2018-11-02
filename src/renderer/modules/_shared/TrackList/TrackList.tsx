@@ -18,11 +18,14 @@ class TrackList extends React.PureComponent<Props> {
             hideFirstTrack,
         } = this.props;
 
+        // using a spread because we don't want to unshift the original list
+        const showedItems = [...items];
+
         if (hideFirstTrack) {
-            items.shift();
+            showedItems.shift();
         }
 
-        const item = items[index];
+        const item = showedItems[index];
 
         console.log('tracklistitem render');
 

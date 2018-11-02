@@ -140,7 +140,7 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
 
         return (
             <a href='javascript:void(0)' className='c_btn round playButton' onClick={playTrackFunc}>
-                <i className={`icon-play_arrow`} />
+                <i className='bx bx-play' />
             </a>
         );
     }
@@ -322,7 +322,7 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
                                     )}
                                 >
                                     <a href='javascript:void(0)' className='c_btn round'>
-                                        <i className='icon-more_horiz' />
+                                        <i className='bx bx-dots-horizontal-rounded' />
                                     </a>
                                 </Popover>
                             </div>

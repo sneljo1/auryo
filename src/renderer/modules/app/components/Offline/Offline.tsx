@@ -14,7 +14,7 @@ class Offline extends React.PureComponent<Props> {
             return (
                 <div className='offline'>
                     <Alert color='info' className='m-a-0'>
-                        <i className='icon-alert-circle' /> You are currently offline, please reconnect!
+                        <i className='bx bx-error-circle' /> You are currently offline, please reconnect!
                     </Alert>
 
                 </div>

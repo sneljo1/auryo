@@ -201,7 +201,7 @@ class ArtistPage extends WithHeaderComponent<AllProps, State> {
                     className='c_btn playing'
                     onClick={() => toggleStatus()}
                 >
-                    <i className='icon-pause' />
+                    <i className='bx bx-pause' />
                     Playing
                 </a>
             );
@@ -221,7 +221,7 @@ class ArtistPage extends WithHeaderComponent<AllProps, State> {
                 className='c_btn'
                 onClick={toggle}
             >
-                <i className='icon-play_arrow' />
+                <i className='bx bx-play' />
                 Play
             </a>
         );
@@ -282,7 +282,7 @@ class ArtistPage extends WithHeaderComponent<AllProps, State> {
                                                 this.toggleFollow();
                                             }}
                                         >
-                                            {following ? <i className='icon-check' /> : <i className='icon-add' />}
+                                            {following ? <i className='bx bx-check' /> : <i className='bx bx-plus' />}
                                             <span>{following ? 'Following' : 'Follow'}</span>
                                         </a>
                                     ) : null
@@ -308,7 +308,7 @@ class ArtistPage extends WithHeaderComponent<AllProps, State> {
                                     )}
                                 >
                                     <a href='javascript:void(0)' className='c_btn round'>
-                                        <i className='icon-more_horiz' />
+                                        <i className='bx bx-dots-horizontal-rounded' />
                                     </a>
                                 </Popover>
                             </div>

@@ -93,7 +93,7 @@ class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
                     className='c_btn playing'
                     onClick={() => toggleStatus()}
                 >
-                    <i className='icon-pause' />
+                    <i className='bx bx-pause' />
                     Playing
                 </a>
             );
@@ -113,7 +113,7 @@ class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
                 className='c_btn'
                 onClick={toggle}
             >
-                <i className='icon-play_arrow' />
+                <i className='bx bx-play' />
                 Play
             </a>
         );
@@ -197,7 +197,7 @@ class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
                                             toggleLike(playlist.id, true);
                                         }}
                                     >
-                                        <i className={liked ? 'icon-favorite' : 'icon-favorite_border'} />
+                                        <i className={liked ? 'bx bxs-heart' : 'bx bx-heart'} />
                                         <span>{liked ? 'Liked' : 'Like'}</span>
                                     </a>
                                 ) : null
@@ -240,7 +240,7 @@ class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
                                         )}
                                     >
                                         <a href='javascript:void(0)' className='c_btn round'>
-                                            <i className='icon-more_horiz' />
+                                            <i className='bx bx-dots-horizontal-rounded' />
                                         </a>
                                     </Popover>
                                 )
@@ -256,7 +256,7 @@ class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
                          items.user_id === me.id ? (
                          <a href="javascript:void(0)" className="c_btn"
                          onClick={deletePlaylist.bind(null, playlistId)}>
-                         <i className="icon-close"/>
+                         <i className="bx bx-x"/>
                          Delete
                          </a>
                          ) : null

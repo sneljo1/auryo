@@ -1,5 +1,4 @@
 @import "../../../css/vars.scss";
-
 .songs {
   padding: 0 30px !important;
 }
@@ -15,7 +14,6 @@
   @media (min-width: 1500px) {
     @include make-col(3, 15);
   }
-  
   min-width: 230px;
   height: 350px;
 }
@@ -24,7 +22,6 @@
   padding: 10px;
   max-width: 260px;
   margin: 0 auto;
-
   .trackCount {
     position: absolute;
     top: 0;
@@ -37,14 +34,11 @@
     height: 75px;
     padding: 15px;
     font-size: .8rem;
-
     color: darken(#fff, 15%);
-
     span {
       color: #fff;
       display: block;
       &:first-child {
-
         font-size: 1.3rem;
       }
     }
@@ -52,13 +46,13 @@
   .actions-dropdown:not(.show) {
     opacity: 0;
   }
-  .actions-dropdown.show + .trackTime {
+  .actions-dropdown.show+.trackTime {
     opacity: 0 !important;
   }
-
-  .trackImage:hover, &.isPlaying .trackImage {
-
-    .actions-dropdown, .trackGenre {
+  .trackImage:hover,
+  &.isPlaying .trackImage {
+    .actions-dropdown,
+    .trackGenre {
       opacity: 1;
       transition: .5s all;
     }
@@ -80,20 +74,17 @@
       transition: 0.2s opacity;
     }
   }
-
   .trackImage:hover {
     .trackStats {
       transform: translateY(0);
       -webkit-transform: translateY(0);
       transition: 0.1s opacity ease-out, 0.1s transform ease-out;
     }
-
     .imageWrapper:after {
       opacity: .05;
       transition: 0.5s ease;
     }
   }
-
   .trackTime {
     color: white;
     font-size: 14px;
@@ -108,12 +99,12 @@
       font-size: 16px;
       padding-right: 3px;
     }
-    span, i {
+    span,
+    i {
       display: inline-block;
       vertical-align: middle;
     }
   }
-
   .toggleButton {
     background: #fff;
     border-radius: 50px;
@@ -131,7 +122,6 @@
     z-index: 10;
     cursor: pointer;
     text-decoration: none;
-
     &.minimal {
       width: 100px;
       height: 100px;
@@ -142,16 +132,13 @@
       right: 0;
       opacity: .85;
       box-shadow: none;
-
       i {
         font-size: 4rem;
       }
     }
-
     i {
-      color: #2980b9;
+      color: theme-color("primary");
       font-size: 1.9rem;
-
       width: 100%;
       height: 100%;
       display: flex;
@@ -160,15 +147,12 @@
       align-items: center;
     }
   }
-
   .trackImage {
     position: relative;
-
     & .imageWrapper {
       overflow: hidden;
       box-shadow: 0 10px 60px rgba(0, 0, 0, 0.03), 0 6px 50px rgba(0, 0, 0, 0.13);
       position: relative;
-
       & img {
         box-shadow: 0 10px 60px rgba(0, 0, 0, 0.03), 0 6px 50px rgba(0, 0, 0, 0.13);
         max-width: 100%;
@@ -177,17 +161,13 @@
         border-radius: .5rem;
       }
     }
-
   }
-
   .trackInfo {
     padding: 5px 0;
-
     i {
       color: #6e727d;
       padding-right: 8px;
-
-      &.icon-favorite{
+      &.icon-favorite {
         width: 40px;
         height: 40px;
         display: flex;
@@ -202,36 +182,28 @@
         padding-right: 0;
       }
     }
-
     .trackTitle {
       font-weight: 500;
-
       a {
         color: #000;
       }
     }
     .trackArtist {
       font-size: 0.96em;
-
       a {
         color: #6e727d;
-
         &.repost {
           opacity: 0.7;
         }
       }
-
       i {
         padding: 5px;
       }
-
       * {
         vertical-align: middle;
       }
     }
-
   }
-
   .trackGenre {
     position: absolute;
     left: 0;
@@ -247,7 +219,6 @@
     opacity: 0;
     transition: .5s all;
   }
-
   .trackFooter {
     position: absolute;
     bottom: 0;
@@ -255,7 +226,6 @@
     z-index: 2;
     padding: 0 10px 10px 10px;
     border-radius: 0 0 .5rem .5rem;
-
     &:after {
       content: '';
       border-radius: 0 0 .5rem .5rem;
@@ -266,11 +236,9 @@
       left: 0;
       bottom: 0;
       background: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, .55));
-
     }
-
     .actions-dropdown {
-      .bp3-popover-target  a {
+      .bp3-popover-target a {
         color: #fff;
         text-decoration: none;
         i {
@@ -278,27 +246,22 @@
         }
       }
     }
-
   }
-
   .trackStats {
     color: #fff;
     font-size: 14px;
-
     .stat {
       display: inline-block;
       padding-right: 6px;
-
       i {
         padding-right: 2px;
         font-size: 16px;
       }
-
-      span, i {
+      span,
+      i {
         display: inline-block;
         vertical-align: middle;
       }
     }
-
   }
 }

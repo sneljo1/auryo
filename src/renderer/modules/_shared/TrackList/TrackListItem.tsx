@@ -51,7 +51,7 @@ class TrackListItem extends React.PureComponent<AllProps> {
             return <TogglePlayButton className='toggleButton' />;
         }
 
-        const icon = isPlaying ? 'pause' : 'play_arrow';
+        const icon = isPlaying ? 'pause' : 'play';
 
         return (
 
@@ -62,7 +62,7 @@ class TrackListItem extends React.PureComponent<AllProps> {
                     this.playTrack(true, e);
                 }}
             >
-                <i className={`icon-${icon}`} />
+                <i className={`bx bx-${icon}`} />
             </a>
         );
     }

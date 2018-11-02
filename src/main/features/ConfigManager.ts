@@ -90,7 +90,6 @@ export default class ConfigManager extends Feature {
     this.on(EVENTS.APP.READY, () => {
       this.notifyNewVersion();
       this.notifyNewUser();
-      console.log('READY');
       this.on(EVENTS.APP.NAVIGATE, this.checkCanGo);
       this.subscribe(['config'], this.updateConfig);
     });

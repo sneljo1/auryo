@@ -301,16 +301,16 @@ class Player extends React.Component<AllProps, State>{
 
         const overlay_image = SC.getImageUrl(track, IMAGE_SIZES.XSMALL);
 
-        const toggle_play_icon = status === PlayerStatus.PLAYING ? 'pause' : 'play_arrow';
+        const toggle_play_icon = status === PlayerStatus.PLAYING ? 'pause' : 'play';
 
         const volume = this.state.isVolumeSeeking ? this.state.volume : configVolume;
 
-        let volume_icon = 'volume_up';
+        let volume_icon = 'volume-full';
 
         if (muted || volume === 0) {
-            volume_icon = 'volume_off';
+            volume_icon = 'volume-mute';
         } else if (volume !== 1) {
-            volume_icon = 'volume_down';
+            volume_icon = 'volume-low';
         }
 
         return (
@@ -348,7 +348,7 @@ class Player extends React.Component<AllProps, State>{
                             className={cn({ active: repeat !== null })}
                             onClick={this.toggleRepeat}
                         >
-                            <i className={repeat === RepeatTypes.ONE ? 'icon-repeat_one' : 'icon-repeat'} />
+                            <i className={cn('bx bx-repost', { 'repost-one': repeat === RepeatTypes.ONE })} />
                         </a>
                     </div>
 
@@ -359,7 +359,7 @@ class Player extends React.Component<AllProps, State>{
                                 this.changeSong(ChangeTypes.PREV);
                             }}
                         >
-                            <i className='icon-skip_previous' />
+                            <i className='bx bx-skip-previous' />
                         </a>
                         <a
                             href='javascript:void(0)'
@@ -367,7 +367,7 @@ class Player extends React.Component<AllProps, State>{
                                 toggleStatus();
                             }}
                         >
-                            <i className={`icon-${toggle_play_icon}`} />
+                            <i className={`bx bx-${toggle_play_icon}`} />
                         </a>
                         <a
                             href='javascript:void(0)'
@@ -375,7 +375,7 @@ class Player extends React.Component<AllProps, State>{
                                 this.changeSong(ChangeTypes.NEXT);
                             }}
                         >
-                            <i className='icon-skip_next' />
+                            <i className='bx bx-skip-next' />
                         </a>
                     </div>
 
@@ -387,7 +387,7 @@ class Player extends React.Component<AllProps, State>{
                                 className={cn({ active: shuffle })}
                                 onClick={this.toggleShuffle}
                             >
-                                <i className='icon-shuffle' />
+                                <i className='bx bx-shuffle' />
                             </a>
                         </div>
 
@@ -407,7 +407,7 @@ class Player extends React.Component<AllProps, State>{
 
                     <div className={cn('playerVolume px-2', { hover: isVolumeSeeking })}>
                         <a href='javascript:void(0)' onClick={this.toggleMute}>
-                            <i className={`icon-${volume_icon}`} />
+                            <i className={`bx bx-${volume_icon}`} />
                         </a>
 
                         <div className='progressWrapper'>
@@ -441,7 +441,7 @@ class Player extends React.Component<AllProps, State>{
                                 toggleQueue();
                             }}
                         >
-                            <i className='icon-playlist_play' />
+                            <i className='bx bxs-playlist' />
                         </a>
                     </div>
                 </div>

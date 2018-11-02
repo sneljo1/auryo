@@ -54,3 +54,4 @@ deploy_key
 .eslintcache
 AUR-repo
 .awcache
+.cache-loader

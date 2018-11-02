@@ -102,7 +102,7 @@ class TrackGridItem extends React.PureComponent<AllProps> {
             return <TogglePlayButton className='toggleButton minimal' />;
         }
 
-        const icon = isPlaying ? 'pause' : 'play_arrow';
+        const icon = isPlaying ? 'pause' : 'play';
 
         return (
             <a
@@ -112,7 +112,7 @@ class TrackGridItem extends React.PureComponent<AllProps> {
                     playTrack(currentPlaylistId, { id: track.id });
                 }}
             >
-                <i className={`icon-${icon}`} />
+                <i className={`bx bx-${icon}`} />
             </a>
         );
     }
@@ -128,7 +128,7 @@ class TrackGridItem extends React.PureComponent<AllProps> {
                     {
                         showInfo ? (<div>
                             <div className='stat'>
-                                <i className='icon-favorite_border' />
+                                <i className='bx bxs-heart' />
                                 <span>{abbreviate_number(track.likes_count)}</span>
                             </div>
                             <div className='stat'>
@@ -145,7 +145,7 @@ class TrackGridItem extends React.PureComponent<AllProps> {
                     />
 
                     <div className='trackTime'>
-                        <i className='icon-clock' />
+                        <i className='bx bx-alarm' />
                         <span>{getReadableTime(track.duration, true, true)}</span>
                     </div>
                 </div>
@@ -166,7 +166,7 @@ class TrackGridItem extends React.PureComponent<AllProps> {
         if (track.type && track.type.indexOf('like') !== -1) {
             return (
                 <div className='trackInfo flex align-items-center'>
-                    <i className='icon icon-favorite' />
+                    <i className='bx bxs-heart' />
                     <div>
                         <div className='trackTitle'>
                             <Link to={object_url}>

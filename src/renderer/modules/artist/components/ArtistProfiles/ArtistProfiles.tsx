@@ -12,9 +12,29 @@ class ArtistProfiles extends React.Component<Props> {
         profiles: { items: [], loading: false }
     };
 
+    /*
+
+        SOUNDCLOUD = 'soundcloud',
+        INSTAGRAM = 'instagram',
+        FACEBOOK = 'facebook',
+        TWITTER = 'twitter',
+        YOUTUBE = 'youtube',
+        SPOTIFY = 'spotify',
+        TUMBLR = 'tumblr',
+        PINTEREST = 'pinterest',
+        SNAPCHAT = 'snapchat',
+        PERSONAL = 'personal',
+        SONGKICK = 'songkick',
+        BEATPORT = 'beatport'
+
+    */
     getIcon(service: string) {
 
         switch (service) {
+            case SoundCloud.ProfileService.SOUNDCLOUD:
+            return 'cloud';
+            case SoundCloud.ProfileService.SPOTIFY:
+            return 'album';
             case SoundCloud.ProfileService.PERSONAL:
                 return 'globe';
             default:
@@ -60,7 +80,7 @@ class ArtistProfiles extends React.Component<Props> {
                             service = title;
                         }
 
-                        const icon = `icon-${this.getIcon(service)}`;
+                        const icon = `bx bx-${this.getIcon(service)}`;
 
                         return (
                             <a

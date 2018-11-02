@@ -47,7 +47,7 @@ class ChangeLogModal extends React.PureComponent<Props & IModalInjectedProps, St
             <Modal isOpen={show} toggle={handleHide} className='changelog'>
                 <ModalHeader>
                     <div className='close'>
-                        <a href='javascript:void(0)' onClick={handleHide}><i className='icon-close' /></a>
+                        <a href='javascript:void(0)' onClick={handleHide}><i className='bx bx-x' /></a>
                     </div>
                     What's new {version} ? <span>🎉</span></ModalHeader>
                 <ModalBody>

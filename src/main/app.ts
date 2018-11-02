@@ -185,7 +185,7 @@ export class Auryo {
     if (this.mainWindow) {
 
       const url = process.env.NODE_ENV === 'development'
-        ? `http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`
+        ? `http://localhost:${process.env.DEV_PORT || 8080}`
         : `file://${__dirname}/index.html`;
 
       this.logger.debug('loading url= ' + url);

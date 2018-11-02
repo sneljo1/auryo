@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { Modal, ModalBody } from 'reactstrap';
 import { connectModal, IModalInjectedProps } from 'redux-modal';
-import imgUrl from '../../../../../../assets/img/boombox.svg';
+
+const imgUrl = require('../../../../../../assets/img/boombox.svg');
 
 class WelcomeModal extends React.PureComponent<IModalInjectedProps> {
     render() {

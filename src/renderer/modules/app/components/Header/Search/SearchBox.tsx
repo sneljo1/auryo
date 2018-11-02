@@ -92,7 +92,7 @@ class SearchBox extends React.Component<Props, State> {
             >
                 <div className='input-group-prepend'>
                     <span className='input-group-text'>
-                        <i className='search icon-search2' />
+                        <i className='bx bx-search' />
                     </span>
                 </div>
                 <input
@@ -115,7 +115,7 @@ class SearchBox extends React.Component<Props, State> {
                                 this.handleSearchDebounced(this.state.query);
                             }}
                         >
-                            <i id='clear' className='input-group-addon icon-x' />
+                            <i id='clear' className='input-group-addon bx bx-x' />
                         </a>
 
                     </span>

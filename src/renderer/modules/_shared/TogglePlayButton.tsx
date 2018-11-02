@@ -48,7 +48,7 @@ class TogglePlayButton extends React.Component<AllProps> {
                 break;
             case PlayerStatus.PAUSED:
             case PlayerStatus.STOPPED:
-                icon = 'play_arrow';
+                icon = 'play';
                 break;
             // case PlayerStatus.LOADING:
             //     icon = "more_horiz";
@@ -63,7 +63,7 @@ class TogglePlayButton extends React.Component<AllProps> {
                 className={className}
                 onClick={this.togglePlay}
             >
-                <i className={`icon-${icon}`} />
+                <i className={`bx bx-${icon}`} />
             </a>
         );
     }

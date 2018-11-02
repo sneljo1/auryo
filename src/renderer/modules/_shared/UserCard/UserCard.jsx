@@ -26,7 +26,7 @@ const UserCard = ({ user, followings, toggleFollowingFunc }) => {
                 </div>
                 <a href="javascript:void(0)" className={cn("c_btn outline", { following })}
                     onClick={toggleFollowingFunc}>
-                    {following ? <i className="icon-check" /> : <i className="icon-add" />}
+                    {following ? <i className='bx bx-check' /> : <i className='bx bx-plus' />}
                     <span>{following ? "Following" : "Follow"}</span>
                 </a>
             </div>

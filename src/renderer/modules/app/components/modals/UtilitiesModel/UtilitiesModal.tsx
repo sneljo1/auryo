@@ -59,7 +59,7 @@ class UtilitiesModal extends React.Component<Props, State> {
             <Modal isOpen={show} toggle={handleHide} className='utilities'>
                 <ModalBody>
                     <div className='close'>
-                        <a href='javascript:void(0)' onClick={handleHide}><i className='icon-close' /></a>
+                        <a href='javascript:void(0)' onClick={handleHide}><i className='bx bx-x' /></a>
                     </div>
                     <Nav tabs={true}>
                         <NavItem>
@@ -69,7 +69,7 @@ class UtilitiesModal extends React.Component<Props, State> {
                                     this.toggle(TabType.ABOUT);
                                 }}
                             >
-                                <i className='icon-info' />
+                                <i className='bx bx-info-circle' />
                                 <div>About</div>
                             </NavLink>
                         </NavItem>
@@ -80,7 +80,7 @@ class UtilitiesModal extends React.Component<Props, State> {
                                     this.toggle(TabType.SETTINGS);
                                 }}
                             >
-                                <i className='icon-cog' />
+                                <i className='bx bx-cog' />
                                 <div>Settings</div>
                             </NavLink>
                         </NavItem>

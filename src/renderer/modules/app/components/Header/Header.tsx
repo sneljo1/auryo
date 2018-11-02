@@ -171,14 +171,14 @@ class Header extends React.Component<AllProps, State> {
                                             href='javascript:void(0)'
                                             onClick={this.goBack}
                                         >
-                                            <i className='icon-keyboard_arrow_left' />
+                                            <i className='bx bx-chevron-left' />
                                         </a>
                                         <a
                                             className={cn({ disabled: !next })}
                                             href='javascript:void(0)'
                                             onClick={this.goForward}
                                         >
-                                            <i className='icon-keyboard_arrow_right' />
+                                            <i className='bx bx-chevron-right' />
                                         </a>
                                     </div>
                                 </div>

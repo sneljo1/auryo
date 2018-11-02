@@ -92,7 +92,7 @@ class QueueItem extends React.PureComponent<AllProps> {
                         playing
                     })}
                     onClick={(e) => {
-                        if ((e.target as any).className !== 'icon-more_horiz') {
+                        if ((e.target as any).className !== 'bx bx-dots-horizontal-rounded') {
                             playTrack(currentPlaylistId, trackData);
                         }
                     }}

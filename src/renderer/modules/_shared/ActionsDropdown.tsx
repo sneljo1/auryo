@@ -135,7 +135,7 @@ class ActionsDropdown extends React.Component<AllProps> {
                 )}
             >
                 <a href='javascript:void(0)'>
-                    <i className='icon-more_horiz' />
+                    <i className='bx bx-dots-horizontal-rounded' />
                 </a>
             </Popover>
         );
