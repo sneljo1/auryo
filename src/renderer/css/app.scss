@@ -29,13 +29,12 @@
 @import '../modules/artist/components/ArtistProfiles/artistProfiles.scss';
 @import '../modules/charts/ChartsPage.scss';
 @import '../modules/login/login.scss';
-@import '../modules/player/player.scss';
 @import '../modules/playlist/playlist.scss';
 @import '../modules/search/search.scss';
 @import '../modules/track/track.scss';
 
 body {
-  font-family: 'Roboto', sans-serif;
+  font-family: $font-family-base, sans-serif;
   -webkit-touch-callout: none; /* iOS Safari */
   -webkit-user-select: none; /* Chrome/Safari/Opera */
   -khtml-user-select: none; /* Konqueror */
@@ -45,6 +44,7 @@ body {
   min-width: 500px;
   height: 100%;
   overflow: hidden;
+  font-weight: 400;
 }
 
 :focus {
@@ -232,7 +232,7 @@ main {
 
     i {
       color: theme-color("primary");
-      font-size: 24px !important;
+      font-size: 2rem !important;
     }
   }
 
@@ -246,6 +246,9 @@ main {
   display: inline-block;
   align-self: flex-start;
   font-size: .9rem;
+
+  display: flex;
+  align-items: center;
 
   &.round {
     width: 36px;
@@ -294,13 +297,12 @@ main {
 
   i {
     padding-right: 5px;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
   }
 
 }
 
 i {
-  font-size: 1.4rem;
   vertical-align: sub;
 }
 
@@ -649,6 +651,10 @@ i {
 
 // optical alignment fix for play icon
 i.bx.bx-play {
-  transform: translateX(3%);
+  transform: translateX(6%);
+}
+
+strong {
+  font-weight: 500;
 }
 

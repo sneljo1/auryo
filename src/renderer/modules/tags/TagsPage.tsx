@@ -109,7 +109,10 @@ class TagsPage extends WithHeaderComponent<AllProps, State> {
 
                 <Header scrollTop={this.state.scrollTop} />
 
-                <PageHeader title={`Most popular ${showType === TabTypes.TRACKS ? 'tracks' : 'playlists'} for #${tag}`} />
+                <PageHeader
+                    title={tag}
+                    subtitle={`Most popular ${showType === TabTypes.TRACKS ? 'tracks' : 'playlists'}`}
+                />
 
                 <div className='container-fluid charts'>
                     <Nav className='tabs' tabs={true}>

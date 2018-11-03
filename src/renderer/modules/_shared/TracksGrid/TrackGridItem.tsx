@@ -12,7 +12,7 @@ import ActionsDropdown from '../ActionsDropdown';
 import FallbackImage from '../FallbackImage';
 import TextShortener from '../TextShortener';
 import TogglePlayButton from '../TogglePlayButton';
-import { playTrack } from '../../../../common/store/player';
+import { playTrack, PlayingTrack } from '../../../../common/store/player';
 import { fetchPlaylistIfNeeded } from '../../../../common/store/objects';
 import { bindActionCreators } from 'redux';
 import { isPlaying } from '../../../../common/store/player/selectors';
@@ -104,12 +104,18 @@ class TrackGridItem extends React.PureComponent<AllProps> {
 
         const icon = isPlaying ? 'pause' : 'play';
 
+        let next: Partial<PlayingTrack> = { id: track.id };
+
+        if (track.kind === 'playlist') {
+            next = { playlistId: track.id.toString() };
+        }
+
         return (
             <a
                 href='javascript:void(0)'
                 className='toggleButton minimal'
                 onClick={() => {
-                    playTrack(currentPlaylistId, { id: track.id });
+                    playTrack(currentPlaylistId, next as PlayingTrack, true);
                 }}
             >
                 <i className={`bx bx-${icon}`} />
@@ -235,7 +241,6 @@ class TrackGridItem extends React.PureComponent<AllProps> {
                                 ) : null
                             }
                             <FallbackImage
-                                id={track.id}
                                 src={image}
                             />
                             {

@@ -2,12 +2,12 @@ import { Intent } from '@blueprintjs/core';
 import { ipcRenderer } from 'electron';
 import * as _ from 'lodash';
 import { action } from 'typesafe-actions';
-import { SoundCloud, ThunkResult } from '../../../types';
+import { NormalizedResult, SoundCloud, ThunkResult } from '../../../types';
 import { EVENTS } from '../../constants/events';
 import { SC } from '../../utils';
 import { getCurrentPosition } from '../../utils/playerUtils';
 import { getPlaylistEntity, getTrackEntity } from '../entities/selectors';
-import { ObjectTypes, PlaylistTypes } from '../objects';
+import { ObjectsActionTypes, ObjectTypes, PlaylistTypes } from '../objects';
 import { fetchMore, fetchPlaylistIfNeeded, fetchPlaylistTracks, fetchTracks } from '../objects/actions';
 import { getPlaylistObjectSelector, getPlaylistType } from '../objects/selectors';
 import { addToast } from '../ui';
@@ -23,39 +23,34 @@ export function getPlaylistObject(playlistId: string, position: number): ThunkRe
     return (dispatch, getState) => {
 
         const {
-            objects,
             player: {
                 containsPlaylists
             }
         } = getState();
 
-        let playlists = objects[ObjectTypes.PLAYLISTS] || {};
-        const track_playlist_obj = playlists[playlistId];
+        const playlistObject = getPlaylistObjectSelector(playlistId)(getState());
 
-        if (!track_playlist_obj) {
+        if (!playlistObject) {
 
             return dispatch<Promise<any>>(fetchPlaylistIfNeeded(+playlistId))
                 .then((result: any) => {
-                    const {
-                        // eslint-disable-next-line
-                        objects,
-                        entities: {
-                            playlistEntities
+
+                    const current_playlist = getPlaylistObjectSelector(playlistId)(getState());
+                    const current_playlist_ent = getPlaylistEntity(+playlistId)(getState());
+
+                    if (current_playlist) {
+                        if (
+                            current_playlist_ent && !current_playlist.isFetching &&
+                            (current_playlist.items.length === 0 && current_playlist_ent.duration === 0 ||
+                                current_playlist_ent.track_count === 0)
+                        ) {
+                            throw new Error('This playlist is empty or not available via a third party!');
                         }
-                    } = getState();
 
-                    playlists = objects[ObjectTypes.PLAYLISTS] || {};
-                    const current_playlist = playlists[playlistId];
-                    const current_playlist_ent = playlistEntities[playlistId];
-
-                    if (!current_playlist.isFetching && (current_playlist.items.length === 0 && current_playlist_ent.duration === 0
-                        || current_playlist_ent.track_count === 0)) {
-                        throw new Error('This playlist is empty or not available via a third party!');
-                    }
-
-                    // Try and fetch all playlist tracks
-                    if (current_playlist.fetchedItems < current_playlist.items.length) {
-                        dispatch(fetchPlaylistTracks(+playlistId, 50));
+                        // Try and fetch all playlist tracks
+                        if (current_playlist.fetchedItems < current_playlist.items.length) {
+                            dispatch(fetchPlaylistTracks(+playlistId, 50));
+                        }
                     }
 
                     return result;
@@ -65,13 +60,13 @@ export function getPlaylistObject(playlistId: string, position: number): ThunkRe
         const playlist = containsPlaylists.find((p) => position > p.start && position < p.end);
 
         if (playlist) {
-            const playlist_obj = playlists[playlistId];
-            if (playlist_obj) {
+            const queuePlaylistObject = getPlaylistObjectSelector(playlist.id.toString())(getState());
+
+            if (queuePlaylistObject) {
                 /**
                  * If amount of fetched items - 25 is in the visible queue, fetch more tracks
                  */
-
-                if (position > (playlist.start + playlist_obj.fetchedItems - 25) && !playlist_obj.isFetching) {
+                if (position > (playlist.start + queuePlaylistObject.fetchedItems - 25) && !queuePlaylistObject.isFetching) {
                     dispatch(fetchPlaylistTracks(playlist.id, 50));
                 }
             }
@@ -85,7 +80,6 @@ export function getPlaylistObject(playlistId: string, position: number): ThunkRe
 }
 
 export const setCurrentTime = (time: number) => action(PlayerActionTypes.SET_TIME, { time });
-export const updateTime = (time: number) => action(PlayerActionTypes.UPDATE_TIME, { time });
 export const setDuration = (time: number) => action(PlayerActionTypes.SET_DURATION, { time });
 export const toggleShuffle = (value: boolean) => action(PlayerActionTypes.TOGGLE_SHUFFLE, { value });
 
@@ -133,8 +127,7 @@ export function setCurrentPlaylist(playlistId: string, nextTrack: PlayingTrack |
         const {
             player: {
                 currentPlaylistId
-            },
-            config: { shuffle }
+            }
         } = state;
 
         const playlistObject = getPlaylistObjectSelector(playlistId.toString())(state);
@@ -143,60 +136,15 @@ export function setCurrentPlaylist(playlistId: string, nextTrack: PlayingTrack |
 
         if (playlistObject && (nextTrack || playlistId !== currentPlaylistId)) {
 
-            const items = _.flattenDeep(playlistObject.items
-                .filter((trackIdSchema) => (trackIdSchema && trackIdSchema.schema !== 'users'))
-                .map((trackIdSchema, i: number) => {
-                    const id = trackIdSchema.id;
-                    const playlist = getPlaylistEntity(id)(state);
-
-                    if (playlist) {
-                        containsPlaylists.push({
-                            id: playlist.id,
-                            start: i,
-                            end: i + playlist.tracks.length
-                        });
-
-                        return playlist.tracks.map((trackIdResult) => {
-
-                            const trackId = trackIdResult.id;
-                            const track = getTrackEntity(trackId)(state);
-
-                            if (track && !track.streamable) {
-                                return null;
-                            }
-
-                            return {
-                                id: trackId,
-                                playlistId: id.toString(),
-                                // un: new Date().getTime()
-                            };
-                        }).filter((t) => t != null);
-                    }
-
-                    const track = getTrackEntity(id)(state);
-
-                    if (track && !track.streamable) {
-                        return null;
-                    }
-
-                    return {
-                        id,
-                        playlistId,
-                        // un: new Date().getTime()
-                    };
-                })).filter((t) => t != null);
-
-            const [firstItem, ...rest] = items;
-
-            const processedItems = shuffle ? _.shuffle(rest) : rest;
+            const [items, originalItems] = dispatch<ProcessedQueueItems>(processQueueItems(playlistObject.items, true, playlistId));
 
             return dispatch<Promise<any>>({
                 type: PlayerActionTypes.SET_PLAYLIST,
                 payload: {
                     promise: Promise.resolve({
                         playlistId,
-                        items: [firstItem, ...processedItems],
-                        originalItems: items,
+                        items,
+                        originalItems,
                         nextTrack,
                         containsPlaylists
                     })
@@ -210,6 +158,90 @@ export function setCurrentPlaylist(playlistId: string, nextTrack: PlayingTrack |
     };
 }
 
+export type ProcessedQueueItems = [Array<PlayingTrack>, Array<PlayingTrack>];
+
+// tslint:disable-next-line:max-line-length
+export function processQueueItems(result: Array<NormalizedResult>, keepFirst: boolean = false, newPlaylistId?: string): ThunkResult<ProcessedQueueItems> {
+    return (dispatch, getState) => {
+
+        const { player: { currentPlaylistId }, config: { shuffle } } = getState();
+
+        if (!currentPlaylistId && !newPlaylistId) return [[], []];
+
+        const currentPlaylist = newPlaylistId || currentPlaylistId as string;
+
+        const items = result
+            .filter((trackIdSchema) => (trackIdSchema && trackIdSchema.schema !== 'users'))
+            .map((trackIdSchema) => {
+                const id = trackIdSchema.id;
+
+                const playlist = getPlaylistEntity(id)(getState());
+                const playlistObject = getPlaylistObjectSelector(id.toString())(getState());
+
+                if (playlist) {
+
+                    if (!playlistObject) {
+
+                        dispatch({
+                            type: ObjectsActionTypes.SET,
+                            payload: {
+                                objectId: id,
+                                objectType: ObjectTypes.PLAYLISTS,
+                                result: playlist.tracks,
+                                fetchedItems: 0
+                            }
+                        });
+
+                        dispatch(fetchPlaylistTracks(id, 50));
+
+                    }
+
+                    return playlist.tracks.map((trackIdResult): PlayingTrack | null => {
+                        const trackId = trackIdResult.id;
+                        const track = getTrackEntity(id)(getState());
+
+                        if (track && !track.streamable) {
+                            return null;
+                        }
+
+                        return {
+                            id: trackId,
+                            playlistId: id.toString(),
+                            // un: new Date().getTime()
+                        };
+                    }).filter((t) => t != null);
+                }
+
+                const track = getTrackEntity(id)(getState());
+
+                if (track && !track.streamable) {
+                    return null;
+                }
+
+                return {
+                    id,
+                    playlistId: currentPlaylist.toString(),
+                    // un: new Date().getTime()
+                };
+            })
+            .filter((t) => t != null);
+
+        const flattened = _.flatten(items) as Array<PlayingTrack>;
+
+        if (keepFirst) {
+            const [firstItem, ...rest] = flattened;
+            const processedRest = shuffle ? _.shuffle(rest) : rest;
+
+            return [[firstItem, ...processedRest], flattened];
+        }
+
+        const processedItems = shuffle ? _.shuffle(flattened) : flattened;
+
+        return [processedItems, flattened];
+
+    };
+}
+
 /**
  * Set currentrackIndex & start playing
  *
@@ -219,9 +251,9 @@ export function setCurrentPlaylist(playlistId: string, nextTrack: PlayingTrack |
 export function setPlayingTrack(nextTrack: PlayingTrack, position: number, changeType?: ChangeTypes): ThunkResult<any> {
     return (dispatch, getState) => {
 
-        const { entities: { trackEntities } } = getState();
+        const { config: { repeat } } = getState();
 
-        const track = trackEntities[nextTrack.id];
+        const track = getTrackEntity(nextTrack.id)(getState());
 
         if (track && !track.streamable) {
             if (changeType && (changeType in Object.values(ChangeTypes))) {
@@ -234,15 +266,14 @@ export function setPlayingTrack(nextTrack: PlayingTrack, position: number, chang
             payload: {
                 nextTrack,
                 status: PlayerStatus.PLAYING,
-                position
+                position,
+                repeat: repeat === RepeatTypes.ONE
             }
         });
 
         return ipcRenderer.send(EVENTS.PLAYER.TRACK_CHANGED);
 
-
     };
-
 }
 
 /**
@@ -429,7 +460,7 @@ export function playTrack(playlistId: string, next: Next, force_set_playlist: bo
         } = getState();
 
         if (!next.playlistId) {
-            next.playlistId = playlistId;
+            next.playlistId = playlistId.toString();
         }
 
         const nextTrack: PlayingTrack = next as PlayingTrack;
@@ -446,17 +477,12 @@ export function playTrack(playlistId: string, next: Next, force_set_playlist: bo
 
         promise.then(() => {
             const {
-                objects,
-                entities: {
-                    playlistEntities
-                },
                 player: {
                     queue,
                     playingTrack
                 }
             } = getState();
 
-            const playlistObjects = objects[ObjectTypes.PLAYLISTS] || {};
             let position = getCurrentPosition({ queue, playingTrack });
 
             position = (typeof force_set_playlist === 'number' ? force_set_playlist : undefined)
@@ -467,7 +493,7 @@ export function playTrack(playlistId: string, next: Next, force_set_playlist: bo
             }
 
             if (nextTrack.id) {
-                const trackPlaylistObject = playlistObjects[playlistId];
+                const trackPlaylistObject = getPlaylistObjectSelector(playlistId)(getState());
 
                 if (trackPlaylistObject && position + 10 >= queue.length && trackPlaylistObject.nextUrl) {
                     dispatch<Promise<any>>(fetchMore(playlistId, ObjectTypes.PLAYLISTS))
@@ -482,30 +508,32 @@ export function playTrack(playlistId: string, next: Next, force_set_playlist: bo
 
             } else if (!nextTrack.id) {
 
-                const trackPlaylistObject = playlistObjects[nextTrack.playlistId];
-                const trackPlaylistEntitity = playlistEntities[nextTrack.playlistId];
+                const trackPlaylistObject = getPlaylistObjectSelector(nextTrack.playlistId)(getState());
+                const playlistEntitity = getPlaylistEntity(+nextTrack.playlistId)(getState());
 
                 if (!trackPlaylistObject) {
 
-                    if (trackPlaylistEntitity.track_count > 0) {
+                    if (playlistEntitity && playlistEntitity.track_count > 0) {
 
                         dispatch<Promise<any>>(getPlaylistObject(nextTrack.playlistId, 0))
                             .then(() => {
                                 const {
-                                    objects,
                                     player: {
                                         queue
                                     }
                                 } = getState();
 
-                                const playlists = objects[ObjectTypes.PLAYLISTS] || {};
-                                const { items: [firstItem] } = playlists[nextTrack.playlistId];
+                                const playlistObject = getPlaylistObjectSelector(nextTrack.playlistId)(getState());
 
-                                nextTrack.id = firstItem.id;
+                                if (playlistObject) {
+                                    const { items: [firstItem] } = playlistObject;
 
-                                const position = getCurrentPosition({ queue, playingTrack: nextTrack });
+                                    nextTrack.id = firstItem.id;
 
-                                dispatch(setPlayingTrack(nextTrack, position, changeType));
+                                    const position = getCurrentPosition({ queue, playingTrack: nextTrack });
+
+                                    dispatch(setPlayingTrack(nextTrack, position, changeType));
+                                }
 
                             });
                     }
@@ -514,17 +542,21 @@ export function playTrack(playlistId: string, next: Next, force_set_playlist: bo
 
                     const { items: [firstItem] } = trackPlaylistObject;
 
-                    if (!trackPlaylistObject.isFetching && !trackPlaylistObject.items.length && trackPlaylistEntitity.track_count !== 0) {
+                    if (
+                        playlistEntitity &&
+                        !trackPlaylistObject.isFetching &&
+                        !trackPlaylistObject.items.length &&
+                        playlistEntitity.track_count !== 0
+                    ) {
                         throw new Error('This playlist is empty or not available via a third party!');
                     } else {
                         // If queue doesn't contain playlist yet
 
                         if (force_set_playlist) {
                             nextTrack.id = firstItem.id;
-                            position = getCurrentPosition({ queue, playingTrack: nextTrack });
-                        } else {
-                            position = getCurrentPosition({ queue, playingTrack: nextTrack });
                         }
+
+                        position = getCurrentPosition({ queue, playingTrack: nextTrack });
 
                         dispatch(setPlayingTrack(nextTrack, position, changeType));
 
@@ -539,16 +571,14 @@ export function playTrack(playlistId: string, next: Next, force_set_playlist: bo
     };
 }
 
-export function changeTrack(changeType: ChangeTypes): ThunkResult<void> {
+export function changeTrack(changeType: ChangeTypes, finished?: boolean): ThunkResult<void> {
     return (dispatch, getState) => {
         const {
             player,
-            objects,
             config: {
                 repeat
             }
         } = getState();
-
 
         const {
             currentPlaylistId,
@@ -558,8 +588,7 @@ export function changeTrack(changeType: ChangeTypes): ThunkResult<void> {
 
         if (!currentPlaylistId) return;
 
-        const playlists = objects[ObjectTypes.PLAYLISTS] || {};
-        const currentPlaylistObject = playlists[currentPlaylistId];
+        const currentPlaylistObject = getPlaylistObjectSelector(currentPlaylistId)(getState());
 
         let nextIndex = currentIndex;
 
@@ -574,15 +603,14 @@ export function changeTrack(changeType: ChangeTypes): ThunkResult<void> {
                 break;
         }
 
-        if (repeat === RepeatTypes.ONE) {
+        if (finished && repeat === RepeatTypes.ONE) {
             nextIndex = currentIndex;
         }
 
         // If last song
-        if (((nextIndex === queue.length && !currentPlaylistObject.nextUrl) || nextIndex === -1)) {
+        if (((nextIndex === queue.length && (currentPlaylistObject && !currentPlaylistObject.nextUrl)) || nextIndex === -1)) {
             if (repeat === null) {
                 dispatch(toggleStatus(PlayerStatus.PAUSED));
-                dispatch(updateTime(0));
 
                 return;
             }

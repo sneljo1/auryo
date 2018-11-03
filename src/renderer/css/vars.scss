@@ -1,14 +1,56 @@
 $blue: #1a97ea;
+$light-blue: #6fa6ce;
 
-$player_overlay_img: true;
-$player_bg: #272829;
-
-$sidebar_bg: #222326;
-$navbar_bg: #2f343f;
+$brand-primary: $blue;
 
 $input-focus-width: 0px;
 $input-focus-box-shadow: none;
 
-@import "../../../node_modules//bootstrap/scss/functions";
-@import "../../../node_modules//bootstrap/scss/variables";
+
+// Colors
+$white:         #fff;
+$black:         #222326;
+
+$brand-grey-dark:     #25272B;
+$brand-grey:          #767c89;
+$brand-grey-light:    #adb1b8;
+$brand-grey-lighter:  #c8cbd0;
+
+$green:               #0DED81;
+$red:                 #F80E1F;
+$orange:              #FF4C0E;
+$yellow:              #FF940E;
+
+$brand-gradient: linear-gradient(135deg, $light-blue 0%, #0275d8 100%);
+
+// Fonts
+$font-family-base:      'Asap', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+$font-family-title:     'Titillium Web', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+
+$font-size-root:        15px;
+$font-size-base:        1rem;
+$font-size-large:       1.25rem;
+$font-size-small:       .85rem;
+$font-size-mini:        .65rem;
+$font-size-text:        $font-size-base;
+$font-size-label:       $font-size-base;
+$font-size-title:       1.4rem;
+$font-size-h1:          3.4rem;
+$font-size-h2:          2.7rem;
+$font-size-h3:          2rem;
+$font-size-h4:          1.5rem;
+$font-size-h5:          1.125rem;
+
+$font-weight-base:      500;
+$font-weight-bold:      600;
+
+// Sizes
+$spacer:                2rem;
+$page-frame:            .75rem;
+
+$break-point--small:    640px;
+$break-point--medium:   860px;
+$break-point--large:    1140px;
+$break-point--huge:     1400px;
+$brand-border-width:    1px;
 

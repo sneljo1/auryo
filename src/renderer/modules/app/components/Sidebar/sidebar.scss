@@ -1,4 +1,3 @@
-
 .playing #sidebar .custom-scroll {
   height: calc(100% - 122px) !important;
 }
@@ -8,35 +7,39 @@
   .navLink {
     text-decoration: none !important;
     display: block;
-    padding: 6px 27px;
+    padding: 3px 27px;
     font-size: .9rem;
-    font-weight: 500;
     transition: 0.5s background;
     border-left: 4px solid transparent;
-    color: #B7B7B7;
-
+    color: $brand-grey-lighter;
   }
   .navLink:hover {
     transition: 0.5s color;
-    color: #c7c7c7 !important;
+    color: $white !important;
   }
   .navItem .navLink.active {
-    color: #eeeeee !important;
+    font-weight: 500;
+    opacity: 1;
+    color: $white !important;
     border-left: 4px solid theme-color("primary");
   }
-  .navItem.playing .navLink {
+  .navItem.isCurrentPlaylist .navLink {
     position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     &:after {
-      content: '\e96d';
-      color: theme-color("primary");
-      display: inline;
-      font-family: Icomoon;
-      position: absolute;
-      top: 50%;
-      right: 0;
-      transform: translateY(-50%);
-      font-size: 1rem;
-      margin-right: .6rem;
+      content: '';
+      background: theme-color("primary");
+      width: 6px;
+      height: 6px;
+      border-radius: 100%;
+      display: block;
+    }
+  }
+  .navItem.isActuallyPlaying .navLink {
+    &:after {
+      animation: breathing 5s ease-out infinite normal;
     }
   }
   .navLink * {
@@ -47,7 +50,6 @@
     display: inline-block;
     font-size: 18px;
   }
-
   .nav {
     list-style-type: none;
     padding-left: 0;
@@ -72,19 +74,32 @@
 #sidebar {
   width: 260px;
   flex-shrink: 0;
-  background: $sidebar_bg;
+  background: $black;
   position: fixed;
   height: 100%;
   overflow: hidden;
-
   h2 {
     font-size: .8rem;
     text-transform: uppercase;
     padding: 10px 30px 0;
-    color: #858585;
-    font-family: 'Roboto', sans-serif;
+    color: $brand-grey;
     font-weight: bold;
     margin-bottom: .9rem;
   }
 }
 
+@keyframes breathing {
+  0% {
+    transform: scale(0.9);
+  }
+  25% {
+    box-shadow: 0 0 0 2px rgba($light-blue, .2);
+    transform: scale(1.2);
+  }
+  60% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(0.9);
+  }
+}

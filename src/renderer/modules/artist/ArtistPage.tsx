@@ -260,7 +260,6 @@ class ArtistPage extends WithHeaderComponent<AllProps, State> {
                             <div className='imageWrapper'>
                                 <FallbackImage
                                     src={user_img}
-                                    id={user.id}
                                 />
                             </div>
                         </Col>
@@ -355,7 +354,7 @@ class ArtistPage extends WithHeaderComponent<AllProps, State> {
                     <Row className='main_track_content'>
                         <Col xs='12' lg='8'>
 
-                            <TabContent activeTab={this.state.activeTab} className='px-4'>
+                            <TabContent activeTab={this.state.activeTab} className='px-1'>
                                 {/* Tracks */}
                                 <TabPane tabId={TabTypes.TRACKS}>
                                     {this.renderPlaylist(PlaylistTypes.ARTIST_TRACKS)}

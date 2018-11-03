@@ -138,7 +138,7 @@
       pointer-events: none;
     }
     .trackTitle {
-      font-weight: bold;
+      font-weight: 500;
     }
     &.isPlaying .trackTitle a, &.isPlaying .trackArtist a {
       color: theme-color("primary");

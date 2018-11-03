@@ -9,7 +9,6 @@ import UtilitiesModal from '../app/components/modals/UtilitiesModel/UtilitiesMod
 import Button from '../_shared/Button/Button';
 
 const logo_url = require('../../../assets/img/auryo-dark.png');
-const url = require('../../../assets/img/gradient.svg');
 const feetonmusicbox = require('../../../assets/img/feetonmusicbox.jpg');
 
 interface PropsFromState extends AuthStatus {

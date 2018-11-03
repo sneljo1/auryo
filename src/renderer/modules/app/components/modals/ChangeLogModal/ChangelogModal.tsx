@@ -1,5 +1,5 @@
 import * as React from 'react';
-import Markdown from 'react-markdown';
+import * as Markdown from 'react-markdown';
 import { Modal, ModalBody, ModalHeader } from 'reactstrap';
 import { connectModal, IModalInjectedProps } from 'redux-modal';
 import fetchToJson from '../../../../../../common/api/helpers/fetchToJson';

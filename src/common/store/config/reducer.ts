@@ -1,8 +1,8 @@
 import { Reducer } from 'redux';
 import { CONFIG } from '../../../config';
-import { setToValue } from '../../utils';
-import { ConfigActionTypes, ConfigState } from './types';
 import { PlayerActionTypes } from '../player';
+import { ConfigActionTypes, ConfigState } from './types';
+import _ = require('lodash');
 
 const initialState = CONFIG.DEFAULT_CONFIG;
 
@@ -21,10 +21,15 @@ export const configReducer: Reducer<ConfigState> = (state = initialState, action
                 ...payload
             };
         case ConfigActionTypes.SET_KEY:
-            return {
-                ...setToValue(state, payload.value, payload.key),
+
+            const newConfig = {
+                ...state,
                 lastChanged: new Date().getTime(),
             };
+
+            _.set(newConfig, payload.key, payload.value);
+
+            return newConfig;
         case PlayerActionTypes.TOGGLE_SHUFFLE:
             return {
                 ...state,

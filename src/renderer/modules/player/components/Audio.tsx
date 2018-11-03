@@ -18,7 +18,7 @@ interface Props {
     onCanPlayThrough?: (event: Event) => void;
     onEnded?: (event: Event) => void;
     onError?: (event: ErrorEvent, message: string) => void;
-    onListen?: (currentTime: number) => void;
+    onListen?: (currentTime: number, duration: number) => void;
     onLoadedMetadata?: (event: Event, duration: number) => void;
     onPause?: (event: Event) => void;
     onPlay?: (event: Event) => void;
@@ -46,7 +46,7 @@ const defaultProps = {
     onCanPlayThrough: (_event: Event) => { },
     onEnded: (_event: Event) => { },
     onError: (_event: ErrorEvent, _message: string) => { },
-    onListen: (_currentTime: number) => { },
+    onListen: (_currentTime: number, _duration: number) => { },
     onLoadedMetadata: (_event: Event, _duration: number) => { },
     onPause: (_event: Event) => { },
     onPlay: (_event: React.SyntheticEvent<HTMLAudioElement>, _duration: number) => { },
@@ -66,7 +66,7 @@ type DefaultProps = typeof defaultProps;
 
 type AllProps = DefaultProps & Props;
 
-class ReactAudioPlayer extends React.Component<AllProps, State> {
+class ReactAudioPlayer extends React.PureComponent<AllProps, State> {
 
 
     static defaultProps: DefaultProps = defaultProps;
@@ -132,6 +132,12 @@ class ReactAudioPlayer extends React.Component<AllProps, State> {
         }
     }
 
+    componentWillUnmount() {
+        if (this.audioEl) {
+            this.audioEl = null;
+        }
+    }
+
     componentWillReceiveProps(nextProps: AllProps) {
         this.updateVolume(nextProps.volume);
     }
@@ -161,7 +167,7 @@ class ReactAudioPlayer extends React.Component<AllProps, State> {
 
     time() {
         if (this.audioEl) {
-            this.props.onListen(this.audioEl.currentTime);
+            this.props.onListen(this.audioEl.currentTime, this.audioEl.duration);
         }
     }
 

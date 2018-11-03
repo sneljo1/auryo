@@ -8,13 +8,13 @@ interface Props {
     img?: string;
 }
 
-const ChartGenre: React.SFC<Props> = ({ genre, img }) => (
+const ChartGenre = React.memo<Props>(({ genre, img }) => (
     <Link to={`/charts/genre/${genre.key}`}>
         <div className={cn('chart', { withImage: !!img })}>
             <h1>{genre.name}</h1>
             {
                 img && (
-                    <img src={img} alt={genre.key} />
+                    <img src={img} />
                 )
             }
 
@@ -29,6 +29,6 @@ const ChartGenre: React.SFC<Props> = ({ genre, img }) => (
 
         </div>
     </Link>
-);
+));
 
 export default ChartGenre;

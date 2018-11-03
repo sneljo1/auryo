@@ -197,7 +197,6 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
                             <div className='imageWrapper'>
                                 <FallbackImage
                                     src={image}
-                                    id={track.id}
                                 />
                             </div>
                         </Col>

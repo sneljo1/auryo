@@ -1,4 +1,3 @@
-import { flattenDeep } from 'lodash';
 import { normalize, schema } from 'normalizr';
 import { action } from 'typesafe-actions';
 import { GetPlaylistOptions, NormalizedEntities, NormalizedResult, SoundCloud, ThunkResult } from '../../../types';
@@ -7,9 +6,9 @@ import fetchPlaylist from '../../api/fetchPlaylist';
 import fetchToJson from '../../api/helpers/fetchToJson';
 import { trackSchema } from '../../schemas';
 import { SC } from '../../utils';
+import { PlayerActionTypes, ProcessedQueueItems, processQueueItems } from '../player';
 import { SortTypes } from '../playlist/types';
 import { ObjectsActionTypes, ObjectState, ObjectTypes } from './types';
-import { PlayerActionTypes } from '../player';
 
 /**
  * Check if there is more to fetch, if so, fetch more
@@ -60,9 +59,7 @@ const canFetchMore = (current: ObjectState<any>): boolean => canFetch(current) &
 // tslint:disable-next-line:max-line-length
 export function getPlaylist(url: string, objectId: string, options: GetPlaylistOptions = { refresh: false, appendId: null }): ThunkResult<Promise<any>> {
     return (dispatch, getState) => {
-        const { objects, config: { hideReposts } } = getState();
-
-        const playlists = objects[ObjectTypes.PLAYLISTS] || {};
+        const { config: { hideReposts } } = getState();
 
         return (dispatch({
             type: ObjectsActionTypes.SET,
@@ -84,7 +81,7 @@ export function getPlaylist(url: string, objectId: string, options: GetPlaylistO
             }
         }) as any)
             .then(({ value }: { value: { result: Array<NormalizedResult> } }) => {
-                const { player: { currentPlaylistId, queue }, entities: { playlistEntities, trackEntities } } = getState();
+                const { player: { currentPlaylistId, queue } } = getState();
 
                 if (objectId === currentPlaylistId && value.result.length) {
 
@@ -93,56 +90,13 @@ export function getPlaylist(url: string, objectId: string, options: GetPlaylistO
                         const { result } = value;
 
                         if (result.length) {
+                            const [items, originalItems] = dispatch<ProcessedQueueItems>(processQueueItems(result));
+
                             dispatch({
                                 type: PlayerActionTypes.QUEUE_INSERT,
                                 payload: {
-                                    items: flattenDeep(result
-                                        .filter((trackIdSchema) => (trackIdSchema && trackIdSchema.schema !== 'users'))
-                                        .map((trackIdSchema) => {
-                                            const id = trackIdSchema.id;
-
-                                            const playlist = playlistEntities[id];
-                                            const playlist_object = playlists[id];
-
-                                            if (playlist) {
-
-                                                if (!playlist_object) {
-
-                                                    dispatch({
-                                                        type: ObjectsActionTypes.SET,
-                                                        payload: {
-                                                            objectId: id,
-                                                            objectType: ObjectTypes.PLAYLISTS,
-                                                            result: playlist.tracks,
-                                                            fetchedItems: 0
-                                                        }
-                                                    });
-
-                                                    dispatch(fetchPlaylistTracks(id, 50));
-
-                                                }
-
-                                                return playlist.tracks.map((trackIdResult) => {
-                                                    const trackId = trackIdResult.id;
-
-                                                    if (trackEntities[trackId] && !trackEntities[trackId].streamable) {
-                                                        return null;
-                                                    }
-
-                                                    return {
-                                                        id: trackId,
-                                                        playlistId: id.toString(),
-                                                        // un: new Date().getTime()
-                                                    };
-                                                }).filter((t) => t != null);
-                                            }
-
-                                            return {
-                                                id,
-                                                playlistId: currentPlaylistId,
-                                                // un: new Date().getTime()
-                                            };
-                                        })),
+                                    items,
+                                    originalItems,
                                     index: queue.length
                                 }
                             });

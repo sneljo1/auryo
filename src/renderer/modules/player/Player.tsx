@@ -2,10 +2,10 @@ import { Intent, Tag } from '@blueprintjs/core';
 import cn from 'classnames';
 import { IpcMessageEvent, ipcRenderer } from 'electron';
 import { debounce, isEqual } from 'lodash';
+import * as moment from 'moment';
 import Slider from 'rc-slider';
 import * as React from 'react';
 import { connect, MapDispatchToProps } from 'react-redux';
-import { Link } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
 import { IMAGE_SIZES } from '../../../common/constants';
 import { EVENTS } from '../../../common/constants/events';
@@ -15,17 +15,16 @@ import { ConfigState, setConfigKey } from '../../../common/store/config';
 import { getTrackEntity } from '../../../common/store/entities/selectors';
 import {
     changeTrack,
-    ChangeTypes,
-    PlayerState,
-    PlayerStatus, registerPlay, RepeatTypes, setCurrentTime, setDuration, toggleStatus, updateTime, toggleShuffle
+    ChangeTypes, PlayerState, PlayerStatus, registerPlay, RepeatTypes, setCurrentTime, setDuration, toggleShuffle, toggleStatus
 } from '../../../common/store/player';
 import { addToast, toggleQueue } from '../../../common/store/ui';
 import { getReadableTime, SC } from '../../../common/utils';
 import { SoundCloud } from '../../../types';
 import FallbackImage from '../_shared/FallbackImage';
-import TextShortener from '../_shared/TextShortener';
 import Audio from './components/Audio';
-import * as moment from 'moment';
+import PlayerControls from './components/PlayerControls/PlayerControls';
+import TrackInfo from './components/TrackInfo/TrackInfo';
+import * as styles from './Player.module.scss';
 
 interface PropsFromState {
     player: PlayerState;
@@ -35,7 +34,6 @@ interface PropsFromState {
 }
 
 interface PropsFromDispatch {
-    updateTime: typeof updateTime;
     changeTrack: typeof changeTrack;
     toggleStatus: typeof toggleStatus;
     setConfigKey: typeof setConfigKey;
@@ -110,12 +108,8 @@ class Player extends React.Component<AllProps, State>{
 
     }
 
-    componentDidUpdate(prevProps: AllProps) {
-        const { player: { playingTrack, status } } = this.props;
-
-        if (this.audio && prevProps.player.playingTrack !== playingTrack) {
-            this.audio.clearTime();
-        }
+    componentDidUpdate(_prevProps: AllProps) {
+        const { player: { status } } = this.props;
 
         if (this.audio && status !== this.audio.getStatus()) {
             this.audio.setNewStatus(status);
@@ -249,12 +243,14 @@ class Player extends React.Component<AllProps, State>{
         registerPlay();
     }
 
-    onPlaying = (position: number) => {
+    onPlaying = (position: number, newDuration: number) => {
         const {
             player: {
-                status
+                status,
+                duration
             },
-            setCurrentTime
+            setCurrentTime,
+            setDuration
         } = this.props;
 
         const { isSeeking } = this.state;
@@ -264,19 +260,30 @@ class Player extends React.Component<AllProps, State>{
         if (status === PlayerStatus.PLAYING) {
             setCurrentTime(position);
         }
+
+        if (duration !== newDuration) {
+            setDuration(newDuration);
+        }
+
+
     }
 
     onFinishedPlaying = () => {
-        const { changeTrack } = this.props;
+        const { changeTrack, toggleStatus } = this.props;
 
-        changeTrack(ChangeTypes.NEXT);
+        if (this.audio) {
+            this.audio.clearTime();
+        }
+
+        toggleStatus(PlayerStatus.PAUSED);
+
+        changeTrack(ChangeTypes.NEXT, true);
     }
 
     render() {
 
         const {
             player,
-            app,
             toggleQueue,
             config: { volume: configVolume, repeat, shuffle },
             toggleStatus,
@@ -301,7 +308,6 @@ class Player extends React.Component<AllProps, State>{
 
         const overlay_image = SC.getImageUrl(track, IMAGE_SIZES.XSMALL);
 
-        const toggle_play_icon = status === PlayerStatus.PLAYING ? 'pause' : 'play';
 
         const volume = this.state.isVolumeSeeking ? this.state.volume : configVolume;
 
@@ -314,103 +320,60 @@ class Player extends React.Component<AllProps, State>{
         }
 
         return (
-            <div className='player'>
-                <div className='imgOverlay'>
-                    <FallbackImage overflow={true} offline={app.offline} track_id={track.id} src={overlay_image} />
+            <div className={styles.player}>
+                <div className={styles.player_bg}>
+                    <FallbackImage
+                        src={overlay_image}
+                    />
                 </div>
 
                 {this.renderAudio()}
 
-                <div className='d-flex playerInner'>
-                    <div className='playerAlbum'>
-                        <FallbackImage
-                            offline={app.offline}
-                            track_id={track.id}
-                            src={overlay_image}
-                        />
-                    </div>
-                    <div className='trackInfo'>
-                        <div className='trackTitle' title={track.title}>
-                            <Link to={`/track/${track.id}`}>
-                                <TextShortener text={track.title} />
-                            </Link>
+                <div className='d-flex align-items-center'>
+
+                    <TrackInfo
+                        title={track.title}
+                        id={track.id.toString()}
+                        userId={track.user.id.toString()}
+                        username={track.user.username}
+                        img={overlay_image}
+                    />
+
+                    <PlayerControls
+                        status={status}
+                        repeat={repeat}
+                        shuffle={shuffle}
+                        onRepeatClick={this.toggleRepeat}
+                        onShuffleClick={this.toggleShuffle}
+                        onPreviousClick={() => {
+                            this.changeSong(ChangeTypes.PREV);
+                        }}
+                        onNextClick={() => {
+                            this.changeSong(ChangeTypes.NEXT);
+                        }}
+                        onToggleClick={() => {
+                            toggleStatus();
+                        }}
+                    />
+
+                    <div className={styles.playerTimeline}>
+                        <div className={styles.time}>{getReadableTime(isSeeking ? nextTime : currentTime, false, true)}</div>
+                        <div className={styles.progressInner}>
+                            {this.renderProgressBar()}
                         </div>
-                        <div className='trackArtist'>
-                            <Link to={`/user/${track.user.id}`}>
-                                <TextShortener text={track.user.username} />
-                            </Link>
-                        </div>
+                        <div className={styles.time}>{getReadableTime(duration, false, true)}</div>
                     </div>
 
-                    <div className='action-group pr-4'>
+                    <div className={cn('pr-2', styles.playerVolume, { hover: isVolumeSeeking })}>
                         <a
+                            className={styles.control}
                             href='javascript:void(0)'
-                            className={cn({ active: repeat !== null })}
-                            onClick={this.toggleRepeat}
+                            onClick={this.toggleMute}
                         >
-                            <i className={cn('bx bx-repost', { 'repost-one': repeat === RepeatTypes.ONE })} />
-                        </a>
-                    </div>
-
-                    <div className='d-flex flex-xs-middle playerControls'>
-                        <a
-                            href='javascript:void(0)'
-                            onClick={() => {
-                                this.changeSong(ChangeTypes.PREV);
-                            }}
-                        >
-                            <i className='bx bx-skip-previous' />
-                        </a>
-                        <a
-                            href='javascript:void(0)'
-                            onClick={() => {
-                                toggleStatus();
-                            }}
-                        >
-                            <i className={`bx bx-${toggle_play_icon}`} />
-                        </a>
-                        <a
-                            href='javascript:void(0)'
-                            onClick={() => {
-                                this.changeSong(ChangeTypes.NEXT);
-                            }}
-                        >
-                            <i className='bx bx-skip-next' />
-                        </a>
-                    </div>
-
-                    {
-
-                        <div className='action-group pr-4'>
-                            <a
-                                href='javascript:void(0)'
-                                className={cn({ active: shuffle })}
-                                onClick={this.toggleShuffle}
-                            >
-                                <i className='bx bx-shuffle' />
-                            </a>
-                        </div>
-
-                    }
-
-                    <div style={{ flexGrow: 1 }}>
-                        <div className='playerTimeLine'>
-                            <div className='d-flex align-items-center progressWrapper'>
-                                <div className='time'> {getReadableTime(isSeeking ? nextTime : currentTime, false, true)} </div>
-                                <div className='progressInner'>
-                                    <div className='playerProgress'>{this.renderProgressBar()} </div>
-                                </div>
-                                <div className='time'> {getReadableTime(duration, false, true)} </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className={cn('playerVolume px-2', { hover: isVolumeSeeking })}>
-                        <a href='javascript:void(0)' onClick={this.toggleMute}>
                             <i className={`bx bx-${volume_icon}`} />
                         </a>
 
-                        <div className='progressWrapper'>
+                        <div className={styles.progressWrapper}>
                             <Slider
                                 min={0}
                                 max={1}
@@ -433,17 +396,15 @@ class Player extends React.Component<AllProps, State>{
 
                     </div>
 
-                    <div className='action-group'>
-                        <a
-                            id='toggleQueueButton'
-                            href='javascript:void(0)'
-                            onClick={() => {
-                                toggleQueue();
-                            }}
-                        >
-                            <i className='bx bxs-playlist' />
-                        </a>
-                    </div>
+                    <a
+                        className={styles.control}
+                        href='javascript:void(0)'
+                        onClick={() => {
+                            toggleQueue();
+                        }}
+                    >
+                        <i className='bx bxs-playlist' />
+                    </a>
                 </div>
             </div>
         );
@@ -475,7 +436,7 @@ class Player extends React.Component<AllProps, State>{
 
         if (remainingPlays && limitReached) {
             return (
-                <div className='rateLimit'>
+                <div className={styles.rateLimit}>
                     Stream limit reached! Unfortunately the API enforces a 15K plays/day limit.
                     This limit will expire in <Tag className='ml-2' intent={Intent.PRIMARY}>{moment(remainingPlays.resetTime).fromNow()}</Tag>
                 </div>
@@ -530,7 +491,6 @@ const mapStateToProps = (state: StoreState): PropsFromState => {
 };
 
 const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, {}> = (dispatch) => bindActionCreators({
-    updateTime,
     changeTrack,
     toggleStatus,
     setConfigKey,

@@ -10,66 +10,61 @@ interface Props {
 
 type AllProps = Props & RouteComponentProps<{}>;
 
-class SideBar extends React.PureComponent<AllProps> {
-    render() {
-        const { items } = this.props;
+const SideBar = React.memo<AllProps>(({ items }) => (
+    <aside
+        id='sidebar'
+        role='navigation'
+        className='sidebar-offcanvas d-flex flex-column'
+    >
+        <div className='drag-strip' />
 
-        return (
+        <CustomScroll
+            heightRelativeToParent='100%'
+            allowOuterScroll={true}
+        >
+            <div key='sidebar-menu' id='sidebar-menu'>
+                <h2>Discover</h2>
+                <ul className='nav flex-column'>
+                    <li className='navItem'>
+                        <NavLink exact={true} to='/' className='navLink' activeClassName='active'>
+                            Stream
+                                </NavLink>
+                    </li>
+                    <li className='navItem'>
+                        <NavLink exact={true} to='/charts' className='navLink' activeClassName='active'>
+                            Charts
+                                </NavLink>
+                    </li>
+                </ul>
 
-            <aside
-                id='sidebar'
-                role='navigation'
-                className='sidebar-offcanvas d-flex flex-column'
-            >
+                <h2>Me</h2>
+                <ul className='nav flex-column'>
+                    <li className='navItem' id='likes'>
+                        <NavLink to='/likes' className='navLink' activeClassName='active'>
+                            Likes
+                                </NavLink>
+                    </li>
+                    <li className='navItem' id='mytracks'>
+                        <NavLink to='/mytracks' className='navLink' activeClassName='active'>
+                            Tracks
+                                </NavLink>
+                    </li>
+                    <li className='navItem' id='myplaylists'>
+                        <NavLink to='/myplaylists' className='navLink' activeClassName='active'>
+                            Playlists
+                                </NavLink>
+                    </li>
+                </ul>
 
-                <div className='drag-strip' />
-
-                <CustomScroll
-                    heightRelativeToParent='100%'
-                    allowOuterScroll={true}
-                >
-                    <div key='sidebar-menu' id='sidebar-menu'>
-                        <h2>Discover</h2>
-                        <ul className='nav flex-column'>
-                            <li className='navItem'>
-                                <NavLink exact={true} to='/' className='navLink' activeClassName='active'>
-                                    Stream
-                                </NavLink>
-                            </li>
-                            <li className='navItem'>
-                                <NavLink exact={true} to='/charts' className='navLink' activeClassName='active'>
-                                    Charts
-                                </NavLink>
-                            </li>
-                        </ul>
-
-                        <h2>Me</h2>
-                        <ul className='nav flex-column'>
-                            <li className='navItem' id='likes'>
-                                <NavLink to='/likes' className='navLink' activeClassName='active'>
-                                    Likes
-                                </NavLink>
-                            </li>
-                            <li className='navItem' id='mytracks'>
-                                <NavLink to='/mytracks' className='navLink' activeClassName='active'>
-                                    Tracks
-                                </NavLink>
-                            </li>
-                            <li className='navItem' id='myplaylists'>
-                                <NavLink to='/myplaylists' className='navLink' activeClassName='active'>
-                                    Playlists
-                                </NavLink>
-                            </li>
-                        </ul>
-                        <h2>Playlists</h2>
-                        <div id='playlists' className='nav flex-column'>
-                            <SideBarPlaylist items={items} />
-                        </div>
-                    </div>
-                </CustomScroll>
-            </aside>
-        );
-    }
-}
+                <h2>Playlists</h2>
+                <div id='playlists' className='nav flex-column'>
+                    <SideBarPlaylist
+                        items={items}
+                    />
+                </div>
+            </div>
+        </CustomScroll>
+    </aside>
+));
 
 export default withRouter(SideBar);

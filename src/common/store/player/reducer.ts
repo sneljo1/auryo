@@ -12,7 +12,6 @@ const initialState = {
     currentPlaylistId: null,
     currentIndex: 0,
     currentTime: 0,
-    updateTime: -1,
     duration: 0,
     upNext: {
         start: 0,
@@ -33,10 +32,12 @@ export const playerReducer: Reducer<PlayerState> = (state = initialState, action
                 playingTrack: payload.nextTrack,
                 status: payload.status,
                 currentTime: 0,
-                updateTime: -1,
-                duration: 0,
                 currentIndex: payload.position
             };
+
+            if (!payload.repeat) {
+                new_state.duration = 0;
+            }
 
             if (position === state.upNext.start) {
                 new_state.upNext = {
@@ -54,7 +55,6 @@ export const playerReducer: Reducer<PlayerState> = (state = initialState, action
             return {
                 ...state,
                 currentTime: payload.time >= 0 && payload.time < state.duration ? payload.time : state.currentTime,
-                updateTime: payload.time,
             };
         case PlayerActionTypes.SET_DURATION:
             return {
@@ -189,7 +189,7 @@ export const playerReducer: Reducer<PlayerState> = (state = initialState, action
 
             return {
                 ...state,
-                queue: [...state.queue.slice(0, state.currentIndex), ...after]
+                queue: [...state.queue.slice(0, state.currentIndex + 1), ...after]
             };
 
         case AppActionTypes.RESET_STORE:

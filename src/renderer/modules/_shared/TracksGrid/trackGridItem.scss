@@ -53,7 +53,7 @@
   &.isPlaying .trackImage {
     .actions-dropdown,
     .trackGenre {
-      opacity: 1;
+      opacity: .8;
       transition: .5s all;
     }
     .toggleButton {
@@ -133,7 +133,7 @@
       opacity: .85;
       box-shadow: none;
       i {
-        font-size: 4rem;
+        font-size: 5rem;
       }
     }
     i {
@@ -185,7 +185,7 @@
     .trackTitle {
       font-weight: 500;
       a {
-        color: #000;
+        color: $black;
       }
     }
     .trackArtist {
@@ -209,7 +209,7 @@
     left: 0;
     top: 0;
     background: rgba(34, 35, 38, 0.47);
-    color: #fff !important;
+    color: $white;
     display: inline-block;
     padding: 6px 10px;
     font-size: 14px;
@@ -218,6 +218,11 @@
     margin-top: 10px;
     opacity: 0;
     transition: .5s all;
+    font-weight: bold;
+    text-decoration: none;
+    &:hover {
+      opacity: 1 !important;
+    }
   }
   .trackFooter {
     position: absolute;

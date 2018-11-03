@@ -3,7 +3,7 @@
 main .offline {
   &.full {
     color: #fff;
-    background: lighten($sidebar_bg, 5%);
+    background: lighten($black, 5%);
     i {
       font-size: 5rem;
       display: block;

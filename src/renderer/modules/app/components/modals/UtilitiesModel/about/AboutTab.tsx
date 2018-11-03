@@ -48,7 +48,7 @@ const AboutTab: React.SFC<Props> = ({ remainingPlays }) => (
             <div className='d-flex justify-content-center align-items-center'>
                 <i
                     style={{ color: '#00aced' }}
-                    className='bx bx-twitter color-twitter'
+                    className='bx bxl-twitter color-twitter'
                 />
                 <a href='https://twitter.com/Auryoapp'>@Auryoapp</a>
             </div>

@@ -97,7 +97,6 @@ class ChartsPage extends WithHeaderComponent<AllProps, State> {
         return (
             <CustomScroll
                 heightRelativeToParent='100%'
-                // heightMargin={35}
                 allowOuterScroll={true}
                 threshold={300}
                 isFetching={false}
@@ -143,7 +142,11 @@ class ChartsPage extends WithHeaderComponent<AllProps, State> {
                                     className='my-masonry-grid'
                                 >
                                     {MUSIC_GENRES.map((genre) => (
-                                        <ChartGenre key={genre.key} genre={genre} img={GENRE_IMAGES[genre.key]} />
+                                        <ChartGenre
+                                            key={`chart-genre-key-${genre.key}`}
+                                            genre={genre}
+                                            img={GENRE_IMAGES[genre.key]}
+                                        />
                                     ))}
                                 </Masonry>
 

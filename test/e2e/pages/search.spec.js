@@ -27,7 +27,7 @@ harness("search page", () => {
             .click()
             .waitUntilWindowLoaded()
             .getUrl()
-            .should.eventually.contain("#/search/test/user")
+            .should.eventually.contain("#/search/user?test")
 
     });
 })

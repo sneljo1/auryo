@@ -1,5 +1,6 @@
 const path = require('path')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const webpack = require('webpack')
 
 let port = process.argv[2] || 8080
 
@@ -8,9 +9,9 @@ const packageJson = require("../package.json");
 const externals = {
   ...packageJson.optionalDependencies
 }
-
 module.exports = {
   externals: Object.keys(externals || {}),
+
   output: {
     filename: '[name].js',
     path: path.resolve(__dirname, '../dist'),
@@ -23,6 +24,7 @@ module.exports = {
     rules: [
       {
         test: /\.(s)?css$/,
+        exclude: /\.module\.(s)?css$/,
         use: [
           'css-hot-loader',
           {
@@ -32,6 +34,33 @@ module.exports = {
             }
           },
           'css-loader?importLoaders=1',
+          {
+            loader: 'postcss-loader',
+            options: {
+              sourceMap: true
+            }
+          },
+          'sass-loader'
+        ]
+      },
+      {
+        test: /\.module\.(s)?css$/,
+        use: [
+          'css-hot-loader',
+          {
+            loader: MiniCssExtractPlugin.loader,
+            options: {
+              publicPath: '../'
+            }
+          },
+          {
+            loader: "typings-for-css-modules-loader",
+            options: {
+              camelcase: true,
+              modules: true,
+              namedExport: true,
+            }
+          },
           {
             loader: 'postcss-loader',
             options: {
@@ -112,7 +141,11 @@ module.exports = {
   plugins: [
     new MiniCssExtractPlugin({
       filename: 'css/[name].css'
-    })
+    }),
+    new webpack.WatchIgnorePlugin([
+      /s?css\.d\.ts$/
+    ]),
+    new webpack.EnvironmentPlugin(['NODE_ENV',"CLIENT_ID", "SENTRY_REPORT_URL", "FB_APP_ID", "GOOGLE_GA"])
   ],
   resolve: {
     extensions: ['.tsx', '.ts', '.js', '.jsx', '.json', '.scss'],

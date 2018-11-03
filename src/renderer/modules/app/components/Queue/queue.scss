@@ -1,4 +1,4 @@
-
+@import "../../../../css/vars";
 
 .playing {
   .playQueue {
@@ -14,7 +14,7 @@
   position: absolute;
   right: 0;
   bottom: 0;
-  background: #222326;
+  background: $black;
   margin-bottom: 66px;
   color: #fff;
   z-index: 100009;
@@ -147,7 +147,7 @@
       }
     }
     &:hover {
-      background: lighten($sidebar_bg, 4%);
+      background: lighten($black, 4%);
     }
     &.played {
       .item-info, img {

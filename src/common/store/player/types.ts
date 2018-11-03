@@ -8,7 +8,6 @@ export interface PlayerState extends Readonly<{
     currentPlaylistId: string | null;
     currentIndex: number;
     currentTime: number;
-    updateTime: number;
     duration: number;
     upNext: UpNextState,
     containsPlaylists: Array<PlayingPositionState>

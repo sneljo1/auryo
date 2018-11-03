@@ -32,16 +32,17 @@ class ArtistProfiles extends React.Component<Props> {
 
         switch (service) {
             case SoundCloud.ProfileService.SOUNDCLOUD:
-            return 'cloud';
+            return '-cloud';
             case SoundCloud.ProfileService.SPOTIFY:
-            return 'album';
+            return '-album';
             case SoundCloud.ProfileService.PERSONAL:
-                return 'globe';
+            case SoundCloud.ProfileService.SNAPCHAT:
+                return '-globe';
             default:
                 if (SoundCloud.ProfileService[service.toUpperCase()] != null) {
-                    return service;
+                    return `l-${service}`;
                 }
-                return 'globe';
+                return '-globe';
         }
 
     }
@@ -80,7 +81,7 @@ class ArtistProfiles extends React.Component<Props> {
                             service = title;
                         }
 
-                        const icon = `bx bx-${this.getIcon(service)}`;
+                        const icon = `bx bx${this.getIcon(service)}`;
 
                         return (
                             <a

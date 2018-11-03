@@ -100,8 +100,8 @@ class QueueItem extends React.PureComponent<AllProps> {
                     <div className='image-wrap'>
                         <FallbackImage
                             src={SC.getImageUrl(track, IMAGE_SIZES.XSMALL)}
-                            width={40}
-                            height={40}
+                            width={35}
+                            height={35}
                         />
                     </div>
                     <div className='item-info'>

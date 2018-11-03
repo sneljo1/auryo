@@ -23,6 +23,7 @@ class ErrorBoundary extends React.Component<Props, State> {
     }
 
     render() {
+        const { initApp } = this.props;
         if (this.state.hasError) {
             return (
                 <AppError

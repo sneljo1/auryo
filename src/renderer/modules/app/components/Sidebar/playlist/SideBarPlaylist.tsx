@@ -7,6 +7,7 @@ import { getDenormalizedEntities } from '../../../../../../common/store/entities
 import { getCurrentPlaylistId } from '../../../../../../common/store/player/selectors';
 import { NormalizedResult, SoundCloud } from '../../../../../../types';
 import TextShortener from '../../../../_shared/TextShortener';
+import { PlayerStatus } from '../../../../../../common/store/player';
 
 interface OwnProps {
     items: Array<NormalizedResult>;
@@ -15,45 +16,48 @@ interface OwnProps {
 interface PropsFromState {
     playlists: Array<SoundCloud.Playlist>;
     currentPlaylistId: string | null;
+    isActuallyPlaying: boolean;
 }
 
 type AllProps = OwnProps & PropsFromState;
 
-class SideBarPlaylist extends React.PureComponent<AllProps> {
-    render() {
-        const { playlists, currentPlaylistId } = this.props;
+const SideBarPlaylist = React.memo<AllProps>(({ playlists, currentPlaylistId, isActuallyPlaying }) => {
 
-        return (
-            <React.Fragment>
-                {
-                    playlists.map((playlist: SoundCloud.Playlist) => (
-                        <div
-                            key={`sidebar-${playlist.id}`}
-                            className={classNames('navItem', {
-                                playing: currentPlaylistId && playlist.id.toString() === currentPlaylistId
-                            })}
+    const isPlaying = (playlistId: number) => currentPlaylistId && playlistId.toString() === currentPlaylistId;
+
+    return (
+        <>
+            {
+                playlists.map((playlist: SoundCloud.Playlist) => (
+                    <div
+                        key={`sidebar-${playlist.id}`}
+                        className={classNames('navItem', {
+                            isCurrentPlaylist: isPlaying(playlist.id),
+                            isActuallyPlaying
+                        })}
+                    >
+                        <NavLink
+                            to={`/playlist/${playlist.id}`}
+                            className='navLink'
+                            activeClassName='active'
                         >
-                            <NavLink
-                                to={`/playlist/${playlist.id}`}
-                                className='navLink'
-                                activeClassName='active'
-                            >
-                                <TextShortener text={playlist.title} />
-                            </NavLink>
-                        </div>
-                    ))
-                }
-            </React.Fragment>
-        );
-    }
-}
+                            <TextShortener text={playlist.title} />
+                        </NavLink>
+                    </div>
+                ))
+            }
+        </>
+    );
+});
 
 const mapStateToProps = (state: StoreState, props: OwnProps): PropsFromState => {
     const { items } = props;
+    const { player: { status } } = state;
 
     return {
         playlists: getDenormalizedEntities<SoundCloud.Playlist>(items)(state),
-        currentPlaylistId: getCurrentPlaylistId(state)
+        currentPlaylistId: getCurrentPlaylistId(state),
+        isActuallyPlaying: status === PlayerStatus.PLAYING
     };
 };
 

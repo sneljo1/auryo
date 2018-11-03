@@ -267,7 +267,7 @@ class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
                 </PageHeader>
                 {
                     isEmpty ? (
-                        <div className='pt-5 mt-5'>
+                        <div className='mt-5'>
                             <h5 className='text-muted text-center'>
                                 This{' '}<a target='_blank' rel='noopener noreferrer' href={playlist.permalink_url}>playlist</a>{' '}
                                 is empty or not available via a third party!</h5>

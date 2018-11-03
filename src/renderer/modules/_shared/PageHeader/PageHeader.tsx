@@ -5,10 +5,11 @@ interface Props {
     image?: string;
     gradient?: string;
     title?: string;
+    subtitle?: string;
     children?: React.ReactNode;
 }
 
-const PageHeader: React.SFC<Props> = ({ image, gradient, children, title }) => (
+const PageHeader: React.SFC<Props> = ({ image, gradient, children, title, subtitle }) => (
     <div
         className={cn('page-header ', {
             withImage: image
@@ -25,6 +26,7 @@ const PageHeader: React.SFC<Props> = ({ image, gradient, children, title }) => (
         )}
 
         <div className='header-content'>
+            {subtitle && (<div className='subtitle'>{subtitle}</div>)}
             {title ? (<h2>{title}</h2>) : children}
         </div>
     </div>
