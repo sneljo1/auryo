@@ -10,6 +10,9 @@ import { PlayerActionTypes, ProcessedQueueItems, processQueueItems } from '../pl
 import { SortTypes } from '../playlist/types';
 import { ObjectsActionTypes, ObjectState, ObjectTypes } from './types';
 
+const canFetch = (current: ObjectState<any>): boolean => !current || (!!current && !current.isFetching);
+const canFetchMore = (current: ObjectState<any>): boolean => canFetch(current) && (current && current.nextUrl !== null);
+
 /**
  * Check if there is more to fetch, if so, fetch more
  *
@@ -51,9 +54,6 @@ export function canFetchMoreOf(objectId: string, type: ObjectTypes): ThunkResult
     };
 
 }
-
-const canFetch = (current: ObjectState<any>): boolean => !current || (!!current && !current.isFetching);
-const canFetchMore = (current: ObjectState<any>): boolean => canFetch(current) && (current && current.nextUrl !== null);
 
 // TODO refactor, too hacky. Maybe redux-observables?
 // tslint:disable-next-line:max-line-length

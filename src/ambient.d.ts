@@ -1,5 +1,5 @@
 declare namespace NodeJS {
     export interface Global {
-      __static: any
+      __static: any;
     }
   }
