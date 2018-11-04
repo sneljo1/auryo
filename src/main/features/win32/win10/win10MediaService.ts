@@ -5,8 +5,10 @@ import * as SC from '../../../../common/utils/soundcloudUtils';
 import WindowsFeature from '../windowsFeature';
 import { ChangeTypes, PlayerStatus } from '../../../../common/store/player';
 import { getTrackEntity } from '../../../../common/store/entities/selectors';
+import { Logger } from '../../../utils/logger';
 
 export default class Win10MediaService extends WindowsFeature {
+  private logger: Logger = new Logger('MprisService');
 
   shouldRun() {
     return super.shouldRun() && !process.env.TOKEN; // TODO remove this and figure out why nodert isn't being added on AppVeyor
@@ -106,7 +108,7 @@ export default class Win10MediaService extends WindowsFeature {
         });
       });
     } catch (e) {
-      console.log(e);
+      this.logger.error(e);
     }
   }
 

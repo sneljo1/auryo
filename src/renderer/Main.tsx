@@ -1,28 +1,22 @@
+import { ConnectedRouter } from 'connected-react-router';
 import { ipcRenderer } from 'electron';
 import { History } from 'history';
 import * as React from 'react';
 import { connect, Provider } from 'react-redux';
+import { Route, Switch } from 'react-router';
 import { Store } from 'redux';
 import { EVENTS } from '../common/constants/events';
 import { StoreState } from '../common/store';
-import Routes from './routes';
-import { ConnectedRouter } from 'connected-react-router';
-
-interface PropsFromState {
-}
-
-interface PropsFromDispatch {
-    [key: string]: any;
-}
+import App from './app/App';
+import WelcomeModal from './app/components/modals/WelcomeModal/WelcomeModal';
+import Login from './pages/login/Login';
 
 interface OwnProps {
     store: Store<StoreState>;
     history: History;
 }
 
-type AllProps = PropsFromState & PropsFromDispatch & OwnProps;
-
-class Main extends React.Component<AllProps> {
+class Main extends React.PureComponent<OwnProps> {
 
     componentDidMount() {
         const { history } = this.props;
@@ -40,7 +34,13 @@ class Main extends React.Component<AllProps> {
         return (
             <Provider store={store}>
                 <ConnectedRouter history={history}>
-                    <Routes />
+                    <>
+                        <WelcomeModal />
+                        <Switch>
+                            <Route name='Login' path='/login' component={Login} />
+                            <Route path='/' component={App} />
+                        </Switch>
+                    </>
                 </ConnectedRouter>
             </Provider>
 
@@ -48,4 +48,4 @@ class Main extends React.Component<AllProps> {
     }
 }
 
-export default connect<PropsFromState, PropsFromDispatch, OwnProps, StoreState>(null)(Main);
+export default connect<{}, {}, OwnProps, StoreState>(null)(Main);

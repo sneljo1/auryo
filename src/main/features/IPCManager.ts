@@ -1,6 +1,6 @@
 import { app, clipboard, ipcMain, IpcMessageEvent, shell } from 'electron';
 import { download } from 'electron-dl';
-import fs from 'fs';
+import * as fs from 'fs';
 import * as _ from 'lodash';
 import * as io from 'socket.io-client';
 import { CONFIG } from '../../config';

@@ -150,7 +150,7 @@
     "webpack-dev-server": "^3.1.4",
     "webpack-hot-middleware": "^2.22.2",
     "webpack-merge": "^4.1.2",
-    "why-did-you-update": "^0.1.1"
+    "why-did-you-update": "^0.2.0"
   },
   "dependencies": {
     "@blueprintjs/core": "^3.2.0",
@@ -188,6 +188,7 @@
     "react-addons-pure-render-mixin": "^15.3.2",
     "react-dom": "^16.6.0",
     "react-dotdotdot": "^1.2.3",
+    "react-fast-compare": "^2.0.2",
     "react-hot-loader": "^4.3.11",
     "react-infinite-scroller": "^1.2.0",
     "react-lazy-images": "^1.1.0",

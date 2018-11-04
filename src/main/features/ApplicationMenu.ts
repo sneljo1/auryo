@@ -4,8 +4,14 @@ import * as SC from '../../common/utils/soundcloudUtils';
 import Feature from './feature';
 import { PlayerStatus, ChangeTypes, PlayerState, VolumeChangeTypes } from '../../common/store/player';
 import { show } from 'redux-modal';
+import * as is from 'electron-is';
 
 export default class ApplicationMenu extends Feature {
+
+  shouldRun() {
+    return is.osx();
+  }
+
   register() {
     this.on(EVENTS.APP.READY, () => {
       const { player } = this.store.getState();

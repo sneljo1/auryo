@@ -1,5 +1,6 @@
 // tslint:disable-next-line:no-submodule-imports
 import '@blueprintjs/core/lib/css/blueprint.css';
+import '@blueprintjs/icons/lib/css/blueprint-icons.css';
 // tslint:disable-next-line:no-submodule-imports
 import 'boxicons/css/boxicons.min.css';
 import { remote } from 'electron';
@@ -59,7 +60,10 @@ if (token) {
 
 ReactDOM.render(
     <AppContainer>
-        <Main store={store} history={history} />
+        <Main
+            store={store}
+            history={history}
+        />
     </AppContainer>,
     document.getElementById('root')
 );
@@ -70,9 +74,12 @@ if (module.hot) {
 
         ReactDOM.render(
             <AppContainer>
-                <NextApp store={store} history={history}/>
+                <NextApp
+                    store={store}
+                    history={history}
+                />
             </AppContainer>,
-            document.getElementById('root') as HTMLElement
+            document.getElementById('root')
         );
     });
 }

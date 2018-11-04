@@ -5,34 +5,6 @@
 
 @import "node_modules/bootstrap/scss/bootstrap";
 
-@import '../modules/_shared/TracksGrid/trackGridItem.scss';
-@import '../modules/_shared/TracksGrid/TrackGridUser.scss';
-@import '../modules/_shared/TrackList/trackListItem.scss';
-@import '../modules/_shared/Spinner/Spinner.scss';
-@import '../modules/_shared/PageHeader/PageHeader.scss';
-@import '../modules/_shared/CommentList/commentList.scss';
-@import '../modules/_shared/Button/Button.scss';
-@import '../modules/_shared/UserCard/userCard.scss';
-@import '../modules/app/components/Sidebar/sidebar.scss';
-@import '../modules/app/components/Queue/queue.scss';
-@import '../modules/app/components/Offline/offline.scss';
-@import '../modules/app/components/modals/ChangeLogModal/ChangeLogModal.scss';
-@import '../modules/app/components/modals/WelcomeModal/WelcomeModal.scss';
-@import '../modules/app/components/modals/UtilitiesModel/UtilitiesModal.scss';
-@import '../modules/app/components/modals/UtilitiesModel/settings/settings.scss';
-@import '../modules/app/components/modals/UtilitiesModel/about/about.scss';
-@import '../modules/app/components/Header/header.scss';
-@import '../modules/app/components/Header/User/user.scss';
-@import '../modules/app/components/Header/Search/searchBox.scss';
-@import '../modules/app/components/AppError/AppError.scss';
-@import '../modules/artist/index.scss';
-@import '../modules/artist/components/ArtistProfiles/artistProfiles.scss';
-@import '../modules/charts/ChartsPage.scss';
-@import '../modules/login/login.scss';
-@import '../modules/playlist/playlist.scss';
-@import '../modules/search/search.scss';
-@import '../modules/track/track.scss';
-
 body {
   font-family: $font-family-base, sans-serif;
   -webkit-touch-callout: none; /* iOS Safari */
@@ -44,7 +16,7 @@ body {
   min-width: 500px;
   height: 100%;
   overflow: hidden;
-  font-weight: 400;
+  font-weight: $font-family-base;
 }
 
 :focus {
@@ -108,8 +80,8 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Arimo', sans-serif;
-  font-weight: 400;
+  font-family: $font-family-title, sans-serif;
+  font-weight: $font-weight-bold;
 }
 
 // Set appropriate height
@@ -313,7 +285,7 @@ i {
 .header h2 {
   color: #222326;
   font-size: 2.1rem;
-  font-weight: bold;
+  font-weight: $font-weight-bold;
 }
 
 .header .overlay {
@@ -355,8 +327,8 @@ i {
   min-height: 55px;
   font-size: .7rem;
   text-transform: uppercase;
-  font-weight: bold;
-  font-family: 'Roboto', sans-serif;
+  font-weight: $font-weight-bold;
+  font-family: $font-family-title;
   align-items: center;
   margin-top: 1rem;
 
@@ -652,9 +624,5 @@ i {
 // optical alignment fix for play icon
 i.bx.bx-play {
   transform: translateX(6%);
-}
-
-strong {
-  font-weight: 500;
 }
 

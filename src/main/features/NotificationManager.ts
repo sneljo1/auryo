@@ -9,7 +9,7 @@ import * as is from 'electron-is';
 export default class NotificationManager extends Feature {
 
   register() {
-    // TODO  - https://github.com/felixrieseberg/electron-notification-state
+
     this.on(EVENTS.PLAYER.TRACK_CHANGED, () => {
 
       if (!this.win || (this.win && this.win.isFocused())) {
@@ -46,7 +46,7 @@ export default class NotificationManager extends Feature {
             icon: image,
           });
 
-          // TODO add unlink with protocol which opens the track
+          // TODO add onclick to open the track
         }
       }
     });
