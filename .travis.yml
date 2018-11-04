@@ -67,7 +67,11 @@ install:
 script:
 - yarn run lint || travis_terminate 1
 - yarn run build || travis_terminate 1
-- yarn run test-e2e -- --retries 2 || travis_terminate 1
+# TODO re-enable for linux
+-  |
+  if [ "$TRAVIS_OS_NAME" = "osx" ]; then
+    yarn run test-e2e -- --retries 2 || travis_terminate 1
+  fi
 after_success:
 - |
   if [ "$TRAVIS_BRANCH" == "master" ] || [ -n "$TRAVIS_TAG" ]; then
