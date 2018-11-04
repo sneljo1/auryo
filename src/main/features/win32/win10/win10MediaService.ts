@@ -4,6 +4,7 @@ import { IMAGE_SIZES } from '../../../../common/constants/Soundcloud';
 import * as SC from '../../../../common/utils/soundcloudUtils';
 import WindowsFeature from '../windowsFeature';
 import { ChangeTypes, PlayerStatus } from '../../../../common/store/player';
+import { getTrackEntity } from '../../../../common/store/entities/selectors';
 
 export default class Win10MediaService extends WindowsFeature {
 
@@ -77,29 +78,29 @@ export default class Win10MediaService extends WindowsFeature {
 
         this.on(EVENTS.PLAYER.TRACK_CHANGED, () => {
           const {
-            entities: { trackEntities, userEntities },
             player: { playingTrack }
           } = this.store.getState();
 
           if (playingTrack) {
             const trackId = playingTrack.id;
-            const track = trackEntities[trackId];
-            const user = userEntities[track.user || track.user_id];
-            const image = SC.getImageUrl(track, IMAGE_SIZES.SMALL);
+            const track = getTrackEntity(trackId)(this.store.getState());
 
             if (track) {
+              const image = SC.getImageUrl(track, IMAGE_SIZES.SMALL);
               Controls.displayUpdater.musicProperties.title = track.title || '';
-              Controls.displayUpdater.musicProperties.artist = user && user.username ? user.username : 'Unknown artist';
+              Controls.displayUpdater.musicProperties.artist = track.user && track.user.username ? track.user.username : 'Unknown artist';
               Controls.displayUpdater.musicProperties.albumTitle = track.genre || '';
               Controls.displayUpdater.thumbnail = image ? RandomAccessStreamReference.createFromUri(new Uri(image)) : '';
-            } else {
-              Controls.displayUpdater.musicProperties.title = 'Auryo';
-              Controls.displayUpdater.musicProperties.artist = 'No track is playing';
+
+              Controls.displayUpdater.update();
+
+              return;
             }
-          } else {
-            Controls.displayUpdater.musicProperties.title = 'Auryo';
-            Controls.displayUpdater.musicProperties.artist = 'No track is playing';
+
           }
+
+          Controls.displayUpdater.musicProperties.title = 'Auryo';
+          Controls.displayUpdater.musicProperties.artist = 'No track is playing';
 
           Controls.displayUpdater.update();
         });

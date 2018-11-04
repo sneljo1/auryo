@@ -46,9 +46,9 @@ export function getAuth(): ThunkResult<void> {
         dispatch(action(AuthActionTypes.SET, fetchToJson<SoundCloud.User>(SC.getMeUrl())
             .then((user) => {
                 if (process.env.NODE_ENV === 'production' && analytics) {
-                    const ua = require('../../utils/universalAnalytics');
+                    const {ua} = require('../../utils/universalAnalytics');
 
-                    ua().set('userId', user.id);
+                    ua.set('userId', user.id);
                 }
                 return user;
             })));

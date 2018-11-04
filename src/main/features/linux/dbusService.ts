@@ -7,7 +7,8 @@ export default class DbusService extends LinuxFeature {
   private session: any;
 
   shouldRun() {
-    return super.shouldRun() && !process.env.TOKEN;
+    // Breaks MPRIS
+    return false;
   }
 
   register() {

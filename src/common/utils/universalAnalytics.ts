@@ -1,4 +1,4 @@
-import UniversalAnalytics, { Visitor } from 'universal-analytics';
+import * as UniversalAnalytics from 'universal-analytics';
 import { CONFIG } from '../../config';
 
-export const ua: Visitor = UniversalAnalytics(CONFIG.GOOGLE_GA);
+export const ua: UniversalAnalytics.Visitor = UniversalAnalytics(CONFIG.GOOGLE_GA);

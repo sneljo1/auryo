@@ -5,6 +5,7 @@ import * as SC from '../../../common/utils/soundcloudUtils';
 import { MediaService, MediaStates, MetaData, milliseconds } from './interfaces/electron-media-service.interfaces';
 import MacFeature from './macFeature';
 import { WatchState } from '../feature';
+import { getTrackEntity } from '../../../common/store/entities/selectors';
 
 export default class MediaServiceManager extends MacFeature {
   private myService: MediaService | null = null;
@@ -63,21 +64,18 @@ export default class MediaServiceManager extends MacFeature {
     this.on(EVENTS.APP.READY, () => {
       this.subscribe<PlayingTrack>(['player', 'playingTrack'], ({ currentState }) => {
         const {
-          entities: { trackEntities, userEntities },
           player: { playingTrack }
         } = currentState;
 
         if (playingTrack) {
           const trackId = playingTrack.id;
-          const track = trackEntities[trackId];
+          const track = getTrackEntity(trackId)(this.store.getState());
 
           if (track) {
-            const user = userEntities[track.user || track.user_id];
-
             this.meta.id = track.id;
             this.meta.title = track.title;
 
-            this.meta.artist = user && user.username ? user.username : 'Unknown artist';
+            this.meta.artist = track.user && track.user.username ? track.user.username : 'Unknown artist';
             this.meta.albumArt = SC.getImageUrl(track, IMAGE_SIZES.LARGE);
 
             myService.setMetaData(this.meta);
@@ -108,10 +106,10 @@ export default class MediaServiceManager extends MacFeature {
     }
   }: WatchState<number>) => {
 
-    this.meta.currentTime = currentTime * 1000;
-    this.meta.duration = duration * 1000;
+    this.meta.currentTime = currentTime * 1e3;
+    this.meta.duration = duration * 1e3;
 
-    if (this.myService){
+    if (this.myService) {
       this.myService.setMetaData(this.meta);
     }
   }

@@ -7,6 +7,7 @@
   "description": "Listen to SoundCloud® from the comfort of your desktop. Use keyboard shortcuts to navigate through your music. Be more productive.",
   "main": "./dist/main.js",
   "scripts": {
+    "start": "electron dist/main.js",
     "postinstall": "electron-rebuild",
     "dev": "env-cmd .env.development node config/dev-runner.js 4411",
     "build": "env-cmd .env.production node config/build.js",

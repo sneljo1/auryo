@@ -8,6 +8,7 @@ import { Logger } from '../../utils/logger';
 import { WatchState } from '../feature';
 import { MprisServiceClient } from './interfaces/mpris-service.interface';
 import LinuxFeature from './linuxFeature';
+import { getTrackEntity } from '../../../common/store/entities/selectors';
 
 const logosPath = process.env.NODE_ENV === 'development' ?
   path.resolve(__dirname, '..', '..', '..', 'assets', 'img', 'logos') :
@@ -41,8 +42,8 @@ export default class MprisService extends LinuxFeature {
       this.player.playbackStatus = 'Stopped';
       this.player.canEditTracks = false;
       this.player.canSeek = false;
-      // this.player.canGoPrevious = false;
-      // this.player.canGoNext = false;
+      this.player.canGoPrevious = false;
+      this.player.canGoNext = false;
       this.player.shuffle = false;
       this.player.canControl = true;
       this.player.loopStatus = 'None';
@@ -100,15 +101,14 @@ export default class MprisService extends LinuxFeature {
          */
         this.subscribe(['player', 'playingTrack'], ({ currentState }) => {
           const {
-            entities: { trackEntities, userEntities },
             player: { playingTrack, queue }
           } = currentState;
 
           if (playingTrack && this.player) {
             const trackId = playingTrack.id;
-            const track = trackEntities[trackId];
+            const track = getTrackEntity(trackId)(currentState);
+
             const position = queue.indexOf(playingTrack);
-            const user = userEntities[track.user || track.user_id];
 
             this.player.canGoPrevious = queue.length > 0 && position > 0;
             this.player.canGoNext = queue.length > 0 && position + 1 <= queue.length;
@@ -120,16 +120,17 @@ export default class MprisService extends LinuxFeature {
 
             if (track) {
               this.meta['mpris:trackId'] = this.player.objectPath(track.id.toString());
-              this.meta['mpris:length'] = track.duration;
+              this.meta['mpris:length'] = track.duration || 0;
               this.meta['mpris:artUrl'] = SC.getImageUrl(track, IMAGE_SIZES.SMALL);
-
+              this.meta['xesam:genre'] = [track.genre || ''];
               this.meta['xesam:title'] = track.title;
-              this.meta['xesam:artist'] = [user && user.username ? user.username : 'Unknown artist'];
+              this.meta['xesam:artist'] = [track.user && track.user.username ? track.user.username : 'Unknown artist'];
               this.meta['xesam:url'] = track.uri || '';
               this.meta['xesam:useCount'] = track.playback_count || 0;
             } else {
               this.meta['xesam:title'] = 'Auryo';
               this.meta['xesam:artist'] = [''];
+              this.meta['mpris:length'] = 0;
               this.meta['xesam:url'] = '';
               this.meta['mpris:artUrl'] = `file://${path.join(logosPath, 'auryo-128.png')}`;
             }
@@ -143,9 +144,9 @@ export default class MprisService extends LinuxFeature {
         /**
          * Update time
          */
-        this.subscribe(['player', 'status'], this.updateStatus);
-        this.subscribe(['player', 'currentTime'], this.updateTime);
-        this.subscribe(['player', 'duration'], this.updateTime);
+        this.subscribe(['player', 'status'], this.updateStatus.bind(this));
+        this.subscribe(['player', 'currentTime'], this.updateTime.bind(this));
+        this.subscribe(['player', 'duration'], this.updateTime.bind(this));
       });
 
     } catch (e) {
@@ -177,9 +178,8 @@ export default class MprisService extends LinuxFeature {
         ...this.player.metadata
       };
 
-      this.meta['mpris:length'] = duration;
-
-      this.player.position = currentTime;
+      this.meta['mpris:length'] = duration * 1e3;
+      this.player.position = currentTime * 1e3;
 
       if (!_.isEqual(this.meta, this.player.metadata)) {
         this.player.metadata = this.meta;

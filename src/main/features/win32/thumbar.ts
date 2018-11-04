@@ -25,7 +25,7 @@ export default class Thumbar extends IFeature {
   private thumbarButtons: ThumbarPreset | null = null;
 
   constructor(auryo: Auryo) {
-    super(auryo, 'waitUntill');
+    super(auryo, 'focus');
   }
 
   shouldRun() {
