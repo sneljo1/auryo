@@ -2,7 +2,6 @@ import { Auryo } from '../app';
 import ApplicationMenu from './ApplicationMenu';
 import AppUpdater from './AppUpdater';
 import ConfigManager from './ConfigManager';
-import ExceptionManager from './ExceptionManager';
 import IPCManager from './IPCManager';
 import DbusService from './linux/dbusService';
 import MprisService from './linux/mprisService';
@@ -21,7 +20,6 @@ export const tools: Array<typeof Feature> = [
   IPCManager,
   PowerMonitor,
   ShortcutManager,
-  ExceptionManager,
   ConfigManager,
   ApplicationMenu,
   NotificationManager,

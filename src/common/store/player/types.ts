@@ -14,6 +14,7 @@ export interface PlayerState extends Readonly<{
 }> { }
 
 export interface PlayingTrack {
+    un: number; // unique identifiable number to differentiate between the same tracks in queue
     id: number;
     playlistId: string;
 }
@@ -60,5 +61,6 @@ export const enum PlayerActionTypes {
     SET_PLAYLIST = '@@player/SET_PLAYLIST',
     QUEUE_INSERT = '@@player/QUEUE_INSERT',
     ADD_UP_NEXT = '@@player/ADD_UP_NEXT',
+    CLEAR_UP_NEXT = '@@player/CLEAR_UP_NEXT',
     TOGGLE_SHUFFLE = '@@player/TOGGLE_SHUFFLE',
 }

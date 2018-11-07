@@ -16,6 +16,7 @@ const TrackInfo = React.memo<Props>(({ img, title, id, userId, username }) => (
     <div className={styles.trackInfo}>
         <div className={styles.playerAlbum}>
             <FallbackImage
+                noPlaceholder={true}
                 className='img-fluid'
                 src={img}
             />

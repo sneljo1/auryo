@@ -9,6 +9,7 @@ const packageJson = require("../package.json");
 const externals = {
   ...packageJson.optionalDependencies
 }
+
 module.exports = {
   externals: Object.keys(externals || {}),
 
@@ -145,7 +146,7 @@ module.exports = {
     new webpack.WatchIgnorePlugin([
       /s?css\.d\.ts$/
     ]),
-    new webpack.EnvironmentPlugin(['NODE_ENV',"CLIENT_ID", "SENTRY_REPORT_URL", "FB_APP_ID", "GOOGLE_GA"])
+    new webpack.EnvironmentPlugin(['NODE_ENV', "CLIENT_ID", "SENTRY_REPORT_URL", "FB_APP_ID", "GOOGLE_GA"]),
   ],
   resolve: {
     extensions: ['.tsx', '.ts', '.js', '.jsx', '.json', '.scss'],

@@ -6,10 +6,11 @@ import fetchToJson from '../../api/helpers/fetchToJson';
 import { SC } from '../../utils';
 import { IPC } from '../../utils/ipc';
 import { AuthActionTypes } from '../auth';
-import {  getComments, getPlaylist, PlaylistTypes } from '../objects';
+import { getComments, getPlaylist, PlaylistTypes } from '../objects';
 import { addToast } from '../ui';
 import { TrackActionTypes } from './types';
 import { getPlaylistName, getRelatedTracksPlaylistObject, getCommentObject } from '../objects/selectors';
+import { getTrackEntity } from '../entities/selectors';
 
 export function toggleLike(trackId: number, playlist: boolean = false): ThunkResult<any> {
     return (dispatch, getState) => {
@@ -27,7 +28,7 @@ export function toggleLike(trackId: number, playlist: boolean = false): ThunkRes
 
                 if (liked) {
                     dispatch(addToast({
-                        message: `Liked track`,
+                        message: `Liked ${playlist ? 'playlist' : 'track'}`,
                         intent: Intent.SUCCESS
                     }));
                 }
@@ -74,15 +75,11 @@ export function toggleRepost(trackId: number, playlist: boolean = false): ThunkR
     return (dispatch, getState) => {
         const { auth: { reposts } } = getState();
 
-        if (playlist) {
-            throw new Error('Not implemented');
-        }
-
-        const reposted = !((trackId in reposts) ? reposts[trackId] : 0);
+        const reposted = !SC.hasID(trackId, (playlist ? reposts.playlist : reposts.track));
 
         return dispatch<Promise<any>>({
             type: AuthActionTypes.SET_REPOST,
-            payload: fetch(SC.updateRepostUrl(trackId), {
+            payload: fetch(SC.updateRepostUrl(trackId, playlist), {
                 method: (reposted) ? 'PUT' : 'DELETE'
             }).then(() => {
 
@@ -108,10 +105,10 @@ export function toggleRepost(trackId: number, playlist: boolean = false): ThunkR
 export function fetchTrackIfNeeded(trackId: number): ThunkResult<any> {
     return (dispatch, getState) => {
         const state = getState();
-        const { entities: { trackEntities } } = state;
+
         const relatedTracksPlaylistId = getPlaylistName(trackId.toString(), PlaylistTypes.RELATED);
 
-        const track = trackEntities[trackId];
+        const track = getTrackEntity(trackId)(state);
 
         if (!track || (track && !track.playback_count && !track.loading)) {
             dispatch(getTrack(trackId));

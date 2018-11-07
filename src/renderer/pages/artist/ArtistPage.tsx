@@ -259,7 +259,7 @@ class ArtistPage extends WithHeaderComponent<AllProps, State> {
 
                 <PageHeader image={user_img}>
                     <Row className='trackHeader'>
-                        <Col xs='12' md='4' xl='2'>
+                        <Col xs='12' md='4' xl='3'>
                             <div className='imageWrapper'>
                                 <FallbackImage
                                     src={user_img}

@@ -126,7 +126,7 @@ export function initWatchers(): ThunkResult<any> {
                 event: EVENTS.TRACK.LIKE,
                 handler: (_e: any, trackId: string) => {
                     if (trackId) {
-                        dispatch(toggleLike(+trackId, false));
+                        dispatch(toggleLike(+trackId, false)); // TODO determine if track or playlist
                     }
                 }
             });
@@ -135,7 +135,7 @@ export function initWatchers(): ThunkResult<any> {
                 event: EVENTS.TRACK.REPOST,
                 handler: (_e: string, trackId: string) => {
                     if (trackId) {
-                        dispatch(toggleRepost(+trackId, false));
+                        dispatch(toggleRepost(+trackId, false)); // TODO determine if track or playlist
                     }
                 }
             });

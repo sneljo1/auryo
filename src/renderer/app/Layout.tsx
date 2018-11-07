@@ -7,34 +7,26 @@ import { connect, MapDispatchToProps } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { StoreState } from '../../common/store';
 import { AppState, initApp, setDimensions, stopWatchers, toggleOffline } from '../../common/store/app';
-import { AuthState } from '../../common/store/auth';
 import { getUserPlaylists } from '../../common/store/auth/selectors';
-import { EntitiesState } from '../../common/store/entities';
-import { PlayerState, PlayingTrack, updateQueue } from '../../common/store/player';
-import { getQueue } from '../../common/store/player/selectors';
-import { addToast, clearToasts, removeToast, toggleQueue } from '../../common/store/ui';
+import { PlayingTrack } from '../../common/store/player';
+import { addToast, clearToasts, removeToast } from '../../common/store/ui';
 import { NormalizedResult } from '../../types';
+import ErrorBoundary from '../_shared/ErrorBoundary';
+import Spinner from '../_shared/Spinner/Spinner';
 import AppError from './components/AppError/AppError';
 import ChangelogModal from './components/modals/ChangeLogModal/ChangelogModal';
 import UtilitiesModal from './components/modals/UtilitiesModel/UtilitiesModal';
+import Player from './components/player/Player';
 import Queue from './components/Queue/Queue';
 import SideBar from './components/Sidebar/Sidebar';
 import Toastr from './components/Toastr';
-import ErrorBoundary from '../_shared/ErrorBoundary';
-import Player from './components/player/Player';
-import Spinner from '../_shared/Spinner/Spinner';
 
 interface PropsFromState {
-    showQueue: boolean;
     toasts: Array<IToastOptions>;
-
-    entities: EntitiesState;
-    auth: AuthState;
-    player: PlayerState;
+    playingTrack: PlayingTrack | null;
     app: AppState;
 
     userPlayerlists: Array<NormalizedResult>;
-    queue: Array<PlayingTrack>;
 }
 
 interface PropsFromDispatch {
@@ -44,8 +36,6 @@ interface PropsFromDispatch {
     clearToasts: typeof clearToasts;
     removeToast: typeof removeToast;
     setDimensions: typeof setDimensions;
-    toggleQueue: typeof toggleQueue;
-    updateQueue: typeof updateQueue;
 }
 
 type AllProps = PropsFromState & PropsFromDispatch;
@@ -112,16 +102,13 @@ class Layout extends React.Component<AllProps> {
         const {
             // Vars
             app,
-            showQueue,
-            player,
+            playingTrack,
             children,
             // Functions
-            updateQueue,
-            toggleQueue,
             initApp,
             toasts,
             clearToasts,
-            queue, userPlayerlists
+            userPlayerlists
         } = this.props;
 
         return (
@@ -133,7 +120,7 @@ class Layout extends React.Component<AllProps> {
                     className={cn('body auryo', {
                         development: !(process.env.NODE_ENV === 'production'),
                         mac: is.osx(),
-                        playing: !!player.playingTrack
+                        playing: !!playingTrack
                     })}
                 >
                     {
@@ -153,20 +140,12 @@ class Layout extends React.Component<AllProps> {
 
                     <main
                         className={cn('d-flex flex-nowrap', {
-                            playing: player.playingTrack
+                            playing: playingTrack
                         })}
                     >
                         <SideBar items={userPlayerlists} />
 
-                        <Queue
-                            showQueue={showQueue}
-                            items={queue}
-                            currentIndex={player.currentIndex}
-                            playingTrack={player.playingTrack}
-
-                            updateQueue={updateQueue}
-                            toggleQueue={toggleQueue}
-                        />
+                        <Queue />
 
                         <section className='content'>
                             <Toastr toasts={toasts} clearToasts={clearToasts} />
@@ -197,16 +176,12 @@ class Layout extends React.Component<AllProps> {
 }
 
 const mapStateToProps = (state: StoreState): PropsFromState => {
-    const { auth, app, player, entities, ui } = state;
+    const { app, player, ui } = state;
 
     return {
         userPlayerlists: getUserPlaylists(state),
-        queue: getQueue(state),
-        auth,
-        player,
+        playingTrack: player.playingTrack,
         app,
-        entities,
-        showQueue: ui.showQueue,
         toasts: ui.toasts,
     };
 };
@@ -218,8 +193,6 @@ const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, {}> = (dispatch)
     removeToast,
     setDimensions,
     toggleOffline,
-    toggleQueue,
-    updateQueue
 }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(Layout);

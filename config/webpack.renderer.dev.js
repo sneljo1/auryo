@@ -21,7 +21,7 @@ module.exports = merge(baseConfig, {
       filename: './index.html',
       template: 'src/index.html',
       inject: true,
-      hash: true
+      hash: false
     }),
     new webpack.NamedModulesPlugin(),
     new webpack.HotModuleReplacementPlugin(),

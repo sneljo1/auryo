@@ -1,3 +1,5 @@
+import '../common/sentryReporter';
+
 // tslint:disable-next-line:no-submodule-imports
 import '@blueprintjs/core/lib/css/blueprint.css';
 import '@blueprintjs/icons/lib/css/blueprint-icons.css';
@@ -10,11 +12,11 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { AppContainer } from 'react-hot-loader';
 import { SC } from '../common/utils';
-import { CONFIG } from '../config';
 import { configureStore, history } from './configureStore';
 // tslint:disable-next-line:no-submodule-imports
 import './css/app.scss';
 import Main from './Main';
+
 
 const app = remote.app;
 
@@ -27,15 +29,7 @@ const store = configureStore();
 
 if (!process.env.TOKEN && process.env.NODE_ENV === 'production') {
 
-    const { config: { app: { analytics, crashReports } } } = store.getState();
-
-    if (crashReports) {
-        import('raven-js')
-            .then((raven) => {
-                raven.config(CONFIG.SENTRY_REPORT_URL).install();
-            });
-
-    }
+    const { config: { app: { analytics } } } = store.getState();
 
     if (analytics) {
         import('../common/utils/universalAnalytics')

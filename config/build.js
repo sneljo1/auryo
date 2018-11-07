@@ -19,6 +19,18 @@ function pack(config) {
         reject(err)
       } else {
         if (stats.hasErrors()) {
+          log(stats.toString())
+
+          process.stdout.write(
+            stats.toString({
+              errors: true,
+              errorDetails: true,
+              colors: true,
+            }) + '\n\n'
+          )
+
+          log(chalk.cyan('Build complete.\nNow run electron-builder...'))
+
           reject('Build failed with errors.\n')
           process.exit(1)
         } else {
@@ -66,4 +78,4 @@ remove([path.resolve(__dirname, '../dist'), path.resolve(__dirname, '../build')]
 
     log(chalk.cyan('Build complete.\nNow run electron-builder...'))
   })
-  .catch(err => console.log(err))
+  .catch(err => log(err))

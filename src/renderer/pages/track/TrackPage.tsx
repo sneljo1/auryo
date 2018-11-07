@@ -170,7 +170,7 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
         }
 
         const liked = SC.hasID(track.id, likes.track);
-        const reposted = SC.hasID(track.id, reposts);
+        const reposted = SC.hasID(track.id, reposts.track);
 
         const image = SC.getImageUrl(track, IMAGE_SIZES.LARGE);
 

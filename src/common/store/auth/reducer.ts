@@ -11,7 +11,10 @@ const initialState = {
         track: {},
         playlist: {}
     },
-    reposts: {},
+    reposts: {
+        track: {},
+        playlist: {}
+    },
     playlists: [],
     authentication: {
         loading: false,
@@ -79,6 +82,14 @@ export const authReducer: Reducer<AuthState> = (state = initialState, action) =>
                 ...state,
                 reposts: payload
             };
+        case onSuccess(AuthActionTypes.SET_PLAYLIST_REPOSTS):
+            return {
+                ...state,
+                reposts: {
+                    ...state.reposts,
+                    playlist: payload
+                }
+            };
         case onSuccess(AuthActionTypes.SET_PLAYLISTS):
             return {
                 ...state,
@@ -108,20 +119,36 @@ export const authReducer: Reducer<AuthState> = (state = initialState, action) =>
                     }
                 }
             };
+        case onSuccess(AuthActionTypes.SET_REPOST):
+            if (payload.playlist) {
+                return {
+                    ...state,
+                    reposts: {
+                        ...state.reposts,
+                        playlist: {
+                            ...state.reposts.playlist,
+                            [payload.trackId]: payload.reposted
+                        }
+                    }
+                };
+            }
+
+            return {
+                ...state,
+                reposts: {
+                    ...state.reposts,
+                    track: {
+                        ...state.reposts.track,
+                        [payload.trackId]: payload.reposted
+                    }
+                }
+            };
         case onSuccess(AuthActionTypes.SET_FOLLOWING):
             return {
                 ...state,
                 followings: {
                     ...state.followings,
                     [payload.userId]: payload.following
-                }
-            };
-        case onSuccess(AuthActionTypes.SET_REPOST):
-            return {
-                ...state,
-                reposts: {
-                    ...state.reposts,
-                    [payload.trackId]: payload.reposted
                 }
             };
         case AppActionTypes.RESET_STORE:

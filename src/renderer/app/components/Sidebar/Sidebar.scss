@@ -20,7 +20,7 @@
     color: $white !important;
   }
   .navItem .navLink.active {
-    font-weight: 700;
+    font-weight: $font-weight-bold;
     opacity: 1;
     color: $white !important;
     border-left: 4px solid theme-color("primary");

@@ -24,7 +24,12 @@ export interface AuthLikes {
     };
 }
 export interface AuthReposts {
-    [userId: string]: boolean;
+    track: {
+        [trackId: string]: boolean
+    };
+    playlist: {
+        [playlistId: string]: boolean
+    };
 }
 
 export interface AuthUser extends SoundCloud.User {
@@ -45,6 +50,7 @@ export const enum AuthActionTypes {
     SET_LIKES = '@@auth/SET_LIKES',
     SET_PLAYLIST_LIKES = '@@auth/SET_PLAYLIST_LIKES',
     SET_REPOSTS = '@@auth/SET_REPOSTS',
+    SET_PLAYLIST_REPOSTS = '@@auth/SET_PLAYLIST_REPOSTS',
     SET_LIKE = '@@auth/SET_LIKE',
     SET_FOLLOWING = '@@auth/SET_FOLLOWING',
     SET_REPOST = '@@auth/SET_REPOST',

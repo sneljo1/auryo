@@ -1,6 +1,6 @@
 import { Menu, MenuDivider, MenuItem, Popover, Position } from '@blueprintjs/core';
 import cn from 'classnames';
-import { isEqual } from 'lodash';
+import * as _ from 'lodash';
 import * as React from 'react';
 import { connect, MapDispatchToProps } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -18,6 +18,7 @@ import ShareMenuItem from './ShareMenuItem';
 interface OwnProps {
     track: SoundCloud.Music;
     index?: number;
+    playing?: boolean;
 }
 
 interface PropsFromState {
@@ -42,9 +43,9 @@ class ActionsDropdown extends React.Component<AllProps> {
 
         return track.id !== nextProps.track.id ||
             index !== nextProps.index ||
-            !isEqual(likes, nextProps.likes) ||
-            !isEqual(reposts, nextProps.reposts) ||
-            !isEqual(userPlaylists, nextProps.userPlaylists);
+            !_.isEqual(likes, nextProps.likes) ||
+            !_.isEqual(reposts, nextProps.reposts) ||
+            !_.isEqual(userPlaylists, nextProps.userPlaylists);
     }
 
     render() {
@@ -55,6 +56,7 @@ class ActionsDropdown extends React.Component<AllProps> {
             likes,
             track,
             addUpNext,
+            playing,
             index,
             userPlaylists,
             togglePlaylistTrack,
@@ -63,7 +65,7 @@ class ActionsDropdown extends React.Component<AllProps> {
         const trackId = track.id;
 
         const liked = SC.hasID(track.id, (track.kind === 'playlist' ? likes.playlist : likes.track));
-        const reposted = SC.hasID(track.id, reposts);
+        const reposted = SC.hasID(track.id, (track.kind === 'playlist' ? reposts.playlist : reposts.track));
 
         return (
             <Popover
@@ -82,10 +84,17 @@ class ActionsDropdown extends React.Component<AllProps> {
                         <MenuItem
                             className={cn({ 'text-primary': reposted })}
                             text={reposted ? 'Reposted' : 'Repost'}
-                            onClick={() => toggleRepost(trackId)}
+                            onClick={() => toggleRepost(trackId, track.kind === 'playlist')}
                         />
 
-                        <MenuItem text='Add to queue' onClick={() => addUpNext(track)} />
+                        {
+                            _.isNil(index) && (
+                                <MenuItem
+                                    text='Add to queue'
+                                    onClick={() => addUpNext(track)}
+                                />
+                            )
+                        }
 
                         {
                             track.kind !== 'playlist' ? (
@@ -112,8 +121,11 @@ class ActionsDropdown extends React.Component<AllProps> {
 
 
                         {
-                            index ? (
-                                <MenuItem text='Remove from queue' onClick={() => addUpNext(track, index)} />
+                            index !== undefined && !playing ? (
+                                <MenuItem
+                                    text='Remove from queue'
+                                    onClick={() => addUpNext(track, index)}
+                                />
                             ) : null
                         }
 
@@ -121,9 +133,7 @@ class ActionsDropdown extends React.Component<AllProps> {
 
                         <MenuItem
                             text='View in browser'
-                            onClick={() => {
-                                IPC.openExternal(track.permalink_url);
-                            }}
+                            onClick={() => IPC.openExternal(track.permalink_url)}
                         />
                         <ShareMenuItem
                             title={track.title}

@@ -151,7 +151,7 @@ export default class TouchBarManager extends MacFeature {
       const track = trackEntities[trackId];
 
       if (track) {
-        const reposted = SC.hasID(track.id, reposts);
+        const reposted = SC.hasID(track.id, reposts.track);
 
         this.repost_btn.icon = reposted ? this.repoststates.reposted : this.repoststates.notReposted;
       }
