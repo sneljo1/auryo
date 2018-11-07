@@ -300,9 +300,10 @@ class Player extends React.Component<AllProps, State>{
         /**
          * If Track ID is empty, just exit here
          */
+
         if (!track || !playingTrack) return null;
 
-        if ((track.loading && !track.title) || !track.user) return <div>Loading</div>;
+        if (!track.title || !track.user) return <div>Loading</div>;
 
         const overlay_image = SC.getImageUrl(track, IMAGE_SIZES.XSMALL);
 
@@ -320,6 +321,7 @@ class Player extends React.Component<AllProps, State>{
             <div className={styles.player}>
                 <div className={styles.player_bg}>
                     <FallbackImage
+                        noPlaceholder={true}
                         src={overlay_image}
                     />
                 </div>
@@ -473,7 +475,7 @@ const mapStateToProps = (state: StoreState): PropsFromState => {
     if (player.playingTrack && player.playingTrack.id) {
         track = getTrackEntity(player.playingTrack.id)(state);
 
-        if (!track || (track && track.loading)) {
+        if (!track || (track && !track.title && track.loading)) {
             track = null;
         }
     }

@@ -124,7 +124,7 @@ export const playerReducer: Reducer<PlayerState> = (state = initialState, action
             if (!_.isNil(payload.remove)) {
                 const removeInUpNext = (payload.remove > state.upNext.start && payload.remove < (state.upNext.start + state.upNext.length));
 
-                const newState = { // eslint-disable-line
+                const newState = {
                     ...state,
                     queue: [
                         ...state.queue.slice(0, payload.remove),
@@ -192,6 +192,18 @@ export const playerReducer: Reducer<PlayerState> = (state = initialState, action
                 queue: [...state.queue.slice(0, state.currentIndex + 1), ...after]
             };
 
+        case PlayerActionTypes.CLEAR_UP_NEXT:
+            return {
+                ...state,
+                queue: [
+                    ...state.queue.slice(0, state.upNext.start),
+                    ...state.queue.slice(state.upNext.start + state.upNext.length)
+                ],
+                upNext: {
+                    start: 0,
+                    length: 0
+                }
+            };
         case AppActionTypes.RESET_STORE:
             return initialState;
         default:

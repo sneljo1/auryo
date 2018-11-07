@@ -236,7 +236,7 @@ export default class ApplicationMenu extends Feature {
 
       if (trackId && track) {
         const liked = SC.hasID(track.id, likes.track);
-        const reposted = SC.hasID(track.id, reposts);
+        const reposted = SC.hasID(track.id, reposts.track);
 
         if (template[index]) {
           if (template[index].submenu) {

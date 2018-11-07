@@ -11,23 +11,29 @@ interface Props {
     overflow?: boolean;
     className?: string;
     fallbackImage?: string;
+    noPlaceholder?: boolean;
 }
 
-const FallbackImage = React.memo<Props>(({ overflow, src, className, width, height, fallbackImage }) => (
+const FallbackImage = React.memo<Props>(({ overflow, src, className, width, height, fallbackImage, noPlaceholder }) => (
     <div className={cn({ overflow })}>
         <LazyImage
-            // observerProps={{ threshold: 0.01, rootMargin: '200px 0px 0px 0px' }}
             className={className}
             src={src}
-            placeholder={({ ref }: any) => (
-                <img
-                    ref={ref}
-                    className={className}
-                    height={height}
-                    width={width}
-                    src={fallbackImage || defaultFallbackImage}
-                />
-            )}
+            placeholder={({ ref }: any) => {
+                if (!noPlaceholder) {
+                    return (
+                        <img
+                            ref={ref}
+                            className={className}
+                            height={height}
+                            width={width}
+                            src={fallbackImage || defaultFallbackImage}
+                        />
+                    );
+                }
+
+                return <div ref={ref} />;
+            }}
             error={() => (
                 <img
                     className={className}

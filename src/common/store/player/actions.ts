@@ -82,6 +82,7 @@ export function getPlaylistObject(playlistId: string, position: number): ThunkRe
 export const setCurrentTime = (time: number) => action(PlayerActionTypes.SET_TIME, { time });
 export const setDuration = (time: number) => action(PlayerActionTypes.SET_DURATION, { time });
 export const toggleShuffle = (value: boolean) => action(PlayerActionTypes.TOGGLE_SHUFFLE, { value });
+export const clearUpNext = () => action(PlayerActionTypes.CLEAR_UP_NEXT);
 
 export function toggleStatus(newStatus?: PlayerStatus): ThunkResult<void> {
     return (dispatch, getState) => {
@@ -96,7 +97,15 @@ export function toggleStatus(newStatus?: PlayerStatus): ThunkResult<void> {
         const stream_playlist = getPlaylistObjectSelector(PlaylistTypes.STREAM)(state);
 
         if (stream_playlist && currentPlaylistId === null && newStatus === PlayerStatus.PLAYING) {
-            dispatch(playTrack(PlaylistTypes.STREAM, { id: stream_playlist.items[0].id }));
+            const first = stream_playlist.items[0];
+
+            let next: Partial<PlayingTrack> = { id: first.id };
+
+            if (first.schema === 'playlists') {
+                next = { playlistId: first.id.toString() };
+            }
+
+            dispatch(playTrack(PlaylistTypes.STREAM, next as PlayingTrack, true));
         }
 
         if (!newStatus) {
@@ -207,7 +216,7 @@ export function processQueueItems(result: Array<NormalizedResult>, keepFirst: bo
                         return {
                             id: trackId,
                             playlistId: id.toString(),
-                            // un: new Date().getTime()
+                            un: Date.now()
                         };
                     }).filter((t) => t != null);
                 }
@@ -221,7 +230,7 @@ export function processQueueItems(result: Array<NormalizedResult>, keepFirst: bo
                 return {
                     id,
                     playlistId: currentPlaylist.toString(),
-                    // un: new Date().getTime()
+                    un: Date.now()
                 };
             })
             .filter((t) => t != null);
@@ -298,7 +307,7 @@ export function addUpNext(track: SoundCloud.Track | SoundCloud.Playlist, remove?
         const nextTrack = {
             id: track.id,
             playlistId: currentPlaylistId,
-            // un: new Date().getTime()
+            un: Date.now()
         };
 
         let nextList;
@@ -315,16 +324,15 @@ export function addUpNext(track: SoundCloud.Track | SoundCloud.Playlist, remove?
                 return {
                     id: t.id,
                     playlistId: track.id,
-                    // un: new Date().getTime()
+                    un: Date.now()
                 };
             }).filter((t) => t != null);
         }
 
         if (queue.length) {
-            if (!remove) {
-
+            if (remove === undefined) {
                 dispatch(addToast({
-                    message: `track to play queue`,
+                    message: `Added ${isPlaylist ? 'playlist' : 'track'} to play queue`,
                     intent: Intent.SUCCESS
                 }));
 
@@ -354,6 +362,7 @@ export function updateQueue(range: Array<number>): ThunkResult<void> {
         const {
             player,
         } = getState();
+
         const {
             queue,
             currentPlaylistId
@@ -375,17 +384,11 @@ export function getItemsAround(position: number): ThunkResult<void> {
             player: {
                 queue,
                 currentPlaylistId
-            },
-            entities: {
-                trackEntities,
-                playlistEntities
-            },
-            objects
+            }
         } = getState();
 
         if (currentPlaylistId) {
-            const playlists = objects[ObjectTypes.PLAYLISTS] || {};
-            const currentPlaylist = playlists[currentPlaylistId];
+            const currentPlaylist = getPlaylistObjectSelector(currentPlaylistId)(getState());
 
             const itemsToFetch: Array<number> = [];
 
@@ -398,13 +401,15 @@ export function getItemsAround(position: number): ThunkResult<void> {
 
                 if (queueItem && queueItem.id) {
 
-                    const playlist = playlistEntities[queueItem.playlistId];
+                    const playlist = getPlaylistEntity(+queueItem.playlistId)(getState());
 
                     if (playlist) {
                         dispatch(getPlaylistObject(queueItem.playlistId, i));
                     }
 
-                    if (!trackEntities[queueItem.id]) {
+                    const track = getTrackEntity(queueItem.id)(getState());
+
+                    if (!track) {
                         itemsToFetch.push(queueItem.id);
                     }
 
@@ -419,19 +424,6 @@ export function getItemsAround(position: number): ThunkResult<void> {
                 dispatch(fetchTracks(itemsToFetch));
             }
         }
-    };
-}
-
-export function playTrackFromIndex(playlistId: string, trackIndex: number, forceSetPlaylist: boolean = false): ThunkResult<void> {
-    return (dispatch, getState) => {
-        const { player: { queue } } = getState();
-
-        const track = queue[trackIndex];
-
-        if (track) {
-            dispatch(playTrack(playlistId, track, forceSetPlaylist));
-        }
-
     };
 }
 
@@ -628,9 +620,9 @@ export function changeTrack(changeType: ChangeTypes, finished?: boolean): ThunkR
 
         const nextTrack = queue[nextIndex];
 
-        if (!nextTrack) return;
-
-        dispatch(playTrack(currentPlaylistId, nextTrack, false, changeType));
+        if (nextTrack) {
+            dispatch(playTrack(currentPlaylistId, nextTrack, false, changeType));
+        }
     };
 }
 

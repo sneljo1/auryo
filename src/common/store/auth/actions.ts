@@ -12,6 +12,7 @@ import { AuthActionTypes } from './types';
 import { ObjectTypes, PlaylistTypes } from '../objects';
 import fetchPlaylists from '../../api/fetchPlaylists';
 import { replace } from 'connected-react-router';
+import { getPlaylistObjectSelector } from '../objects/selectors';
 
 export function logout(): ThunkResult<void> {
     return (dispatch) => {
@@ -46,7 +47,7 @@ export function getAuth(): ThunkResult<void> {
         dispatch(action(AuthActionTypes.SET, fetchToJson<SoundCloud.User>(SC.getMeUrl())
             .then((user) => {
                 if (process.env.NODE_ENV === 'production' && analytics) {
-                    const {ua} = require('../../utils/universalAnalytics');
+                    const { ua } = require('../../utils/universalAnalytics');
 
                     ua.set('userId', user.id);
                 }
@@ -111,10 +112,8 @@ export function getAuthLikeIds(): ThunkResult<Promise<any>> {
  */
 export function getAuthLikesIfNeeded(): ThunkResult<void> {
     return (dispatch, getState) => {
-        const { objects } = getState();
 
-        const playlist_objects = objects[ObjectTypes.PLAYLISTS];
-        const playlist_object = playlist_objects[PlaylistTypes.LIKES];
+        const playlist_object = getPlaylistObjectSelector(PlaylistTypes.LIKES)(getState());
 
         if (!playlist_object) {
             dispatch(getPlaylist(SC.getLikesUrl(), PlaylistTypes.LIKES));
@@ -150,11 +149,17 @@ export function toggleFollowing(userId: number): ThunkResult<void> {
     };
 }
 
-export function getAuthReposts() {
-    return {
-        type: AuthActionTypes.SET_REPOSTS,
-        payload: fetchToObject(SC.getRepostIdsUrl())
-    };
+export function getAuthReposts(): ThunkResult<Promise<any>> {
+    return (dispatch) => Promise.all([
+        dispatch({
+            type: AuthActionTypes.SET_REPOSTS,
+            payload: fetchToObject(SC.getRepostIdsUrl())
+        }),
+        dispatch({
+            type: AuthActionTypes.SET_PLAYLIST_REPOSTS,
+            payload: fetchToObject(SC.getRepostIdsUrl(true))
+        }),
+    ]);
 }
 
 export function getAuthFeed(refresh?: boolean): ThunkResult<Promise<any>> {

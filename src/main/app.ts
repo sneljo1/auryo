@@ -50,6 +50,11 @@ export class Auryo {
     app.on('second-instance', () => {
       app.exit();
     });
+
+    app.on('before-quit', () => {
+      this.logger.info('Application exiting...');
+      this.quitting = true;
+    });
   }
 
   start() {
@@ -90,34 +95,7 @@ export class Auryo {
 
     this.loadMain();
 
-    this.mainWindow.on('closed', () => {
-      this.mainWindow = undefined;
-    });
-
-    app.on('before-quit', () => {
-      this.logger.info('Application exiting...');
-      this.quitting = true;
-    });
-
-    this.mainWindow.on('close', (event) => {
-      if (process.platform === 'darwin') {
-        if (this.quitting) {
-          this.mainWindow = undefined;
-        } else {
-          event.preventDefault();
-
-          if (this.mainWindow) {
-            this.mainWindow.hide();
-          }
-        }
-      }
-    });
-
-    this.mainWindow.on('ready-to-show', () => {
-      if (this.mainWindow) {
-        this.mainWindow.show();
-      }
-    });
+    this.registerListeners();
 
     if (process.env.NODE_ENV === 'development' || process.env.ENV === 'development') {
       this.mainWindow.webContents.on('context-menu', (_e, props) => {
@@ -166,19 +144,20 @@ export class Auryo {
       }
     };
 
-    Object.keys(featuresWaitUntil).forEach((event: any) => {
-      const features = featuresWaitUntil[event];
+    Object.keys(featuresWaitUntil)
+      .forEach((event: any) => {
+        const features = featuresWaitUntil[event];
 
-      features.forEach((feature: Feature) => {
-        if (event === 'default') {
-          registerFeature(feature);
-        } else {
-          if (this.mainWindow) {
-            this.mainWindow.on(event, registerFeature.bind(this, feature));
+        features.forEach((feature: Feature) => {
+          if (event === 'default') {
+            registerFeature(feature);
+          } else {
+            if (this.mainWindow) {
+              this.mainWindow.on(event, registerFeature.bind(this, feature));
+            }
           }
-        }
+        });
       });
-    });
   }
 
   loadMain() {
@@ -187,8 +166,6 @@ export class Auryo {
       const url = process.env.NODE_ENV === 'development'
         ? `http://localhost:${process.env.DEV_PORT || 8080}`
         : `file://${__dirname}/index.html`;
-
-      this.logger.debug('loading url= ' + url);
 
       this.mainWindow.loadURL(url);
 
@@ -207,6 +184,7 @@ export class Auryo {
           shell.openExternal(u);
         }
       });
+
       this.mainWindow.webContents.on('new-window', (e, u) => {
         e.preventDefault();
         if (/^(https?:\/\/)/g.exec(u) !== null) {
@@ -217,30 +195,53 @@ export class Auryo {
       this.mainWindow.webContents.session.webRequest.onCompleted((details) => {
         if (this.mainWindow && (details.url.indexOf('/stream?client_id=') !== -1 || details.url.indexOf('cf-media.sndcdn.com') !== -1)) {
           if (details.statusCode < 200 && details.statusCode > 300) {
-            this.handleError(details.statusCode);
+            if (details.statusCode === 404) {
+              this.store.dispatch(addToast({
+                message: 'This resource might not exists anymore',
+                intent: Intent.DANGER
+              }));
+            }
           }
         }
-      }
-      );
-
-      // this.mainWindow.webContents.session.webRequest.onErrorOccurred({ urls: ['*/stream?client_id=*'] }, (details) => {
-      //   if (details.error === 'net::ERR_INTERNET_DISCONNECTED' && this.mainWindow) {
-      //     this.handleError(-1);
-      //   }
-      // });
+      });
     }
   }
 
-  handleError = (status: number) => {
-    switch (status) {
-      case 404:
-        this.store.dispatch(addToast({
-          message: 'This resource might not exists anymore',
-          intent: Intent.DANGER
-        }));
-        break;
-      default:
-        break;
+  registerListeners = () => {
+    if (this.mainWindow) {
+      this.mainWindow.webContents.on('crashed', (event: any) => {
+        this.logger.error('APP CRASHED:');
+        this.logger.error(event);
+      });
+
+      this.mainWindow.on('unresponsive', (event: any) => {
+        this.logger.error('APP UNRESPONSIVE:');
+        this.logger.error(event);
+      });
+
+      this.mainWindow.on('closed', () => {
+        this.mainWindow = undefined;
+      });
+
+      this.mainWindow.on('close', (event) => {
+        if (process.platform === 'darwin') {
+          if (this.quitting) {
+            this.mainWindow = undefined;
+          } else {
+            event.preventDefault();
+
+            if (this.mainWindow) {
+              this.mainWindow.hide();
+            }
+          }
+        }
+      });
+
+      this.mainWindow.on('ready-to-show', () => {
+        if (this.mainWindow) {
+          this.mainWindow.show();
+        }
+      });
     }
   }
 }

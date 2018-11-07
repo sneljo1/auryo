@@ -11,7 +11,7 @@ import { getPlaylistEntity } from '../../../common/store/entities/selectors';
 import { canFetchPlaylistTracks, fetchPlaylistIfNeeded, fetchPlaylistTracks, ObjectState } from '../../../common/store/objects';
 import { getPlaylistObjectSelector } from '../../../common/store/objects/selectors';
 import { addUpNext, PlayerStatus, playTrack, toggleStatus } from '../../../common/store/player';
-import { toggleLike } from '../../../common/store/track/actions';
+import { toggleLike, toggleRepost } from '../../../common/store/track/actions';
 import { setScrollPosition } from '../../../common/store/ui';
 import { getPreviousScrollTop } from '../../../common/store/ui/selectors';
 import { getReadableTimeFull, SC } from '../../../common/utils';
@@ -43,6 +43,7 @@ interface PropsFromDispatch {
     playTrack: typeof playTrack;
     setScrollPosition: typeof setScrollPosition;
     toggleLike: typeof toggleLike;
+    toggleRepost: typeof toggleRepost;
     fetchPlaylistIfNeeded: typeof fetchPlaylistIfNeeded;
     fetchPlaylistTracks: typeof fetchPlaylistTracks;
     canFetchPlaylistTracks: typeof canFetchPlaylistTracks;
@@ -93,11 +94,10 @@ class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
             return (
                 <a
                     href='javascript:void(0)'
-                    className='c_btn playing'
+                    className='c_btn round playButton'
                     onClick={() => toggleStatus()}
                 >
                     <i className='bx bx-pause' />
-                    Playing
                 </a>
             );
         }
@@ -113,11 +113,10 @@ class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
         return (
             <a
                 href='javascript:void(0)'
-                className='c_btn'
+                className='c_btn round playButton'
                 onClick={toggle}
             >
                 <i className='bx bx-play' />
-                Play
             </a>
         );
     }
@@ -131,12 +130,13 @@ class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
             playlistIdParam,
             // Functions
             toggleLike,
+            toggleRepost,
             fetchPlaylistTracks,
             canFetchPlaylistTracks,
             addUpNext
         } = this.props;
 
-        const { likes, playlists } = auth;
+        const { likes, playlists, reposts } = auth;
 
         if (!playlistObject || !playlist || (playlistObject && playlistObject.items.length === 0 && playlistObject.isFetching)) {
             return <Spinner contained={true} />;
@@ -146,6 +146,7 @@ class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
         const hasImage = playlist.artwork_url || (first_item && first_item.artwork_url);
 
         const liked = SC.hasID(playlistIdParam, likes.playlist);
+        const reposted = SC.hasID(playlistIdParam, reposts.playlist);
         const playlistOwned = playlists.find((p) => p.id === playlist.id);
 
         const isEmpty = !playlistObject.isFetching && (playlist.tracks.length === 0 && playlist.duration === 0 || playlist.track_count === 0);
@@ -202,6 +203,21 @@ class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
                                     >
                                         <i className={liked ? 'bx bxs-heart' : 'bx bx-heart'} />
                                         <span>{liked ? 'Liked' : 'Like'}</span>
+                                    </a>
+                                ) : null
+                            }
+
+                            {
+                                playlist.tracks.length && !playlistOwned ? (
+                                    <a
+                                        href='javascript:void(0)'
+                                        className={cn('c_btn', { 'text-primary': reposted })}
+                                        onClick={() => {
+                                            toggleRepost(playlist.id, true);
+                                        }}
+                                    >
+                                        <i className='bx bx-repost' />
+                                        <span>{reposted ? 'Reposted' : 'Repost'}</span>
                                     </a>
                                 ) : null
                             }
@@ -293,7 +309,6 @@ class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
 
 const mapStateToProps = (state: StoreState, props: OwnProps): PropsFromState => {
     const { player: { currentPlaylistId, status }, auth } = state;
-
     const { match: { params: { playlistId } } } = props;
 
     const isPlayerPlaylist = currentPlaylistId === playlistId;
@@ -314,6 +329,7 @@ const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, OwnProps> = (dis
     playTrack,
     setScrollPosition,
     toggleLike,
+    toggleRepost,
     fetchPlaylistIfNeeded,
     fetchPlaylistTracks,
     canFetchPlaylistTracks,

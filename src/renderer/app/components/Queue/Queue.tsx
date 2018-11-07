@@ -2,29 +2,39 @@ import cn from 'classnames';
 import { debounce } from 'lodash';
 import * as React from 'react';
 import * as ReactList from 'react-list';
-import { PlayingTrack, updateQueue } from '../../../../common/store/player';
+import { MapDispatchToProps, connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { StoreState } from '../../../../common/store';
+import { clearUpNext, PlayingTrack, updateQueue, UpNextState } from '../../../../common/store/player';
+import { getQueue } from '../../../../common/store/player/selectors';
 import { toggleQueue } from '../../../../common/store/ui';
 import CustomScroll from '../../../_shared/CustomScroll';
 import Spinner from '../../../_shared/Spinner/Spinner';
-import QueueItem from './QueueItem';
 import './Queue.scss';
+import QueueItem from './QueueItem';
 
-interface Props {
+interface PropsFromState {
     playingTrack: PlayingTrack | null;
     currentIndex: number;
     showQueue: boolean;
+    upNext: UpNextState;
     items: Array<PlayingTrack>;
-
-    toggleQueue: typeof toggleQueue;
-    updateQueue: typeof updateQueue;
 }
 
-class Queue extends React.PureComponent<Props> {
+interface PropsFromDispatch {
+    toggleQueue: typeof toggleQueue;
+    updateQueue: typeof updateQueue;
+    clearUpNext: typeof clearUpNext;
+}
+
+type AllProps = PropsFromDispatch & PropsFromState;
+
+class Queue extends React.PureComponent<AllProps> {
 
     private updateQueueDebounced: () => void;
     private list: ReactList | null = null;
 
-    constructor(props: Props) {
+    constructor(props: AllProps) {
         super(props);
 
         this.updateQueueDebounced = debounce(this.onScroll, 200);
@@ -38,7 +48,7 @@ class Queue extends React.PureComponent<Props> {
         }
     }
 
-    componentWillReceiveProps(nextProps: Props) {
+    componentWillReceiveProps(nextProps: AllProps) {
         const { showQueue } = this.props;
 
         if (showQueue !== nextProps.showQueue && nextProps.showQueue === true) {
@@ -86,7 +96,7 @@ class Queue extends React.PureComponent<Props> {
     }
 
     render() {
-        const { toggleQueue, items, currentIndex, showQueue } = this.props;
+        const { toggleQueue, items, currentIndex, showQueue, upNext, clearUpNext } = this.props;
 
         return (
             <aside
@@ -97,14 +107,29 @@ class Queue extends React.PureComponent<Props> {
             >
                 <div className='playqueue-title d-flex align-items-center justify-content-between'>
                     <div>Play Queue</div>
-                    <a
-                        href='javascript:void(0)'
-                        onClick={() => {
-                            toggleQueue(false);
-                        }}
-                    >
-                        <i className='bx bx-x' />
-                    </a>
+                    <div>
+                        {
+                            upNext.length > 0 && (
+                                <a
+                                    href='javascript:void(0)'
+                                    className='clearQueue'
+                                    onClick={() => {
+                                        clearUpNext();
+                                    }}
+                                >
+                                    Clear
+                                </a>
+                            )
+                        }
+                        <a
+                            href='javascript:void(0)'
+                            onClick={() => {
+                                toggleQueue(false);
+                            }}
+                        >
+                            <i className='bx bx-x' />
+                        </a>
+                    </div>
                 </div>
                 <div className='tracks'>
                     {
@@ -134,4 +159,23 @@ class Queue extends React.PureComponent<Props> {
 
 }
 
-export default Queue;
+const mapStateToProps = (state: StoreState): PropsFromState => {
+    const { player, ui } = state;
+
+    return {
+        playingTrack: player.playingTrack,
+        currentIndex: player.currentIndex,
+        showQueue: ui.showQueue,
+        upNext: player.upNext,
+        items: getQueue(state),
+    };
+};
+
+const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, {}> = (dispatch) => bindActionCreators({
+
+    toggleQueue,
+    updateQueue,
+    clearUpNext,
+}, dispatch);
+
+export default connect<PropsFromState, PropsFromDispatch, {}, StoreState>(mapStateToProps, mapDispatchToProps)(Queue);

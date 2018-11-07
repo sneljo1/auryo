@@ -74,12 +74,12 @@ const objectState: Reducer<ObjectState<any>> = (state = initialObjectsState, act
                 return {
                     ...state,
                     // because of the denormalization process, every item needs a schema
-                    items: [{ id: payload.trackId, schema: 'tracks' }, ...state.items]
+                    items: [{ id: payload.trackId, schema: payload.playlist ? 'playlists' : 'tracks' }, ...state.items]
                 };
             }
             return {
                 ...state,
-                items: state.items.filter((item) => payload.trackId !== item)
+                items: state.items.filter((item) => payload.trackId !== item.id)
             };
         case ObjectsActionTypes.UNSET:
             return initialObjectsState;

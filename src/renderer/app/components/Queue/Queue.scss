@@ -1,5 +1,4 @@
 @import "../../../css/bootstrap.imports.scss";
-
 .playing {
   .playQueue {
     height: calc(100% - 130px);
@@ -26,7 +25,6 @@
   max-height: 500px;
   margin-right: 20px;
   overflow: hidden;
-
   &:after {
     width: 0;
     height: 0;
@@ -38,7 +36,6 @@
     right: 0;
     margin-right: 10px;
   }
-
   &.show {
     transform: translateY(0) scale(1) translateX(0px);
     transition: all 200ms ease-out;
@@ -49,48 +46,41 @@
     opacity: 0;
     transition: all 200ms ease-in;
   }
-
   .playqueue-title {
     padding: 10px 10px;
     border-bottom: 1px solid grey;
     font-size: .9rem;
     height: 44px;
-
     a {
       color: #fff;
       text-decoration: none;
       transition: .2s ease-in;
-
       &:active {
         transform: rotate(90deg);
         transition: .5s all;
       }
     }
   }
-
   .tracks {
     height: calc(100% - 44px);
     min-height: 60px;
     position: relative;
     overflow: hidden;
   }
-
   .track {
     height: 60px;
     border-left: 4px solid transparent;
     cursor: pointer;
-
     color: #f9f9f9;
-    padding: 10px 10px;
+    padding: 0 3rem 0 .6rem;
     font-size: .9rem;
     text-decoration: none !important;
-
     .stats {
       color: #e4e4e4;
       opacity: .8;
       font-size: .75rem;
+      margin-bottom: 0;
       a {
-
         color: #e4e4e4;
       }
       .stat {
@@ -108,18 +98,15 @@
             margin: 0 5px;
             border-radius: 100%;
           }
-
         }
       }
       i {
         font-size: .8rem;
       }
     }
-
     img {
       flex-shrink: 0;
     }
-
     .item-info {
       padding-left: 7px;
       width: 100%;
@@ -132,25 +119,15 @@
     .image-wrap {
       position: relative;
     }
-
     .title a {
       color: #f1f1f1;
-    }
-
-    .actions-dropdown {
-       a {
-        color: #fff;
-        text-decoration: none;
-        i {
-          font-size: 1.2rem;
-        }
-      }
     }
     &:hover {
       background: lighten($black, 4%);
     }
     &.played {
-      .item-info, img {
+      .item-info,
+      img {
         opacity: .6;
       }
     }
@@ -161,5 +138,30 @@
       }
     }
   }
+}
 
+.queueItem {
+  position: relative;
+  .actions-dropdown {
+    position: absolute;
+    right: 0;
+    top: 0;
+    padding: 1rem;
+    a {
+      color: #fff;
+      text-decoration: none;
+      i {
+        font-size: 1.2rem;
+      }
+    }
+  }
+}
+
+.clearQueue {
+  border: 1px solid;
+  padding: 3px 8px;
+  border-radius: 5px;
+  margin-right: 1rem;
+  font-size: .7rem;
+  text-transform: uppercase;
 }

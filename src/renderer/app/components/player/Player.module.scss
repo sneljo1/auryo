@@ -22,7 +22,6 @@
       }
     }
   }
-  background: $black;
   background: rgba($black, .45);
   padding: 8px 16px 8px 10px;
   color: $white;
@@ -37,6 +36,7 @@
   left: 0;
   top: 0;
   z-index: -1;
+  background: $black;
   :global img {
     width: 100%;
     position: absolute;

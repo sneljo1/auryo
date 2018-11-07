@@ -81,7 +81,7 @@ class QueueItem extends React.PureComponent<AllProps> {
         }
 
         return (
-            <div>
+            <div className='queueItem'>
                 <div
                     role='button'
                     tabIndex={0}
@@ -127,13 +127,13 @@ class QueueItem extends React.PureComponent<AllProps> {
                             </Link>
                         </div>
                     </div>
-                    <div className='no-shrink pl-2'>
-                        <ActionsDropdown
-                            index={index}
-                            track={track}
-                        />
-                    </div>
                 </div>
+
+                <ActionsDropdown
+                    index={index}
+                    track={track}
+                    playing={playing}
+                />
             </div>
         );
     }

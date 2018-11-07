@@ -190,8 +190,8 @@ export function getFollowingsUrl() {
     });
 }
 
-export function getRepostIdsUrl() {
-    return makeUrl("e1/me/track_reposts/ids", {
+export function getRepostIdsUrl(playlist) {
+    return makeUrl(`e1/me/${playlist ? 'playlist' : 'track'}_reposts/ids`, {
         oauth_token: true,
         limit: 5000,
         linked_partitioning: 1,
@@ -216,8 +216,8 @@ export function updateFollowingUrl(userID) {
     });
 }
 
-export function updateRepostUrl(trackId) {
-    return makeUrl(`e1/me/track_reposts/${trackId}`, {
+export function updateRepostUrl(trackId, playlist) {
+    return makeUrl(`e1/me/${playlist ? 'playlist' : 'track'}_reposts/${trackId}`, {
         oauth_token: true,
     });
 }
