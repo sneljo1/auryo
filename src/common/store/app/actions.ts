@@ -47,6 +47,7 @@ export function initApp(): ThunkResult<void> {
             dispatch(getAuthPlaylists()),
             dispatch(getRemainingPlays()),
         ]).then(() => {
+            throw new Error('ok errror');
             setInterval(() => dispatch(getRemainingPlays()), 30000);
         })));
     };
