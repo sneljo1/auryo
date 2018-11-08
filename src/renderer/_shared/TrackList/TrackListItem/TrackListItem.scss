@@ -1,0 +1,158 @@
+@import "../../../css/bootstrap.imports.scss";
+
+
+.trackList {
+  table-layout: fixed;
+  width: 100%;
+
+  table {
+    border-collapse: separate;
+    border-spacing: 0 1rem;
+    padding: 0 10px 10px 10px;
+  }
+
+  .row-play {
+    width: 5%;
+    max-width: 5%;
+  }
+  .row-title {
+    width: 50%;
+    max-width: 50%;
+
+  }
+  .row-artist {
+    width: 25%;
+    max-width: 25%;
+
+  }
+  .row-timer {
+    width: 7%;
+    max-width: 7%;
+    text-align: center;
+  }
+  .row-actions {
+    width: 13%;
+    max-width: 13%;
+
+  }
+
+  .trackListHeader {
+    color: #bbbbbb;
+    font-size: .8rem;
+    font-weight: $font-weight-bold;
+  }
+
+  .trackItem {
+    padding: 15px 0;
+    font-size: .9rem;
+    align-items: center;
+    border-radius: 10px;
+    .stats{
+      margin-bottom: 0;
+      font-size: .8rem;
+      pointer-events: none;
+    }
+    &:hover,&.isPlaying {
+      td {
+        background: white;
+      }
+      .toggleButton{
+        opacity: 1;
+        transform: scale(1, 1);
+        transition: 0.2s opacity ease-out, 0.2s transform ease-out;
+        transition-delay: .1s;
+        z-index: 1;
+      }
+    }
+
+    td {
+      background: #fbfbfb;
+      text-overflow: ellipsis;
+      border-top: none !important;
+      vertical-align: middle;
+      padding: 8px;
+    }
+
+    td:first-child {
+      border-radius: 10px 0 0 10px;
+    }
+
+    td:last-child {
+      border-radius: 0 10px 10px 0;
+    }
+
+    .img-with-shadow {
+      position: relative;
+      z-index: 1;
+      img {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        &.shadow {
+          position: absolute;
+          top: 0;
+          left: 0;
+          filter: blur(8px);
+          z-index: -1;
+          opacity: .5;
+        }
+      }
+    }
+
+    .toggleButton{
+      background: #fff;
+      border-radius: 50px;
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      width: 30px;
+      height: 30px;
+      text-align: center;
+      z-index: 10;
+      cursor: pointer;
+      text-decoration: none;
+      margin: auto;
+      top: 0;
+      left: 0;
+      box-shadow: none;
+      opacity: 0;
+      transform: scale(0);
+
+      i {
+        color: theme-color("primary");
+        font-size: 1.5rem;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+      }
+    }
+
+    a:not(.toggleButton) {
+      color: #3b3e42;
+    }
+    .time{
+      text-align: right;
+      pointer-events: none;
+    }
+    .trackTitle {
+      font-weight: $font-weight-bold;
+    }
+    &.isPlaying .trackTitle a, &.isPlaying .trackArtist a {
+      color: theme-color("primary");
+    }
+    .liked i {
+      color: theme-color("primary");
+    }
+
+    .trackitemActions{
+      text-align: right;
+      padding-right: 2rem;
+      a{
+        text-decoration: none !important;
+      }
+    }
+  }
+}

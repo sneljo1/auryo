@@ -1,0 +1,54 @@
+@import "../../Player.module.scss";
+@import "../../../../../css/bootstrap.imports.scss";
+.control {
+  @extend %playerControl;
+  & :global i.bx-shuffle {
+    font-size: 1.2rem;
+  }
+  &.control__active {
+    color: $blue !important;
+  }
+  & .repost_icon__one {
+    position: relative;
+    &:after {
+      content: '1';
+      top: 0;
+      height: 10px;
+      border-radius: 20px;
+      min-width: 10px;
+      background: $blue;
+      color: $white;
+      text-align: center;
+      padding: 2px 3px;
+      font-weight: $font-weight-bold;
+      white-space: nowrap;
+      font-size: 6px;
+      position: absolute;
+      right: 0;
+      margin-right: -2px;
+      font-family: sans-serif;
+    }
+  }
+}
+
+.control_shuffle {
+  font-size: 1rem;
+  margin-top: -.1rem;
+}
+
+.control_toggle {
+  border-radius: 100%;
+  color: #ffffff;
+  background-position: center;
+  background-repeat: no-repeat;
+  background: rgba(255, 255, 255, .14);
+  padding: 2px;
+}
+
+.mediaControls {
+  padding: 0 .95rem;
+  .control {
+    font-size: 1.8rem;
+    opacity: 1;
+  }
+}

@@ -1,7 +1,7 @@
 import { Application } from 'spectron';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import path from 'path';
+import * as path from 'path';
 import electron from "electron";
 import { getToken } from './_getToken';
 import fs from "fs"
@@ -34,7 +34,7 @@ export const harness = (name, fn) => {
                             TOKEN: token,
                             NODE_ENV: 'production',
                         },
-                        args: [path.join(__dirname, '..', '..', '..', 'src')],
+                        args: [path.join(__dirname, '..', '..', '..', 'dist/main.js')],
                     });
 
                     timeout = setTimeout(() => {
@@ -74,12 +74,15 @@ export const harness = (name, fn) => {
         })
 
         afterEach(function () {
-            if (this.currentTest.state === 'failed') {
+            if (this.currentTest && this.currentTest.state === 'failed') {
+
+                const title = this.currentTest.title;
+
                 app.browserWindow.capturePage()
                     .then((imageBuffer) => {
-                        fs.writeFile(path.join(__dirname, '..', '..', 'screenshots', new Date().getTime() + '.png'), imageBuffer, (err) => {
+                        fs.writeFile(path.join(__dirname, '..', '..', 'screenshots', `${escape(title)}-${new Date().getTime()}.png`), imageBuffer, (err) => {
                             if (err) throw err;
-                            console.log("got screenshot", path.join(__dirname, 'screenshots', new Date().getTime() + '.png'))
+                            console.log("got screenshot")
                         })
                     })
 

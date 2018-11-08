@@ -1,0 +1,35 @@
+@import "../../../../../css/bootstrap.imports.scss";
+
+.about {
+  text-align: center;
+  font-size: .85rem;
+  .logo {
+    max-width: 200px;
+    margin: 0 auto;
+  }
+
+  section {
+    margin-bottom: 3rem;
+
+    &.details {
+      div:not(:last-child) {
+        &:after {
+          content: "-";
+          margin: 0 1rem;
+        }
+      }
+    }
+
+    h3 {
+      font-size: 1.4rem;
+    }
+  }
+  .app-info {
+    text-align: left;
+    padding: 0 5rem;
+
+    tr td:first-child{
+      font-weight: $font-weight-bold;
+    }
+  }
+}

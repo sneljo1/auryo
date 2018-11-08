@@ -1,26 +1,17 @@
 {
-  "presets": [
-    [
-      "env",
-      {
-        "targets": { "node": 10 },
-        "useBuiltIns": true
-      }
+    "presets": [
+        [
+            "@babel/preset-env",
+            {
+                "targets": {
+                    "electron": "3.0.6"
+                }
+            }
+        ],
+        "@babel/preset-react"
     ],
-    "stage-0",
-    "react"
-  ],
-  "plugins": ["add-module-exports"],
-  "env": {
-    "production": {
-      "presets": ["react-optimize"],
-      "plugins": ["dev-expression"]
-    },
-    "development": {
-      "plugins": [
-        "transform-class-properties",
-        "transform-es2015-classes"
-      ]
-    }
-  }
+    "plugins": [
+        "@babel/plugin-proposal-class-properties",
+        "@babel/plugin-proposal-object-rest-spread"
+    ]
 }

@@ -1,0 +1,10 @@
+.modal-dialog.changelog {
+  .c_btn {
+    position: absolute;
+    left: 0;
+    right: 0;
+    width: 200px;
+    margin: 0 auto;
+    color: theme-color("primary") !important;
+  }
+}

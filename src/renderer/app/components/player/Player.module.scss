@@ -1,0 +1,171 @@
+@import "../../../css/bootstrap.imports.scss";
+.player {
+  :global {
+    .rc-slider {
+      .rc-slider-rail {
+        background: $brand-grey-lighter;
+        opacity: .3;
+      }
+      .rc-slider-track {
+        background: $white;
+        opacity: .7;
+      }
+      .rc-slider-handle {
+        background: $white;
+        border: none;
+        opacity: 0;
+        box-shadow: none;
+        margin-left: -3px;
+        margin-top: -3px;
+        width: 10px;
+        height: 10px;
+      }
+    }
+  }
+  background: rgba($black, .45);
+  padding: 8px 16px 8px 10px;
+  color: $white;
+  position: relative;
+}
+
+.player_bg {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  overflow: hidden;
+  left: 0;
+  top: 0;
+  z-index: -1;
+  background: $black;
+  :global img {
+    width: 100%;
+    position: absolute;
+    top: -200px;
+    left: 0;
+    height: auto;
+    filter: blur(10px);
+    margin-left: -10px;
+    margin-top: -10px;
+  }
+  &:before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: rgba($black, .45);
+    z-index: 1;
+  }
+}
+
+.playerTimeline {
+  flex-grow: 1;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  padding: 0 1rem;
+  .time {
+    font-size: .8rem;
+    display: block;
+    padding: 0 15px;
+  }
+  .progressInner {
+    width: 100%;
+    padding: 8px 0;
+    &:hover {
+      :global {
+        .rc-slider {
+          .rc-slider-track {
+            opacity: 1;
+          }
+          .rc-slider-handle {
+            opacity: 1
+          }
+        }
+      }
+    }
+  }
+}
+
+.playerVolume {
+  align-items: center;
+  position: relative;
+  &:hover {
+    .control {
+      color: $white;
+    }
+  }
+  &:hover .progressWrapper,
+  .progressWrapper:hover,
+  &.hover .progressWrapper {
+    display: block;
+    max-height: 160px;
+    :global {
+      .rc-slider {
+        .rc-slider-track {
+          opacity: 1;
+        }
+        .rc-slider-handle {
+          opacity: 1
+        }
+      }
+    }
+  }
+  .progressWrapper {
+    position: absolute;
+    top: 0;
+    margin-top: -170px;
+    margin-left: -6px;
+    background: #222326;
+    padding: 14px 8px;
+    display: none;
+    max-height: 0;
+    height: 200px;
+    &:after {
+      content: " ";
+      top: 100%;
+      left: 50%;
+      height: 0;
+      width: 0;
+      position: absolute;
+      border: 8px solid rgba(34, 35, 38, 0);
+      border-top-color: #222326;
+      margin-left: -8px;
+    }
+  }
+}
+
+.rateLimit {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: #222222;
+  z-index: 999;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: .9;
+}
+
+%playerControl {
+  color: $brand-grey-lighter;
+  opacity: .9;
+  transition: .3s color, .5s opacity;
+  font-size: 1.3rem;
+  vertical-align: middle;
+  display: flex;
+  text-decoration: none !important;
+  &:hover {
+    opacity: 1;
+    color: $white;
+  }
+}
+
+.control {
+  @extend %playerControl;
+}
