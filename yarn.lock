@@ -3375,12 +3375,6 @@ date-now@^0.1.4:
   version "0.1.4"
   resolved "https://registry.yarnpkg.com/date-now/-/date-now-0.1.4.tgz#eaf439fd4d4848ad74e5cc7dbef200672b9e345b"
 
-dbus@1.0.3:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/dbus/-/dbus-1.0.3.tgz#bceda148673bc2fcca2042ba06a95965762689bc"
-  dependencies:
-    nan "^2.1.0"
-
 dbus@GPMDP/node-dbus#linux-only:
   version "0.2.18"
   resolved "https://codeload.github.com/GPMDP/node-dbus/tar.gz/e35f87d0fcd472b352af236061d28abe78379dc8"

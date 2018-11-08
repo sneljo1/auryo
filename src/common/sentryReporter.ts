@@ -81,8 +81,6 @@ const options: BrowserOptions | NodeOptions = {
   beforeSend: (event: SentryEvent, hint?: SentryEventHint) => {
     const copy = { ...event };
 
-    console.log(app.getAppPath());
-
     // Retrieve stack traces and normalize their URLs. Without this, grouping
     // would not work due to user folders in file names.
     const stacktrace = getStacktrace(copy);

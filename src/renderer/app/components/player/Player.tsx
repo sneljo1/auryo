@@ -464,8 +464,6 @@ class Player extends React.Component<AllProps, State>{
                 onListen={this.onPlaying}
                 onEnded={this.onFinishedPlaying}
                 onError={(e: ErrorEvent, message: string) => {
-                    console.log('Player - error', e);
-
                     addToast({
                         message,
                         intent: Intent.DANGER

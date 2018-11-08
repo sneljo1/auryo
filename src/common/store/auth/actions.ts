@@ -31,7 +31,6 @@ export function login(): ThunkResult<void> {
 
         ipcRenderer.once('login-success', () => {
             const { config: { lastLogin } } = getState();
-            console.log('lastLogin', lastLogin);
 
             if (lastLogin) {
                 dispatch(replace('/'));

@@ -1,4 +1,4 @@
-import { Intent, IResizeEntry, IToastOptions, ResizeSensor } from '@blueprintjs/core';
+import { Intent, IResizeEntry, IToastOptions, ResizeSensor, Position } from '@blueprintjs/core';
 import cn from 'classnames';
 import * as is from 'electron-is';
 import { debounce } from 'lodash';
@@ -148,7 +148,11 @@ class Layout extends React.Component<AllProps> {
                         <Queue />
 
                         <section className='content'>
-                            <Toastr toasts={toasts} clearToasts={clearToasts} />
+                            <Toastr
+                                position={Position.TOP_RIGHT}
+                                toasts={toasts}
+                                clearToasts={clearToasts}
+                            />
 
                             <div className='f-height'>
                                 <ErrorBoundary

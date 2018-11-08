@@ -34,7 +34,7 @@ export const tools: Array<typeof Feature> = [
 
   // Linux
   MprisService,
-  DbusService
+  // DbusService
 ];
 
 export const getTools = (app: Auryo) => tools.map((Feature) => new Feature(app)).filter((o: IFeature) => o.shouldRun());

@@ -24,8 +24,6 @@ class TracksGrid extends React.PureComponent<Props> {
 
         const item = items[index];
 
-        console.log('TracksGrid render', item.schema);
-
         if (item.schema === 'users') {
             return (
                 <div

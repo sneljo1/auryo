@@ -27,8 +27,6 @@ class TrackList extends React.PureComponent<Props> {
 
         const item = showedItems[index];
 
-        console.log('tracklistitem render');
-
         return (
             <TrackListItem
                 key={`track-list-${item.id}`}

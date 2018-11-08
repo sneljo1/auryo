@@ -131,7 +131,7 @@ class OnBoarding extends React.PureComponent<AllProps, State> {
 
                 </div>
                 <div className='sponsors animated fadeInRight faster delay-1s'>
-                    <strong>Our sponsors</strong>
+                    <strong className='d-block mb-1'>Our sponsors</strong>
                     <a href='https://opencollective.com/auryo'>
                         <img src='https://opencollective.com/auryo/tiers/platinum-sponsors-%F0%9F%9A%80.svg?avatarHeight=50' />
                     </a>

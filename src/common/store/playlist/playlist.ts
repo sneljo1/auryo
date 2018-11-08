@@ -106,10 +106,7 @@ export function createPlaylist(title: string, type: string, tracks: Array<Normal
                 tracks: tracks.map((i) => i.id)
             }
         })
-    })
-        .then((res) => {
-            console.log(res);
-        });
+    });
 
 }
 

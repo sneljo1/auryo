@@ -275,7 +275,6 @@ class ReactAudioPlayer extends React.PureComponent<AllProps, State> {
     }
 
     private handleError = (e: any) => {
-        console.log('handleerror', e);
         switch (e.target.error.code) {
             case e.target.error.MEDIA_ERR_NETWORK:
                 setTimeout(() => {
