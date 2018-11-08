@@ -89,7 +89,6 @@ export default class ConfigManager extends Feature {
 
     this.on(EVENTS.APP.READY, () => {
       this.notifyNewVersion();
-      this.notifyNewUser();
       this.on(EVENTS.APP.NAVIGATE, this.checkCanGo);
       this.subscribe(['config'], this.updateConfig);
     });
@@ -122,14 +121,6 @@ export default class ConfigManager extends Feature {
       setTimeout(() => {
         this.store.dispatch(show('changelog', { version: app.getVersion() }));
         super.unregister(['app', 'loaded']);
-      }, 5000);
-    }
-  }
-
-  notifyNewUser = () => {
-    if (this.isNewUser && !process.env.TOKEN) {
-      setTimeout(() => {
-        this.store.dispatch(show('welcome', {}));
       }, 5000);
     }
   }

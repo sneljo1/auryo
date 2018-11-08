@@ -24,7 +24,6 @@ export const configReducer: Reducer<ConfigState> = (state = initialState, action
 
             const newConfig = {
                 ...state,
-                lastChanged: new Date().getTime(),
             };
 
             _.set(newConfig, payload.key, payload.value);
@@ -34,7 +33,6 @@ export const configReducer: Reducer<ConfigState> = (state = initialState, action
             return {
                 ...state,
                 shuffle: payload.value,
-                lastChanged: new Date().getTime(),
             };
         default:
             return state;

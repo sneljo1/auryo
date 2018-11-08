@@ -1,23 +1,50 @@
-#login {
+.login {
   height: 100vh;
-  
+
+  &:not(.login_small){
+    .login_svg {
+      transform: translateX(200px);
+      transition: .5s transform cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+  }
+  &.login_small{
+    .login-wrap {
+      max-width: 375px;
+    }
+
+    .login_section {
+      max-width: 300px;
+    }
+  }
   .row {
     padding: 5rem;
   }
-
-  strong {
-    display: block;
-    margin-bottom: 1rem;
-  }
-
-  .btn.btn-primary {
-    background-image: linear-gradient(135deg, #6fa6ce 0%, #0275d8 100%);
+  .bp3-button {
+    appearance: none;
+    background-image: linear-gradient(135deg, #6fa6ce 0%, #0275d8 100%) !important;
     border: none !important;
     color: #fff !important;
     padding: .8rem 1.3rem;
     box-shadow: 5px 8px 30px rgba(0, 0, 0, 0.2);
-    &:hover {
+    outline: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+    i {
+      font-size: 1.4rem;
+    }
+    &.block {
+      width: 100%;
+    }
+    .bp3-spinner .bp3-spinner-head {
+      stroke: white;
+    }
+    &:hover,&:active {
       box-shadow: 5px 8px 30px rgba(0, 0, 0, 0.3);
+    }
+    &:active {
+      background:initial;
     }
   }
   .settings {
@@ -36,7 +63,6 @@
   .login-wrap {
     position: relative;
     z-index: 1;
-    max-width: 375px;
   }
   .login-img-wrap {
     max-width: 200px;
@@ -44,6 +70,9 @@
   .sub-title {
     color: #797979;
     padding: 2rem 0 3.5rem;
+    .description {
+      font-size: .8rem;
+    }
   }
 }
 
@@ -54,7 +83,7 @@ div#login:before {
   width: 100%;
   height: 50px;
   display: block;
-  z-index: 999999;
+  z-index: 99999999999;
   content: "";
   right: 0;
   -webkit-app-region: drag;
@@ -82,6 +111,14 @@ div#login:before {
   width: 350px;
 }
 
-.login_section{
-  max-width: 300px;
+.first {
+  animation-delay: .1s
+}
+
+.second {
+  animation-delay: .2s
+}
+
+.third {
+  animation-delay: .3s
 }

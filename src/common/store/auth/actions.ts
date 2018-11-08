@@ -7,7 +7,7 @@ import fetchToJson from '../../api/helpers/fetchToJson';
 import fetchToObject from '../../api/helpers/fetchToObject';
 import { EVENTS } from '../../constants/events';
 import { SC } from '../../utils';
-import { setToken } from '../config/actions';
+import { setToken, setConfigKey } from '../config/actions';
 import { AuthActionTypes } from './types';
 import { ObjectTypes, PlaylistTypes } from '../objects';
 import fetchPlaylists from '../../api/fetchPlaylists';
@@ -25,13 +25,19 @@ export function logout(): ThunkResult<void> {
 }
 
 export function login(): ThunkResult<void> {
-    return (dispatch) => {
+    return (dispatch, getState) => {
+
         ipcRenderer.send(EVENTS.APP.AUTH.LOGIN);
 
         ipcRenderer.once('login-success', () => {
+            const { config: { lastLogin } } = getState();
+            console.log('lastLogin', lastLogin);
 
-            dispatch(replace('/'));
+            if (lastLogin) {
+                dispatch(replace('/'));
+            }
 
+            dispatch(setConfigKey('lastLogin', Date.now()));
         });
     };
 }

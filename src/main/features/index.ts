@@ -16,11 +16,11 @@ import Feature from './feature';
 import NotificationManager from './NotificationManager';
 
 export const tools: Array<typeof Feature> = [
+  ConfigManager,
   AppUpdater,
   IPCManager,
   PowerMonitor,
   ShortcutManager,
-  ConfigManager,
   ApplicationMenu,
   NotificationManager,
 

@@ -41,7 +41,7 @@ class TrackListItem extends React.PureComponent<AllProps> {
             e.preventDefault();
         }
 
-        playTrack(currentPlaylistId, { id: idResult.id });
+        playTrack(currentPlaylistId, { id: idResult.id }, true);
 
     }
 

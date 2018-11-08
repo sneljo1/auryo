@@ -8,8 +8,7 @@ import { Store } from 'redux';
 import { EVENTS } from '../common/constants/events';
 import { StoreState } from '../common/store';
 import App from './app/App';
-import WelcomeModal from './app/components/modals/WelcomeModal/WelcomeModal';
-import Login from './pages/login/Login';
+import OnBoarding from './pages/onboarding/OnBoarding';
 
 interface OwnProps {
     store: Store<StoreState>;
@@ -34,13 +33,10 @@ class Main extends React.PureComponent<OwnProps> {
         return (
             <Provider store={store}>
                 <ConnectedRouter history={history}>
-                    <>
-                        <WelcomeModal />
-                        <Switch>
-                            <Route name='Login' path='/login' component={Login} />
-                            <Route path='/' component={App} />
-                        </Switch>
-                    </>
+                    <Switch>
+                        <Route path='/login' component={OnBoarding} />
+                        <Route path='/' component={App} />
+                    </Switch>
                 </ConnectedRouter>
             </Provider>
 

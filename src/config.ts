@@ -34,7 +34,7 @@ export const CONFIG = {
     // Config
 
     DEFAULT_CONFIG: {
-        lastChanged: null,
+        lastLogin: null,
         token: process.env.TOKEN ? process.env.TOKEN : null,
         volume: .5,
         repeat: null,
@@ -49,7 +49,7 @@ export const CONFIG = {
             password: undefined
         },
         app: {
-            analytics: true,
+            analytics: false,
             crashReports: true,
             downloadPath,
             showTrackChangeNotification: true
