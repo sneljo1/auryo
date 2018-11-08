@@ -8,7 +8,7 @@
   "main": "./dist/main.js",
   "scripts": {
     "start": "electron dist/main.js",
-    "postinstall": "electron-builder install-app-deps",
+    "postinstall": "electron-rebuild",
     "dev": "env-cmd .env.development node config/dev-runner.js 4411",
     "build": "env-cmd .env.production node config/build.js",
     "build:dev": "env-cmd .env.development node config/build.js",
