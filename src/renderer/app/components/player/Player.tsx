@@ -27,10 +27,13 @@ import PlayerControls from './components/PlayerControls/PlayerControls';
 import TrackInfo from './components/TrackInfo/TrackInfo';
 import * as styles from './Player.module.scss';
 import FallbackImage from '../../../_shared/FallbackImage';
+import { toggleLike } from '../../../../common/store/track/actions';
+import { hasLiked } from '../../../../common/store/auth/selectors';
 
 interface PropsFromState {
     player: PlayerState;
     track: SoundCloud.Track | null;
+    liked: boolean;
     volume: number;
     remainingPlays: RemainingPlays | null;
     repeat: RepeatTypes | null;
@@ -47,6 +50,7 @@ interface PropsFromDispatch {
     toggleQueue: typeof toggleQueue;
     registerPlay: typeof registerPlay;
     toggleShuffle: typeof toggleShuffle;
+    toggleLike: typeof toggleLike;
 }
 
 interface State {
@@ -283,9 +287,11 @@ class Player extends React.Component<AllProps, State>{
             toggleQueue,
             volume: configVolume,
             repeat,
+            liked,
             shuffle,
             toggleStatus,
-            track
+            track,
+            toggleLike
         } = this.props;
 
         const { muted, isVolumeSeeking, nextTime, isSeeking } = this.state;
@@ -336,6 +342,10 @@ class Player extends React.Component<AllProps, State>{
                         userId={track.user.id.toString()}
                         username={track.user.username}
                         img={overlay_image}
+                        liked={liked}
+                        toggleLike={() => {
+                            toggleLike(track.id);
+                        }}
                     />
 
                     <PlayerControls
@@ -471,9 +481,11 @@ const mapStateToProps = (state: StoreState): PropsFromState => {
     const { player, app, config } = state;
 
     let track = null;
+    let liked = false;
 
     if (player.playingTrack && player.playingTrack.id) {
         track = getTrackEntity(player.playingTrack.id)(state);
+        liked = hasLiked(player.playingTrack.id)(state);
 
         if (!track || (track && !track.title && track.loading)) {
             track = null;
@@ -486,7 +498,8 @@ const mapStateToProps = (state: StoreState): PropsFromState => {
         volume: config.volume,
         shuffle: config.shuffle,
         repeat: config.repeat,
-        remainingPlays: app.remainingPlays
+        remainingPlays: app.remainingPlays,
+        liked
     };
 };
 
@@ -499,7 +512,8 @@ const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, {}> = (dispatch)
     setDuration,
     toggleQueue,
     registerPlay,
-    toggleShuffle
+    toggleShuffle,
+    toggleLike
 }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(Player);

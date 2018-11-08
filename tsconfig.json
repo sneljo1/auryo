@@ -4,7 +4,6 @@
     "experimentalDecorators": true,
     "removeComments": false,
     "preserveConstEnums": true,
-    "sourceMap": true,
     "lib": [
       "es2017",
       "dom"
@@ -28,6 +27,10 @@
       "src/types"
     ],
     "sourceRoot": "/",
+
+    // prod
+    "sourceMap": true,
+    "inlineSources": true,
   },
   "include": [
     "src",

@@ -1,13 +1,6 @@
 // import * as ElectronSentry from '@sentry/electron';
 // import { SentryEventHint } from '@sentry/types';
-import { app as electronApp, remote } from 'electron';
-import * as is from 'electron-is';
-import { CONFIG } from '../config';
-import * as os from 'os';
-import { settings } from '../main/settings';
-
 // const app = is.renderer() ? remote.app : electronApp;
-
 // const options: ElectronSentry.ElectronOptions = {
 //   debug: true,
 //   enabled: true, // settings.get('app.crashReports') === true && process.env.NODE_ENV === 'production',
@@ -20,21 +13,20 @@ import { settings } from '../main/settings';
 //     return event;
 //   }
 // };
-
-
 // ElectronSentry.init(options);
-
 // ElectronSentry.configureScope((scope) => {
 //   scope.setTag('platform', os.platform());
 //   scope.setUser({
 //     id: (settings.get('token') as string || '')
 //   });
 // });
-
-
 import { BrowserOptions, init as BrowserInit } from '@sentry/browser';
-import { NodeOptions, init as NodeInit } from '@sentry/node';
-import { SentryEventHint, SentryEvent, Stacktrace, SentryException } from '@sentry/types';
+import { init as NodeInit, NodeOptions } from '@sentry/node';
+import { SentryEvent, SentryEventHint, SentryException, Stacktrace } from '@sentry/types';
+import { app as electronApp, remote } from 'electron';
+import * as is from 'electron-is';
+import { CONFIG } from '../config';
+
 
 const app = is.renderer() ? remote.app : electronApp;
 

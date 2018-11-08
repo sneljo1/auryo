@@ -55,3 +55,7 @@ export const isFollowing = (userId: number) => createSelector(
     getFollowings,
     (followings) => SC.hasID(userId, followings)
 );
+export const hasLiked = (trackId: number, type: 'playlist' | 'track' = 'track') => createSelector(
+    getLikes,
+    (likes) => SC.hasID(trackId, likes[type])
+);

@@ -14,6 +14,7 @@ module.exports = {
   externals: Object.keys(externals || {}),
 
   output: {
+    sourceMapFilename: "[name].js.map",
     filename: '[name].js',
     path: path.resolve(__dirname, '../dist'),
     publicPath:
