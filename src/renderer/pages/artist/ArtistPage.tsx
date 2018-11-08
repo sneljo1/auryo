@@ -201,11 +201,10 @@ class ArtistPage extends WithHeaderComponent<AllProps, State> {
             return (
                 <a
                     href='javascript:void(0)'
-                    className='c_btn playing'
+                    className='c_btn playing round playButton'
                     onClick={() => toggleStatus()}
                 >
                     <i className='bx bx-pause' />
-                    Playing
                 </a>
             );
         }
@@ -221,11 +220,10 @@ class ArtistPage extends WithHeaderComponent<AllProps, State> {
         return (
             <a
                 href='javascript:void(0)'
-                className='c_btn'
+                className='c_btn round playButton'
                 onClick={toggle}
             >
                 <i className='bx bx-play' />
-                Play
             </a>
         );
     }
