@@ -26,6 +26,7 @@ import { SentryEvent, SentryEventHint, SentryException, Stacktrace } from '@sent
 import { app as electronApp, remote } from 'electron';
 import * as is from 'electron-is';
 import { CONFIG } from '../config';
+import { settings } from '../main/settings';
 
 
 const app = is.renderer() ? remote.app : electronApp;
@@ -73,8 +74,7 @@ const getStacktrace = (event: SentryEvent): Stacktrace | undefined => {
 };
 
 const options: BrowserOptions | NodeOptions = {
-  debug: true,
-  enabled: true, // settings.get('app.crashReports') === true && process.env.NODE_ENV === 'production'
+  enabled: settings.get('app.crashReports') === true && process.env.NODE_ENV === 'production',
   dsn: CONFIG.SENTRY_REPORT_URL,
   release: app.getVersion(),
   environment: process.env.NODE_ENV,

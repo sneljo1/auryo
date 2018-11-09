@@ -4,6 +4,10 @@
   "homepage": "http://auryo.com",
   "productName": "Auryo",
   "version": "2.2.0",
+  "author": {
+    "name": "Jonas Snellinckx",
+    "email": "jonas.snellinckx@gmail.com"
+  },
   "description": "Listen to SoundCloud® from the comfort of your desktop. Use keyboard shortcuts to navigate through your music. Be more productive.",
   "main": "./dist/main.js",
   "scripts": {
@@ -79,7 +83,7 @@
     "css-loader": "^0.28.11",
     "devtron": "^1.4.0",
     "dotenv": "^6.0.0",
-    "electron": "^3.0.6",
+    "electron": "^3.0.8",
     "electron-builder": "^20.28.4",
     "electron-devtools-installer": "^2.2.4",
     "electron-download": "^4.1.1",
