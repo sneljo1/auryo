@@ -34,7 +34,7 @@ export class Logger {
           handleExceptions: true,
           format: winston.format.combine(
             winston.format.colorize(),
-            (process.env.NODE_ENV === 'production' ? prodFormat() : devFormat()),
+            (process.env.NODE_ENV === 'production' ? devFormat() : devFormat()),
             winston.format.label({ label: id }),
           )
         })
