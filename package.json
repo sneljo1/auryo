@@ -214,6 +214,7 @@
     "productName": "Auryo",
     "files": [
       "dist/**/*",
+      "static/**/*",
       "node_modules/",
       "package.json",
       "!**/node_modules/**/{*.md,README,readme,test,__tests__,tests,.*,LICENSE,license,powered-test,example,examples,*.d.ts,Makefile}",

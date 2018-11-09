@@ -7,8 +7,8 @@ import { Auryo } from '../../app';
 import { PlayerStatus, ChangeTypes } from '../../../common/store/player';
 
 const iconsDirectory = process.env.NODE_ENV === 'development' ?
-path.resolve(__dirname, '..', '..', '..', 'assets', 'img', 'icons') :
-path.resolve(__dirname, './assets/img/icons');
+  path.resolve(__dirname, '..', '..', '..', '..', 'static', 'icons') :
+  path.resolve(__dirname, '../static/icons');
 
 interface ThumbarPreset {
   play: Electron.ThumbarButton;
