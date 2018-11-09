@@ -9,7 +9,6 @@ environment:
 cache:
   - '%LOCALAPPDATA%/Yarn'
   - node_modules -> package.json
-  - src/node_modules -> src/package.json
   - '%USERPROFILE%\.electron'
 
 init:
