@@ -54,12 +54,15 @@ export default class IPCManager extends Feature {
     ipcMain.on(EVENTS.APP.AUTH.LOGIN, () => {
       this.store.dispatch(setLoginLoading());
 
+      this.logger.debug('Starting login');
+
       this.startLoginSocket();
 
       if (this.socket) {
         if (this.socket.connected) {
           this.login();
         } else {
+          this.logger.debug('Waiting for connect');
           this.socket.on('connect', this.login);
         }
 
@@ -83,13 +86,14 @@ export default class IPCManager extends Feature {
             this.socket.disconnect();
           }
         }
-      }, 8000);
+      }, 15000);
 
       this.timers.push(timer);
     });
   }
 
   login = () => {
+    this.logger.debug('Proceeding to login');
     if (this.socket) {
       shell.openExternal(CONFIG.getConnectUrl(this.socket.id));
       this.store.dispatch(setLoginLoading(false));
@@ -102,6 +106,8 @@ export default class IPCManager extends Feature {
       this.socket = io(CONFIG.BASE_URL);
 
       this.socket.on('token', (data: string) => {
+        this.logger.debug('Received token');
+
         this.store.dispatch(setToken(data));
         this.sendToWebContents('login-success');
       });

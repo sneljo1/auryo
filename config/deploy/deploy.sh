@@ -1,7 +1,6 @@
 #!/bin/bash
 
-git config --global user.email "jonas.snellinckx@gmail.com"
-git config --global user.name "Jonas via Travis CI"
+
 
 current_date_time="`date +%Y%m%d%H%M%S`";
 PACKAGE_VERSION=$(cat package.json \
@@ -28,21 +27,21 @@ git push --quiet --set-upstream origin master
 
 # AUR
 
-cd $BASEDIR/AUR-repo
+# cd $BASEDIR/AUR-repo
 
-MD5=`sha256sum ./release/*.pacman | awk '{ print $1 }'`
+# MD5=`sha256sum ./release/*.pacman | awk '{ print $1 }'`
 
-echo "Pacman MD5: $MD5"
+# echo "Pacman MD5: $MD5"
 
-git clone ssh://aur@aur.archlinux.org/auryo-bin.git AUR-repo
-cd AUR-repo
-perl -pi -e "s/[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+)?/$PACKAGE_VERSION/g" PKGBUILD
-perl -pi -e "s/[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+)?/$PACKAGE_VERSION/g" .SRCINFO
+# git clone ssh://aur@aur.archlinux.org/auryo-bin.git AUR-repo
+# cd AUR-repo
+# perl -pi -e "s/[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+)?/$PACKAGE_VERSION/g" PKGBUILD
+# perl -pi -e "s/[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+)?/$PACKAGE_VERSION/g" .SRCINFO
 
-perl -pi -e "s/^[A-Fa-f0-9]{64}$/$MD5/g" PKGBUILD
-perl -pi -e "s/^[A-Fa-f0-9]{64}$/$MD5/g" .SRCINFO
+# perl -pi -e "s/^[A-Fa-f0-9]{64}$/$MD5/g" PKGBUILD
+# perl -pi -e "s/^[A-Fa-f0-9]{64}$/$MD5/g" .SRCINFO
 
-git add -A
-git commit --message "Travis build $2 for ${PACKAGE_VERSION}"
-git push --quiet --set-upstream origin master
+# git add -A
+# git commit --message "Travis build $2 for ${PACKAGE_VERSION}"
+# git push --quiet --set-upstream origin master
 
