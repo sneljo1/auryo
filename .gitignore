@@ -56,3 +56,4 @@ AUR-repo
 .awcache
 .cache-loader
 test/e2e/_utils/token.txt
+auryo-snap
