@@ -10,12 +10,16 @@ PACKAGE_VERSION=$(cat package.json \
   | awk -F: '{ print $2 }' \
   | sed 's/[", ]//g')
 
+cat package.json
+ls
+
 # Snap
 mkdir auryo-snap
 cd auryo-snap
 git init
 git remote add origin https://${1}@github.com/auryo/auryo-snap.git > /dev/null 2>&1
 git pull origin master
+ls
 sed -i "s/{VERSION}/$PACKAGE_VERSION/g" ../build/snap/snapcraft.yaml
 cp -R ../build/snap/* ./snap
 echo $current_date_time > triggered_build_at
