@@ -5,11 +5,11 @@ platform:
 
 environment:
   matrix:
-    - nodejs_version: "8.10"
+    - nodejs_version: "9"
 
-cache:
-  - '%LOCALAPPDATA%/Yarn'
-  - node_modules -> package.json
+cache:  
+  - node_modules -> appveyor.yml,package.json,yarn.lock
+  - '%LOCALAPPDATA%\Yarn -> appveyor.yml,package.json,yarn.lock'
   - '%USERPROFILE%\.electron'
 
 init:

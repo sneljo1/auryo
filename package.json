@@ -89,7 +89,7 @@
     "devtron": "^1.4.0",
     "dotenv": "^6.0.0",
     "electron": "^3.0.8",
-    "electron-builder": "^20.28.4",
+    "electron-builder": "^20.28.2",
     "electron-devtools-installer": "^2.2.4",
     "electron-download": "^4.1.1",
     "env-cmd": "^8.0.2",
@@ -154,8 +154,7 @@
     "electron-is": "^3.0.0",
     "electron-localshortcut": "^1.0.0",
     "electron-settings": "^3.1.1",
-    "electron-squirrel-startup": "^1.0.0",
-    "electron-updater": "^3.1.1",
+    "electron-updater": "^3.2.0",
     "electron-window-state": "^5.0.1",
     "history": "^4.7.2",
     "jquery": "1.9.1",
@@ -210,9 +209,9 @@
     "@nodert-win10/windows.media": "^0.2.95",
     "@nodert-win10/windows.media.playback": "^0.2.95",
     "@nodert-win10/windows.storage.streams": "^0.2.95",
-    "dbus": "GPMDP/node-dbus#linux-only",
     "electron-media-service": "^0.2.2",
-    "mpris-service": "GPMDP/mpris-service"
+    "mpris-service": "GPMDP/mpris-service",
+    "dbus": "GPMDP/node-dbus#linux-only"
   },
   "build": {
     "generateUpdatesFilesForAllChannels": true,

@@ -3,7 +3,6 @@ import ApplicationMenu from './ApplicationMenu';
 import AppUpdater from './AppUpdater';
 import ConfigManager from './ConfigManager';
 import IPCManager from './IPCManager';
-import DbusService from './linux/dbusService';
 import MprisService from './linux/mprisService';
 import MediaServiceManager from './mac/mediaServiceManager';
 import TouchBarManager from './mac/touchBarManager';
@@ -34,7 +33,6 @@ export const tools: Array<typeof Feature> = [
 
   // Linux
   MprisService,
-  // DbusService
 ];
 
 export const getTools = (app: Auryo) => tools.map((Feature) => new Feature(app)).filter((o: IFeature) => o.shouldRun());
