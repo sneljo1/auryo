@@ -42,8 +42,8 @@ export default class MprisService extends LinuxFeature {
       this.player.playbackStatus = 'Stopped';
       this.player.canEditTracks = false;
       this.player.canSeek = false;
-      this.player.canGoPrevious = false;
-      this.player.canGoNext = false;
+      // this.player.canGoPrevious = false;
+      // this.player.canGoNext = false;
       this.player.shuffle = false;
       this.player.canControl = true;
       this.player.loopStatus = 'None';
