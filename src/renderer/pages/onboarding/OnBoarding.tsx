@@ -57,10 +57,6 @@ class OnBoarding extends React.PureComponent<AllProps, State> {
     login = () => {
         const { login, loading } = this.props;
 
-        this.setState({
-            step: 'welcome'
-        });
-
         if (!loading) {
             login();
         }

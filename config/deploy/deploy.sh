@@ -14,18 +14,21 @@ PACKAGE_VERSION=$(cat package.json \
 
 BASEDIR=$(dirname $0)
 
+echo "Version: $PACKAGE_VERSION"
+
 cd $BASEDIR/auryo-snap
-git pull origin master
-sed -i "s/{VERSION}/$PACKAGE_VERSION/g" ../config/build/snap/snapcraft.yaml
-cp -R ../config/build/snap/* ./snap
+ls ../../build/snap/
+git checkout . -f
+cp -R ../../build/snap/* ./snap
+sed -i'' -e "s/{VERSION}/$PACKAGE_VERSION/g" ./snap/snapcraft.yaml
 echo $current_date_time > triggered_build_at
 git add -A
 git commit --message "Update for ${PACKAGE_VERSION} - ${current_date_time}"
 git push --quiet --set-upstream origin master
 
-cd ..
-
 # AUR
+
+cd $BASEDIR/AUR-repo
 
 MD5=`sha256sum ./release/*.pacman | awk '{ print $1 }'`
 
