@@ -6,8 +6,6 @@ import '@blueprintjs/icons/lib/css/blueprint-icons.css';
 // tslint:disable-next-line:no-submodule-imports
 import 'boxicons/css/boxicons.min.css';
 import { remote } from 'electron';
-// tslint:disable-next-line:no-submodule-imports
-import 'rc-slider/dist/rc-slider.css';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { AppContainer } from 'react-hot-loader';

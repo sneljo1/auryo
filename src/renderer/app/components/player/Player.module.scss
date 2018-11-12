@@ -1,24 +1,37 @@
 @import "../../../css/bootstrap.imports.scss";
 .player {
   :global {
-    .rc-slider {
-      .rc-slider-rail {
-        background: $brand-grey-lighter;
-        opacity: .3;
+    .bp3-slider {
+      &:not(.bp3-vertical) {
+        height: 14px;
+        .bp3-slider-track,
+        .bp3-slider-progress {
+          height: 4px;
+        }
       }
-      .rc-slider-track {
+      &.bp3-vertical {
+        height: 100%;
+        min-width: 16px;
+        width: 16px;
+      }
+      .bp3-slider-track {
+        background: rgba($brand-grey-lighter, .3);
+      }
+      .bp3-slider-progress.bp3-intent-primary {
         background: $white;
         opacity: .7;
+        transition: .5s opacity;
       }
-      .rc-slider-handle {
+      .bp3-slider-handle {
         background: $white;
         border: none;
         opacity: 0;
         box-shadow: none;
-        margin-left: -3px;
-        margin-top: -3px;
+        margin-top: 2px;
+        margin-left: 3px;
         width: 10px;
         height: 10px;
+        border-radius: 100%;
       }
     }
   }
@@ -77,11 +90,11 @@
     padding: 8px 0;
     &:hover {
       :global {
-        .rc-slider {
-          .rc-slider-track {
+        .bp3-slider {
+          .bp3-slider-progress.bp3-intent-primary {
             opacity: 1;
           }
-          .rc-slider-handle {
+          .bp3-slider-handle {
             opacity: 1
           }
         }
@@ -104,11 +117,11 @@
     display: block;
     max-height: 160px;
     :global {
-      .rc-slider {
-        .rc-slider-track {
+      .bp3-slider {
+        bp3-slider-progress.bp3-intent-primary {
           opacity: 1;
         }
-        .rc-slider-handle {
+        .bp3-slider-handle {
           opacity: 1
         }
       }
@@ -118,7 +131,7 @@
     position: absolute;
     top: 0;
     margin-top: -170px;
-    margin-left: -6px;
+    margin-left: -8px;
     background: #222326;
     padding: 14px 8px;
     display: none;

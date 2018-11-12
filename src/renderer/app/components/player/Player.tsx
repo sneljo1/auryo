@@ -1,9 +1,8 @@
-import { Intent, Tag } from '@blueprintjs/core';
+import { Intent, Tag, Slider } from '@blueprintjs/core';
 import cn from 'classnames';
 import { IpcMessageEvent, ipcRenderer } from 'electron';
 import { debounce } from 'lodash';
 import * as moment from 'moment';
-import Slider from 'rc-slider';
 import * as React from 'react';
 import * as isDeepEqual from 'react-fast-compare';
 import { connect, MapDispatchToProps } from 'react-redux';
@@ -195,14 +194,10 @@ class Player extends React.Component<AllProps, State>{
                 min={0}
                 max={duration}
                 value={isSeeking ? nextTime : currentTime}
-                step={1}
+                stepSize={1}
                 onChange={this.seekChange}
-                onBeforeChange={() => {
-                    this.setState({
-                        isSeeking: true
-                    });
-                }}
-                onAfterChange={(val) => {
+                labelRenderer={false}
+                onRelease={(val) => {
                     this.setState({
                         isSeeking: false,
                     });
@@ -220,12 +215,17 @@ class Player extends React.Component<AllProps, State>{
 
     seekChange = (nextTime: number) => {
         this.setState({
-            nextTime
+            nextTime,
+            isSeeking: true
         });
     }
 
     volumeChange = (volume: number) => {
-        this.setState({ volume });
+        this.setState({
+            volume,
+            isVolumeSeeking: true
+        });
+
         this.debouncedSetVolume(volume);
 
     }
@@ -387,15 +387,11 @@ class Player extends React.Component<AllProps, State>{
                                 min={0}
                                 max={1}
                                 value={this.state.volume || volume}
-                                step={0.05}
+                                stepSize={0.05}
                                 vertical={true}
                                 onChange={this.volumeChange}
-                                onBeforeChange={() => {
-                                    this.setState({
-                                        isVolumeSeeking: true
-                                    });
-                                }}
-                                onAfterChange={() => {
+                                labelRenderer={false}
+                                onRelease={() => {
                                     this.setState({
                                         isVolumeSeeking: false
                                     });
