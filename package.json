@@ -207,9 +207,9 @@
     "@nodert-win10/windows.media": "^0.2.95",
     "@nodert-win10/windows.media.playback": "^0.2.95",
     "@nodert-win10/windows.storage.streams": "^0.2.95",
-    "dbus": "GPMDP/node-dbus#linux-only",
     "electron-media-service": "^0.2.2",
-    "mpris-service": "GPMDP/mpris-service"
+    "mpris-service": "GPMDP/mpris-service",
+    "dbus": "GPMDP/node-dbus#linux-only"
   },
   "build": {
     "generateUpdatesFilesForAllChannels": true,
