@@ -81,6 +81,11 @@ const objectState: Reducer<ObjectState<any>> = (state = initialObjectsState, act
                 ...state,
                 items: state.items.filter((item) => payload.trackId !== item.id)
             };
+        case ObjectsActionTypes.UNSET_TRACK:
+            return {
+                ...state,
+                items: state.items.filter((item) => payload.trackId !== item.id)
+            };
         case ObjectsActionTypes.UNSET:
             return initialObjectsState;
         default:
@@ -106,6 +111,7 @@ const objectGroup: Reducer<ObjectGroup> = (state = initialObjectGroupState, acti
         case ObjectsActionTypes.UNSET:
         case onSuccess(ObjectsActionTypes.SET_TRACKS):
         case isLoading(ObjectsActionTypes.SET_TRACKS):
+        case ObjectsActionTypes.UNSET_TRACK:
             return {
                 ...state,
                 [String(payload.objectId)]: objectState(state[String(payload.objectId)], action)
@@ -145,6 +151,7 @@ export const objectsReducer: Reducer<ObjectsState> = (state = initialState, acti
         case onSuccess(AuthActionTypes.SET_LIKE):
         case onSuccess(ObjectsActionTypes.SET_TRACKS):
         case isLoading(ObjectsActionTypes.SET_TRACKS):
+        case ObjectsActionTypes.UNSET_TRACK:
             return {
                 ...state,
                 [ObjectTypes.PLAYLISTS]: objectGroup(state[ObjectTypes.PLAYLISTS], action)

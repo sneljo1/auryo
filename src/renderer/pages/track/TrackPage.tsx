@@ -206,7 +206,7 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
 
                             <div className='button-group'>
                                 {
-                                    (track.streamable || (track.policy && track.policy === 'ALLOW')) ? this.renderToggleButton() :
+                                    SC.isStreamable(track) ? this.renderToggleButton() :
                                         <a href='javascript:void(0)' className='disabled c_btn'>
                                             <span>This track is not streamable</span>
                                         </a>

@@ -14,7 +14,6 @@ const deNormSchema = new schema.Array({
     comments: commentSchema
 }, (input) => `${input.kind}s`);
 
-
 export const getDenormalizedEntities = <T>(result: Array<NormalizedResult>) => createSelector<StoreState, EntitiesState, Array<T>>(
     getEntities,
     (entities) => denormalize(result, deNormSchema, entities)

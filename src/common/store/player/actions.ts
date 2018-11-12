@@ -12,6 +12,7 @@ import { fetchMore, fetchPlaylistIfNeeded, fetchPlaylistTracks, fetchTracks } fr
 import { getPlaylistObjectSelector, getPlaylistType } from '../objects/selectors';
 import { addToast } from '../ui';
 import { ChangeTypes, PlayerActionTypes, PlayerStatus, PlayingPositionState, PlayingTrack, RepeatTypes } from './types';
+import { EntitiesState } from '../entities';
 /**
  * Get playlist from ID if needed
  *
@@ -130,123 +131,134 @@ export function toggleStatus(newStatus?: PlayerStatus): ThunkResult<void> {
  * @param nextTrack
  */
 export function setCurrentPlaylist(playlistId: string, nextTrack: PlayingTrack | null): ThunkResult<Promise<any>> {
-    return (dispatch, getState) => {
+    return async (dispatch, getState) => {
         const state = getState();
 
-        const {
-            player: {
-                currentPlaylistId
-            }
-        } = state;
-
-        const playlistObject = getPlaylistObjectSelector(playlistId.toString())(state);
-
-        const containsPlaylists: Array<PlayingPositionState> = [];
-
-        if (playlistObject && (nextTrack || playlistId !== currentPlaylistId)) {
-
-            const [items, originalItems] = dispatch<ProcessedQueueItems>(processQueueItems(playlistObject.items, true, playlistId));
-
-            return dispatch<Promise<any>>({
-                type: PlayerActionTypes.SET_PLAYLIST,
-                payload: {
-                    promise: Promise.resolve({
-                        playlistId,
-                        items,
-                        originalItems,
-                        nextTrack,
-                        containsPlaylists
-                    })
-
+        try {
+            const {
+                player: {
+                    currentPlaylistId
                 }
-            } as any);
+            } = state;
 
+            const playlistObject = getPlaylistObjectSelector(playlistId.toString())(state);
+
+            const containsPlaylists: Array<PlayingPositionState> = [];
+
+            if (playlistObject && (nextTrack || playlistId !== currentPlaylistId)) {
+
+                const [items, originalItems] = await
+                    dispatch<Promise<ProcessedQueueItems>>(processQueueItems(playlistObject.items, true, playlistId));
+
+                return dispatch<Promise<any>>({
+                    type: PlayerActionTypes.SET_PLAYLIST,
+                    payload: {
+                        promise: Promise.resolve({
+                            playlistId,
+                            items,
+                            originalItems,
+                            nextTrack,
+                            containsPlaylists
+                        })
+
+                    }
+                } as any);
+
+            }
+
+        } catch (err) {
+            throw err;
         }
 
-        return Promise.resolve();
     };
 }
 
 export type ProcessedQueueItems = [Array<PlayingTrack>, Array<PlayingTrack>];
 
 // tslint:disable-next-line:max-line-length
-export function processQueueItems(result: Array<NormalizedResult>, keepFirst: boolean = false, newPlaylistId?: string): ThunkResult<ProcessedQueueItems> {
-    return (dispatch, getState) => {
+export function processQueueItems(result: Array<NormalizedResult>, keepFirst: boolean = false, newPlaylistId?: string): ThunkResult<Promise<ProcessedQueueItems>> {
+    return async (dispatch, getState) => {
 
-        const { player: { currentPlaylistId }, config: { shuffle } } = getState();
+        try {
+            const { player: { currentPlaylistId }, config: { shuffle } } = getState();
 
-        if (!currentPlaylistId && !newPlaylistId) return [[], []];
+            if (!currentPlaylistId && !newPlaylistId) return [[], []];
 
-        const currentPlaylist = newPlaylistId || currentPlaylistId as string;
+            const currentPlaylist = newPlaylistId || currentPlaylistId as string;
 
-        const items = result
-            .filter((trackIdSchema) => (trackIdSchema && trackIdSchema.schema !== 'users'))
-            .map((trackIdSchema) => {
-                const id = trackIdSchema.id;
+            const items = await Promise.all(result
+                .filter((trackIdSchema) => (trackIdSchema && trackIdSchema.schema !== 'users'))
+                .map(async (trackIdSchema): Promise<PlayingTrack | null | Array<PlayingTrack | null>> => {
+                    const id = trackIdSchema.id;
 
-                const playlist = getPlaylistEntity(id)(getState());
-                const playlistObject = getPlaylistObjectSelector(id.toString())(getState());
+                    const playlist = getPlaylistEntity(id)(getState());
+                    const playlistObject = getPlaylistObjectSelector(id.toString())(getState());
 
-                if (playlist) {
+                    if (playlist) {
 
-                    if (!playlistObject) {
+                        if (!playlistObject) {
 
-                        dispatch({
-                            type: ObjectsActionTypes.SET,
-                            payload: {
-                                objectId: id,
-                                objectType: ObjectTypes.PLAYLISTS,
-                                result: playlist.tracks,
-                                fetchedItems: 0
-                            }
-                        });
+                            dispatch({
+                                type: ObjectsActionTypes.SET,
+                                payload: {
+                                    objectId: id,
+                                    objectType: ObjectTypes.PLAYLISTS,
+                                    result: playlist.tracks,
+                                    fetchedItems: 0
+                                }
+                            });
 
-                        dispatch(fetchPlaylistTracks(id, 50));
+                            dispatch<Promise<any>>(fetchPlaylistTracks(id, 50) as any);
+
+                        } else {
+                            return playlistObject.items.map((trackIdResult): PlayingTrack | null => {
+                                const trackId = trackIdResult.id;
+                                const track = getTrackEntity(id)(getState());
+
+                                if (track && !SC.isStreamable(track)) {
+                                    return null;
+                                }
+
+                                return {
+                                    id: trackId,
+                                    playlistId: id.toString(),
+                                    un: Date.now()
+                                };
+                            });
+                        }
+
+                        return null;
 
                     }
 
-                    return playlist.tracks.map((trackIdResult): PlayingTrack | null => {
-                        const trackId = trackIdResult.id;
-                        const track = getTrackEntity(id)(getState());
+                    const track = getTrackEntity(id)(getState());
 
-                        if (track && !track.streamable) {
-                            return null;
-                        }
+                    if (track && !SC.isStreamable(track)) {
+                        return null;
+                    }
 
-                        return {
-                            id: trackId,
-                            playlistId: id.toString(),
-                            un: Date.now()
-                        };
-                    }).filter((t) => t != null);
-                }
+                    return {
+                        id,
+                        playlistId: currentPlaylist.toString(),
+                        un: Date.now()
+                    };
+                }));
 
-                const track = getTrackEntity(id)(getState());
+            const flattened = _.flatten(items).filter((t) => t !== null) as Array<PlayingTrack>;
 
-                if (track && !track.streamable) {
-                    return null;
-                }
+            if (keepFirst) {
+                const [firstItem, ...rest] = flattened;
+                const processedRest = shuffle ? _.shuffle(rest) : rest;
 
-                return {
-                    id,
-                    playlistId: currentPlaylist.toString(),
-                    un: Date.now()
-                };
-            })
-            .filter((t) => t != null);
+                return [[firstItem, ...processedRest], flattened];
+            }
 
-        const flattened = _.flatten(items) as Array<PlayingTrack>;
+            const processedItems = shuffle ? _.shuffle(flattened) : flattened;
 
-        if (keepFirst) {
-            const [firstItem, ...rest] = flattened;
-            const processedRest = shuffle ? _.shuffle(rest) : rest;
-
-            return [[firstItem, ...processedRest], flattened];
+            return [processedItems, flattened];
+        } catch (err) {
+            throw err;
         }
-
-        const processedItems = shuffle ? _.shuffle(flattened) : flattened;
-
-        return [processedItems, flattened];
 
     };
 }
@@ -264,7 +276,7 @@ export function setPlayingTrack(nextTrack: PlayingTrack, position: number, chang
 
         const track = getTrackEntity(nextTrack.id)(getState());
 
-        if (track && !track.streamable) {
+        if (track && !SC.isStreamable(track)) {
             if (changeType && (changeType in Object.values(ChangeTypes))) {
                 return changeTrack(changeType);
             }
@@ -317,7 +329,7 @@ export function addUpNext(track: SoundCloud.Track | SoundCloud.Playlist, remove?
 
             nextList = playlist.tracks.map((t) => {
 
-                if (!t.streamable) {
+                if (!SC.isStreamable(t)) {
                     return null;
                 }
 
@@ -378,8 +390,8 @@ export function updateQueue(range: Array<number>): ThunkResult<void> {
     };
 }
 
-export function getItemsAround(position: number): ThunkResult<void> {
-    return (dispatch, getState) => {
+export function getItemsAround(position: number): ThunkResult<Promise<void>> {
+    return async (dispatch, getState) => {
         const {
             player: {
                 queue,
@@ -387,42 +399,75 @@ export function getItemsAround(position: number): ThunkResult<void> {
             }
         } = getState();
 
-        if (currentPlaylistId) {
-            const currentPlaylist = getPlaylistObjectSelector(currentPlaylistId)(getState());
+        try {
+            if (currentPlaylistId) {
+                const currentPlaylist = getPlaylistObjectSelector(currentPlaylistId)(getState());
 
-            const itemsToFetch: Array<number> = [];
+                const itemsToFetch: Array<{ position: number; id: number; }> = [];
 
-            const lowBound = position - 3;
-            const highBound = position + 3;
+                const lowBound = position - 3;
+                const highBound = position + 3;
 
-            // Get playlists
-            for (let i = (lowBound < 0 ? 0 : position); i < (highBound > queue.length ? queue.length : highBound); i += 1) {
-                const queueItem = queue[i];
+                // Get playlists
+                for (let i = (lowBound < 0 ? 0 : position); i < (highBound > queue.length ? queue.length : highBound); i += 1) {
+                    const queueItem = queue[i];
 
-                if (queueItem && queueItem.id) {
+                    if (queueItem && queueItem.id) {
 
-                    const playlist = getPlaylistEntity(+queueItem.playlistId)(getState());
+                        const playlist = getPlaylistEntity(+queueItem.playlistId)(getState());
 
-                    if (playlist) {
-                        dispatch(getPlaylistObject(queueItem.playlistId, i));
-                    }
+                        if (playlist) {
+                            dispatch(getPlaylistObject(queueItem.playlistId, i));
+                        }
 
-                    const track = getTrackEntity(queueItem.id)(getState());
+                        const track = getTrackEntity(queueItem.id)(getState());
 
-                    if (!track) {
-                        itemsToFetch.push(queueItem.id);
-                    }
+                        if (!track || (track && !track.title && !track.loading)) {
+                            itemsToFetch.push({
+                                position: i,
+                                id: queueItem.id
+                            });
+                        }
 
-                    if (currentPlaylist && currentPlaylist.fetchedItems && currentPlaylist.fetchedItems - 10 < i
-                        && currentPlaylist.fetchedItems !== currentPlaylist.items.length) {
-                        dispatch(fetchPlaylistTracks(+currentPlaylistId, 30));
+                        if (currentPlaylist && currentPlaylist.fetchedItems && currentPlaylist.fetchedItems - 10 < i
+                            && currentPlaylist.fetchedItems !== currentPlaylist.items.length) {
+                            dispatch(fetchPlaylistTracks(+currentPlaylistId, 30));
+                        }
                     }
                 }
-            }
 
-            if (itemsToFetch.length) {
-                dispatch(fetchTracks(itemsToFetch));
+                if (itemsToFetch.length) {
+                    const response = await
+                        dispatch<Promise<{ value: { entities: EntitiesState } }>>(fetchTracks(itemsToFetch.map((i) => i.id)) as any);
+
+                    const { value: { entities: { trackEntities = {} } } } = response;
+
+
+                    // SoundCloud sometimes returns 404 for some tracks, if this happens, we clear it in our app
+                    itemsToFetch.forEach((i) => {
+                        if (!trackEntities[i.id]) {
+                            const queueItem = queue[i.position];
+
+                            dispatch({
+                                type: ObjectsActionTypes.UNSET_TRACK,
+                                payload: {
+                                    trackId: i.id,
+                                    position: i.position,
+                                    objectId: queueItem.playlistId,
+                                    entities: {
+                                        trackEntities: {
+                                            [i.id]: undefined
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    });
+
+                }
             }
+        } catch (err) {
+            throw err;
         }
     };
 }

@@ -3,6 +3,7 @@ import { onSuccess } from '../../utils/reduxUtils';
 import { PlayerState, PlayerStatus, PlayerActionTypes } from './types';
 import { AppActionTypes } from '../app';
 import * as _ from 'lodash';
+import { ObjectsActionTypes } from '../objects';
 
 const initialState = {
     status: PlayerStatus.STOPPED,
@@ -203,6 +204,14 @@ export const playerReducer: Reducer<PlayerState> = (state = initialState, action
                     start: 0,
                     length: 0
                 }
+            };
+        case ObjectsActionTypes.UNSET_TRACK:
+            return {
+                ...state,
+                queue: [
+                    ...state.queue.slice(0, payload.position),
+                    ...state.queue.slice(payload.position + 1)
+                ]
             };
         case AppActionTypes.RESET_STORE:
             return initialState;

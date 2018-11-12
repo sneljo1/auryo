@@ -9,6 +9,7 @@ import { SC } from '../../utils';
 import { PlayerActionTypes, ProcessedQueueItems, processQueueItems } from '../player';
 import { SortTypes } from '../playlist/types';
 import { ObjectsActionTypes, ObjectState, ObjectTypes } from './types';
+import { getPlaylistObjectSelector } from './selectors';
 
 const canFetch = (current: ObjectState<any>): boolean => !current || (!!current && !current.isFetching);
 const canFetchMore = (current: ObjectState<any>): boolean => canFetch(current) && (current && current.nextUrl !== null);
@@ -58,54 +59,59 @@ export function canFetchMoreOf(objectId: string, type: ObjectTypes): ThunkResult
 // TODO refactor, too hacky. Maybe redux-observables?
 // tslint:disable-next-line:max-line-length
 export function getPlaylist(url: string, objectId: string, options: GetPlaylistOptions = { refresh: false, appendId: null }): ThunkResult<Promise<any>> {
-    return (dispatch, getState) => {
+    return async (dispatch, getState) => {
         const { config: { hideReposts } } = getState();
 
-        return (dispatch({
-            type: ObjectsActionTypes.SET,
-            payload: {
-                promise: fetchPlaylist(url, objectId, hideReposts)
-                    .then(({ normalized, json }) => ({
+        try {
+            const { value } = await dispatch<Promise<{ value: { result: Array<NormalizedResult> } }>>({
+                type: ObjectsActionTypes.SET,
+                payload: {
+                    promise: fetchPlaylist(url, objectId, hideReposts)
+                        .then(({ normalized, json }) => ({
+                            objectId,
+                            objectType: ObjectTypes.PLAYLISTS,
+                            entities: normalized.entities,
+                            result: options.appendId ? [{ id: options.appendId, schema: 'tracks' }, ...normalized.result] : normalized.result,
+                            nextUrl: (json.next_href) ? SC.appendToken(json.next_href) : null,
+                            futureUrl: (json.future_href) ? SC.appendToken(json.future_href) : null,
+                            refresh: options.refresh
+                        })),
+                    data: {
                         objectId,
-                        objectType: ObjectTypes.PLAYLISTS,
-                        entities: normalized.entities,
-                        result: options.appendId ? [{ id: options.appendId, schema: 'tracks' }, ...normalized.result] : normalized.result,
-                        nextUrl: (json.next_href) ? SC.appendToken(json.next_href) : null,
-                        futureUrl: (json.future_href) ? SC.appendToken(json.future_href) : null,
-                        refresh: options.refresh
-                    })),
-                data: {
-                    objectId,
-                    objectType: ObjectTypes.PLAYLISTS
-                }
-            }
-        }) as any)
-            .then(({ value }: { value: { result: Array<NormalizedResult> } }) => {
-                const { player: { currentPlaylistId, queue } } = getState();
-
-                if (objectId === currentPlaylistId && value.result.length) {
-
-                    if (value && value.result) {
-
-                        const { result } = value;
-
-                        if (result.length) {
-                            const [items, originalItems] = dispatch<ProcessedQueueItems>(processQueueItems(result));
-
-                            dispatch({
-                                type: PlayerActionTypes.QUEUE_INSERT,
-                                payload: {
-                                    items,
-                                    originalItems,
-                                    index: queue.length
-                                }
-                            });
-                        }
+                        objectType: ObjectTypes.PLAYLISTS
                     }
-
-
                 }
-            });
+            } as any);
+
+            const { player: { currentPlaylistId, queue } } = getState();
+
+            if (objectId === currentPlaylistId && value.result.length) {
+
+                if (value && value.result) {
+
+                    const { result } = value;
+
+                    if (result.length) {
+
+                        const [items, originalItems] = await dispatch<Promise<ProcessedQueueItems>>(processQueueItems(result));
+
+                        dispatch({
+                            type: PlayerActionTypes.QUEUE_INSERT,
+                            payload: {
+                                items,
+                                originalItems,
+                                index: queue.length
+                            }
+                        });
+                    }
+                }
+
+
+            }
+
+        } catch (err) {
+            throw err;
+        }
     };
 }
 
@@ -163,58 +169,56 @@ export const setObject = (
 
 
 export function fetchPlaylistIfNeeded(playlistId: number): ThunkResult<Promise<any>> {
-    return (dispatch, getState) => {
-        const {
-            objects
-        } = getState();
+    return async (dispatch, getState) => {
 
-        const playlist_objects = objects[ObjectTypes.PLAYLISTS];
-        const playlist_object = playlist_objects[playlistId];
+        try {
 
-        if (!playlist_object || (playlist_object && playlist_object.fetchedItems === 0)) {
-            return dispatch<Promise<any>>({
-                type: ObjectsActionTypes.SET,
-                payload: {
-                    promise: fetchPlaylist(SC.getPlaylistTracksUrl(playlistId), playlistId.toString())
-                        .then(({
-                            normalized,
-                            json
-                        }) => {
-                            if (normalized.entities && normalized.entities.playlistEntities) {
-                                const playlist = normalized.entities.playlistEntities[playlistId];
+            const playlist_object = getPlaylistObjectSelector(playlistId.toString())(getState());
 
-                                let fetchedItems = normalized.result.length;
+            if (!playlist_object || (playlist_object && playlist_object.fetchedItems === 0)) {
+                await dispatch<Promise<any>>({
+                    type: ObjectsActionTypes.SET,
+                    payload: {
+                        promise: fetchPlaylist(SC.getPlaylistTracksUrl(playlistId), playlistId.toString())
+                            .then(({
+                                normalized,
+                                json
+                            }) => {
+                                if (normalized.entities && normalized.entities.playlistEntities) {
+                                    const playlist = normalized.entities.playlistEntities[playlistId];
 
-                                if (json.tracks) {
-                                    fetchedItems = json.tracks.filter((t: Partial<SoundCloud.Track>) => t.user !== undefined).length;
+                                    let fetchedItems = normalized.result.length;
+
+                                    if (json.tracks) {
+                                        fetchedItems = json.tracks.filter((t: Partial<SoundCloud.Track>) => t.user !== undefined).length;
+                                    }
+
+                                    return {
+                                        objectId: playlistId,
+                                        objectType: ObjectTypes.PLAYLISTS,
+                                        entities: normalized.entities,
+                                        result: playlist.tracks,
+                                        nextUrl: (json.next_href) ? SC.appendToken(json.next_href) : null,
+                                        futureUrl: (json.future_href) ? SC.appendToken(json.future_href) : null,
+                                        fetchedItems
+                                    };
                                 }
 
-                                return {
-                                    objectId: playlistId,
-                                    objectType: ObjectTypes.PLAYLISTS,
-                                    entities: normalized.entities,
-                                    result: playlist.tracks,
-                                    nextUrl: (json.next_href) ? SC.appendToken(json.next_href) : null,
-                                    futureUrl: (json.future_href) ? SC.appendToken(json.future_href) : null,
-                                    fetchedItems
-                                };
-                            }
-
-                            return {};
-                        }),
-                    data: {
-                        objectId: playlistId,
-                        objectType: ObjectTypes.PLAYLISTS
+                                return {};
+                            }),
+                        data: {
+                            objectId: playlistId,
+                            objectType: ObjectTypes.PLAYLISTS
+                        }
                     }
-                }
-            } as any)
-                .then(() => {
-                    dispatch(fetchPlaylistTracks(playlistId));
-                });
+                } as any);
+
+                dispatch<Promise<any>>(fetchPlaylistTracks(playlistId));
+            }
+
+        } catch (err) {
+            throw err;
         }
-
-
-        return Promise.resolve();
     };
 }
 
@@ -267,22 +271,18 @@ export function canFetchPlaylistTracks(playlistId: string): ThunkResult<void> {
 }
 
 export function fetchPlaylistTracks(playlistId: number, size: number = 20, ids?: Array<NormalizedResult>): ThunkResult<Promise<any>> {
-    return (dispatch, getState) => {
-        const {
-            objects
-        } = getState();
+    return async (dispatch, getState) => {
 
-        const playlist_objects = objects[ObjectTypes.PLAYLISTS];
-        const playlist_object = playlist_objects[playlistId];
+        const playlist_object = getPlaylistObjectSelector(playlistId.toString())(getState());
 
         if (!playlist_object) {
-            dispatch(fetchPlaylistIfNeeded(playlistId));
+            await dispatch(fetchPlaylistIfNeeded(playlistId));
 
-            return Promise.resolve();
+            return;
         }
 
         if ((playlist_object.fetchedItems === playlist_object.items.length || playlist_object.isFetching) && !ids) {
-            return Promise.resolve();
+            return;
         }
 
         if (!ids) {
@@ -321,7 +321,6 @@ export function fetchPlaylistTracks(playlistId: number, size: number = 20, ids?:
             } as any);
         }
 
-        return Promise.resolve();
     };
 }
 
@@ -329,7 +328,7 @@ export function fetchTracks(ids: Array<number>): ThunkResult<void> {
     return (dispatch) => {
         if (!ids || (ids && !ids.length)) return;
 
-        dispatch({
+        return dispatch({
             type: ObjectsActionTypes.SET_TRACKS,
             payload: {
                 promise: fetchToJson(SC.getTracks(ids))

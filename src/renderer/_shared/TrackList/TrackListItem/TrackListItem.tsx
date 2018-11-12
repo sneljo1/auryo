@@ -88,7 +88,7 @@ class TrackListItem extends React.PureComponent<AllProps> {
                         <FallbackImage src={SC.getImageUrl(track, IMAGE_SIZES.XSMALL)} />
                         <FallbackImage overflow={true} className='shadow' src={SC.getImageUrl(track, IMAGE_SIZES.XSMALL)} />
                         {
-                            track.streamable || (track.policy && track.policy === 'ALLOW') ? this.renderToggleButton() : null
+                            SC.isStreamable(track) ? this.renderToggleButton() : null
                         }
                     </div>
                 </td>

@@ -49,6 +49,7 @@ export interface ObjectState<T> {
 export const enum ObjectsActionTypes {
     SET = '@@objects/SET',
     UNSET = '@@objects/UNSET',
+    UNSET_TRACK = '@@objects/UNSET_TRACK',
     SET_TRACKS = '@@objects/SET_TRACKS',
     UPDATE_ITEMS = '@@objects/UPDATE_ITEMS',
 }
