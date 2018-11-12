@@ -3,6 +3,7 @@ import { RepeatTypes } from '../player';
 // TYPES
 
 export interface Config extends Object {
+    updatedAt: number;
     token: string | null;
     volume: number;
     repeat: RepeatTypes | null;

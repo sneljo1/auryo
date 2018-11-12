@@ -31,7 +31,7 @@ interface PropsFromDispatch {
 
 type AllProps = Props & PropsFromState & PropsFromDispatch;
 
-class SettingsTab extends React.Component<AllProps, State> {
+class SettingsTab extends React.PureComponent<AllProps, State> {
 
     static defaultProps: Partial<Props> = {
         authenticated: false

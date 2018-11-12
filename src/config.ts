@@ -34,6 +34,7 @@ export const CONFIG = {
     // Config
 
     DEFAULT_CONFIG: {
+        updatedAt: 0,
         lastLogin: null,
         token: process.env.TOKEN ? process.env.TOKEN : null,
         volume: .5,

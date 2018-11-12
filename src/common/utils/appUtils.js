@@ -1,4 +1,5 @@
-/* eslint-disable no-param-reassign */
+import * as _ from 'lodash';
+
 export function truncate(str, length = 50, append = "...", f) {
 
     if (f) {
@@ -21,7 +22,7 @@ export function filter(str) {
 }
 
 export function abbreviate_number(num, fixed) {
-    if (num === null || !num || num === 0) {
+    if (_.isNil(num) || !num || num === 0) {
         return "0";
     } // terminate early
 

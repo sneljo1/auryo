@@ -2,7 +2,7 @@ import { Reducer } from 'redux';
 import { CONFIG } from '../../../config';
 import { PlayerActionTypes } from '../player';
 import { ConfigActionTypes, ConfigState } from './types';
-import _ = require('lodash');
+import * as _ from 'lodash';
 
 const initialState = CONFIG.DEFAULT_CONFIG;
 
@@ -23,10 +23,11 @@ export const configReducer: Reducer<ConfigState> = (state = initialState, action
         case ConfigActionTypes.SET_KEY:
 
             const newConfig = {
-                ...state,
-            };
+                ..._.set(state, payload.key, payload.value),
 
-            _.set(newConfig, payload.key, payload.value);
+                // Otherwise redux connect doesn't correctly re-trigger
+                updatedAt: Date.now()
+            };
 
             return newConfig;
         case PlayerActionTypes.TOGGLE_SHUFFLE:
