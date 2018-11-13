@@ -65,23 +65,16 @@ type AllProps = PropsFromState & PropsFromDispatch;
 
 class Player extends React.Component<AllProps, State>{
 
+    state: State = {
+        nextTime: 0,
+        isSeeking: false,
+        isVolumeSeeking: false,
+        muted: false,
+        offline: false,
+        volume: this.props.volume,
+    };
+
     private audio: Audio | null = null;
-    private debouncedSetVolume: (value: number) => void;
-
-    constructor(props: AllProps) {
-        super(props);
-
-        this.state = {
-            nextTime: 0,
-            isSeeking: false,
-            isVolumeSeeking: false,
-            muted: false,
-            offline: false,
-            volume: this.props.volume,
-        };
-
-        this.debouncedSetVolume = debounce((value: number) => this.props.setConfigKey('volume', value), 100);
-    }
 
     componentDidMount() {
         const { isSeeking } = this.state;
@@ -225,9 +218,6 @@ class Player extends React.Component<AllProps, State>{
             volume,
             isVolumeSeeking: true
         });
-
-        this.debouncedSetVolume(volume);
-
     }
 
     // PLAYER LISTENERS
@@ -386,15 +376,17 @@ class Player extends React.Component<AllProps, State>{
                             <Slider
                                 min={0}
                                 max={1}
-                                value={this.state.volume || volume}
-                                stepSize={0.05}
+                                value={this.state.isVolumeSeeking ? this.state.volume : volume}
+                                stepSize={0.1}
                                 vertical={true}
                                 onChange={this.volumeChange}
                                 labelRenderer={false}
-                                onRelease={() => {
+                                onRelease={(value) => {
                                     this.setState({
                                         isVolumeSeeking: false
                                     });
+
+                                    this.props.setConfigKey('volume', value);
                                 }}
                             />
                         </div>
