@@ -244,13 +244,8 @@ export function fetchChartsIfNeeded(objectId: string, sortType: SortTypes = Sort
 
 export function canFetchPlaylistTracks(playlistId: string): ThunkResult<void> {
     return (_dispatch, getState) => {
-        const {
-            objects
-        } = getState();
 
-        const playlist_objects = objects[ObjectTypes.PLAYLISTS];
-        const playlist_object = playlist_objects[playlistId];
-
+        const playlist_object = getPlaylistObjectSelector(playlistId)(getState());
 
         if (!playlist_object || playlist_object.fetchedItems === playlist_object.items.length || playlist_object.isFetching) {
             return false;

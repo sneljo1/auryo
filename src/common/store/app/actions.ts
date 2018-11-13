@@ -140,6 +140,23 @@ export function initWatchers(): ThunkResult<any> {
                 }
             });
 
+            listeners.push({
+                event: EVENTS.APP.SEND_NOTIFICATION,
+                handler: (_e: string, contents: { title: string; message: string; image: string }) => {
+
+                    const myNotification = new Notification(contents.title, {
+                        body: contents.message,
+                        image: contents.image,
+                        silent: true,
+                    });
+
+                    myNotification.onclick = () => {
+                        ipcRenderer.send(EVENTS.APP.RAISE);
+                    };
+
+                }
+            });
+
             listeners.forEach((l) => {
                 ipcRenderer.on(l.event, l.handler);
             });

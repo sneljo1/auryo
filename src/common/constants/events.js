@@ -15,6 +15,7 @@ export const EVENTS = {
         REPOST: "track/action/repost",
     },
     APP: {
+        SEND_NOTIFICATION: "app/send_notification",
         NAVIGATE: "app/navigate",
         PUSH_NAVIGATION: "app/pus-navigation",
         UPDATE: "app/update",
@@ -25,6 +26,7 @@ export const EVENTS = {
         OPEN_EXTERNAL: "app/open_external",
         WRITE_CLIPBOARD: "app/write_clipboard",
         DOWNLOAD_FILE: "app/download_file",
+        RAISE: "app/raise",
         AUTH: {
             LOGIN: "app/auth/login",
         },

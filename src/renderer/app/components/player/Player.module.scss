@@ -10,9 +10,10 @@
         }
       }
       &.bp3-vertical {
-        height: 100%;
+        height: 130px;
         min-width: 16px;
         width: 16px;
+        min-height: 130px;
       }
       .bp3-slider-track {
         background: rgba($brand-grey-lighter, .3);

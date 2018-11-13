@@ -19,6 +19,7 @@ const FallbackImage = React.memo<Props>(({ overflow, src, className, width, heig
         <LazyImage
             className={className}
             src={src}
+            observerProps={{ rootMargin: '80px 0px' }}
             placeholder={({ ref }: any) => {
                 if (!noPlaceholder) {
                     return (

@@ -13,77 +13,73 @@ import { getPlaylistObjectSelector, getPlaylistType } from '../objects/selectors
 import { addToast } from '../ui';
 import { ChangeTypes, PlayerActionTypes, PlayerStatus, PlayingPositionState, PlayingTrack, RepeatTypes } from './types';
 import { EntitiesState } from '../entities';
-/**
- * Get playlist from ID if needed
- *
- * @param playlistId
- * @param position
- * @returns {function(*, *)}
- */
-export function getPlaylistObject(playlistId: string, position: number): ThunkResult<any> {
-    return (dispatch, getState) => {
-
-        const {
-            player: {
-                containsPlaylists
-            }
-        } = getState();
-
-        const playlistObject = getPlaylistObjectSelector(playlistId)(getState());
-
-        if (!playlistObject) {
-
-            return dispatch<Promise<any>>(fetchPlaylistIfNeeded(+playlistId))
-                .then((result: any) => {
-
-                    const current_playlist = getPlaylistObjectSelector(playlistId)(getState());
-                    const current_playlist_ent = getPlaylistEntity(+playlistId)(getState());
-
-                    if (current_playlist) {
-                        if (
-                            current_playlist_ent && !current_playlist.isFetching &&
-                            (current_playlist.items.length === 0 && current_playlist_ent.duration === 0 ||
-                                current_playlist_ent.track_count === 0)
-                        ) {
-                            throw new Error('This playlist is empty or not available via a third party!');
-                        }
-
-                        // Try and fetch all playlist tracks
-                        if (current_playlist.fetchedItems < current_playlist.items.length) {
-                            dispatch(fetchPlaylistTracks(+playlistId, 50));
-                        }
-                    }
-
-                    return result;
-                });
-        }
-
-        const playlist = containsPlaylists.find((p) => position > p.start && position < p.end);
-
-        if (playlist) {
-            const queuePlaylistObject = getPlaylistObjectSelector(playlist.id.toString())(getState());
-
-            if (queuePlaylistObject) {
-                /**
-                 * If amount of fetched items - 25 is in the visible queue, fetch more tracks
-                 */
-                if (position > (playlist.start + queuePlaylistObject.fetchedItems - 25) && !queuePlaylistObject.isFetching) {
-                    dispatch(fetchPlaylistTracks(playlist.id, 50));
-                }
-            }
-        }
-
-
-        return Promise.resolve();
-
-
-    };
-}
 
 export const setCurrentTime = (time: number) => action(PlayerActionTypes.SET_TIME, { time });
 export const setDuration = (time: number) => action(PlayerActionTypes.SET_DURATION, { time });
 export const toggleShuffle = (value: boolean) => action(PlayerActionTypes.TOGGLE_SHUFFLE, { value });
 export const clearUpNext = () => action(PlayerActionTypes.CLEAR_UP_NEXT);
+
+
+export function getPlaylistObject(playlistId: string, position: number): ThunkResult<Promise<any>> {
+    return async (dispatch, getState) => {
+
+        const state = getState();
+
+        const {
+            player: {
+                containsPlaylists
+            }
+        } = state;
+
+        try {
+            const playlistObject = getPlaylistObjectSelector(playlistId)(state);
+
+            if (!playlistObject) {
+
+                const result: any = await dispatch<Promise<any>>(fetchPlaylistIfNeeded(+playlistId));
+
+                const currentPlaylistObject = getPlaylistObjectSelector(playlistId)(state);
+                const currentPlaylistEntity = getPlaylistEntity(+playlistId)(state);
+
+                if (currentPlaylistObject) {
+                    if (
+                        currentPlaylistEntity && !currentPlaylistObject.isFetching &&
+                        (currentPlaylistObject.items.length === 0 && currentPlaylistEntity.duration === 0 ||
+                            currentPlaylistEntity.track_count === 0)
+                    ) {
+                        throw new Error('This playlist is empty or not available via a third party!');
+                    }
+
+                    // Fetch more tracks
+                    if (currentPlaylistObject.fetchedItems < currentPlaylistObject.items.length) {
+                        dispatch(fetchPlaylistTracks(+playlistId, 50));
+                    }
+                }
+
+                return result;
+            }
+
+            const playlistInQueue = containsPlaylists.find((p) => position > p.start && position < p.end);
+
+            if (playlistInQueue) {
+                const queuePlaylistObject = getPlaylistObjectSelector(playlistInQueue.id.toString())(state);
+
+                if (queuePlaylistObject) {
+                    /**
+                     * If amount of fetched items - 25 is in the visible queue, fetch more tracks
+                     */
+                    if (position > (playlistInQueue.start + queuePlaylistObject.fetchedItems - 25) && !queuePlaylistObject.isFetching) {
+                        dispatch(fetchPlaylistTracks(playlistInQueue.id, 50));
+                    }
+                }
+            }
+
+        } catch (err) {
+            throw err;
+        }
+
+    };
+}
 
 export function toggleStatus(newStatus?: PlayerStatus): ThunkResult<void> {
     return (dispatch, getState) => {
@@ -175,8 +171,12 @@ export function setCurrentPlaylist(playlistId: string, nextTrack: PlayingTrack |
 
 export type ProcessedQueueItems = [Array<PlayingTrack>, Array<PlayingTrack>];
 
-// tslint:disable-next-line:max-line-length
-export function processQueueItems(result: Array<NormalizedResult>, keepFirst: boolean = false, newPlaylistId?: string): ThunkResult<Promise<ProcessedQueueItems>> {
+export function processQueueItems(
+    result: Array<NormalizedResult>,
+    keepFirst: boolean = false,
+    newPlaylistId?: string
+): ThunkResult<Promise<ProcessedQueueItems>> {
+
     return async (dispatch, getState) => {
 
         try {
@@ -198,17 +198,7 @@ export function processQueueItems(result: Array<NormalizedResult>, keepFirst: bo
 
                         if (!playlistObject) {
 
-                            dispatch({
-                                type: ObjectsActionTypes.SET,
-                                payload: {
-                                    objectId: id,
-                                    objectType: ObjectTypes.PLAYLISTS,
-                                    result: playlist.tracks,
-                                    fetchedItems: 0
-                                }
-                            });
-
-                            dispatch<Promise<any>>(fetchPlaylistTracks(id, 50) as any);
+                            dispatch(fetchPlaylistIfNeeded(id));
 
                         } else {
                             return playlistObject.items.map((trackIdResult): PlayingTrack | null => {
@@ -488,7 +478,7 @@ export function getItemsAround(position: number): ThunkResult<Promise<void>> {
 interface Next { id: number; playlistId?: string; }
 
 export function playTrack(playlistId: string, next: Next, force_set_playlist: boolean = false, changeType?: ChangeTypes): ThunkResult<any> {
-    return (dispatch, getState) => {
+    return async (dispatch, getState) => {
 
         const {
             player: {
@@ -506,104 +496,93 @@ export function playTrack(playlistId: string, next: Next, force_set_playlist: bo
          * If playlist isn't current, set current & add items to queue
          */
 
-        let promise: Promise<any> = Promise.resolve();
-
         if (currentPlaylistId !== playlistId || force_set_playlist) {
-            promise = dispatch<Promise<any>>(setCurrentPlaylist(playlistId, force_set_playlist && nextTrack ? nextTrack : null));
+            await dispatch<Promise<any>>(setCurrentPlaylist(playlistId, force_set_playlist && nextTrack ? nextTrack : null));
         }
 
-        promise.then(() => {
-            const {
-                player: {
-                    queue,
-                    playingTrack
-                }
-            } = getState();
+        const state = getState();
+        const {
+            player: {
+                queue
+            }
+        } = state;
 
-            let position = getCurrentPosition({ queue, playingTrack });
+        let position = getCurrentPosition({ queue, playingTrack: nextTrack });
 
-            position = (typeof force_set_playlist === 'number' ? force_set_playlist : undefined)
-                || getCurrentPosition({ queue, playingTrack: nextTrack });
+        if (position !== -1) {
+            dispatch(getItemsAround(position));
+        }
 
-            if (position !== -1) {
-                dispatch(getItemsAround(position));
+        // We know the id, just set the track
+        if (nextTrack.id) {
+            const trackPlaylistObject = getPlaylistObjectSelector(playlistId)(state);
+
+            if (trackPlaylistObject && position + 10 >= queue.length && trackPlaylistObject.nextUrl) {
+                await dispatch<Promise<any>>(fetchMore(playlistId, ObjectTypes.PLAYLISTS));
             }
 
-            if (nextTrack.id) {
-                const trackPlaylistObject = getPlaylistObjectSelector(playlistId)(getState());
+            dispatch(setPlayingTrack(nextTrack, position, changeType));
 
-                if (trackPlaylistObject && position + 10 >= queue.length && trackPlaylistObject.nextUrl) {
-                    dispatch<Promise<any>>(fetchMore(playlistId, ObjectTypes.PLAYLISTS))
-                        .then(() => {
-                            dispatch(setPlayingTrack(nextTrack, position, changeType));
-                        });
-                } else {
+            // No id is given, this means we want to play a playlist
+        } else if (!nextTrack.id) {
 
-                    dispatch(setPlayingTrack(nextTrack, position, changeType));
-                }
+            const trackPlaylistObject = getPlaylistObjectSelector(nextTrack.playlistId)(state);
+            const playlistEntitity = getPlaylistEntity(+nextTrack.playlistId)(state);
 
+            if (!trackPlaylistObject) {
 
-            } else if (!nextTrack.id) {
+                if (playlistEntitity && playlistEntitity.track_count > 0) {
 
-                const trackPlaylistObject = getPlaylistObjectSelector(nextTrack.playlistId)(getState());
-                const playlistEntitity = getPlaylistEntity(+nextTrack.playlistId)(getState());
+                    await dispatch<Promise<any>>(getPlaylistObject(nextTrack.playlistId, 0));
 
-                if (!trackPlaylistObject) {
-
-                    if (playlistEntitity && playlistEntitity.track_count > 0) {
-
-                        dispatch<Promise<any>>(getPlaylistObject(nextTrack.playlistId, 0))
-                            .then(() => {
-                                const {
-                                    player: {
-                                        queue
-                                    }
-                                } = getState();
-
-                                const playlistObject = getPlaylistObjectSelector(nextTrack.playlistId)(getState());
-
-                                if (playlistObject) {
-                                    const { items: [firstItem] } = playlistObject;
-
-                                    nextTrack.id = firstItem.id;
-
-                                    const position = getCurrentPosition({ queue, playingTrack: nextTrack });
-
-                                    dispatch(setPlayingTrack(nextTrack, position, changeType));
-                                }
-
-                            });
-                    }
-
-                } else {
-
-                    const { items: [firstItem] } = trackPlaylistObject;
-
-                    if (
-                        playlistEntitity &&
-                        !trackPlaylistObject.isFetching &&
-                        !trackPlaylistObject.items.length &&
-                        playlistEntitity.track_count !== 0
-                    ) {
-                        throw new Error('This playlist is empty or not available via a third party!');
-                    } else {
-                        // If queue doesn't contain playlist yet
-
-                        if (force_set_playlist) {
-                            nextTrack.id = firstItem.id;
+                    const {
+                        player: {
+                            queue
                         }
+                    } = getState();
 
-                        position = getCurrentPosition({ queue, playingTrack: nextTrack });
+                    const playlistObject = getPlaylistObjectSelector(nextTrack.playlistId)(getState());
+
+                    if (playlistObject) {
+                        const { items: [firstItem] } = playlistObject;
+
+                        nextTrack.id = firstItem.id;
+
+                        const position = getCurrentPosition({ queue, playingTrack: nextTrack });
 
                         dispatch(setPlayingTrack(nextTrack, position, changeType));
-
                     }
                 }
 
+            } else {
+
+                const { items: [firstItem] } = trackPlaylistObject;
+
+                if (
+                    playlistEntitity &&
+                    !trackPlaylistObject.isFetching &&
+                    !trackPlaylistObject.items.length &&
+                    playlistEntitity.track_count !== 0
+                ) {
+                    throw new Error('This playlist is empty or not available via a third party!');
+                } else {
+                    // If queue doesn't contain playlist yet
+
+                    if (force_set_playlist) {
+                        nextTrack.id = firstItem.id;
+                    }
+
+                    position = getCurrentPosition({ queue, playingTrack: nextTrack });
+
+                    dispatch(setPlayingTrack(nextTrack, position, changeType));
+
+                }
             }
 
-            ipcRenderer.send(EVENTS.PLAYER.STATUS_CHANGED);
-        });
+        }
+
+        ipcRenderer.send(EVENTS.PLAYER.STATUS_CHANGED);
+
 
     };
 }

@@ -8,7 +8,7 @@ import { IMAGE_SIZES } from '../../../common/constants';
 import { StoreState } from '../../../common/store';
 import { AuthState } from '../../../common/store/auth';
 import { getPlaylistEntity } from '../../../common/store/entities/selectors';
-import { canFetchPlaylistTracks, fetchPlaylistIfNeeded, fetchPlaylistTracks, ObjectState } from '../../../common/store/objects';
+import { fetchPlaylistIfNeeded, fetchPlaylistTracks, ObjectState } from '../../../common/store/objects';
 import { getPlaylistObjectSelector } from '../../../common/store/objects/selectors';
 import { addUpNext, PlayerStatus, playTrack, toggleStatus } from '../../../common/store/player';
 import { toggleLike, toggleRepost } from '../../../common/store/track/actions';
@@ -46,7 +46,6 @@ interface PropsFromDispatch {
     toggleRepost: typeof toggleRepost;
     fetchPlaylistIfNeeded: typeof fetchPlaylistIfNeeded;
     fetchPlaylistTracks: typeof fetchPlaylistTracks;
-    canFetchPlaylistTracks: typeof canFetchPlaylistTracks;
     addUpNext: typeof addUpNext;
     toggleStatus: typeof toggleStatus;
 }
@@ -132,7 +131,6 @@ class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
             toggleLike,
             toggleRepost,
             fetchPlaylistTracks,
-            canFetchPlaylistTracks,
             addUpNext
         } = this.props;
 
@@ -154,17 +152,15 @@ class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
         return (
             <CustomScroll
                 heightRelativeToParent='100%'
-                // heightMargin={35}
                 allowOuterScroll={true}
                 threshold={300}
                 isFetching={playlistObject.isFetching}
                 ref={(r) => this.scroll = r}
                 loadMore={() => {
-                    fetchPlaylistTracks(playlistIdParam);
+                    fetchPlaylistTracks(playlistIdParam, 30);
                 }}
                 loader={<Spinner />}
                 onScroll={this.debouncedOnScroll}
-                hasMore={canFetchPlaylistTracks(playlistIdParam.toString())}
             >
 
                 <Header
@@ -296,7 +292,7 @@ class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
                         </div>
                     ) : (
                             <TracksGrid
-                                items={playlistObject.items}
+                                items={playlistObject.items.slice(0, playlistObject.fetchedItems)}
                                 objectId={playlistIdParam.toString()}
                             />
 
@@ -332,7 +328,6 @@ const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, OwnProps> = (dis
     toggleRepost,
     fetchPlaylistIfNeeded,
     fetchPlaylistTracks,
-    canFetchPlaylistTracks,
     addUpNext,
     toggleStatus,
 }, dispatch);

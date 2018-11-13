@@ -277,7 +277,7 @@ class ArtistPage extends WithHeaderComponent<AllProps, State> {
                                     me && artistIdParam !== me.id ? (
                                         <a
                                             href='javascript:void(0)'
-                                            className={cn('c_btn', { following })}
+                                            className={cn('c_btn', { liked: following })}
                                             onClick={() => {
                                                 this.toggleFollow();
                                             }}
