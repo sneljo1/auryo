@@ -151,18 +151,15 @@ class Player extends React.Component<AllProps, State>{
 
     toggleMute = () => {
         const { muted } = this.state;
-        const { volume } = this.props;
 
-        const new_muted_state = !muted;
-
-        if (!new_muted_state && volume === 0) {
+        if (muted) {
             this.volumeChange(.5);
         } else {
             this.volumeChange(0);
         }
 
         this.setState({
-            muted: new_muted_state
+            muted: !muted
         });
     }
 
@@ -215,6 +212,7 @@ class Player extends React.Component<AllProps, State>{
     volumeChange = (volume: number) => {
         this.setState({
             volume,
+            muted: false,
             isVolumeSeeking: true
         });
     }
