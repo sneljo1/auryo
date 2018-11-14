@@ -34,9 +34,11 @@ app.on('activate', () => {
 
 // This method will be called when Electron has done everything
 // initialization and ready for creating browser windows.
-app.on('ready', () => {
+app.on('ready', async () => {
   if (process.env.NODE_ENV === 'development') {
-    Utils.installExtensions();
+    const { default: installExtension, REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } = require('electron-devtools-installer');
+
+    await installExtension([REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS], true);
   }
 
   auryo.start();

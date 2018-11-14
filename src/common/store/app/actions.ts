@@ -146,7 +146,7 @@ export function initWatchers(): ThunkResult<any> {
 
                     const myNotification = new Notification(contents.title, {
                         body: contents.message,
-                        image: contents.image,
+                        icon: contents.image,
                         silent: true,
                     });
 

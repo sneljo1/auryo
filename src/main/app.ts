@@ -12,12 +12,6 @@ import Feature from './features/feature';
 import { Logger } from './utils/logger';
 import { Utils } from './utils/utils';
 
-if (process.env.NODE_ENV === 'development') {
-  require('electron-debug')(); // eslint-disable-line global-require
-  const p = path.join(__dirname, '..', 'app', 'node_modules'); // eslint-disable-line
-  require('module').globalPaths.push(p); // eslint-disable-line
-}
-
 const logosPath = process.env.NODE_ENV === 'development' ?
   path.resolve(__dirname, '..', '..', '..', 'assets', 'img', 'logos') :
   path.resolve(__dirname, './assets/img/logos');

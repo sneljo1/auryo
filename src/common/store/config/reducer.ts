@@ -23,11 +23,12 @@ export const configReducer: Reducer<ConfigState> = (state = initialState, action
         case ConfigActionTypes.SET_KEY:
 
             const newConfig = {
-                ..._.set(state, payload.key, payload.value),
-
+                ...state,
                 // Otherwise redux connect doesn't correctly re-trigger
                 updatedAt: Date.now()
             };
+
+            _.set(newConfig, payload.key, payload.value);
 
             return newConfig;
         case PlayerActionTypes.TOGGLE_SHUFFLE:

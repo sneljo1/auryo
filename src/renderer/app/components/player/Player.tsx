@@ -1,7 +1,6 @@
-import { Intent, Tag, Slider } from '@blueprintjs/core';
+import { Intent, Slider, Tag } from '@blueprintjs/core';
 import cn from 'classnames';
 import { IpcMessageEvent, ipcRenderer } from 'electron';
-import { debounce } from 'lodash';
 import * as moment from 'moment';
 import * as React from 'react';
 import * as isDeepEqual from 'react-fast-compare';
@@ -11,6 +10,7 @@ import { IMAGE_SIZES } from '../../../../common/constants';
 import { EVENTS } from '../../../../common/constants/events';
 import { StoreState } from '../../../../common/store';
 import { RemainingPlays } from '../../../../common/store/app';
+import { hasLiked } from '../../../../common/store/auth/selectors';
 import { setConfigKey } from '../../../../common/store/config';
 import { getTrackEntity } from '../../../../common/store/entities/selectors';
 import {
@@ -18,16 +18,15 @@ import {
     ChangeTypes,
     PlayerState, PlayerStatus, registerPlay, RepeatTypes, setCurrentTime, setDuration, toggleShuffle, toggleStatus
 } from '../../../../common/store/player';
+import { toggleLike } from '../../../../common/store/track/actions';
 import { addToast, toggleQueue } from '../../../../common/store/ui';
 import { getReadableTime, SC } from '../../../../common/utils';
 import { SoundCloud } from '../../../../types';
+import FallbackImage from '../../../_shared/FallbackImage';
 import Audio from './components/Audio';
 import PlayerControls from './components/PlayerControls/PlayerControls';
 import TrackInfo from './components/TrackInfo/TrackInfo';
 import * as styles from './Player.module.scss';
-import FallbackImage from '../../../_shared/FallbackImage';
-import { toggleLike } from '../../../../common/store/track/actions';
-import { hasLiked } from '../../../../common/store/auth/selectors';
 
 interface PropsFromState {
     player: PlayerState;
@@ -71,7 +70,7 @@ class Player extends React.Component<AllProps, State>{
         isVolumeSeeking: false,
         muted: false,
         offline: false,
-        volume: this.props.volume,
+        volume: 0,
     };
 
     private audio: Audio | null = null;
@@ -376,7 +375,7 @@ class Player extends React.Component<AllProps, State>{
                             <Slider
                                 min={0}
                                 max={1}
-                                value={this.state.isVolumeSeeking ? this.state.volume : volume}
+                                value={volume}
                                 stepSize={0.1}
                                 vertical={true}
                                 onChange={this.volumeChange}

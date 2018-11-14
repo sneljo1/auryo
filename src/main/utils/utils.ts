@@ -18,10 +18,4 @@ export class Utils {
 
     return options;
   }
-
-  static async installExtensions() {
-    const { default: installExtension, REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } = require('electron-devtools-installer');
-
-    await installExtension([REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS], true);
-  }
 }
