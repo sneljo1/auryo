@@ -65,6 +65,7 @@
     "@types/react-window": "^1.1.0",
     "@types/reactstrap": "^6.4.2",
     "@types/redux-logger": "^3.0.6",
+    "@types/semver": "^5.5.0",
     "@types/sinon": "^5.0.5",
     "@types/socket.io-client": "^1.4.32",
     "@types/source-map-support": "^0.4.1",
@@ -146,6 +147,7 @@
     "@sentry/browser": "^4.2.4",
     "@sentry/electron": "^0.12.1",
     "@sentry/node": "^4.2.4",
+    "@types/electron-store": "^1.3.0",
     "autolinker": "Superjo149/Autolinker.js",
     "bootstrap": "^4.1.3",
     "boxicons": "^1.7.1",
@@ -155,7 +157,7 @@
     "electron-dl": "^1.12.0",
     "electron-is": "^3.0.0",
     "electron-localshortcut": "^3.1.0",
-    "electron-settings": "^3.2.0",
+    "electron-store": "^2.0.0",
     "electron-updater": "^3.2.0",
     "electron-window-state": "^5.0.1",
     "history": "^4.7.2",
@@ -201,9 +203,9 @@
     "@nodert-win10/windows.media": "^0.2.95",
     "@nodert-win10/windows.media.playback": "^0.2.95",
     "@nodert-win10/windows.storage.streams": "^0.2.95",
+    "dbus": "GPMDP/node-dbus#linux-only",
     "electron-media-service": "^0.2.2",
-    "mpris-service": "GPMDP/mpris-service",
-    "dbus": "GPMDP/node-dbus#linux-only"
+    "mpris-service": "GPMDP/mpris-service"
   },
   "build": {
     "generateUpdatesFilesForAllChannels": true,

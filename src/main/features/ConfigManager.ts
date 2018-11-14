@@ -2,6 +2,7 @@ import { app, session } from 'electron';
 import * as _ from 'lodash';
 import { show } from 'redux-modal';
 import * as semver from 'semver';
+import * as isDeepEqual from 'react-fast-compare';
 import { CONFIG } from '../../config';
 import { EVENTS } from '../../common/constants/events';
 import { canGoInHistory } from '../../common/store/app/actions';
@@ -26,15 +27,16 @@ export default class ConfigManager extends Feature {
     super(auryo);
 
     this.writetoConfig = _.debounce((config) => {
-      if (!_.isEqual(settings.getAll(), config)) {
-        settings.setAll(config);
+      if (!isDeepEqual(settings.store, config)) {
+        settings.set(config);
       }
     }, 250);
   }
 
   register() {
+
     try {
-      this.config = settings.getAll() as any;
+      this.config = settings.store as any;
     } catch (e) {
       this.config = CONFIG.DEFAULT_CONFIG;
     }

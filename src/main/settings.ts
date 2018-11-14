@@ -1,5 +1,5 @@
-import * as ElectronSettings from 'electron-settings';
+import Store = require('electron-store');
 import { MockSettings } from './mockSettings';
-import { Settings } from './settings.interface';
+import { ConfigState } from '../common/store/config';
 
-export const settings: Settings = !process.env.TOKEN ? ElectronSettings : new MockSettings() as any;
+export const settings: Store<ConfigState> = !process.env.TOKEN ? new Store({ name: 'Settings', fileExtension: '' }) : new MockSettings() as any;
