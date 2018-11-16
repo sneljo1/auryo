@@ -1,6 +1,6 @@
 # Development getting started
 
-**Note: if you have questions related to contributing, please visit the [gitter chart](https://gitter.im/auryoapp-/Lobby). I will not teach you how to write code, but I can show you how to get started developing new features on Auryo**
+**Note: if you have questions related to contributing, please visit the [gitter chat](https://gitter.im/auryoapp-/Lobby). I will not teach you how to write code, but I can show you how to get started developing new features on Auryo**
 
 This app is made with [React](https://reactjs.org/), [Redux](https://redux.js.org), [Electron](electronjs.org). The structure of is app is as follow. We're using redux as our state store with [redux-electron-store](https://github.com/samiskin/redux-electron-store) to sync the state between the main and the renderer window. Because we need shared logic for this (reducers, actions, selectors), the project is setup into 3 main folders.
 
