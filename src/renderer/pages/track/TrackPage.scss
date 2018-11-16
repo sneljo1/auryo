@@ -18,7 +18,6 @@
 .trackDetails {
   background: #f7f7f7;
   padding-top: 1rem;
-
   .track-info {
     color: #6c757d;
     font-size: 1rem;
@@ -29,7 +28,6 @@
       display: inline-block;
     }
   }
-
   .taglist {
     .badge {
       background: $brand-grey-lighter;
@@ -37,11 +35,10 @@
       margin-bottom: .2rem
     }
   }
-
-  .trackHeader, .tracktabs {
+  .trackHeader,
+  .tracktabs {
     flex-shrink: 0;
   }
-
   .trackPadding {
     padding: 20px 40px;
   }
@@ -51,19 +48,17 @@
   .track-comments {
     padding: 20px 40px;
   }
-
   .trackDescription {
     color: #3a3e43;
     background: #fbfbfb;
     padding: 2rem;
     border-radius: 1rem;
     margin-bottom: 2rem;
-
+    user-select: text;
     .descriptionInner.cut {
       max-height: 200px;
       overflow: hidden;
     }
-
     &.isOpen {
       max-height: 500px;
     }
@@ -71,5 +66,4 @@
   .user_card_wrap {
     flex-grow: 0;
   }
-
 }

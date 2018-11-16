@@ -140,20 +140,38 @@ class TrackGridItem extends React.Component<AllProps> {
 
         if (!track || !track.user) return null;
 
+        const isLiked = track.type && track.type.indexOf('like') !== -1;
+
         return (
             <div className='trackFooter d-flex justify-content-between align-items-center'>
                 <div className='trackStats'>
                     {
-                        showInfo ? (<div>
-                            <div className='stat'>
-                                <i className='bx bxs-heart' />
-                                <span>{abbreviate_number(track.likes_count)}</span>
-                            </div>
-                            <div className='stat'>
-                                <i className='bx bx-repost' />
-                                <span>{abbreviate_number(track.reposts_count)}</span>
-                            </div>
-                        </div>) : null
+                        showInfo ? (
+                            <>
+                                <div className='stat'>
+                                    <i className='bx bxs-heart' />
+                                    <span>{abbreviate_number(track.likes_count)}</span>
+                                </div>
+                                <div className='stat'>
+                                    <i className='bx bx-repost' />
+                                    <span>{abbreviate_number(track.reposts_count)}</span>
+                                </div>
+                            </>
+                        ) : null
+                    }
+                    {
+                        isLiked && (
+                            <><span className='stat'><i className='bx bxs-heart text-danger' /> Liked</span></>
+                        )
+                    }
+
+                    {
+                        !showInfo && !isLiked && (
+                            <><span className='stat'>
+                                <i className={`bx bx-${track.sharing === 'public' ? 'lock-open' : 'lock'}`} />
+                                {track.sharing === 'public' ? 'Public' : 'Private'}</span>
+                            </>
+                        )
                     }
                 </div>
 
@@ -179,25 +197,6 @@ class TrackGridItem extends React.Component<AllProps> {
         if (!track) return null;
 
         const object_url = (track.kind === 'playlist' ? '/playlist/' : '/track/') + track.id;
-
-        // TODO check if liked playlists still work
-        if (track.type && track.type.indexOf('like') !== -1) {
-            return (
-                <div className='trackInfo flex align-items-center'>
-                    <i className='bx bxs-heart' />
-                    <div>
-                        <div className='trackTitle'>
-                            <Link to={object_url}>
-                                <TextShortener text={track.title} />
-                            </Link>
-                        </div>
-                        {
-                            this.renderArtist()
-                        }
-                    </div>
-                </div>
-            );
-        }
 
         return (
             <div className='trackInfo'>

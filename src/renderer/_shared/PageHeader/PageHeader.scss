@@ -1,5 +1,4 @@
 @import "../../css/bootstrap.imports.scss";
-
 .page-header {
   padding: 20px 20px 15px 40px;
   h2 {
@@ -83,6 +82,7 @@
     }
     h2 {
       color: #fff;
+      user-select: text;
     }
     .header-content {
       position: relative;
