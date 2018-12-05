@@ -1,8 +1,15 @@
 # Development getting started
 
-This app is made with [React](https://reactjs.org/), [Redux](https://redux.js.org), [Electron](electronjs.org). The structure of this app is based on [chentsulin/electron-react-boilerplate](https://github.com/chentsulin/electron-react-boilerplate) with some adjustments.
+**Note: if you have questions related to contributing, please visit the [gitter chat](https://gitter.im/auryoapp-/Lobby). I will not teach you how to write code, but I can show you how to get started developing new features on Auryo**
 
-We're using redux as our state store with [redux-electron-store](https://github.com/samiskin/redux-electron-store) to sync the state between the main and the renderer window. Because of this, the app is structured into 3 main folders: `main, `renderer` and `shared`because we want to have access in both the renderer and the main process to our reducers and actions.
+This app is made with [React](https://reactjs.org/), [Redux](https://redux.js.org), [Electron](electronjs.org). The structure of is app is as follow. We're using redux as our state store with [redux-electron-store](https://github.com/samiskin/redux-electron-store) to sync the state between the main and the renderer window. Because we need shared logic for this (reducers, actions, selectors), the project is setup into 3 main folders.
+
+```
+src/
+   common/   --> Shared logic between main & renderer process 
+   main/     --> Main electron process, similar to using node
+   renderer/ --> React app
+```
 
 ## Requirements
 
@@ -10,16 +17,18 @@ We're using redux as our state store with [redux-electron-store](https://github.
 * [Node.js](http://nodejs.org/) >8.10 - Application is written in nodejs
 
 ## Cloning
-
-First you have to clone the main Auryo repository.
+You are going to need 2 different repos, 1 for the app and 1 for authenticating (locally). Let's start by cloning the main auryo repository.
 
 ```sh
 git clone https://github.com/Superjo149/auryo.git
 ```
-After that, clone the authentication redirect server. Since soundcloud uses OAuth2, we have to have a callback url somewhere. This server will catch the token and send it via websockets to your local app. The reason for having a seperate local server is that we have 2 APP keys. One for development and one for production.
+
+After that, we clone the authentication redirect server. Since soundcloud uses OAuth2, we have to have a callback url somewhere. This server will catch the token and send it via websockets to your local app. The reason for having a seperate local server is that we have 2 APP keys. One for development and one for production. 
+
 ```sh
 git clone https://github.com/auryo/auryo-auth.git
 ```
+You will not have to worry about any configuration here, just insert the correct environment variables and you are good to go.
 
 ## Running and debugging
 
@@ -49,9 +58,10 @@ yarn start
 cd auryo
 ```
 #### Env keys
-You need to have following env keys in a the `src/.env.development` file.
+You need to have following env keys in a the `.env.development` file in the root of your project.
 
 PLEASE, do not give away these keys or use these keys for anything other than developing on Auryo. We do not want our local development keys to be rate limited. Also, please be advised, using the SoundCloud API, you must adhere to their [API Terms & Conditions](https://developers.soundcloud.com/docs/api/terms-of-use).
+
 ```sh
 CLIENT_ID=QtBpvKhqS08MxQKeRNRaCsUmX9AMWsdP
 CLIENT_SECRET=4rdSkIwtjbt2VC4cxHyjjVjxryTBJBCB
@@ -67,9 +77,9 @@ yarn run dev
 ```
 
 ## Testing
-The only tests which are being run are e2e tests. I never imaged Auryo getting this big, so I've not added any other tests.
+The only tests which are being run are e2e tests. I never imaged Auryo getting this big, so I've not added any other tests (yet).
 ### End-2-End testing
-For local end-2-end testing, you will need to have a valid SoundCloud login in your env vars. End-2-end testing is done using [Spectron](https://github.com/electron/spectron). Since Spectron's latest npm release is a bit outdated and doesn't support Electron v2, we're using the spectron directly from github.
+For local end-2-end testing, you will need to have a valid SoundCloud login in your env vars. End-2-end testing is done using [Spectron](https://github.com/electron/spectron).
 
 **Note: if you changed anything, before testing, always build first**
 
