@@ -166,13 +166,14 @@ class TrackGridItem extends React.Component<AllProps> {
                     }
 
                     {
-                        !showInfo && !isLiked && (
-                            <><span className='stat'>
-                                <i className={`bx bx-${track.sharing === 'public' ? 'lock-open' : 'lock'}`} />
-                                {track.sharing === 'public' ? 'Public' : 'Private'}</span>
-                            </>
-                        )
+                        // !showInfo && !isLiked && track.kind === 'playlist' && (
+                        //     <><span className='stat'>
+                        //         <i className={`bx bx-${track.sharing === 'public' ? 'lock-open' : 'lock'}`} />
+                        //         {track.sharing === 'public' ? 'Public' : 'Private'}</span>
+                        //     </>
+                        // )
                     }
+
                 </div>
 
                 <div>
