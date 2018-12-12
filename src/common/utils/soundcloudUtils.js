@@ -337,6 +337,7 @@ export function getImageUrl(track, size = null) {
 export function hasID(id, object) {
     return object && object[id] && object[id] === true;
 }
+
 export function isStreamable(track) {
-    return track.streamable && (!track.policy || (track.policy && track.policy === 'ALLOW'));
+    return track.streamable === true;
 }
