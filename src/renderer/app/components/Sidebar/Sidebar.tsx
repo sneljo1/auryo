@@ -36,6 +36,11 @@ const SideBar = React.memo<AllProps>(({ items }) => (
                             Charts
                         </NavLink>
                     </li>
+                    <li className='navItem'>
+                        <NavLink exact={true} to='/foryou' className='navLink' activeClassName='active'>
+                            For you
+                        </NavLink>
+                    </li>
                 </ul>
 
                 <h2>Me</h2>

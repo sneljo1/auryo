@@ -1,0 +1,56 @@
+@import '../../css/bootstrap.imports.scss';
+.subtitle {
+  color: rgb(118, 124, 137);
+  font-weight: 600;
+  font-size: 1rem;
+  margin: 0px;
+}
+
+.container {
+  padding: 2rem;
+  &>.playlists {
+    .showMore {
+      display: none;
+    }
+  }
+  :global(div:not(:first-of-type)) {
+    .header {
+      margin-top: 3rem;
+    }
+  }
+}
+
+.header {
+  color: rgb(34, 35, 38);
+  margin-bottom: 0.3rem;
+}
+
+.playlists {
+  padding: 1rem 0;
+}
+
+.showMore {
+  background: white;
+  color: #1a97ea !important;
+  border-radius: 100%;
+  box-shadow: 0 10px 60px rgba(0, 0, 0, 0.03), 0 6px 50px rgba(0, 0, 0, 0.1);
+  transition: .5s box-shadow;
+  display: flex;
+  align-items: center;
+  width: 30px;
+  justify-content: center;
+  height: 30px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  border: 1px solid #e4e4e4;
+
+  i {
+    font-size: 1.5rem;
+  }
+  &:hover {
+    box-shadow: 0 10px 60px rgba(0, 0, 0, 0.08), 0 6px 50px rgba(0, 0, 0, 0.25);
+    transition: .5s box-shadow;
+  }
+}

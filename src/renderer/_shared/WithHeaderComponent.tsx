@@ -33,7 +33,9 @@ class WithHeaderComponent<P extends Props, S extends State> extends React.Compon
         const { previousScrollTop } = this.props;
 
         if (previousScrollTop && this.scroll) {
-            this.scroll.updateScrollPosition(previousScrollTop);
+            requestAnimationFrame(() => {
+                this.scroll!.updateScrollPosition(previousScrollTop);
+            });
         }
     }
 

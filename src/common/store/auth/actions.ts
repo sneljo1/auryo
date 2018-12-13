@@ -12,7 +12,8 @@ import { AuthActionTypes } from './types';
 import { ObjectTypes, PlaylistTypes } from '../objects';
 import fetchPlaylists from '../../api/fetchPlaylists';
 import { replace } from 'connected-react-router';
-import { getPlaylistObjectSelector } from '../objects/selectors';
+import { getPlaylistObjectSelector, getPlaylistName } from '../objects/selectors';
+import fetchPersonalised from '../../api/fetchPersonalised';
 
 export function logout(): ThunkResult<void> {
     return (dispatch) => {
@@ -206,4 +207,46 @@ export function getAuthPlaylists(): ThunkResult<any> {
                 })
         }
     });
+}
+
+export function fetchPersonalizedPlaylistsIfNeeded(): ThunkResult<void> {
+    return (dispatch, getState) => {
+        const { auth: { personalizedPlaylists } } = getState();
+
+        if (!personalizedPlaylists.items && !personalizedPlaylists.loading) {
+            dispatch<Promise<any>>({
+                type: AuthActionTypes.SET_PERSONALIZED_PLAYLISTS,
+                payload: {
+                    promise: fetchPersonalised(SC.getPersonalizedurl())
+                        .then(({ normalized, json }) => {
+
+                            normalized.result.forEach((playlistResult) => {
+
+                                (playlistResult.system_playlists || []).forEach((playlistId) => {
+                                    if (normalized.entities.playlistEntities && normalized.entities.playlistEntities[playlistId]) {
+                                        const playlist = normalized.entities.playlistEntities[playlistId];
+
+                                        dispatch(setObject(
+                                            playlistId.toString(),
+                                            ObjectTypes.PLAYLISTS,
+                                            {},
+                                            playlist.tracks,
+                                            null,
+                                            null,
+                                            0
+                                        ));
+                                    }
+                                });
+
+                            });
+
+                            return {
+                                entities: normalized.entities,
+                                items: normalized.result
+                            };
+                        })
+                }
+            } as any);
+        }
+    };
 }

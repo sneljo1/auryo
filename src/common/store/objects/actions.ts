@@ -8,8 +8,9 @@ import { trackSchema } from '../../schemas';
 import { SC } from '../../utils';
 import { PlayerActionTypes, ProcessedQueueItems, processQueueItems } from '../player';
 import { SortTypes } from '../playlist/types';
-import { ObjectsActionTypes, ObjectState, ObjectTypes } from './types';
-import { getPlaylistObjectSelector } from './selectors';
+import { ObjectsActionTypes, ObjectState, ObjectTypes, PlaylistTypes } from './types';
+import { getPlaylistObjectSelector, getPlaylistName } from './selectors';
+import fetchPersonalised from '../../api/fetchPersonalised';
 
 const canFetch = (current: ObjectState<any>): boolean => !current || (!!current && !current.isFetching);
 const canFetchMore = (current: ObjectState<any>): boolean => canFetch(current) && (current && current.nextUrl !== null);
@@ -155,7 +156,8 @@ export const setObject = (
     entities: NormalizedEntities,
     result: Array<NormalizedResult>,
     nextUrl = null,
-    futureUrl = null
+    futureUrl = null,
+    fetchedItems = 0
 ) => {
     return action(ObjectsActionTypes.SET, {
         objectId,
@@ -163,7 +165,8 @@ export const setObject = (
         entities,
         result,
         nextUrl: (nextUrl) ? SC.appendToken(nextUrl) : null,
-        futureUrl: (futureUrl) ? SC.appendToken(futureUrl) : null
+        futureUrl: (futureUrl) ? SC.appendToken(futureUrl) : null,
+        fetchedItems
     });
 };
 
@@ -174,6 +177,10 @@ export function fetchPlaylistIfNeeded(playlistId: number): ThunkResult<Promise<a
         try {
 
             const playlist_object = getPlaylistObjectSelector(playlistId.toString())(getState());
+
+            if (playlist_object && !playlist_object.fetchedItems) {
+                dispatch<Promise<any>>(fetchPlaylistTracks(playlistId));
+            }
 
             if (!playlist_object || (playlist_object && playlist_object.fetchedItems === 0)) {
                 await dispatch<Promise<any>>({
@@ -231,10 +238,8 @@ export function fetchPlaylistIfNeeded(playlistId: number): ThunkResult<Promise<a
  */
 export function fetchChartsIfNeeded(objectId: string, sortType: SortTypes = SortTypes.TOP): ThunkResult<void> {
     return (dispatch, getState) => {
-        const { objects } = getState();
 
-        const playlist_objects = objects[ObjectTypes.PLAYLISTS];
-        const playlist_object = playlist_objects[objectId];
+        const playlist_object = getPlaylistObjectSelector(objectId)(getState());
 
         if (!playlist_object) {
             dispatch(getPlaylist(SC.getChartsUrl(objectId.split('_')[0], sortType, 25), objectId));
@@ -281,13 +286,15 @@ export function fetchPlaylistTracks(playlistId: number, size: number = 20, ids?:
         }
 
         if (!ids) {
-            let new_count = playlist_object.fetchedItems + size;
+            const fetched = playlist_object.fetchedItems || 0;
+
+            let new_count = fetched + size;
 
             if (new_count > playlist_object.items.length) {
                 new_count = playlist_object.items.length;
             }
 
-            ids = playlist_object.items.slice(playlist_object.fetchedItems, new_count);
+            ids = playlist_object.items.slice(fetched, new_count);
 
         }
 
@@ -306,7 +313,9 @@ export function fetchPlaylistTracks(playlistId: number, size: number = 20, ids?:
                                 objectId: playlistId,
                                 objectType: ObjectTypes.PLAYLISTS,
                                 entities: normalized.entities,
-                                fetchedItems: size
+                                fetchedItems: size,
+                                fetchedIds: normalized.result,
+                                shouldFetchedIds: ids,
                             };
                         }),
                     data: {

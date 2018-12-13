@@ -27,6 +27,7 @@ interface OwnProps {
     currentPlaylistId: string;
     showInfo?: boolean;
     showReposts: boolean;
+    skipFetch?: boolean;
 }
 
 interface PropsFromState {
@@ -48,9 +49,9 @@ class TrackGridItem extends React.Component<AllProps> {
     };
 
     componentDidMount() {
-        const { track, fetchPlaylistIfNeeded } = this.props;
+        const { track, fetchPlaylistIfNeeded, skipFetch } = this.props;
 
-        if (track && track.kind === 'playlist' && track.track_count && !track.tracks) {
+        if (track && track.kind === 'playlist' && track.track_count && !track.tracks && !skipFetch) {
             fetchPlaylistIfNeeded(track.id);
         }
     }
@@ -65,9 +66,9 @@ class TrackGridItem extends React.Component<AllProps> {
     }
 
     componentDidUpdate(prevProps: AllProps) {
-        const { track, fetchPlaylistIfNeeded } = this.props;
+        const { track, fetchPlaylistIfNeeded, skipFetch } = this.props;
 
-        if ((prevProps.track === null && track != null) || (prevProps.track && track && prevProps.track.id !== track.id)) {
+        if ((prevProps.track === null && track != null) || (prevProps.track && track && prevProps.track.id !== track.id) && !skipFetch) {
             if (track.kind === 'playlist' && track.track_count && !track.tracks) {
                 fetchPlaylistIfNeeded(track.id);
             }

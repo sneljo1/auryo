@@ -1,5 +1,5 @@
 import { Reducer } from 'redux';
-import { onSuccess } from '../../utils/reduxUtils';
+import { onSuccess, isLoading, onError } from '../../utils/reduxUtils';
 import { AppActionTypes } from '../app';
 import { ConfigActionTypes } from '../config';
 import { AuthActionTypes, AuthState } from './types';
@@ -19,6 +19,10 @@ const initialState = {
     authentication: {
         loading: false,
         error: null
+    },
+    personalizedPlaylists: {
+        loading: false,
+        items: null
     }
 };
 
@@ -149,6 +153,30 @@ export const authReducer: Reducer<AuthState> = (state = initialState, action) =>
                 followings: {
                     ...state.followings,
                     [payload.userId]: payload.following
+                }
+            };
+        case isLoading(AuthActionTypes.SET_PERSONALIZED_PLAYLISTS):
+            return {
+                ...state,
+                personalizedPlaylists: {
+                    ...state.personalizedPlaylists,
+                    loading: true
+                }
+            };
+        case onError(AuthActionTypes.SET_PERSONALIZED_PLAYLISTS):
+            return {
+                ...state,
+                personalizedPlaylists: {
+                    ...state.personalizedPlaylists,
+                    loading: false
+                }
+            };
+        case onSuccess(AuthActionTypes.SET_PERSONALIZED_PLAYLISTS):
+            return {
+                ...state,
+                personalizedPlaylists: {
+                    loading: false,
+                    items: payload.items
                 }
             };
         case AppActionTypes.RESET_STORE:

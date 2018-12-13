@@ -7,7 +7,7 @@ import { playlistSchema, trackSchema, userSchema, commentSchema } from '../../sc
 
 export const getEntities = (state: StoreState) => state.entities;
 
-const deNormSchema = new schema.Array({
+export const normalizeSchema = new schema.Array({
     tracks: trackSchema,
     playlists: playlistSchema,
     users: userSchema,
@@ -16,7 +16,7 @@ const deNormSchema = new schema.Array({
 
 export const getDenormalizedEntities = <T>(result: Array<NormalizedResult>) => createSelector<StoreState, EntitiesState, Array<T>>(
     getEntities,
-    (entities) => denormalize(result, deNormSchema, entities)
+    (entities) => denormalize(result, normalizeSchema, entities)
 );
 
 export const getDenormalizedEntity = <T>(result: NormalizedResult) => createSelector<StoreState, Array<T>, T | null>(

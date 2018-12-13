@@ -1,4 +1,4 @@
-import { SoundCloud, NormalizedResult } from '../../../types';
+import { SoundCloud, NormalizedResult, NormalizedPersonalizedItem } from '../../../types';
 
 // TYPES
 
@@ -9,6 +9,10 @@ export interface AuthState extends Readonly<{
     reposts: AuthReposts,
     playlists: Array<NormalizedResult>;
     authentication: AuthStatus
+    personalizedPlaylists: {
+        loading: boolean;
+        items: Array<NormalizedPersonalizedItem> | null;
+    }
 }> { }
 
 export interface AuthFollowing {
@@ -46,6 +50,7 @@ export interface AuthStatus {
 export const enum AuthActionTypes {
     SET = '@@auth/SET',
     SET_PLAYLISTS = '@@auth/SET_PLAYLISTS',
+    SET_PERSONALIZED_PLAYLISTS = '@@auth/SET_PERSONALIZED_PLAYLISTS',
     SET_FOLLOWINGS = '@@auth/SET_FOLLOWINGS',
     SET_LIKES = '@@auth/SET_LIKES',
     SET_PLAYLIST_LIKES = '@@auth/SET_PLAYLIST_LIKES',
