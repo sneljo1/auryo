@@ -66,6 +66,11 @@ export function getUserTracksUrl(artistID, limit = 50) {
         limit,
     });
 }
+export function getPersonalizedurl() {
+    return makeUrl(`selections`, {
+        oauth_token: true,
+    }, true);
+}
 
 export function getUserWebProfilesUrl(artistID) {
     return makeUrl(`users/${artistID}/web-profiles`, {

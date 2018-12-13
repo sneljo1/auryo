@@ -10,6 +10,19 @@ export interface GetPlaylistOptions {
 
 export interface NormalizedResult { schema: 'users' | 'tracks' | 'playlists' | 'comments'; id: number; }
 
+export interface NormalizedPersonalizedItem {
+    urn: string;
+    query_urn: string;
+    title: string;
+    description: string;
+    tracking_feature_name: string;
+    last_updated: string;
+    style: string;
+    social_proof: SoundCloud.CompactUser;
+    system_playlists?: Array<string>;
+    playlists?: Array<string>;
+}
+
 export interface NormalizedResponse {
     entities: NormalizedEntities;
     result: Array<NormalizedResult>;
@@ -63,6 +76,7 @@ export namespace SoundCloud {
         TRACK = 'track',
         PLAYLIST = 'playlist',
         WEBPROFILE = 'web-profile',
+        SYSTEMPLAYLIST = 'system-playlist',
     }
 
     export enum ProfileService {
@@ -247,6 +261,21 @@ export namespace SoundCloud {
 
         policy?: any;
 
+    }
+
+    export interface SystemPlaylist extends Asset<AssetType.SYSTEMPLAYLIST> {
+        urn: string;
+        query_urn: string;
+        permalink: string;
+        title: string;
+        description: string;
+        short_title: string;
+        short_description: string;
+        tracking_feature_name: string;
+        last_updated: SoundCloud.DateString;
+        artwork_url: string;
+        calculated_artwork_url: string;
+        tracks: Array<SoundCloud.Track>;
     }
 
     export interface Quota {

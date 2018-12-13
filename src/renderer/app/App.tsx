@@ -18,6 +18,8 @@ import PlaylistPage from '../pages/playlist/PlaylistPage';
 import SearchPage from '../pages/search/SearchPage';
 import SearchCategoryPage from '../pages/search/Category/SearchCategoryPage';
 import TagsPage from '../pages/tags/TagsPage';
+import ForYouPage from '../pages/foryou/ForYouPage';
+import PersonalizedPlaylistPage from '../pages/personalizedPlaylist/PersonalizedPlaylistPage';
 
 interface PropsFromState {
     offline: boolean;
@@ -57,10 +59,12 @@ class App extends React.PureComponent<AllProps> {
                     <Route path='/charts/:type?' component={ChartsPage} />
                     <Route path='/likes' component={LikesPlaylistPage} />
                     <Route path='/mytracks' component={MyTracksPage} />
+                    <Route path='/foryou' component={ForYouPage} />
                     <Route path='/myplaylists' component={MyPlaylistsPage} />
                     <Route path='/track/:songId' component={TrackPage} />
                     <Route path='/user/:artistId' component={ArtistPage} />
                     <Route path='/playlist/:playlistId' component={PlaylistPage} />
+                    <Route path='/personalized/:playlistId' component={PersonalizedPlaylistPage} />
                     <Route exact={true} path='/search' component={SearchPage} />
                     <Route path='/search/:category' component={SearchCategoryPage} />
                     <Route path='/tags/:tag/:type?' component={TagsPage} />

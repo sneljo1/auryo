@@ -4,6 +4,8 @@ import { isLoading, onError, onSuccess } from '../../utils/reduxUtils';
 import { AppActionTypes } from '../app';
 import { AuthActionTypes } from '../auth';
 import { ObjectGroup, ObjectsActionTypes, ObjectsState, ObjectState, ObjectTypes, PlaylistTypes } from './types';
+import _ = require('lodash');
+import { NormalizedResult } from '../../../types';
 
 const initialObjectsState = {
     isFetching: false,
@@ -64,9 +66,17 @@ const objectState: Reducer<ObjectState<any>> = (state = initialObjectsState, act
                 items: [...payload.items]
             };
         case onSuccess(ObjectsActionTypes.SET_TRACKS):
+            const unableToFetch = _.difference(
+                payload.shouldFetchedIds.map((t: NormalizedResult) => t.id),
+                payload.fetchedIds.map((t: NormalizedResult) => t.id)
+            );
+
+            const filtered = state.items.filter((t) => unableToFetch.indexOf(t.id) === -1);
+
             return {
                 ...state,
                 isFetching: false,
+                items: [...filtered],
                 fetchedItems: state.fetchedItems + payload.fetchedItems
             };
         case onSuccess(AuthActionTypes.SET_LIKE):

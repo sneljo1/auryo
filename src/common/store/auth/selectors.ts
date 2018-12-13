@@ -9,8 +9,6 @@ import { ObjectGroup, ObjectState } from '../objects';
 import { getPlaylistsObjects } from '../objects/selectors';
 import { AuthReposts } from './types';
 
-// SC.hasID(item.id, followings);
-
 export const getAuth = (state: StoreState) => state.auth;
 
 export const getFollowings = createSelector<StoreState, AuthState, AuthFollowing>(

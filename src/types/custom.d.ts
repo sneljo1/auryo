@@ -22,4 +22,5 @@ declare const __static: string;
 
 declare module "electron-window-state";
 declare module "react-dotdotdot";
+declare module "color-hash";
 

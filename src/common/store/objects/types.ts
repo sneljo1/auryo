@@ -11,6 +11,7 @@ export enum PlaylistTypes {
     // Without ids
     LIKES = 'LIKES',
     STREAM = 'STREAM',
+    DISCOVER = 'DISCOVER',
     MYTRACKS = 'MYTRACKS',
     PLAYLIST = 'PLAYLIST',
     PLAYLISTS = 'PLAYLISTS',

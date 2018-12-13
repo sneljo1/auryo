@@ -92,8 +92,18 @@ class Header extends React.Component<AllProps, State> {
             me !== nextProps.me ||
             (this.navBarWrapper && nextState.height !== this.navBarWrapper.clientHeight) ||
             nextProps.update !== update ||
-            (scrollTop < 52 && nextProps.scrollTop > 52) ||
-            (scrollTop > 52 && nextProps.scrollTop < 52);
+            (scrollTop !== nextProps.scrollTop);
+    }
+
+    componentDidUpdate(prevProps: AllProps) {
+        if (this.props.location.pathname !== prevProps.location.pathname) {
+            if (this.navBarWrapper) {
+                this.setState({
+                    height: this.navBarWrapper.clientHeight
+                });
+            }
+
+        }
     }
 
     goBack = () => {
