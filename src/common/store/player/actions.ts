@@ -146,6 +146,10 @@ export function setCurrentPlaylist(playlistId: string, nextTrack: PlayingTrack |
                 const [items, originalItems] = await
                     dispatch<Promise<ProcessedQueueItems>>(processQueueItems(playlistObject.items, true, playlistId));
 
+                if (nextTrack && !nextTrack.id) {
+                    await dispatch(fetchPlaylistIfNeeded(+nextTrack.playlistId));
+                }
+
                 return dispatch<Promise<any>>({
                     type: PlayerActionTypes.SET_PLAYLIST,
                     payload: {
@@ -312,12 +316,13 @@ export function addUpNext(track: SoundCloud.Track | SoundCloud.Playlist, remove?
             un: Date.now()
         };
 
-        let nextList;
+        let nextList: Array<PlayingTrack> = [];
 
         if (isPlaylist) {
             const playlist = track as SoundCloud.Playlist;
+            const { tracks = [] } = playlist;
 
-            nextList = playlist.tracks.map((t) => {
+            nextList = tracks.map((t): PlayingTrack | null => {
 
                 if (!SC.isStreamable(t)) {
                     return null;
@@ -325,10 +330,10 @@ export function addUpNext(track: SoundCloud.Track | SoundCloud.Playlist, remove?
 
                 return {
                     id: t.id,
-                    playlistId: track.id,
+                    playlistId: track.id.toString(),
                     un: Date.now()
                 };
-            }).filter((t) => t != null);
+            }).filter((t) => t) as Array<PlayingTrack>;
         }
 
         if (queue.length) {
@@ -565,7 +570,7 @@ export function playTrack(playlistId: string, next: Next, force_set_playlist: bo
                     playlistEntitity.track_count !== 0
                 ) {
                     throw new Error('This playlist is empty or not available via a third party!');
-                } else {
+                } else if (trackPlaylistObject.items.length) {
                     // If queue doesn't contain playlist yet
 
                     if (force_set_playlist) {
@@ -662,6 +667,11 @@ export function registerPlay(): ThunkResult<void> {
             const params: any = {
                 track_urn: `soundcloud:tracks:${id}`
             };
+
+            import('../../../common/utils/universalAnalytics')
+                .then(({ ua }) => {
+                    ua.event('SoundCloud', 'Play', '', id).send();
+                });
 
             const type = getPlaylistType(playlistId);
 

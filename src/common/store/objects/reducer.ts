@@ -122,11 +122,13 @@ const objectGroup: Reducer<ObjectGroup> = (state = initialObjectGroupState, acti
         case onSuccess(ObjectsActionTypes.SET_TRACKS):
         case isLoading(ObjectsActionTypes.SET_TRACKS):
         case ObjectsActionTypes.UNSET_TRACK:
+            if (!payload.objectId) return state;
             return {
                 ...state,
                 [String(payload.objectId)]: objectState(state[String(payload.objectId)], action)
             };
         case onSuccess(AuthActionTypes.SET_LIKE):
+            if (!payload.playlist) return state;
             return {
                 ...state,
                 [playlistName]: objectState(state[playlistName], action)

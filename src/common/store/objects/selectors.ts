@@ -23,7 +23,7 @@ export const getPlaylistName = (id: string, playlistType: PlaylistTypes) => [id,
 
 export const getPlaylistType = (objectId: string): PlaylistTypes | null => {
 
-    if (!objectId) return null;
+    if (!objectId || typeof objectId !== 'string') return null;
 
     if (objectId in PlaylistTypes) {
         return objectId as PlaylistTypes;

@@ -29,19 +29,20 @@ if (!process.env.TOKEN && process.env.NODE_ENV === 'production') {
 
     const { config: { app: { analytics } } } = store.getState();
 
-    if (analytics) {
-        import('../common/utils/universalAnalytics')
-            .then(({ ua }) => {
-                ua.set('version', app.getVersion());
-                ua.set('anonymizeIp', true);
 
+    import('../common/utils/universalAnalytics')
+        .then(({ ua }) => {
+            ua.set('version', app.getVersion());
+            ua.set('anonymizeIp', true);
+            if (analytics) {
                 ua.pv('/').send();
 
                 history.listen((location) => {
                     ua.pv(location.pathname).send();
                 });
-            });
-    }
+            }
+        });
+
 }
 
 const { config: { token } } = store.getState();

@@ -35,12 +35,14 @@ class InputConfig extends React.PureComponent<Props> {
     handleChange = (event: React.FormEvent<HTMLInputElement>) => {
         const { configKey, onChange, setConfigKey } = this.props;
 
+        const value = event.currentTarget.value;
+
         if (onChange) {
-            onChange(event.currentTarget.value, () => {
-                setConfigKey(configKey, event.currentTarget.value);
+            onChange(value, () => {
+                setConfigKey(configKey, value);
             });
         } else {
-            setConfigKey(configKey, event.currentTarget.value);
+            setConfigKey(configKey, value);
         }
     }
 
