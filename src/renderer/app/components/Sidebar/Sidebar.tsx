@@ -3,7 +3,7 @@ import { NavLink, RouteComponentProps, withRouter } from 'react-router-dom';
 import { NormalizedResult } from '../../../../types';
 import CustomScroll from '../../../_shared/CustomScroll';
 import SideBarPlaylist from './playlist/SideBarPlaylist';
-import './Sidebar.scss';
+import * as styles from './Sidebar.module.scss';
 
 interface Props {
     items: Array<NormalizedResult>;
@@ -15,15 +15,15 @@ const SideBar = React.memo<AllProps>(({ items }) => (
     <aside
         id='sidebar'
         role='navigation'
-        className='sidebar-offcanvas d-flex flex-column'
+        className={`${styles.sidebar} sidebar-offcanvas d-flex flex-column`}
     >
-        <div className='drag-strip' />
+        <div className={styles.drag_strip} />
 
         <CustomScroll
             heightRelativeToParent='100%'
             allowOuterScroll={true}
         >
-            <div key='sidebar-menu' id='sidebar-menu'>
+            <div key='sidebar-menu' id='sidebar-menu' className={styles.sidebar_menu}>
                 <h2>Discover</h2>
                 <ul className='nav flex-column'>
                     <li className='navItem'>
