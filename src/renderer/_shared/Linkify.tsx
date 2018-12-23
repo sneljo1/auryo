@@ -15,7 +15,7 @@ const Linkify = React.memo<Props>(({ text }) => {
         <div
             dangerouslySetInnerHTML={{
                 __html: autolinker.link(text.replace(/\n/g, '</br>'), {
-                    mention: 'twitter', // TODO change to souncloud
+                    mention: 'soundcloud',
                     replaceFn: (match: any) => {
                         switch (match.getType()) {
                             case 'url':
