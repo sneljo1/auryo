@@ -8,6 +8,7 @@ import { StoreState } from '../../../../../common/store';
 import { getDenormalizedEntities } from '../../../../../common/store/entities/selectors';
 import { getCurrentPlaylistId } from '../../../../../common/store/player/selectors';
 import { PlayerStatus } from '../../../../../common/store/player';
+import * as styles from '../Sidebar.module.scss';
 
 interface OwnProps {
     items: Array<NormalizedResult>;
@@ -31,14 +32,14 @@ const SideBarPlaylist = React.memo<AllProps>(({ playlists, currentPlaylistId, is
                 playlists.map((playlist: SoundCloud.Playlist) => (
                     <div
                         key={`sidebar-${playlist.id}`}
-                        className={classNames('navItem', {
+                        className={classNames(styles.navItem, {
                             isCurrentPlaylist: isPlaying(playlist.id),
                             isActuallyPlaying
                         })}
                     >
                         <NavLink
                             to={`/playlist/${playlist.id}`}
-                            className='navLink'
+                            className={styles.navLink}
                             activeClassName='active'
                         >
                             <TextShortener text={playlist.title} />
