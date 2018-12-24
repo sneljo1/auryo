@@ -22,6 +22,10 @@
     font-weight: bold;
     margin-bottom: .9rem;
   }
+
+  a {
+    color: #BAC3CF;
+  }
 }
 
 .dragStrip {
@@ -53,14 +57,14 @@
   }
 }
 
-.navItem .navLink.active {
+.navItem .navLink:global(.active) {
   font-weight: $font-weight-bold;
   opacity: 1;
   color: $white;
   border-left: 4px solid theme-color("primary");
 }
 
-.navItem.isCurrentPlaylist .navLink {
+.navItem:global(.isCurrentPlaylist) .navLink {
   position: relative;
   display: flex;
   align-items: center;
@@ -76,8 +80,8 @@
   }
 }
 
-.navItem.isActuallyPlaying .navLink {
-  &:after {
+.navItem:global(.isActuallyPlaying) .navLink {
+  &::after {
     animation: breathing 5s ease-out infinite normal;
   }
 }
