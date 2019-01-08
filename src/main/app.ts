@@ -81,6 +81,8 @@ export class Auryo {
     // Create the browser window
     this.mainWindow = new BrowserWindow(Utils.posCenter(mainWindowOption));
 
+    app.setAccessibilitySupportEnabled(true);
+
     this.registerTools();
 
     mainWindowState.manage(this.mainWindow);
