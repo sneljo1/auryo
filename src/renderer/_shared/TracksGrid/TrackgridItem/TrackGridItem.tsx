@@ -137,7 +137,7 @@ class TrackGridItem extends React.Component<AllProps> {
     }
 
     renderStats() {
-        const { track, showInfo } = this.props;
+        const { track, showInfo, currentPlaylistId } = this.props;
 
         if (!track || !track.user) return null;
 
@@ -181,6 +181,7 @@ class TrackGridItem extends React.Component<AllProps> {
                 <div>
                     <ActionsDropdown
                         track={track}
+                        currentPlaylistId={currentPlaylistId}
                     />
 
                     <div className='trackTime'>

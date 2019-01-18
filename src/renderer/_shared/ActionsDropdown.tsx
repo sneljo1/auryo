@@ -19,6 +19,7 @@ interface OwnProps {
     track: SoundCloud.Music;
     index?: number;
     playing?: boolean;
+    currentPlaylistId?: string;
 }
 
 interface PropsFromState {
@@ -60,12 +61,18 @@ class ActionsDropdown extends React.Component<AllProps> {
             index,
             userPlaylists,
             togglePlaylistTrack,
+            currentPlaylistId
         } = this.props;
 
         const trackId = track.id;
 
         const liked = SC.hasID(track.id, (track.kind === 'playlist' ? likes.playlist : likes.track));
         const reposted = SC.hasID(track.id, (track.kind === 'playlist' ? reposts.playlist : reposts.track));
+
+        const currentPlaylist: CombinedUserPlaylistState | null =
+            currentPlaylistId ? userPlaylists.find((p) => p.id === +currentPlaylistId) || null : null;
+
+        const inPlaylist = currentPlaylist ? currentPlaylist.items.find((t) => t.id === trackId) : false;
 
         return (
             <Popover
@@ -119,6 +126,14 @@ class ActionsDropdown extends React.Component<AllProps> {
                             ) : null
                         }
 
+                        {
+                            currentPlaylist && inPlaylist && (
+                                <MenuItem
+                                    text='Remove from playlist'
+                                    onClick={() => togglePlaylistTrack(track.id, currentPlaylist.id)}
+                                />
+                            )
+                        }
 
                         {
                             index !== undefined && !playing ? (

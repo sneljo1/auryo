@@ -1004,6 +1004,12 @@
   dependencies:
     "@types/react" "*"
 
+"@types/react-list@^0.8.4":
+  version "0.8.4"
+  resolved "https://registry.yarnpkg.com/@types/react-list/-/react-list-0.8.4.tgz#2f6245cfa3a047953a7b5ce9422f443f406b70ed"
+  dependencies:
+    "@types/react" "*"
+
 "@types/react-onclickoutside@^6.0.4":
   version "6.7.0"
   resolved "https://registry.yarnpkg.com/@types/react-onclickoutside/-/react-onclickoutside-6.7.0.tgz#5cc4807ec26decdc9031bc7c87fc8cfbe09b92cc"
@@ -6535,7 +6541,7 @@ lodash.uniq@^4.5.0:
   version "4.5.0"
   resolved "https://registry.yarnpkg.com/lodash.uniq/-/lodash.uniq-4.5.0.tgz#d0225373aeb652adc1bc82e4945339a842754773"
 
-lodash@^4.0.0, lodash@^4.13.1, lodash@^4.15.0, lodash@^4.16.6, lodash@^4.17.10, lodash@^4.17.3, lodash@^4.17.4, lodash@^4.17.5, lodash@^4.2.1, lodash@^4.3.0, lodash@^4.8.0, lodash@~4.17.10:
+lodash@^4.0.0, lodash@^4.13.1, lodash@^4.15.0, lodash@^4.17.10, lodash@^4.17.11, lodash@^4.17.3, lodash@^4.17.4, lodash@^4.17.5, lodash@^4.2.1, lodash@^4.3.0, lodash@^4.8.0, lodash@~4.17.10:
   version "4.17.11"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.11.tgz#b39ea6229ef607ecd89e2c8df12536891cac9b8d"
 
@@ -8692,9 +8698,9 @@ reduce-function-call@^1.0.1:
   dependencies:
     balanced-match "^0.4.2"
 
-redux-electron-store@Superjo149/redux-electron-store:
-  version "0.6.3"
-  resolved "https://codeload.github.com/Superjo149/redux-electron-store/tar.gz/bee0d9fe83914006b03c42d42fbdfa6840fe47a6"
+redux-electron-store@^0.6.4:
+  version "0.6.4"
+  resolved "https://registry.yarnpkg.com/redux-electron-store/-/redux-electron-store-0.6.4.tgz#c128114938d23673babd9b1eb541b95fe30b21a5"
   dependencies:
     lodash "^4.13.1"
 
