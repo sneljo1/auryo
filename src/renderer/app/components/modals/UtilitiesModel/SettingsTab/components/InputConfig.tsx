@@ -24,7 +24,7 @@ class InputConfig extends React.PureComponent<Props> {
         invalid: false
     };
 
-    private saveDebounced: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    private saveDebounced: (value: string) => void;
 
     constructor(props: Props) {
         super(props);
@@ -32,10 +32,8 @@ class InputConfig extends React.PureComponent<Props> {
         this.saveDebounced = debounce(this.handleChange.bind(this), 50);
     }
 
-    handleChange = (event: React.FormEvent<HTMLInputElement>) => {
+    handleChange = (value: string) => {
         const { configKey, onChange, setConfigKey } = this.props;
-
-        const value = event.currentTarget.value;
 
         if (onChange) {
             onChange(value, () => {
@@ -66,7 +64,7 @@ class InputConfig extends React.PureComponent<Props> {
                         'is-invalid': invalid
                     })}
                     name={name}
-                    onChange={this.saveDebounced}
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => this.saveDebounced(event.target.value)}
                     placeholder={usePlaceholder ? name : undefined}
                     defaultValue={value || ''}
                 />
