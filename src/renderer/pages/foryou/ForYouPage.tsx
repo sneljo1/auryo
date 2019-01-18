@@ -12,12 +12,11 @@ import { NormalizedPersonalizedItem, SoundCloud } from '../../../types';
 import Header from '../../app/components/Header/Header';
 import CustomScroll from '../../_shared/CustomScroll';
 import Spinner from '../../_shared/Spinner/Spinner';
+import TrackGridItem from '../../_shared/TracksGrid/TrackgridItem/TrackGridItem';
 import WithHeaderComponent from '../../_shared/WithHeaderComponent';
 import { PersonalizedPlaylistCard } from './components/PersonalizedPlaylistCard/PersonalizedPlaylistCard';
 import * as styles from './ForYouPage.module.scss';
-import TrackGridItem from '../../_shared/TracksGrid/TrackgridItem/TrackGridItem';
-import { show } from 'redux-modal';
-
+import * as moment from 'moment';
 interface OwnProps extends RouteComponentProps<{}> {
 }
 
@@ -113,7 +112,12 @@ class ForYou extends WithHeaderComponent<AllProps, State> {
         );
     }
 
-    renderPlaylist = (title: string, description: string, systemPlaylistIds: Array<string> = [], playlistIds: Array<string> = []) => {
+    renderPlaylist = (
+        title: string,
+        description: string,
+        systemPlaylistIds: Array<string> = [],
+        playlistIds: Array<string> = []
+    ) => {
 
         const ids = systemPlaylistIds.length ? systemPlaylistIds : playlistIds;
         const shown = this.state.itemsOpen[title] || 6;
@@ -139,7 +143,7 @@ class ForYou extends WithHeaderComponent<AllProps, State> {
                                         key={id}
                                         className='col-12 col-xs-6 col-md-4'
                                     >
-                                        <PersonalizedPlaylistCard playlist={playlist} />
+                                        <PersonalizedPlaylistCard playlist={playlist} system={true} />
                                     </div>
                                 );
                             })

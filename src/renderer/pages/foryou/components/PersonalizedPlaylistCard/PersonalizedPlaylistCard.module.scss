@@ -2,16 +2,15 @@
 .card {
   margin-bottom: 2rem;
   text-align: center;
-  background: rgb(157, 218, 238);
-  box-shadow: 0 10px 60px rgba(0, 0, 0, 0.03), 0 6px 50px rgba(0, 0, 0, 0.08);
   border-radius: 8px;
   display: block;
   text-decoration: none !important;
   color: inherit !important;
-  transition: .3s ease-in box-shadow;
-  &:hover {
-    box-shadow: 0 10px 60px rgba(0, 0, 0, 0.03), 0 6px 50px rgba(0, 0, 0, 0.2);
-  }
+}
+
+.updated {
+  font-size: .8rem;
+  color: grey;
 }
 
 .title {
@@ -22,13 +21,19 @@
 }
 
 .content {
-  padding:  2.5rem .8rem;
+  padding: 2.5rem .8rem;
   position: relative;
   z-index: 1;
   overflow: hidden;
   border-radius: 8px;
   color: white;
   min-height: 248px;
+  transition: .3s ease-in box-shadow;
+  box-shadow: 0 10px 60px rgba(0, 0, 0, 0.03), 0 6px 50px rgba(0, 0, 0, 0.08);
+  &:hover {
+    box-shadow: 0 10px 60px rgba(0, 0, 0, 0.03), 0 6px 50px rgba(0, 0, 0, 0.2);
+  }
+  
   &:after {
     content: "";
     position: absolute;
