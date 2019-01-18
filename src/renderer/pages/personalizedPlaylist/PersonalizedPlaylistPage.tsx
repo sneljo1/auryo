@@ -137,8 +137,6 @@ class PersonalizedPlaylistPage extends WithHeaderComponent<AllProps, State> {
         const permalink = `https://soundcloud.com/discover/sets/${playlist.permalink}`;
         const isEmpty = !playlistObject.isFetching && (playlistObject.items && playlistObject.items.length === 0);
 
-        console.log(isEmpty, playlist, playlistObject);
-
         return (
             <CustomScroll
                 heightRelativeToParent='100%'

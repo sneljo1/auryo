@@ -285,7 +285,7 @@ class ReactAudioPlayer extends React.PureComponent<AllProps, State> {
                         this.audioEl.currentTime = fromTime;
                         this.play();
                     }
-                }, 3000);
+                }, 500);
                 break;
             case e.target.error.MEDIA_ERR_DECODE:
             case e.target.error.MEDIA_ERR_SRC_NOT_SUPPORTED:

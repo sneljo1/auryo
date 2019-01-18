@@ -238,7 +238,7 @@ export function processQueueItems(
                     };
                 }));
 
-            const flattened = _.flatten(items).filter((t) => t !== null) as Array<PlayingTrack>;
+            const flattened = _.flatten(items).filter((t): t is PlayingTrack => !!t);
 
             if (keepFirst) {
                 const [firstItem, ...rest] = flattened;
@@ -482,7 +482,7 @@ export function getItemsAround(position: number): ThunkResult<Promise<void>> {
 
 interface Next { id: number; playlistId?: string; }
 
-export function playTrack(playlistId: string, next: Next, force_set_playlist: boolean = false, changeType?: ChangeTypes): ThunkResult<any> {
+export function playTrack(playlistId: string, next?: Next, force_set_playlist: boolean = false, changeType?: ChangeTypes): ThunkResult<any> {
     return async (dispatch, getState) => {
 
         const {
@@ -491,8 +491,19 @@ export function playTrack(playlistId: string, next: Next, force_set_playlist: bo
             }
         } = getState();
 
-        if (!next.playlistId) {
-            next.playlistId = playlistId.toString();
+        if (!next) {
+            const object = getPlaylistObjectSelector(playlistId)(getState());
+
+            if (object) {
+                next = {
+                    playlistId: playlistId.toString(),
+                    id: object.items[0].id
+                };
+            }
+        } else {
+            if (!next.playlistId) {
+                next.playlistId = playlistId.toString();
+            }
         }
 
         const nextTrack: PlayingTrack = next as PlayingTrack;
@@ -506,6 +517,7 @@ export function playTrack(playlistId: string, next: Next, force_set_playlist: bo
         }
 
         const state = getState();
+
         const {
             player: {
                 queue

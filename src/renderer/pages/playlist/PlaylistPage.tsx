@@ -88,8 +88,6 @@ class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
 
         if (!playlist) return null;
 
-        const first_id = playlist.tracks[0].id;
-
         if (isPlaylistPlaying) {
             return (
                 <a
@@ -106,7 +104,7 @@ class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
             if (isPlayerPlaylist) {
                 toggleStatus();
             } else {
-                playTrack(playlistIdParam.toString(), { id: first_id });
+                playTrack(playlistIdParam.toString());
             }
         };
 
