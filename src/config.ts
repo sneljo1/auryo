@@ -2,7 +2,7 @@ import * as is from 'electron-is';
 
 const app = require('electron').app || require('electron').remote.app; // eslint-disable-line
 
-const BASE_URL = 'http://api.auryo.com';
+const BASE_URL = 'https://api.auryo.com';
 
 let downloadPath = '';
 

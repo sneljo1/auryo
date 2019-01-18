@@ -3,10 +3,10 @@ import { download } from 'electron-dl';
 import * as fs from 'fs';
 import * as _ from 'lodash';
 import * as io from 'socket.io-client';
-import { CONFIG } from '../../config';
+import { EVENTS } from '../../common/constants/events';
 import { setLoginError, setLoginLoading } from '../../common/store/auth/actions';
 import { setToken } from '../../common/store/config/actions';
-import { EVENTS } from '../../common/constants/events';
+import { CONFIG } from '../../config';
 import { Logger } from '../utils/logger';
 import Feature from './feature';
 
@@ -109,7 +109,9 @@ export default class IPCManager extends Feature {
 
   startLoginSocket = () => {
     if (!this.socket) {
-      this.socket = io(CONFIG.BASE_URL);
+      this.socket = io(CONFIG.BASE_URL, {
+        timeout: 15000
+      });
 
       this.socket.on('token', (data: string) => {
         this.logger.debug('Received token');
@@ -124,6 +126,21 @@ export default class IPCManager extends Feature {
 
         if (this.socket) {
           this.socket.disconnect();
+        }
+      });
+
+      this.socket.on('connect_error', (err: any) => {
+        this.store.dispatch(setLoginError(err.message));
+        this.logger.error(err);
+
+        if (this.socket) {
+          this.socket.disconnect();
+        }
+      });
+
+      this.socket.on('disconnect', (reason: string) => {
+        if (reason === 'io server disconnect' && this.socket) {
+          this.socket.connect();
         }
       });
     }

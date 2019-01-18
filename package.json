@@ -184,7 +184,7 @@
     "react-router-dom": "^4.3.1",
     "reactstrap": "^6.5.0",
     "redux": "^4.0.0",
-    "redux-electron-store": "Superjo149/redux-electron-store",
+    "redux-electron-store": "^0.6.4",
     "redux-modal": "^1.5.2",
     "redux-promise-middleware": "^5.1.1",
     "redux-thunk": "^2.3.0",
