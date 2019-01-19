@@ -278,7 +278,12 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
                                             }
 
                                             <MenuItem text='Add to playlist'>
-                                                {
+                                                <div style={{ fontSize: '.8rem', opacity: .8, color: 'grey', padding: '5px' }}>
+                                                    I'm sorry, this feature has been disabled to preserve your playlists.
+                                                    Since we are unable to fetch all tracks, we do not know for sure if
+                                                    we will delete tracks upon adding/removing track via Auryo.
+                                                </div>
+                                                {/* {
                                                     userPlaylists.map((playlist) => {
                                                         const inPlaylist = !!playlist.items.find((t) => t.id === track.id);
 
@@ -293,7 +298,7 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
                                                             />
                                                         );
                                                     })
-                                                }
+                                                } */}
                                             </MenuItem>
 
                                             <MenuItem

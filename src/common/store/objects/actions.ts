@@ -8,9 +8,8 @@ import { trackSchema } from '../../schemas';
 import { SC } from '../../utils';
 import { PlayerActionTypes, ProcessedQueueItems, processQueueItems } from '../player';
 import { SortTypes } from '../playlist/types';
-import { ObjectsActionTypes, ObjectState, ObjectTypes, PlaylistTypes } from './types';
-import { getPlaylistObjectSelector, getPlaylistName } from './selectors';
-import fetchPersonalised from '../../api/fetchPersonalised';
+import { getPlaylistObjectSelector } from './selectors';
+import { ObjectsActionTypes, ObjectState, ObjectTypes } from './types';
 
 const canFetch = (current: ObjectState<any>): boolean => !current || (!!current && !current.isFetching);
 const canFetchMore = (current: ObjectState<any>): boolean => canFetch(current) && (current && current.nextUrl !== null);

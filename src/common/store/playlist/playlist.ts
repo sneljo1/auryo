@@ -4,6 +4,8 @@ import { SC } from '../../utils';
 import { ObjectsActionTypes, ObjectTypes } from '../objects';
 import { addToast } from '../ui';
 import { Intent } from '@blueprintjs/core';
+import { getPlaylistObjectSelector } from '../objects/selectors';
+import { getPlaylistEntity } from '../entities/selectors';
 
 
 /**
@@ -14,16 +16,15 @@ import { Intent } from '@blueprintjs/core';
  * @returns {function(*, *)}
  */
 export function togglePlaylistTrack(trackId: number, playlistId: number): ThunkResult<any> {
-    return (dispatch, getState) => {
-        const {
-            objects,
-            entities: {
-                playlistEntities }
-        } = getState();
+    return async (dispatch, getState) => {
+        const state = getState();
 
-        const playlist_objects = objects[ObjectTypes.PLAYLISTS];
-        const playlist_object = playlist_objects[playlistId];
-        const playlist_entitity = playlistEntities[playlistId];
+        const playlist_object = getPlaylistObjectSelector(playlistId.toString())(state);
+        const playlist_entitity = getPlaylistEntity(playlistId)(state);
+
+        if (!playlist_object || !playlist_entitity) {
+            return;
+        }
 
         let newitems: Array<NormalizedResult> = [];
 
@@ -33,8 +34,9 @@ export function togglePlaylistTrack(trackId: number, playlistId: number): ThunkR
 
         let add = true;
 
+
         if (!found) {
-            newitems = [track, ...playlist_object.items];
+            newitems = [...playlist_object.items, track];
         } else {
             newitems = [...playlist_object.items.filter((normalizedResult) => normalizedResult.id !== track.id)];
             add = false;

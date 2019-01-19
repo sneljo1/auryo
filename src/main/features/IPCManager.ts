@@ -62,39 +62,12 @@ export default class IPCManager extends Feature {
 
       this.logger.debug('Starting login');
 
-      this.startLoginSocket();
-
       if (this.socket) {
-        if (this.socket.connected) {
-          this.login();
-        } else {
-          this.logger.debug('Waiting for connect');
-          this.socket.on('connect', this.login);
-        }
-
-        if (this.socket && !this.socket.connected) {
-          this.socket.connect();
-        }
+        this.socket.removeListener('connect', this.login);
       }
 
-      // Set timeout for requests
-      const timer = setTimeout(() => {
-        const {
-          auth: {
-            authentication: { loading }
-          }
-        } = this.store.getState();
+      this.startLoginSocket();
 
-        if (loading) {
-          this.store.dispatch(setLoginError('Timed out, login took longer than expected'));
-          if (this.socket) {
-            this.socket.removeListener('connect', this.login);
-            this.socket.disconnect();
-          }
-        }
-      }, 15000);
-
-      this.timers.push(timer);
     });
   }
 
@@ -108,10 +81,22 @@ export default class IPCManager extends Feature {
   }
 
   startLoginSocket = () => {
+
+    const handleError = (err: any) => {
+      this.store.dispatch(setLoginError('Something went wrong during login'));
+      this.logger.error(err);
+
+      if (this.socket) {
+        this.socket.disconnect();
+      }
+    };
+
     if (!this.socket) {
       this.socket = io(CONFIG.BASE_URL, {
         timeout: 15000
       });
+
+      this.socket.on('connect', this.login);
 
       this.socket.on('token', (data: string) => {
         this.logger.debug('Received token');
@@ -120,19 +105,12 @@ export default class IPCManager extends Feature {
         this.sendToWebContents('login-success');
       });
 
-      this.socket.on('error', (err: any) => {
-        this.store.dispatch(setLoginError(err.message));
-        this.logger.error(err);
+      this.socket.on('error', handleError);
 
-        if (this.socket) {
-          this.socket.disconnect();
-        }
-      });
+      this.socket.on('connect_error', handleError);
 
-      this.socket.on('connect_error', (err: any) => {
-        this.store.dispatch(setLoginError(err.message));
-        this.logger.error(err);
-
+      this.socket.on('connect_timeout', (err: any) => {
+        this.store.dispatch(setLoginError('Timed out, login took longer than expected'));
         if (this.socket) {
           this.socket.disconnect();
         }
@@ -143,6 +121,10 @@ export default class IPCManager extends Feature {
           this.socket.connect();
         }
       });
+    } else {
+      if (this.socket.disconnected) {
+        this.socket.connect();
+      }
     }
   }
 }

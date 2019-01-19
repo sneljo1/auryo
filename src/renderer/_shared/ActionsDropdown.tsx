@@ -1,4 +1,4 @@
-import { Menu, MenuDivider, MenuItem, Popover, Position } from '@blueprintjs/core';
+import { Menu, MenuDivider, MenuItem, Popover, Position, Tooltip } from '@blueprintjs/core';
 import cn from 'classnames';
 import * as _ from 'lodash';
 import * as React from 'react';
@@ -105,8 +105,15 @@ class ActionsDropdown extends React.Component<AllProps> {
 
                         {
                             track.kind !== 'playlist' ? (
+
                                 <MenuItem text='Add to playlist'>
-                                    {
+                                    <div style={{ fontSize: '.8rem', opacity: .8, color: 'grey', padding: '5px' }}>
+                                        I'm sorry, this feature has been disabled to preserve your playlists.
+                                        Since we are unable to fetch all tracks, we do not know for sure if
+                                        we will delete tracks upon adding/removing track via Auryo.
+                                    </div>
+
+                                    {/* {
                                         userPlaylists.map((playlist) => {
                                             const inPlaylist = !!playlist.items.find((t) => t.id === track.id);
 
@@ -121,19 +128,19 @@ class ActionsDropdown extends React.Component<AllProps> {
                                                 />
                                             );
                                         })
-                                    }
+                                    } */}
                                 </MenuItem>
                             ) : null
                         }
 
-                        {
+                        {/* {
                             currentPlaylist && inPlaylist && (
                                 <MenuItem
                                     text='Remove from playlist'
                                     onClick={() => togglePlaylistTrack(track.id, currentPlaylist.id)}
                                 />
                             )
-                        }
+                        } */}
 
                         {
                             index !== undefined && !playing ? (
