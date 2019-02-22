@@ -191,7 +191,7 @@ class Playlist extends WithHeaderComponent<AllProps, State> {
                 {
                     (!playlistObject.items.length) ? (
                         <div className='pt-5 mt-5'>
-                            <h5 className='text-muted text-center'>That's unfortunate, you don't seem to have any tracks inhere</h5>
+                            <h5 className='text-muted text-center'>That's unfortunate, you don't seem to have any tracks in here</h5>
                             <div className='text-center' style={{ fontSize: '5rem' }}>
                                 🧐
                             </div>
