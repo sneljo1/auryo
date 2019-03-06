@@ -1,4 +1,5 @@
 @import "./vars";
+@import "./animations";
 @import "./responsive";
 @import "./scroll";
 @import './notification';
@@ -112,10 +113,6 @@ main {
   //     }
   //   }
   // }
-}
-
-#sidebar a {
-  color: #BAC3CF;
 }
 
 .content {

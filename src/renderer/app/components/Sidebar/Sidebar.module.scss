@@ -1,0 +1,104 @@
+@import "../../../css/bootstrap.imports.scss";
+
+:global(.playing) .sidebar :global(.custom-scroll) {
+  height: calc(100% - 122px);
+}
+
+.sidebar {
+  background: $black;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  position: fixed;
+  height: 100%;
+  overflow: hidden;
+  width: 260px;
+
+  h2 {
+    font-size: .8rem;
+    text-transform: uppercase;
+    padding: 10px 30px 0;
+    color: $brand-grey;
+    font-weight: bold;
+    margin-bottom: .9rem;
+  }
+
+  a {
+    color: #BAC3CF;
+  }
+}
+
+.dragStrip {
+  height: 23px;
+  -webkit-app-region: drag;
+  flex-shrink: 0;
+
+  :global(.mac) & {
+    height: 53px;
+  }
+}
+
+.sidebarMenu {
+  margin-right: 10px;
+}
+
+.navLink {
+  text-decoration: none;
+  display: block;
+  padding: 3px 27px;
+  font-size: .9rem;
+  transition: 0.5s background;
+  border-left: 4px solid transparent;
+  color: $brand-grey-lighter;
+
+  &:hover {
+    transition: 0.5s color;
+    color: $white;
+  }
+}
+
+.navItem .navLink:global(.active) {
+  font-weight: $font-weight-bold;
+  opacity: 1;
+  color: $white;
+  border-left: 4px solid theme-color("primary");
+}
+
+.navItem:global(.isCurrentPlaylist) .navLink {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  &::after {
+    content: '';
+    background: theme-color("primary");
+    width: 6px;
+    height: 6px;
+    border-radius: 100%;
+    display: block;
+  }
+}
+
+.navItem:global(.isActuallyPlaying) .navLink {
+  &::after {
+    animation: breathing 5s ease-out infinite normal;
+  }
+}
+
+.navLink * {
+  vertical-align: middle;
+}
+
+.navLink i {
+  width: 30px;
+  display: inline-block;
+  font-size: 18px;
+}
+
+.nav {
+  flex-direction: column;
+  list-style-type: none;
+  margin-bottom: 20px;
+  padding-left: 0;
+}
