@@ -1,7 +1,7 @@
 import fetchToJson from '../api/helpers/fetchToJson';
 import { SC } from '.';
 import { SoundCloud } from '../../types';
-import { history } from '../../renderer/configureStore';
+import { history } from '@renderer/configureStore';
 import { IPC } from './ipc';
 
 export class Utils {

@@ -3,16 +3,16 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Col, Row } from 'reactstrap';
-import { IMAGE_SIZES } from '../../../../common/constants';
-import { StoreState } from '../../../../common/store';
-import { SC } from '../../../../common/utils';
+import { IMAGE_SIZES } from '@common/constants';
+import { StoreState } from '@common/store';
+import { SC } from '@common/utils';
 import { NormalizedResult, SoundCloud } from '../../../../types';
 import FallbackImage from '../../FallbackImage';
 import Linkify from '../../Linkify';
-import { getCommentEntity } from '../../../../common/store/entities/selectors';
+import { getCommentEntity } from '@common/store/entities/selectors';
 import './CommentListItem.scss';
 
-const fallback_url = require('../../../../assets/img/avatar_placeholder.jpg');
+const fallback_url = require('@assets/img/avatar_placeholder.jpg');
 
 interface OwnProps {
     idResult: NormalizedResult;

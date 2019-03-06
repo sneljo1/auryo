@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Route, RouteComponentProps, Switch, withRouter, StaticContext, Redirect } from 'react-router';
-import { StoreState } from '../../common/store';
+import { StoreState } from '@common/store';
 import IsOffline from './components/Offline/Offline';
 import Layout from './Layout';
-import { Utils } from '../../common/utils/utils';
+import { Utils } from '@common/utils/utils';
 import Spinner from '../_shared/Spinner/Spinner';
 import FeedPlaylistPage from '../pages/playlists/FeedPlaylistPage';
 import ChartsDetailsPage from '../pages/charts/ChartsDetailsPage';

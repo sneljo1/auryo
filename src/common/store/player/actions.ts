@@ -680,7 +680,7 @@ export function registerPlay(): ThunkResult<void> {
                 track_urn: `soundcloud:tracks:${id}`
             };
 
-            import('../../../common/utils/universalAnalytics')
+            import('@common/utils/universalAnalytics')
                 .then(({ ua }) => {
                     ua.event('SoundCloud', 'Play', '', id).send();
                 });

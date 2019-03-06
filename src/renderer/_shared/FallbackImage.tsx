@@ -2,7 +2,7 @@ import cn from 'classnames';
 import * as React from 'react';
 import { LazyImage } from 'react-lazy-images';
 
-const defaultFallbackImage = require('../../assets/img/placeholder.jpg');
+const defaultFallbackImage = require('@assets/img/placeholder.jpg');
 
 interface Props {
     src: string;

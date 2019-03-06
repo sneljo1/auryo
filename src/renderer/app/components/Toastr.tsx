@@ -1,6 +1,6 @@
 import { IToastOptions, Toaster, IToasterProps } from '@blueprintjs/core';
 import * as React from 'react';
-import { clearToasts } from '../../../common/store/ui';
+import { clearToasts } from '@common/store/ui';
 
 interface Props extends IToasterProps {
     toasts: Array<IToastOptions>;

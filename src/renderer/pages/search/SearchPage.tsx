@@ -2,18 +2,18 @@ import * as React from 'react';
 import { connect, MapDispatchToProps, MapStateToPropsParam } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import { bindActionCreators } from 'redux';
-import { StoreState } from '../../../common/store';
-import { toggleFollowing } from '../../../common/store/auth';
-import { canFetchMoreOf, fetchMore, ObjectState, ObjectTypes, PlaylistTypes } from '../../../common/store/objects';
-import { getPlaylistName, getPlaylistObjectSelector } from '../../../common/store/objects/selectors';
-import { playTrack } from '../../../common/store/player';
-import { setScrollPosition } from '../../../common/store/ui';
-import { getPreviousScrollTop } from '../../../common/store/ui/selectors';
+import { StoreState } from '@common/store';
+import { toggleFollowing } from '@common/store/auth';
+import { canFetchMoreOf, fetchMore, ObjectState, ObjectTypes, PlaylistTypes } from '@common/store/objects';
+import { getPlaylistName, getPlaylistObjectSelector } from '@common/store/objects/selectors';
+import { playTrack } from '@common/store/player';
+import { setScrollPosition } from '@common/store/ui';
+import { getPreviousScrollTop } from '@common/store/ui/selectors';
 import { NormalizedResult } from '../../../types';
 import Spinner from '../../_shared/Spinner/Spinner';
 import TracksGrid from '../../_shared/TracksGrid/TracksGrid';
 import SearchWrapper from './SearchWrapper';
-import { search } from '../../../common/store/objects/playlists/search/actions';
+import { search } from '@common/store/objects/playlists/search/actions';
 import './SearchPage.scss';
 
 interface OwnProps extends RouteComponentProps<{}> {
@@ -45,11 +45,11 @@ class Search extends React.Component<AllProps> {
         }
     }
 
-    componentWillReceiveProps(nextProps: AllProps) {
+    componentDidUpdate(prevProps: AllProps) {
         const { query, search, playlist, objectId } = this.props;
 
-        if ((query !== nextProps.query || !playlist) && nextProps.query && nextProps.query.length) {
-            search({ query: nextProps.query }, objectId, 15);
+        if ((query !== prevProps.query || !playlist) && query && query.length) {
+            search({ query }, objectId, 15);
         }
     }
 

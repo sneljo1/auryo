@@ -1,5 +1,5 @@
 import { canFetchMoreOf, fetchMore, ObjectTypes } from '../..';
-import { Utils } from '../../../../../common/utils/utils';
+import { Utils } from '@common/utils/utils';
 import { ThunkResult } from '../../../../../types';
 import fetchSearch from '../../../../api/fetchSearch';
 import { SC } from '../../../../utils';

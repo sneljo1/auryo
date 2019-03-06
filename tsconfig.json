@@ -27,7 +27,14 @@
       "src/types"
     ],
     "sourceRoot": "/",
-
+    "baseUrl": ".",
+    "paths": {
+      "*": ["types/*"],
+			"@common/*": ["src/common/*"],
+			"@main/*": ["src/main/*"],
+			"@renderer/*": ["src/renderer/*"],
+			"@assets/*": ["src/assets/*"],
+		},
     // prod
     "sourceMap": true,
     "inlineSources": true,

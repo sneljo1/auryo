@@ -4,10 +4,10 @@ import * as React from 'react';
 import * as ReactList from 'react-list';
 import { MapDispatchToProps, connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { StoreState } from '../../../../common/store';
-import { clearUpNext, PlayingTrack, updateQueue, UpNextState } from '../../../../common/store/player';
-import { getQueue } from '../../../../common/store/player/selectors';
-import { toggleQueue } from '../../../../common/store/ui';
+import { StoreState } from '@common/store';
+import { clearUpNext, PlayingTrack, updateQueue, UpNextState } from '@common/store/player';
+import { getQueue } from '@common/store/player/selectors';
+import { toggleQueue } from '@common/store/ui';
 import CustomScroll from '../../../_shared/CustomScroll';
 import Spinner from '../../../_shared/Spinner/Spinner';
 import './Queue.scss';
@@ -48,11 +48,10 @@ class Queue extends React.PureComponent<AllProps> {
         }
     }
 
-    componentWillReceiveProps(nextProps: AllProps) {
-        const { showQueue } = this.props;
+    componentDidUpdate(prevProps: AllProps) {
+        const { showQueue, currentIndex, playingTrack } = this.props;
 
-        if (showQueue !== nextProps.showQueue && nextProps.showQueue === true) {
-            const { currentIndex, playingTrack } = nextProps;
+        if (showQueue !== prevProps.showQueue && showQueue === true) {
 
             if (playingTrack && playingTrack.id && this.list) {
                 this.list.scrollTo(currentIndex);

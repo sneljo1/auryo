@@ -1,7 +1,7 @@
 import cn from 'classnames';
 import { debounce } from 'lodash';
 import * as React from 'react';
-import { ConfigState, setConfigKey } from '../../../../../../../common/store/config';
+import { ConfigState, setConfigKey } from '@common/store/config';
 
 interface Props {
     config: ConfigState;

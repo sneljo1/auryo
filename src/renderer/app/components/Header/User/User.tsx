@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { AuthUser } from '../../../../../common/store/auth';
+import { AuthUser } from '@common/store/auth';
 import './User.scss';
 
 interface Props {

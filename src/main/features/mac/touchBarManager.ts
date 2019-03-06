@@ -1,8 +1,8 @@
 import { nativeImage, TouchBar } from 'electron';
 import * as path from 'path';
-import { EVENTS } from '../../../common/constants/events';
-import { ChangeTypes, PlayerStatus } from '../../../common/store/player';
-import * as SC from '../../../common/utils/soundcloudUtils';
+import { EVENTS } from '@common/constants/events';
+import { ChangeTypes, PlayerStatus } from '@common/store/player';
+import * as SC from '@common/utils/soundcloudUtils';
 import { WatchState } from '../feature';
 import MacFeature from './macFeature';
 

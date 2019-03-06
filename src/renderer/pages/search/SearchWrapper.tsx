@@ -2,7 +2,7 @@ import { Location } from 'history';
 import * as React from 'react';
 import { NavLink } from 'react-router-dom';
 import { Nav } from 'reactstrap';
-import { setScrollPosition } from '../../../common/store/ui';
+import { setScrollPosition } from '@common/store/ui';
 import WithHeaderComponent from '../../_shared/WithHeaderComponent';
 import CustomScroll from '../../_shared/CustomScroll';
 import Header from '../../app/components/Header/Header';

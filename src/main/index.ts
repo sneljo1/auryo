@@ -1,5 +1,5 @@
 
-import '../common/sentryReporter';
+import '@common/sentryReporter';
 
 if (process.env.TOKEN) {
   process.env.ENV = 'test';

@@ -6,10 +6,10 @@ import { electronEnhancer } from 'redux-electron-store';
 import { createLogger } from 'redux-logger';
 import promiseMiddleware from 'redux-promise-middleware';
 import thunk from 'redux-thunk';
-import { rootReducer, StoreState } from '../common/store';
-import { logout } from '../common/store/auth';
-import { PlayerActionTypes } from '../common/store/player';
-import { UIActionTypes, addToast } from '../common/store/ui';
+import { rootReducer, StoreState } from '@common/store';
+import { logout } from '@common/store/auth';
+import { PlayerActionTypes } from '@common/store/player';
+import { UIActionTypes, addToast } from '@common/store/ui';
 import { REDUX_STATES } from '../types';
 import { connectRouter, routerMiddleware } from 'connected-react-router';
 import { Intent } from '@blueprintjs/core';
@@ -90,10 +90,10 @@ const configureStore = (): Store<StoreState> => {
     const store: Store<StoreState> = createStore(connectRouter(history)(rootReducer), enhancer);
 
     if (module.hot) {
-        module.hot.accept('../common/store', () => {
+        module.hot.accept('@common/store', () => {
             ipcRenderer.sendSync('renderer-reload');
 
-            import('../common/store')
+            import('@common/store')
                 .then(({ rootReducer }) => {
                     store.replaceReducer(connectRouter(history)(rootReducer) as any);
                 });

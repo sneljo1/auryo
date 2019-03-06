@@ -7,10 +7,10 @@ import { connect, MapDispatchToProps } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
 import { bindActionCreators } from 'redux';
 import { show } from 'redux-modal';
-import { EVENTS } from '../../../../common/constants/events';
-import { StoreState } from '../../../../common/store';
-import { CanGoHistory, UpdateInfo } from '../../../../common/store/app';
-import { AuthUser, logout } from '../../../../common/store/auth';
+import { EVENTS } from '@common/constants/events';
+import { StoreState } from '@common/store';
+import { CanGoHistory, UpdateInfo } from '@common/store/app';
+import { AuthUser, logout } from '@common/store/auth';
 import Sticky from '../../../_shared/Sticky';
 import SearchBox from './Search/SearchBox';
 import User from './User/User';
@@ -74,16 +74,6 @@ class Header extends React.Component<AllProps, State> {
         }
     }
 
-    componentWillReceiveProps() {
-        const { height } = this.state;
-
-        if (this.navBarWrapper && height !== this.navBarWrapper.clientHeight) {
-            this.setState({
-                height: this.navBarWrapper.clientHeight
-            });
-        }
-    }
-
     shouldComponentUpdate(nextProps: AllProps, nextState: State) {
         const { scrollTop, locHistory, me, update, location } = this.props;
 
@@ -96,6 +86,14 @@ class Header extends React.Component<AllProps, State> {
     }
 
     componentDidUpdate(prevProps: AllProps) {
+        const { height } = this.state;
+
+        if (this.navBarWrapper && height !== this.navBarWrapper.clientHeight) {
+            this.setState({
+                height: this.navBarWrapper.clientHeight
+            });
+        }
+
         if (this.props.location.pathname !== prevProps.location.pathname) {
             if (this.navBarWrapper) {
                 this.setState({

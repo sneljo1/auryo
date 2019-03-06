@@ -1,11 +1,11 @@
 import { IpcMessageEvent, ipcRenderer } from 'electron';
 import * as React from 'react';
-import { EVENTS } from '../../../../../../common/constants/events';
-import { ConfigState, setConfigKey } from '../../../../../../common/store/config';
+import { EVENTS } from '@common/constants/events';
+import { ConfigState, setConfigKey } from '@common/store/config';
 import CheckboxConfig from './components/CheckboxConfig';
 import InputConfig from './components/InputConfig';
 import { connect, MapDispatchToProps } from 'react-redux';
-import { StoreState } from '../../../../../../common/store';
+import { StoreState } from '@common/store';
 import { bindActionCreators } from 'redux';
 import './SettingsTab.scss';
 

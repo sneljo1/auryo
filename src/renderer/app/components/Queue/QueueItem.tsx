@@ -6,13 +6,13 @@ import ActionsDropdown from '../../../_shared/ActionsDropdown';
 import FallbackImage from '../../../_shared/FallbackImage';
 import TextShortener from '../../../_shared/TextShortener';
 import { bindActionCreators } from 'redux';
-import { PlayingTrack, playTrack } from '../../../../common/store/player';
+import { PlayingTrack, playTrack } from '@common/store/player';
 import { SoundCloud } from '../../../../types';
-import { SC } from '../../../../common/utils';
-import { IMAGE_SIZES } from '../../../../common/constants';
-import { StoreState } from '../../../../common/store';
-import { getTrackEntity } from '../../../../common/store/entities/selectors';
-import { getCurrentPlaylistId } from '../../../../common/store/player/selectors';
+import { SC } from '@common/utils';
+import { IMAGE_SIZES } from '@common/constants';
+import { StoreState } from '@common/store';
+import { getTrackEntity } from '@common/store/entities/selectors';
+import { getCurrentPlaylistId } from '@common/store/player/selectors';
 
 interface OwnProps {
     trackData: PlayingTrack;

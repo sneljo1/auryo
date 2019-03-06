@@ -5,11 +5,11 @@ import { debounce } from 'lodash';
 import * as React from 'react';
 import { connect, MapDispatchToProps } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { StoreState } from '../../common/store';
-import { AppState, initApp, setDimensions, stopWatchers, toggleOffline } from '../../common/store/app';
-import { getUserPlaylists } from '../../common/store/auth/selectors';
-import { PlayingTrack } from '../../common/store/player';
-import { addToast, clearToasts, removeToast } from '../../common/store/ui';
+import { StoreState } from '@common/store';
+import { AppState, initApp, setDimensions, stopWatchers, toggleOffline } from '@common/store/app';
+import { getUserPlaylists } from '@common/store/auth/selectors';
+import { PlayingTrack } from '@common/store/player';
+import { addToast, clearToasts, removeToast } from '@common/store/ui';
 import { NormalizedResult } from '../../types';
 import ErrorBoundary from '../_shared/ErrorBoundary';
 import Spinner from '../_shared/Spinner/Spinner';
@@ -60,16 +60,16 @@ class Layout extends React.Component<AllProps> {
 
     }
 
-    componentWillReceiveProps(nextProps: AllProps) {
+    componentDidUpdate(prevProps: AllProps) {
         const { app, addToast, removeToast } = this.props;
 
-        if (app.offline !== nextProps.app.offline && nextProps.app.offline === true) {
+        if (app.offline !== prevProps.app.offline && app.offline === true) {
             addToast({
                 key: 'offline',
                 intent: Intent.PRIMARY,
                 message: 'You are currently offline.'
             });
-        } else if (app.offline !== nextProps.app.offline && nextProps.app.offline === false) {
+        } else if (app.offline !== prevProps.app.offline && app.offline === false) {
             removeToast('offline');
         }
     }

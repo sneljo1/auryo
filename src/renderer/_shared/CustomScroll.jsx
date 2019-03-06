@@ -63,7 +63,7 @@ class CustomScroll extends React.Component {
         }
     }
 
-    componentWillReceiveProps() {
+    componentDidUpdate() {
         this.externalRender = true
     }
 

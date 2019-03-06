@@ -3,17 +3,17 @@ import * as React from 'react';
 import { connect, MapDispatchToProps } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
-import { IMAGE_SIZES } from '../../../../common/constants';
-import { StoreState } from '../../../../common/store';
-import { playTrack } from '../../../../common/store/player';
-import { abbreviate_number, getReadableTime, SC } from '../../../../common/utils';
+import { IMAGE_SIZES } from '@common/constants';
+import { StoreState } from '@common/store';
+import { playTrack } from '@common/store/player';
+import { abbreviate_number, getReadableTime, SC } from '@common/utils';
 import { NormalizedResult, SoundCloud } from '../../../../types';
 import ActionsDropdown from '../../ActionsDropdown';
 import FallbackImage from '../../FallbackImage';
 import TextShortener from '../../TextShortener';
 import TogglePlayButton from '../../TogglePlayButton';
-import { isPlaying } from '../../../../common/store/player/selectors';
-import { getTrackEntity } from '../../../../common/store/entities/selectors';
+import { isPlaying } from '@common/store/player/selectors';
+import { getTrackEntity } from '@common/store/entities/selectors';
 import './TrackListItem.scss';
 
 interface OwnProps {

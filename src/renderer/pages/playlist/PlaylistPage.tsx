@@ -4,18 +4,18 @@ import * as React from 'react';
 import { connect, MapDispatchToProps } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
-import { IMAGE_SIZES } from '../../../common/constants';
-import { StoreState } from '../../../common/store';
-import { AuthState } from '../../../common/store/auth';
-import { getPlaylistEntity } from '../../../common/store/entities/selectors';
-import { fetchPlaylistIfNeeded, fetchPlaylistTracks, ObjectState } from '../../../common/store/objects';
-import { getPlaylistObjectSelector } from '../../../common/store/objects/selectors';
-import { addUpNext, PlayerStatus, playTrack, toggleStatus } from '../../../common/store/player';
-import { toggleLike, toggleRepost } from '../../../common/store/track/actions';
-import { setScrollPosition } from '../../../common/store/ui';
-import { getPreviousScrollTop } from '../../../common/store/ui/selectors';
-import { getReadableTimeFull, SC } from '../../../common/utils';
-import { IPC } from '../../../common/utils/ipc';
+import { IMAGE_SIZES } from '@common/constants';
+import { StoreState } from '@common/store';
+import { AuthState } from '@common/store/auth';
+import { getPlaylistEntity } from '@common/store/entities/selectors';
+import { fetchPlaylistIfNeeded, fetchPlaylistTracks, ObjectState } from '@common/store/objects';
+import { getPlaylistObjectSelector } from '@common/store/objects/selectors';
+import { addUpNext, PlayerStatus, playTrack, toggleStatus } from '@common/store/player';
+import { toggleLike, toggleRepost } from '@common/store/track/actions';
+import { setScrollPosition } from '@common/store/ui';
+import { getPreviousScrollTop } from '@common/store/ui/selectors';
+import { getReadableTimeFull, SC } from '@common/utils';
+import { IPC } from '@common/utils/ipc';
 import { NormalizedResult, SoundCloud } from '../../../types';
 import Header from '../../app/components/Header/Header';
 import CustomScroll from '../../_shared/CustomScroll';
@@ -68,11 +68,11 @@ class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
 
     }
 
-    componentWillReceiveProps(nextProps: AllProps) {
+    componentDidUpdate(prevProps: AllProps) {
         const { fetchPlaylistIfNeeded, playlistIdParam } = this.props;
 
-        if (playlistIdParam !== nextProps.playlistIdParam) {
-            fetchPlaylistIfNeeded(nextProps.playlistIdParam);
+        if (playlistIdParam !== prevProps.playlistIdParam) {
+            fetchPlaylistIfNeeded(playlistIdParam);
         }
     }
 

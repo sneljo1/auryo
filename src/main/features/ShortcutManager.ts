@@ -1,7 +1,7 @@
 import { globalShortcut } from 'electron';
 import IFeature from './feature';
-import { EVENTS } from '../../common/constants/events';
-import { ChangeTypes, PlayerStatus } from '../../common/store/player';
+import { EVENTS } from '@common/constants/events';
+import { ChangeTypes, PlayerStatus } from '@common/store/player';
 import { Auryo } from '../app';
 
 /**

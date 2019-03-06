@@ -1,6 +1,7 @@
 const path = require('path')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const webpack = require('webpack')
+const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 
 let port = process.argv[2] || 8080
 
@@ -153,7 +154,12 @@ module.exports = {
     extensions: ['.tsx', '.ts', '.js', '.jsx', '.json', '.scss'],
     alias: {
       '@': path.resolve(__dirname, '../src')
-    }
+    },
+    plugins: [
+      new TsconfigPathsPlugin({
+        extensions: [".ts", ".tsx", ".js", ".jsx"]
+      })
+    ]
   },
   node: {
     __dirname: process.env.NODE_ENV !== 'production',

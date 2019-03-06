@@ -1,8 +1,8 @@
 import { app, Menu, shell, MenuItemConstructorOptions } from 'electron';
-import { EVENTS } from '../../common/constants/events';
-import * as SC from '../../common/utils/soundcloudUtils';
+import { EVENTS } from '@common/constants/events';
+import * as SC from '@common/utils/soundcloudUtils';
 import Feature from './feature';
-import { PlayerStatus, ChangeTypes, PlayerState, VolumeChangeTypes } from '../../common/store/player';
+import { PlayerStatus, ChangeTypes, PlayerState, VolumeChangeTypes } from '@common/store/player';
 import { show } from 'redux-modal';
 import * as is from 'electron-is';
 

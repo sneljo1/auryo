@@ -3,14 +3,14 @@ import * as React from 'react';
 import { connect, MapDispatchToProps } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
-import { IMAGE_SIZES } from '../../../../common/constants';
-import { StoreState } from '../../../../common/store';
-import { abbreviate_number, SC } from '../../../../common/utils';
+import { IMAGE_SIZES } from '@common/constants';
+import { StoreState } from '@common/store';
+import { abbreviate_number, SC } from '@common/utils';
 import { NormalizedResult, SoundCloud } from '../../../../types';
 import FallbackImage from '../../FallbackImage';
-import { getUserEntity } from '../../../../common/store/entities/selectors';
-import { toggleFollowing } from '../../../../common/store/auth';
-import { isFollowing } from '../../../../common/store/auth/selectors';
+import { getUserEntity } from '@common/store/entities/selectors';
+import { toggleFollowing } from '@common/store/auth';
+import { isFollowing } from '@common/store/auth/selectors';
 import './TrackGridUser.scss';
 
 interface OwnProps {

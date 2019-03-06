@@ -1,40 +1,28 @@
+import { StoreState } from '@common/store';
+import { canFetchMoreOf, fetchMore, ObjectTypes, PlaylistTypes } from '@common/store/objects';
+import { search } from '@common/store/objects/playlists/search/actions';
+import { getPlaylistName, getPlaylistObjectSelector } from '@common/store/objects/selectors';
+import { setScrollPosition } from '@common/store/ui';
+import { getPreviousScrollTop } from '@common/store/ui/selectors';
 import cn from 'classnames';
 import * as React from 'react';
-import { connect, MapDispatchToProps } from 'react-redux';
+import { connect } from 'react-redux';
 import { NavLink, RouteComponentProps } from 'react-router-dom';
 import { Nav } from 'reactstrap';
-import { bindActionCreators } from 'redux';
-import { StoreState } from '../../../common/store';
-import { canFetchMoreOf, fetchMore, ObjectState, ObjectTypes, PlaylistTypes } from '../../../common/store/objects';
-import { getPlaylistName, getPlaylistObjectSelector } from '../../../common/store/objects/selectors';
-import { setScrollPosition } from '../../../common/store/ui';
-import { getPreviousScrollTop } from '../../../common/store/ui/selectors';
-import { NormalizedResult } from '../../../types';
-import { search } from '../../../common/store/objects/playlists/search/actions';
-import WithHeaderComponent from '../../_shared/WithHeaderComponent';
-import Spinner from '../../_shared/Spinner/Spinner';
+import { bindActionCreators, Dispatch } from 'redux';
 import Header from '../../app/components/Header/Header';
 import CustomScroll from '../../_shared/CustomScroll';
 import PageHeader from '../../_shared/PageHeader/PageHeader';
+import Spinner from '../../_shared/Spinner/Spinner';
 import TracksGrid from '../../_shared/TracksGrid/TracksGrid';
+import WithHeaderComponent from '../../_shared/WithHeaderComponent';
 
 interface OwnProps extends RouteComponentProps<{ tag: string, type: string }> {
 }
 
-interface PropsFromState {
-    playlist: ObjectState<NormalizedResult> | null;
-    objectId: string;
-    tag: string;
-    showType: TabTypes;
-    previousScrollTop?: number;
-}
+type PropsFromState = ReturnType<typeof mapStateToProps>;
 
-interface PropsFromDispatch {
-    canFetchMoreOf: typeof canFetchMoreOf;
-    fetchMore: typeof fetchMore;
-    setScrollPosition: typeof setScrollPosition;
-    search: typeof search;
-}
+type PropsFromDispatch = ReturnType<typeof mapDispatchToProps>;
 
 interface State {
     scrollTop: number;
@@ -57,11 +45,11 @@ class TagsPage extends WithHeaderComponent<AllProps, State> {
         }
     }
 
-    componentWillReceiveProps(nextProps: AllProps) {
+    componentDidUpdate(prevProps: AllProps) {
         const { tag, playlist, objectId, search, showType } = this.props;
 
-        if ((tag !== nextProps.tag || !playlist) && tag && tag.length || showType !== nextProps.showType) {
-            search({ tag: nextProps.tag }, objectId, 25);
+        if ((tag !== prevProps.tag || !playlist) && tag && tag.length || showType !== prevProps.showType) {
+            search({ tag }, objectId, 25);
         }
     }
 
@@ -87,22 +75,15 @@ class TagsPage extends WithHeaderComponent<AllProps, State> {
             tag,
         } = this.props;
 
-        if (!playlist || (playlist && !playlist.items.length && playlist.isFetching)) {
-            return (
-                <Spinner contained={true} />
-            );
-        }
-
         return (
             <CustomScroll
                 heightRelativeToParent='100%'
                 // heightMargin={35}
                 allowOuterScroll={true}
                 threshold={300}
-                isFetching={playlist.isFetching}
+                isFetching={playlist && playlist.isFetching}
                 ref={(r) => this.scroll = r}
                 loadMore={this.loadMore}
-                loader={<Spinner />}
                 onScroll={this.debouncedOnScroll}
                 hasMore={this.hasMore}
             >
@@ -134,16 +115,24 @@ class TagsPage extends WithHeaderComponent<AllProps, State> {
                     </Nav>
                 </div>
 
-                <TracksGrid
-                    items={playlist.items}
-                    objectId={objectId}
-                />
+                {
+                    !playlist || (playlist && !playlist.items.length && playlist.isFetching) ? (
+                        <Spinner />
+                    ) : (
+                            <TracksGrid
+                                items={playlist.items}
+                                objectId={objectId}
+                            />
+                        )
+                }
+
+
             </CustomScroll>
         );
     }
 }
 
-const mapStateToProps = (state: StoreState, props: OwnProps): PropsFromState => {
+const mapStateToProps = (state: StoreState, props: OwnProps) => {
     const { match: { params: { tag, type } } } = props;
 
     const showType = (type as TabTypes) || TabTypes.TRACKS;
@@ -159,7 +148,7 @@ const mapStateToProps = (state: StoreState, props: OwnProps): PropsFromState => 
     };
 };
 
-const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, OwnProps> = (dispatch) => bindActionCreators({
+const mapDispatchToProps = (dispatch: Dispatch) => bindActionCreators({
     search,
     canFetchMoreOf,
     fetchMore,

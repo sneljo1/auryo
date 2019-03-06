@@ -1,7 +1,7 @@
 // tslint:disable:no-empty
 
 import * as React from 'react';
-import { PlayerStatus } from '../../../../../common/store/player';
+import { PlayerStatus } from '@common/store/player';
 
 interface Props {
     autoPlay?: boolean;
@@ -137,8 +137,8 @@ class ReactAudioPlayer extends React.PureComponent<AllProps, State> {
         }
     }
 
-    componentWillReceiveProps(nextProps: AllProps) {
-        this.updateVolume(nextProps.volume);
+    componentDidUpdate() {
+        this.updateVolume(this.props.volume);
     }
 
     get instance(): HTMLAudioElement | null {

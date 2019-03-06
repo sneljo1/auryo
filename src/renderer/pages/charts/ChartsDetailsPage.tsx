@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
-import { AUDIO_GENRES, GenreConfig, MUSIC_GENRES } from '../../../common/constants';
-import { SortTypes } from '../../../common/store/playlist/types';
+import { AUDIO_GENRES, GenreConfig, MUSIC_GENRES } from '@common/constants';
+import { SortTypes } from '@common/store/playlist/types';
 import PlaylistPage from '../playlists/Playlist';
 import { GENRE_IMAGES } from './ChartsPage';
 

@@ -3,18 +3,18 @@ import * as React from 'react';
 import { connect, MapDispatchToProps } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { show } from 'redux-modal';
-import { StoreState } from '../../../common/store';
-import { AuthStatus, login } from '../../../common/store/auth';
+import { StoreState } from '@common/store';
+import { AuthStatus, login } from '@common/store/auth';
 import UtilitiesModal from '../../app/components/modals/UtilitiesModel/UtilitiesModal';
 import LoginStep from './components/LoginStep';
 import WelcomeStep from './components/WelcomeStep';
 import './OnBoarding.scss';
 import PrivacyStep from './components/PrivacyStep';
-import { setConfigKey, ConfigState } from '../../../common/store/config';
+import { setConfigKey, ConfigState } from '@common/store/config';
 import * as cn from 'classnames';
 import { RouteComponentProps } from 'react-router';
 
-const feetonmusicbox = require('../../../assets/img/feetonmusicbox.jpg');
+const feetonmusicbox = require('@assets/img/feetonmusicbox.jpg');
 
 interface OwnProps extends RouteComponentProps<{}> {
 

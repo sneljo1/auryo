@@ -4,11 +4,11 @@ import { autoUpdater } from 'electron-updater';
 import * as request from 'request';
 import { gt as isVersionGreaterThan, valid as parseVersion } from 'semver';
 import { CONFIG } from '../../config';
-import { EVENTS } from '../../common/constants/events';
+import { EVENTS } from '@common/constants/events';
 import { Logger } from '../utils/logger';
 import Feature from './feature';
-import { setUpdateAvailable } from '../../common/store/app';
-import { addToast } from '../../common/store/ui';
+import { setUpdateAvailable } from '@common/store/app';
+import { addToast } from '@common/store/ui';
 import { Intent } from '@blueprintjs/core';
 
 export default class AppUpdater extends Feature {

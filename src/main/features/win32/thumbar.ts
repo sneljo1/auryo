@@ -1,10 +1,10 @@
 import { nativeImage } from 'electron';
 import * as is from 'electron-is';
 import * as path from 'path';
-import { EVENTS } from '../../../common/constants/events';
+import { EVENTS } from '@common/constants/events';
 import IFeature from '../feature';
 import { Auryo } from '../../app';
-import { PlayerStatus, ChangeTypes } from '../../../common/store/player';
+import { PlayerStatus, ChangeTypes } from '@common/store/player';
 
 const iconsDirectory = process.env.NODE_ENV === 'development' ?
   path.resolve(__dirname, '..', '..', '..', '..', 'static', 'icons') :

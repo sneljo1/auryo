@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Button } from '@blueprintjs/core';
 import { show } from 'redux-modal';
 
-const logo_url = require('../../../../assets/img/auryo-dark.png');
+const logo_url = require('@assets/img/auryo-dark.png');
 
 interface Props {
     error: string | null;

@@ -1,7 +1,7 @@
 import cn from 'classnames';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { GenreConfig } from '../../../../common/constants';
+import { GenreConfig } from '@common/constants';
 
 interface Props {
     genre: GenreConfig;

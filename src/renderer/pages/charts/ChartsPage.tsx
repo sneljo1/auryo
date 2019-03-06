@@ -4,10 +4,10 @@ import Masonry from 'react-masonry-css';
 import { connect } from 'react-redux';
 import { NavLink, RouteComponentProps } from 'react-router-dom';
 import { Nav, TabContent, TabPane } from 'reactstrap';
-import { AUDIO_GENRES, MUSIC_GENRES } from '../../../common/constants';
-import { StoreState } from '../../../common/store';
-import { setScrollPosition } from '../../../common/store/ui';
-import { getPreviousScrollTop } from '../../../common/store/ui/selectors';
+import { AUDIO_GENRES, MUSIC_GENRES } from '@common/constants';
+import { StoreState } from '@common/store';
+import { setScrollPosition } from '@common/store/ui';
+import { getPreviousScrollTop } from '@common/store/ui/selectors';
 import Header from '../../app/components/Header/Header';
 import CustomScroll from '../../_shared/CustomScroll';
 import PageHeader from '../../_shared/PageHeader/PageHeader';
@@ -16,37 +16,37 @@ import ChartGenre from './components/ChartGenre';
 import './ChartsPage.scss';
 
 export const GENRE_IMAGES = {
-    'all-music': require('../../../assets/img/genres/all-music.jpg'),
-    alternativerock: require('../../../assets/img/genres/alternativerock.jpg'),
-    ambient: require('../../../assets/img/genres/ambient.jpg'),
-    classical: require('../../../assets/img/genres/classical.jpg'),
-    country: require('../../../assets/img/genres/country.jpg'),
-    danceedm: require('../../../assets/img/genres/danceedm.jpg'),
-    dancehall: require('../../../assets/img/genres/dancehall.jpg'),
-    deephouse: require('../../../assets/img/genres/deephouse.jpg'),
-    disco: require('../../../assets/img/genres/disco.jpg'),
-    drumbass: require('../../../assets/img/genres/drumbass.jpg'),
-    dubstep: require('../../../assets/img/genres/dubstep.jpg'),
-    electronic: require('../../../assets/img/genres/electronic.jpg'),
-    folksingersongwriter: require('../../../assets/img/genres/folksingersongwriter.jpg'),
-    hiphoprap: require('../../../assets/img/genres/hiphoprap.jpg'),
-    house: require('../../../assets/img/genres/house.jpg'),
-    indie: require('../../../assets/img/genres/indie.jpg'),
-    jazzblues: require('../../../assets/img/genres/jazzblues.jpg'),
-    latin: require('../../../assets/img/genres/latin.jpg'),
-    metal: require('../../../assets/img/genres/metal.jpg'),
-    piano: require('../../../assets/img/genres/piano.jpg'),
-    pop: require('../../../assets/img/genres/pop.jpg'),
-    rbsoul: require('../../../assets/img/genres/rbsoul.jpg'),
-    reggae: require('../../../assets/img/genres/reggae.jpg'),
-    reggaeton: require('../../../assets/img/genres/reggaeton.jpg'),
-    rock: require('../../../assets/img/genres/rock.jpg'),
-    soundtrack: require('../../../assets/img/genres/soundtrack.jpg'),
-    techno: require('../../../assets/img/genres/techno.jpg'),
-    trance: require('../../../assets/img/genres/trance.jpg'),
-    trap: require('../../../assets/img/genres/trap.jpg'),
-    triphop: require('../../../assets/img/genres/triphop.jpg'),
-    world: require('../../../assets/img/genres/world.jpg')
+    'all-music': require('@assets/img/genres/all-music.jpg'),
+    alternativerock: require('@assets/img/genres/alternativerock.jpg'),
+    ambient: require('@assets/img/genres/ambient.jpg'),
+    classical: require('@assets/img/genres/classical.jpg'),
+    country: require('@assets/img/genres/country.jpg'),
+    danceedm: require('@assets/img/genres/danceedm.jpg'),
+    dancehall: require('@assets/img/genres/dancehall.jpg'),
+    deephouse: require('@assets/img/genres/deephouse.jpg'),
+    disco: require('@assets/img/genres/disco.jpg'),
+    drumbass: require('@assets/img/genres/drumbass.jpg'),
+    dubstep: require('@assets/img/genres/dubstep.jpg'),
+    electronic: require('@assets/img/genres/electronic.jpg'),
+    folksingersongwriter: require('@assets/img/genres/folksingersongwriter.jpg'),
+    hiphoprap: require('@assets/img/genres/hiphoprap.jpg'),
+    house: require('@assets/img/genres/house.jpg'),
+    indie: require('@assets/img/genres/indie.jpg'),
+    jazzblues: require('@assets/img/genres/jazzblues.jpg'),
+    latin: require('@assets/img/genres/latin.jpg'),
+    metal: require('@assets/img/genres/metal.jpg'),
+    piano: require('@assets/img/genres/piano.jpg'),
+    pop: require('@assets/img/genres/pop.jpg'),
+    rbsoul: require('@assets/img/genres/rbsoul.jpg'),
+    reggae: require('@assets/img/genres/reggae.jpg'),
+    reggaeton: require('@assets/img/genres/reggaeton.jpg'),
+    rock: require('@assets/img/genres/rock.jpg'),
+    soundtrack: require('@assets/img/genres/soundtrack.jpg'),
+    techno: require('@assets/img/genres/techno.jpg'),
+    trance: require('@assets/img/genres/trance.jpg'),
+    trap: require('@assets/img/genres/trap.jpg'),
+    triphop: require('@assets/img/genres/triphop.jpg'),
+    world: require('@assets/img/genres/world.jpg')
 };
 
 interface OwnProps extends RouteComponentProps<{ type?: string }> {

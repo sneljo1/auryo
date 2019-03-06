@@ -1,8 +1,8 @@
 import * as moment from 'moment';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { ObjectState } from '../../../../common/store/objects';
-import { abbreviate_number } from '../../../../common/utils';
+import { ObjectState } from '@common/store/objects';
+import { abbreviate_number } from '@common/utils';
 import { NormalizedResult, SoundCloud } from '../../../../types';
 import TrackGridUser from '../../../_shared/TracksGrid/TrackgridUser/TrackGridUser';
 import ToggleMore from '../../../_shared/ToggleMore';

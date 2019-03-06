@@ -2,7 +2,7 @@ import { BrowserWindow, ipcMain } from 'electron';
 import { isEqual } from 'lodash';
 import { Store } from 'redux';
 import * as ReduxWatcher from 'redux-watcher';
-import { StoreState } from '../../common/store';
+import { StoreState } from '@common/store';
 import { Auryo } from '../app';
 import { IFeature } from './feature.interface';
 

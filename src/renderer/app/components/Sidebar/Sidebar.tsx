@@ -23,7 +23,7 @@ const SideBar = React.memo<AllProps>(({ items }) => (
             heightRelativeToParent='100%'
             allowOuterScroll={true}
         >
-            <div key='sidebar-menu' id='sidebar-menu' className={styles.sidebarMenu}>
+            <div id='sidebar-menu' className={styles.sidebarMenu}>
                 <h2>Discover</h2>
                 <ul className={styles.nav}>
                     <li className={styles.navItem}>

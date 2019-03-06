@@ -5,20 +5,20 @@ import { connect, MapDispatchToProps } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
 import { Col, Row, TabContent, TabPane } from 'reactstrap';
 import { bindActionCreators } from 'redux';
-import { IMAGE_SIZES } from '../../../common/constants';
-import { StoreState } from '../../../common/store';
-import { AuthState, toggleFollowing } from '../../../common/store/auth';
-import { CombinedUserPlaylistState, getUserPlaylistsCombined } from '../../../common/store/auth/selectors';
-import { getTrackEntity } from '../../../common/store/entities/selectors';
-import { canFetchMoreOf, fetchMore, ObjectState, ObjectTypes, PlaylistTypes } from '../../../common/store/objects';
-import { getCommentObject, getPlaylistName, getRelatedTracksPlaylistObject } from '../../../common/store/objects/selectors';
-import { addUpNext, PlayerStatus, PlayingTrack, playTrack } from '../../../common/store/player';
-import { togglePlaylistTrack } from '../../../common/store/playlist/playlist';
-import { fetchTrackIfNeeded, toggleLike, toggleRepost } from '../../../common/store/track/actions';
-import { setScrollPosition } from '../../../common/store/ui';
-import { getPreviousScrollTop } from '../../../common/store/ui/selectors';
-import { SC } from '../../../common/utils';
-import { IPC } from '../../../common/utils/ipc';
+import { IMAGE_SIZES } from '@common/constants';
+import { StoreState } from '@common/store';
+import { AuthState, toggleFollowing } from '@common/store/auth';
+import { CombinedUserPlaylistState, getUserPlaylistsCombined } from '@common/store/auth/selectors';
+import { getTrackEntity } from '@common/store/entities/selectors';
+import { canFetchMoreOf, fetchMore, ObjectState, ObjectTypes, PlaylistTypes } from '@common/store/objects';
+import { getCommentObject, getPlaylistName, getRelatedTracksPlaylistObject } from '@common/store/objects/selectors';
+import { addUpNext, PlayerStatus, PlayingTrack, playTrack } from '@common/store/player';
+import { togglePlaylistTrack } from '@common/store/playlist/playlist';
+import { fetchTrackIfNeeded, toggleLike, toggleRepost } from '@common/store/track/actions';
+import { setScrollPosition } from '@common/store/ui';
+import { getPreviousScrollTop } from '@common/store/ui/selectors';
+import { SC } from '@common/utils';
+import { IPC } from '@common/utils/ipc';
 import { NormalizedResult, SoundCloud } from '../../../types';
 import Header from '../../app/components/Header/Header';
 import CustomScroll from '../../_shared/CustomScroll';
@@ -89,12 +89,11 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
 
     }
 
-    componentWillReceiveProps(nextProps: AllProps) {
-        const { fetchTrackIfNeeded, songIdParam } = nextProps;
+    componentDidUpdate() {
+        const { fetchTrackIfNeeded, songIdParam } = this.props;
 
-        // if (songId !== nextProps.params.songId) {
         fetchTrackIfNeeded(songIdParam);
-        // }
+
     }
 
     toggle = (tab: TabTypes) => {

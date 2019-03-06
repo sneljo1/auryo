@@ -1,10 +1,10 @@
 
-import { EVENTS } from '../../../../common/constants/events';
-import { IMAGE_SIZES } from '../../../../common/constants/Soundcloud';
-import * as SC from '../../../../common/utils/soundcloudUtils';
+import { EVENTS } from '@common/constants/events';
+import { IMAGE_SIZES } from '@common/constants/Soundcloud';
+import * as SC from '@common/utils/soundcloudUtils';
 import WindowsFeature from '../windowsFeature';
-import { ChangeTypes, PlayerStatus } from '../../../../common/store/player';
-import { getTrackEntity } from '../../../../common/store/entities/selectors';
+import { ChangeTypes, PlayerStatus } from '@common/store/player';
+import { getTrackEntity } from '@common/store/entities/selectors';
 import { Logger } from '../../../utils/logger';
 
 export default class Win10MediaService extends WindowsFeature {

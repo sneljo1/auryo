@@ -4,7 +4,7 @@ import * as ReactList from 'react-list';
 import { NormalizedResult } from '../../../types';
 import TrackGridItem from './TrackgridItem/TrackGridItem';
 import TrackGridUser from './TrackgridUser/TrackGridUser';
-import { PlaylistTypes } from '../../../common/store/objects';
+import { PlaylistTypes } from '@common/store/objects';
 
 interface Props {
     showInfo?: boolean;

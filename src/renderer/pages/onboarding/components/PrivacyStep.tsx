@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Button } from '@blueprintjs/core';
 import CheckboxConfig from '../../../app/components/modals/UtilitiesModel/SettingsTab/components/CheckboxConfig';
-import { ConfigState, setConfigKey } from '../../../../common/store/config';
+import { ConfigState, setConfigKey } from '@common/store/config';
 
 interface Props {
     onNext: () => void;

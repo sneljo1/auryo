@@ -1,20 +1,20 @@
 import * as _ from 'lodash';
 import * as path from 'path';
-import { EVENTS } from '../../../common/constants/events';
-import { IMAGE_SIZES } from '../../../common/constants/Soundcloud';
-import { ChangeTypes, PlayerStatus } from '../../../common/store/player';
-import * as SC from '../../../common/utils/soundcloudUtils';
+import { EVENTS } from '@common/constants/events';
+import { IMAGE_SIZES } from '@common/constants/Soundcloud';
+import { ChangeTypes, PlayerStatus } from '@common/store/player';
+import * as SC from '@common/utils/soundcloudUtils';
 import { Logger } from '../../utils/logger';
 import { WatchState } from '../feature';
 import { MprisServiceClient } from './interfaces/mpris-service.interface';
 import LinuxFeature from './linuxFeature';
-import { getTrackEntity } from '../../../common/store/entities/selectors';
+import { getTrackEntity } from '@common/store/entities/selectors';
 
 const logosPath = process.env.NODE_ENV === 'development' ?
   path.resolve(__dirname, '..', '..', '..', 'assets', 'img', 'logos') :
   path.resolve(__dirname, './assets/img/logos');
 
-export default class MprisService extends LinuxFeature {
+export default class DbusSerbic extends LinuxFeature {
   private logger: Logger = new Logger('MprisService');
 
   private meta: MprisServiceClient.MetaData = {};
@@ -42,8 +42,8 @@ export default class MprisService extends LinuxFeature {
       this.player.playbackStatus = 'Stopped';
       this.player.canEditTracks = false;
       this.player.canSeek = false;
-      // this.player.canGoPrevious = false;
-      // this.player.canGoNext = false;
+      this.player.canGoPrevious = false;
+      this.player.canGoNext = false;
       this.player.shuffle = false;
       this.player.canControl = true;
       this.player.loopStatus = 'None';

@@ -1,11 +1,11 @@
-import { EVENTS } from '../../../common/constants/events';
-import { IMAGE_SIZES } from '../../../common/constants/Soundcloud';
-import { ChangeTypes, PlayerStatus, PlayingTrack } from '../../../common/store/player';
-import * as SC from '../../../common/utils/soundcloudUtils';
+import { EVENTS } from '@common/constants/events';
+import { IMAGE_SIZES } from '@common/constants/Soundcloud';
+import { ChangeTypes, PlayerStatus, PlayingTrack } from '@common/store/player';
+import * as SC from '@common/utils/soundcloudUtils';
 import { MediaService, MediaStates, MetaData, milliseconds } from './interfaces/electron-media-service.interfaces';
 import MacFeature from './macFeature';
 import { WatchState } from '../feature';
-import { getTrackEntity } from '../../../common/store/entities/selectors';
+import { getTrackEntity } from '@common/store/entities/selectors';
 
 export default class MediaServiceManager extends MacFeature {
   private myService: MediaService | null = null;

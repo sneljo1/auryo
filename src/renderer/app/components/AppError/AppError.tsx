@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { initApp } from '../../../../common/store/app';
+import { initApp } from '@common/store/app';
 import './AppError.scss';
 
 interface Props {

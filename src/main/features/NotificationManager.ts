@@ -1,7 +1,7 @@
-import { IMAGE_SIZES } from '../../common/constants';
-import { EVENTS } from '../../common/constants/events';
-import { getTrackEntity } from '../../common/store/entities/selectors';
-import { SC } from '../../common/utils';
+import { IMAGE_SIZES } from '@common/constants';
+import { EVENTS } from '@common/constants/events';
+import { getTrackEntity } from '@common/store/entities/selectors';
+import { SC } from '@common/utils';
 import Feature from './feature';
 
 export default class NotificationManager extends Feature {

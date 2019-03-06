@@ -1,10 +1,10 @@
 import { remote } from 'electron';
 import * as os from 'os';
 import * as React from 'react';
-import { RemainingPlays } from '../../../../../../common/store/app';
+import { RemainingPlays } from '@common/store/app';
 import './AboutTab.scss';
 
-const logo_url = require('../../../../../../assets/img/auryo-dark.png');
+const logo_url = require('@assets/img/auryo-dark.png');
 
 interface Props {
     remainingPlays: RemainingPlays | null;

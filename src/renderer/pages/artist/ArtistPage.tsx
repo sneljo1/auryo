@@ -5,19 +5,19 @@ import { connect, MapDispatchToProps } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
 import { Col, Row, TabContent, TabPane } from 'reactstrap';
 import { bindActionCreators } from 'redux';
-import { IMAGE_SIZES } from '../../../common/constants';
-import { StoreState } from '../../../common/store';
-import { Dimensions } from '../../../common/store/app';
-import { AuthState, toggleFollowing } from '../../../common/store/auth';
-import { getUserEntity } from '../../../common/store/entities/selectors';
-import { canFetchMoreOf, fetchMore, ObjectState, ObjectTypes, PlaylistTypes } from '../../../common/store/objects';
-import { getArtistLikesPlaylistObject, getArtistTracksPlaylistObject, getPlaylistName } from '../../../common/store/objects/selectors';
-import { PlayerStatus, playTrack, toggleStatus } from '../../../common/store/player';
-import { setScrollPosition } from '../../../common/store/ui';
-import { getPreviousScrollTop } from '../../../common/store/ui/selectors';
-import { fetchArtistIfNeeded } from '../../../common/store/user/actions';
-import { abbreviate_number, SC } from '../../../common/utils';
-import { IPC } from '../../../common/utils/ipc';
+import { IMAGE_SIZES } from '@common/constants';
+import { StoreState } from '@common/store';
+import { Dimensions } from '@common/store/app';
+import { AuthState, toggleFollowing } from '@common/store/auth';
+import { getUserEntity } from '@common/store/entities/selectors';
+import { canFetchMoreOf, fetchMore, ObjectState, ObjectTypes, PlaylistTypes } from '@common/store/objects';
+import { getArtistLikesPlaylistObject, getArtistTracksPlaylistObject, getPlaylistName } from '@common/store/objects/selectors';
+import { PlayerStatus, playTrack, toggleStatus } from '@common/store/player';
+import { setScrollPosition } from '@common/store/ui';
+import { getPreviousScrollTop } from '@common/store/ui/selectors';
+import { fetchArtistIfNeeded } from '@common/store/user/actions';
+import { abbreviate_number, SC } from '@common/utils';
+import { IPC } from '@common/utils/ipc';
 import { NormalizedResult, SoundCloud } from '../../../types';
 import Header from '../../app/components/Header/Header';
 import CustomScroll from '../../_shared/CustomScroll';
@@ -89,11 +89,14 @@ class ArtistPage extends WithHeaderComponent<AllProps, State> {
         fetchArtistIfNeeded(artistIdParam);
     }
 
-    componentWillReceiveProps(nextProps: AllProps) {
-        const { fetchArtistIfNeeded, artistIdParam, dimensions } = nextProps;
+    componentDidUpdate(prevProps: AllProps) {
+        const { fetchArtistIfNeeded, artistIdParam, dimensions } = this.props;
         const { activeTab } = this.state;
 
-        fetchArtistIfNeeded(artistIdParam);
+        if (artistIdParam !== prevProps.artistIdParam) {
+            fetchArtistIfNeeded(artistIdParam);
+        }
+
 
         if (this.state.small !== dimensions.width < 990) {
             this.setState({

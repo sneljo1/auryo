@@ -6,21 +6,21 @@ import * as React from 'react';
 import * as isDeepEqual from 'react-fast-compare';
 import { connect, MapDispatchToProps } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { IMAGE_SIZES } from '../../../../common/constants';
-import { EVENTS } from '../../../../common/constants/events';
-import { StoreState } from '../../../../common/store';
-import { RemainingPlays } from '../../../../common/store/app';
-import { hasLiked } from '../../../../common/store/auth/selectors';
-import { setConfigKey } from '../../../../common/store/config';
-import { getTrackEntity } from '../../../../common/store/entities/selectors';
+import { IMAGE_SIZES } from '@common/constants';
+import { EVENTS } from '@common/constants/events';
+import { StoreState } from '@common/store';
+import { RemainingPlays } from '@common/store/app';
+import { hasLiked } from '@common/store/auth/selectors';
+import { setConfigKey } from '@common/store/config';
+import { getTrackEntity } from '@common/store/entities/selectors';
 import {
     changeTrack,
     ChangeTypes,
     PlayerState, PlayerStatus, registerPlay, RepeatTypes, setCurrentTime, setDuration, toggleShuffle, toggleStatus
-} from '../../../../common/store/player';
-import { toggleLike } from '../../../../common/store/track/actions';
-import { addToast, toggleQueue } from '../../../../common/store/ui';
-import { getReadableTime, SC } from '../../../../common/utils';
+} from '@common/store/player';
+import { toggleLike } from '@common/store/track/actions';
+import { addToast, toggleQueue } from '@common/store/ui';
+import { getReadableTime, SC } from '@common/utils';
 import { SoundCloud } from '../../../../types';
 import FallbackImage from '../../../_shared/FallbackImage';
 import Audio from './components/Audio';

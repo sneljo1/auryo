@@ -4,21 +4,18 @@ import { connect } from 'react-redux';
 import { NavLink } from 'react-router-dom';
 import { NormalizedResult, SoundCloud } from '../../../../../types';
 import TextShortener from '../../../../_shared/TextShortener';
-import { StoreState } from '../../../../../common/store';
-import { getDenormalizedEntities } from '../../../../../common/store/entities/selectors';
-import { getCurrentPlaylistId } from '../../../../../common/store/player/selectors';
-import { PlayerStatus } from '../../../../../common/store/player';
+import { StoreState } from '@common/store';
+import { getDenormalizedEntities } from '@common/store/entities/selectors';
+import { getCurrentPlaylistId } from '@common/store/player/selectors';
+import { PlayerStatus } from '@common/store/player';
 import * as styles from '../Sidebar.module.scss';
 
 interface OwnProps {
     items: Array<NormalizedResult>;
 }
 
-interface PropsFromState {
-    playlists: Array<SoundCloud.Playlist>;
-    currentPlaylistId: string | null;
-    isActuallyPlaying: boolean;
-}
+
+type PropsFromState = ReturnType<typeof mapStateToProps>;
 
 type AllProps = OwnProps & PropsFromState;
 
@@ -51,7 +48,7 @@ const SideBarPlaylist = React.memo<AllProps>(({ playlists, currentPlaylistId, is
     );
 });
 
-const mapStateToProps = (state: StoreState, props: OwnProps): PropsFromState => {
+const mapStateToProps = (state: StoreState, props: OwnProps) => {
     const { items } = props;
     const { player: { status } } = state;
 

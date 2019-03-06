@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { connect, MapDispatchToProps } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { StoreState } from '../../common/store';
-import { PlayerStatus, toggleStatus } from '../../common/store/player';
+import { StoreState } from '@common/store';
+import { PlayerStatus, toggleStatus } from '@common/store/player';
 
 interface OwnProps {
     className?: string;
