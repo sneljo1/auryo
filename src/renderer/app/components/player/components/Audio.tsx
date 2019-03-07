@@ -257,12 +257,15 @@ class ReactAudioPlayer extends React.PureComponent<AllProps, State> {
         }
     }
 
+    get audio() {
+        return this.audioEl;
+    }
+
     render() {
 
         return (
             <audio
                 className={`react-audio-player ${this.props.className}`}
-                id={this.props.id}
                 loop={this.props.loop}
                 muted={this.props.muted}
                 preload={this.props.preload}

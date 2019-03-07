@@ -617,6 +617,7 @@ export function changeTrack(changeType: ChangeTypes, finished?: boolean): ThunkR
             currentPlaylistId,
             queue,
             currentIndex,
+            currentTime
         } = player;
 
         if (!currentPlaylistId) return;
@@ -629,8 +630,11 @@ export function changeTrack(changeType: ChangeTypes, finished?: boolean): ThunkR
             case ChangeTypes.NEXT:
                 nextIndex = currentIndex + 1;
                 break;
-            case ChangeTypes.PREV:
-                nextIndex = currentIndex - 1;
+            case ChangeTypes.PREV: {
+                if (currentTime < 5) {
+                    nextIndex = currentIndex - 1;
+                }
+            }
                 break;
             default:
                 break;

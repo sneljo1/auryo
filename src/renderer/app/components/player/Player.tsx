@@ -108,10 +108,16 @@ class Player extends React.Component<AllProps, State>{
     }
 
     componentDidUpdate(_prevProps: AllProps) {
-        const { player: { status } } = this.props;
+        const { player: { status, duration } } = this.props;
 
         if (this.audio && status !== this.audio.getStatus()) {
             this.audio.setNewStatus(status);
+        }
+
+        if (this.audio && this.audio.audio) {
+            if (!isNaN(this.audio.audio.duration) && !isNaN(duration) && duration === 0 && this.audio.audio.duration !== duration) {
+                this.audio.clearTime();
+            }
         }
     }
 
@@ -444,7 +450,7 @@ class Player extends React.Component<AllProps, State>{
                 autoPlay={status === PlayerStatus.PLAYING}
                 volume={volume}
                 muted={muted}
-                id={`${''}-${playingTrack.id}`}
+                id={`${playingTrack.id}`}
                 onLoadedMetadata={this.onLoad}
                 onListen={this.onPlaying}
                 onEnded={this.onFinishedPlaying}

@@ -27,8 +27,6 @@ export default class NotificationManager extends Feature {
 
         if (track) {
 
-          console.log('send notificat', track);
-
           this.sendToWebContents(EVENTS.APP.SEND_NOTIFICATION, {
             title: track.title,
             message: `${track.user && track.user.username ? track.user.username : ''}`,
