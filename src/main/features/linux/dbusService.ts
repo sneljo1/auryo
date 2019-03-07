@@ -14,8 +14,16 @@ export default class DbusService extends LinuxFeature {
 
       const session = dbus.sessionBus();
 
-      await this.registerBindings('gnome', session);
-      await this.registerBindings('mate', session);
+      try {
+        await this.registerBindings('gnome', session);
+      } catch (err) {
+        this.logger.error(err);
+      }
+      try {
+        await this.registerBindings('mate', session);
+      } catch (err) {
+        this.logger.error(err);
+      }
     } catch (e) {
       this.logger.error(e);
     }

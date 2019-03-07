@@ -1,18 +1,18 @@
-import { app, session } from 'electron';
-import * as _ from 'lodash';
-import { show } from 'redux-modal';
-import * as semver from 'semver';
-import * as isDeepEqual from 'react-fast-compare';
-import { CONFIG } from '../../config';
 import { EVENTS } from '@common/constants/events';
 import { canGoInHistory } from '@common/store/app/actions';
 import { Config } from '@common/store/config';
 import { setConfig } from '@common/store/config/actions';
+import { app, session } from 'electron';
+import * as _ from 'lodash';
+import { show } from 'redux-modal';
+import * as semver from 'semver';
+import { CONFIG } from '../../config';
 import { Auryo } from '../app';
 import { settings } from '../settings';
 import { Logger } from '../utils/logger';
 import { Utils } from '../utils/utils';
 import Feature, { WatchState } from './feature';
+import * as isDeepEqual from 'react-fast-compare';
 
 export default class ConfigManager extends Feature {
   private logger = new Logger('ConfigManager');
@@ -65,7 +65,7 @@ export default class ConfigManager extends Feature {
           () => {
             if (session.defaultSession) {
               session.defaultSession.resolveProxy('https://api.soundcloud.com', (proxy) => {
-                this.logger.info('Proxy status: ', proxy);
+                this.logger.info('Proxy status: ' + proxy);
 
                 if (!proxy && session.defaultSession) {
                   session.defaultSession.setProxy(

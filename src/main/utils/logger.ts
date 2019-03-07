@@ -75,7 +75,7 @@ export class Logger {
   }
 
   public debug(..._args: Array<any>) {
-    this.logger.debug.apply(this.logger, arguments);
+    this.logger.debug.apply(this.logger, _args);
   }
 
   public silly(..._args: Array<any>) {
