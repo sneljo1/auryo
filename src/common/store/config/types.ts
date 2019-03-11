@@ -5,7 +5,7 @@ import { RepeatTypes } from '../player';
 export interface Config extends Object {
     updatedAt: number;
     token: string | null;
-    volume: number;
+    audio: AudioConfig;
     repeat: RepeatTypes | null;
     shuffle: boolean;
     version: string;
@@ -23,6 +23,10 @@ export interface AppConfig {
     crashReports: boolean;
     downloadPath: string;
     showTrackChangeNotification: boolean;
+}
+export interface AudioConfig {
+    volume: number;
+    playbackDeviceId: null | string;
 }
 
 export interface ProxyConfig {

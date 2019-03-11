@@ -51,7 +51,7 @@ class InputConfig extends React.PureComponent<Props> {
         const value = configKey.split('.').reduce((o, i) => o[i], config);
 
         return (
-            <div className={`setting${className}`}>
+            <div className={`setting${className} d-flex justify-content-between`}>
                 {
                     !usePlaceholder && (
                         <label htmlFor={name}>{name}</label>

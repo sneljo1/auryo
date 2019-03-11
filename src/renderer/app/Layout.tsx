@@ -15,11 +15,11 @@ import ErrorBoundary from '../_shared/ErrorBoundary';
 import Spinner from '../_shared/Spinner/Spinner';
 import AppError from './components/AppError/AppError';
 import ChangelogModal from './components/modals/ChangeLogModal/ChangelogModal';
-import UtilitiesModal from './components/modals/UtilitiesModel/UtilitiesModal';
 import Player from './components/player/Player';
 import Queue from './components/Queue/Queue';
 import SideBar from './components/Sidebar/Sidebar';
 import Toastr from './components/Toastr';
+import AboutModal from './components/modals/AboutModal/AboutModal';
 
 interface PropsFromState {
     toasts: Array<IToastOptions>;
@@ -170,7 +170,7 @@ class Layout extends React.Component<AllProps> {
 
                     {/* Register Modals */}
 
-                    <UtilitiesModal />
+                    <AboutModal />
                     <ChangelogModal />
 
                 </div>

@@ -14,7 +14,7 @@ const logosPath = process.env.NODE_ENV === 'development' ?
   path.resolve(__dirname, '..', '..', '..', 'assets', 'img', 'logos') :
   path.resolve(__dirname, './assets/img/logos');
 
-export default class DbusSerbic extends LinuxFeature {
+export default class MprisService extends LinuxFeature {
   private logger: Logger = new Logger('MprisService');
 
   private meta: MprisServiceClient.MetaData = {};

@@ -7,6 +7,7 @@ interface Props {
     setConfigKey: typeof setConfigKey;
     configKey: string;
     name: string;
+    alignIndicator?: 'right' | 'left' | 'center';
     className?: string;
     onChange?: (value: boolean, setKey: () => void) => void;
 }
@@ -26,14 +27,14 @@ class CheckboxConfig extends React.Component<Props> {
     }
 
     render() {
-        const { configKey, name, config } = this.props;
+        const { configKey, name, config, alignIndicator } = this.props;
 
         const value = configKey.split('.').reduce((o, i) => o[i], config);
 
         return (
             <div className='setting'>
                 <Switch
-                    inline={true}
+                    alignIndicator={alignIndicator || 'right'}
                     large={true}
                     label={name}
                     checked={value}

@@ -1,11 +1,10 @@
-import { app, clipboard, ipcMain, IpcMessageEvent, shell } from 'electron';
-import { download } from 'electron-dl';
-import * as fs from 'fs';
-import * as _ from 'lodash';
-import * as io from 'socket.io-client';
 import { EVENTS } from '@common/constants/events';
 import { setLoginError, setLoginLoading } from '@common/store/auth/actions';
 import { setToken } from '@common/store/config/actions';
+import { app, clipboard, dialog, ipcMain, IpcMessageEvent, shell } from 'electron';
+import { download } from 'electron-dl';
+import * as _ from 'lodash';
+import * as io from 'socket.io-client';
 import { CONFIG } from '../../config';
 import { Logger } from '../utils/logger';
 import Feature from './feature';
@@ -16,10 +15,13 @@ export default class IPCManager extends Feature {
   private socket: SocketIOClient.Socket | null = null;
 
   register() {
-    ipcMain.on(EVENTS.APP.VALID_DIR, (_e: IpcMessageEvent, path: any) => {
-      fs.exists(path, (exists) => {
-        this.sendToWebContents(EVENTS.APP.VALID_DIR_RESPONSE, exists);
-      });
+    ipcMain.on(EVENTS.APP.VALID_DIR, (_e: IpcMessageEvent) => {
+      const res = dialog.showOpenDialog({ properties: ['openDirectory'] });
+
+      if (res && res.length) {
+        this.sendToWebContents(EVENTS.APP.VALID_DIR_RESPONSE, res[0]);
+      }
+
     });
 
     ipcMain.on(EVENTS.APP.RESTART, () => {
@@ -61,10 +63,6 @@ export default class IPCManager extends Feature {
       this.store.dispatch(setLoginLoading());
 
       this.logger.debug('Starting login');
-
-      if (this.socket) {
-        this.socket.removeListener('connect', this.login);
-      }
 
       this.startLoginSocket();
 
@@ -124,6 +122,8 @@ export default class IPCManager extends Feature {
     } else {
       if (this.socket.disconnected) {
         this.socket.connect();
+      } else {
+        this.login();
       }
     }
   }

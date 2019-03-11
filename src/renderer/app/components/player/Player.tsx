@@ -1,55 +1,34 @@
 import { Intent, Slider, Tag } from '@blueprintjs/core';
+import { IMAGE_SIZES } from '@common/constants';
+import { EVENTS } from '@common/constants/events';
+import { StoreState } from '@common/store';
+import { hasLiked } from '@common/store/auth/selectors';
+import { setConfigKey } from '@common/store/config';
+import { getTrackEntity } from '@common/store/entities/selectors';
+import {
+    changeTrack, ChangeTypes, PlayerStatus, registerPlay, RepeatTypes, setCurrentTime, setDuration,
+    toggleShuffle,
+    toggleStatus
+} from '@common/store/player';
+import { toggleLike } from '@common/store/track/actions';
+import { addToast, toggleQueue } from '@common/store/ui';
+import { getReadableTime, SC } from '@common/utils';
 import cn from 'classnames';
 import { IpcMessageEvent, ipcRenderer } from 'electron';
 import * as moment from 'moment';
 import * as React from 'react';
 import * as isDeepEqual from 'react-fast-compare';
-import { connect, MapDispatchToProps } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import { IMAGE_SIZES } from '@common/constants';
-import { EVENTS } from '@common/constants/events';
-import { StoreState } from '@common/store';
-import { RemainingPlays } from '@common/store/app';
-import { hasLiked } from '@common/store/auth/selectors';
-import { setConfigKey } from '@common/store/config';
-import { getTrackEntity } from '@common/store/entities/selectors';
-import {
-    changeTrack,
-    ChangeTypes,
-    PlayerState, PlayerStatus, registerPlay, RepeatTypes, setCurrentTime, setDuration, toggleShuffle, toggleStatus
-} from '@common/store/player';
-import { toggleLike } from '@common/store/track/actions';
-import { addToast, toggleQueue } from '@common/store/ui';
-import { getReadableTime, SC } from '@common/utils';
-import { SoundCloud } from '../../../../types';
+import { connect } from 'react-redux';
+import { bindActionCreators, Dispatch } from 'redux';
 import FallbackImage from '../../../_shared/FallbackImage';
 import Audio from './components/Audio';
 import PlayerControls from './components/PlayerControls/PlayerControls';
 import TrackInfo from './components/TrackInfo/TrackInfo';
 import * as styles from './Player.module.scss';
 
-interface PropsFromState {
-    player: PlayerState;
-    track: SoundCloud.Track | null;
-    liked: boolean;
-    volume: number;
-    remainingPlays: RemainingPlays | null;
-    repeat: RepeatTypes | null;
-    shuffle: boolean;
-}
+type PropsFromState = ReturnType<typeof mapStateToProps>;
 
-interface PropsFromDispatch {
-    changeTrack: typeof changeTrack;
-    toggleStatus: typeof toggleStatus;
-    setConfigKey: typeof setConfigKey;
-    setCurrentTime: typeof setCurrentTime;
-    addToast: typeof addToast;
-    setDuration: typeof setDuration;
-    toggleQueue: typeof toggleQueue;
-    registerPlay: typeof registerPlay;
-    toggleShuffle: typeof toggleShuffle;
-    toggleLike: typeof toggleLike;
-}
+type PropsFromDispatch = ReturnType<typeof mapDispatchToProps>;
 
 interface State {
     nextTime: number;
@@ -75,49 +54,83 @@ class Player extends React.Component<AllProps, State>{
 
     private audio: Audio | null = null;
 
-    componentDidMount() {
-        const { isSeeking } = this.state;
-        const { setCurrentTime } = this.props;
+    async componentDidMount() {
+        try {
+            const { isSeeking } = this.state;
+            const { setCurrentTime, playbackDeviceId } = this.props;
 
-        let stopSeeking: any;
+            let stopSeeking: any;
 
-        ipcRenderer.on(EVENTS.PLAYER.SEEK, (_event: IpcMessageEvent, to: number) => {
-            if (!isSeeking) {
-                this.setState({
-                    isSeeking: true
-                });
-            }
-
-            clearTimeout(stopSeeking);
-
-            this.seekChange(to);
-
-            stopSeeking = setTimeout(() => {
-                this.setState({
-                    isSeeking: false,
-                });
-
-                if (this.audio && this.audio.instance) {
-                    this.audio.instance.currentTime = to;
+            ipcRenderer.on(EVENTS.PLAYER.SEEK, (_event: IpcMessageEvent, to: number) => {
+                if (!isSeeking) {
+                    this.setState({
+                        isSeeking: true
+                    });
                 }
 
-                setCurrentTime(to);
-            }, 100);
-        });
+                clearTimeout(stopSeeking);
+
+                this.seekChange(to);
+
+                stopSeeking = setTimeout(() => {
+                    this.setState({
+                        isSeeking: false,
+                    });
+
+                    if (this.audio && this.audio.instance) {
+                        this.audio.instance.currentTime = to;
+                    }
+
+                    setCurrentTime(to);
+                }, 100);
+            });
+
+            await this.setAudioPlaybackDevice();
+        } catch (err) {
+            throw err;
+        }
 
     }
 
-    componentDidUpdate(_prevProps: AllProps) {
-        const { player: { status, duration } } = this.props;
+    async componentDidUpdate(prevProps: AllProps) {
+        try {
+            const { player: { status, duration }, playbackDeviceId } = this.props;
 
-        if (this.audio && status !== this.audio.getStatus()) {
-            this.audio.setNewStatus(status);
-        }
-
-        if (this.audio && this.audio.audio) {
-            if (!isNaN(this.audio.audio.duration) && !isNaN(duration) && duration === 0 && this.audio.audio.duration !== duration) {
-                this.audio.clearTime();
+            if (this.audio && status !== this.audio.getStatus()) {
+                this.audio.setNewStatus(status);
             }
+
+            if (this.audio && this.audio.audio) {
+                if (!isNaN(this.audio.audio.duration) && !isNaN(duration) && duration === 0 && this.audio.audio.duration !== duration) {
+                    this.audio.clearTime();
+                }
+
+                if (playbackDeviceId !== prevProps.playbackDeviceId) {
+                    await this.setAudioPlaybackDevice();
+                }
+            }
+        } catch (err) {
+            throw err;
+        }
+    }
+
+    async setAudioPlaybackDevice() {
+        const { playbackDeviceId } = this.props;
+
+        try {
+
+            if (playbackDeviceId && this.audio && this.audio.audio) {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const audioDevices = devices.filter((device) => device.kind === 'audiooutput');
+
+                const selectedAudioDevice = audioDevices.find((d) => d.deviceId === playbackDeviceId);
+
+                if (selectedAudioDevice) {
+                    await (this.audio.audio as any).setSinkId(playbackDeviceId);
+                }
+            }
+        } catch (err) {
+            throw err;
         }
     }
 
@@ -389,7 +402,7 @@ class Player extends React.Component<AllProps, State>{
                                         isVolumeSeeking: false
                                     });
 
-                                    this.props.setConfigKey('volume', value);
+                                    this.props.setConfigKey('audio.volume', value);
                                 }}
                             />
                         </div>
@@ -466,7 +479,7 @@ class Player extends React.Component<AllProps, State>{
 
 }
 
-const mapStateToProps = (state: StoreState): PropsFromState => {
+const mapStateToProps = (state: StoreState) => {
     const { player, app, config } = state;
 
     let track = null;
@@ -484,15 +497,16 @@ const mapStateToProps = (state: StoreState): PropsFromState => {
     return {
         track,
         player,
-        volume: config.volume,
+        volume: config.audio.volume,
         shuffle: config.shuffle,
         repeat: config.repeat,
+        playbackDeviceId: config.audio.playbackDeviceId,
         remainingPlays: app.remainingPlays,
         liked
     };
 };
 
-const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, {}> = (dispatch) => bindActionCreators({
+const mapDispatchToProps = (dispatch: Dispatch) => bindActionCreators({
     changeTrack,
     toggleStatus,
     setConfigKey,

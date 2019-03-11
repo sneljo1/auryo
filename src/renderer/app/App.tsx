@@ -20,6 +20,7 @@ import SearchCategoryPage from '../pages/search/Category/SearchCategoryPage';
 import TagsPage from '../pages/tags/TagsPage';
 import ForYouPage from '../pages/foryou/ForYouPage';
 import PersonalizedPlaylistPage from '../pages/personalizedPlaylist/PersonalizedPlaylistPage';
+import Settings from '@renderer/pages/settings/Settings';
 
 interface PropsFromState {
     offline: boolean;
@@ -59,6 +60,7 @@ class App extends React.PureComponent<AllProps> {
                     <Route path='/charts/:type?' component={ChartsPage} />
                     <Route path='/likes' component={LikesPlaylistPage} />
                     <Route path='/mytracks' component={MyTracksPage} />
+                    <Route path='/settings' component={Settings} />
                     <Route path='/foryou' component={ForYouPage} />
                     <Route path='/myplaylists' component={MyPlaylistsPage} />
                     <Route path='/track/:songId' component={TrackPage} />

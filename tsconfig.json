@@ -27,13 +27,12 @@
       "src/types"
     ],
     "sourceRoot": "/",
-    "baseUrl": ".",
+    "baseUrl": "src",
     "paths": {
-      "*": ["types/*"],
-			"@common/*": ["src/common/*"],
-			"@main/*": ["src/main/*"],
-			"@renderer/*": ["src/renderer/*"],
-			"@assets/*": ["src/assets/*"],
+			"@common/*": ["common/*"],
+			"@main/*": ["main/*"],
+			"@renderer/*": ["renderer/*"],
+			"@assets/*": ["assets/*"],
 		},
     // prod
     "sourceMap": true,

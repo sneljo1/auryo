@@ -1,16 +1,9 @@
-import * as is from 'electron-is';
 
 const app = require('electron').app || require('electron').remote.app; // eslint-disable-line
 
 const BASE_URL = 'https://api.auryo.com';
 
-let downloadPath = '';
-
-if (!is.renderer()) {
-    // eslint-disable-next-line
-    const { app } = require('electron');
-    downloadPath = app.getPath('downloads');
-}
+const downloadPath = app.getPath('downloads');
 
 export const CONFIG = {
     // SoundCloud
@@ -37,7 +30,10 @@ export const CONFIG = {
         updatedAt: 0,
         lastLogin: null,
         token: process.env.TOKEN ? process.env.TOKEN : null,
-        volume: .5,
+        audio: {
+            volume: .5,
+            playbackDeviceId: null
+        },
         repeat: null,
         shuffle: false,
         version: app.getVersion(),

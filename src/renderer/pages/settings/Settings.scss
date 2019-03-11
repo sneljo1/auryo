@@ -1,7 +1,14 @@
-@import "../../../../../css/bootstrap.imports.scss";
+@import "../../css/bootstrap.imports.scss";
+.settingsWrapper {
+  padding: 0 2.5rem;
+}
+
 .setting-group {
   margin: 0 0 1rem;
   font-size: .85rem;
+  &:not(:last-of-type){
+    margin-bottom: 2rem;
+  }
   .setting-group-title {
     padding: 6px 12px 6px 0;
     text-transform: uppercase;
@@ -17,12 +24,23 @@
       margin-top: 5px;
     }
   }
+  .bp3-control {
+    font-size: 15px;
+  }
   .setting {
+    font-size: 15px;
+    .value {
+      color: $brand-grey;
+    }
     &:not([class*="col-"]) {
       padding: 10px 0 5px;
     }
     span {
       vertical-align: text-bottom;
+    }
+    select,
+    input {
+      width: 200px;
     }
   }
 }

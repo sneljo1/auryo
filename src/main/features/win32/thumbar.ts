@@ -5,6 +5,7 @@ import { EVENTS } from '@common/constants/events';
 import IFeature from '../feature';
 import { Auryo } from '../../app';
 import { PlayerStatus, ChangeTypes } from '@common/store/player';
+import { StoreState } from '@common/store';
 
 const iconsDirectory = process.env.NODE_ENV === 'development' ?
   path.resolve(__dirname, '..', '..', '..', '..', 'static', 'icons') :
@@ -92,23 +93,23 @@ export default class Thumbar extends IFeature {
       }
     };
 
-    this.setThumbarButtons();
+    this.setThumbarButtons(this.store.getState());
 
     this.on(EVENTS.APP.READY, () => {
-      this.subscribe(['player', 'status'], () => {
-        this.setThumbarButtons();
+      this.subscribe(['player', 'status'], ({ currentState }) => {
+        this.setThumbarButtons(currentState);
       });
 
-      this.subscribe(['player', 'playingTrack'], () => {
-        this.setThumbarButtons();
+      this.subscribe(['player', 'playingTrack'], ({ currentState }) => {
+        this.setThumbarButtons(currentState);
       });
     });
   }
 
-  setThumbarButtons = () => {
+  setThumbarButtons = (state: StoreState) => {
     const {
       player: { status, queue, currentIndex }
-    } = this.store.getState();
+    } = state;
 
     if (this.win && this.thumbarButtons) {
       switch (status) {

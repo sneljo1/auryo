@@ -157,11 +157,9 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
             track,
 
             // Functions
-            userPlaylists,
             toggleLike,
             toggleRepost,
             addUpNext,
-            togglePlaylistTrack
         } = this.props;
 
         if (!track || (track && track.loading)) {

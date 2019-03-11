@@ -52,7 +52,7 @@ export default class ConfigManager extends Feature {
     // fill out default values if config is incomplete
     this.config = _.defaultsDeep(this.config, CONFIG.DEFAULT_CONFIG);
 
-    if (this.config.enableProxy) {
+    if (this.config.enableProxy && this.config.proxy.host) {
       this.logger.info('Enabling proxy');
 
       if (session.defaultSession) {

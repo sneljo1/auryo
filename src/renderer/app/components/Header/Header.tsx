@@ -156,7 +156,7 @@ class Header extends React.Component<AllProps, State> {
     }
 
     render() {
-        const { locHistory: { next, back }, me, logout, scrollTop, className, query, children, update } = this.props;
+        const { locHistory: { next, back }, me, logout, scrollTop, className, query, children, update, push } = this.props;
 
         const { height } = this.state;
 
@@ -217,7 +217,9 @@ class Header extends React.Component<AllProps, State> {
                                             <MenuItem
                                                 text='Settings'
                                                 icon='cog'
-                                                onClick={this.showUtilitiesModal.bind(this, 'settings')}
+                                                onClick={() => {
+                                                    push('settings');
+                                                }}
                                             />
 
                                             {

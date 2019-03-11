@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Button } from '@blueprintjs/core';
 import { show } from 'redux-modal';
+import SettingsModal from '@renderer/app/components/modals/SettingsModal/SettingsModal';
 
 const logo_url = require('@assets/img/auryo-dark.png');
 
@@ -46,14 +47,14 @@ const LoginStep = React.memo<Props>(({ error, login, show, loading }) => (
                 href='javascript:void(0)'
                 className='settings btn btn-link mt-1 btn-block'
                 onClick={() => {
-                    show('utilities', {
-                        activeTab: 'settings'
-                    });
+                    show('settings', {});
                 }}
             >
                 Settings
             </a>
         </div>
+
+        <SettingsModal />
     </>
 ));
 

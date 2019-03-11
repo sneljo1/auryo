@@ -9,6 +9,7 @@ import { EVENTS } from '@common/constants/events';
 import { StoreState } from '@common/store';
 import App from './app/App';
 import OnBoarding from './pages/onboarding/OnBoarding';
+import Settings from './pages/settings/Settings';
 
 interface OwnProps {
     store: Store<StoreState>;

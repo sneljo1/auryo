@@ -15,7 +15,6 @@ import { configureStore, history } from './configureStore';
 import './css/app.scss';
 import Main from './Main';
 
-
 const app = remote.app;
 
 if (process.env.NODE_ENV === 'development') {

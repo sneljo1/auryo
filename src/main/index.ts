@@ -1,5 +1,8 @@
 
 import '@common/sentryReporter';
+import { app } from 'electron';
+import { Auryo } from './app';
+import { configureStore } from './store';
 
 if (process.env.TOKEN) {
   process.env.ENV = 'test';
@@ -8,11 +11,6 @@ if (process.env.TOKEN) {
 if (process.argv.some((arg) => arg === '--development') || process.argv.some((arg) => arg === '--dev')) {
   process.env.ENV = 'development';
 }
-
-import { app } from 'electron';
-import { Auryo } from './app';
-import { configureStore } from './store';
-import { Utils } from './utils/utils';
 
 const store = configureStore();
 

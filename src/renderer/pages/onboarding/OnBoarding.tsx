@@ -5,7 +5,6 @@ import { bindActionCreators } from 'redux';
 import { show } from 'redux-modal';
 import { StoreState } from '@common/store';
 import { AuthStatus, login } from '@common/store/auth';
-import UtilitiesModal from '../../app/components/modals/UtilitiesModel/UtilitiesModal';
 import LoginStep from './components/LoginStep';
 import WelcomeStep from './components/WelcomeStep';
 import './OnBoarding.scss';
@@ -13,6 +12,7 @@ import PrivacyStep from './components/PrivacyStep';
 import { setConfigKey, ConfigState } from '@common/store/config';
 import * as cn from 'classnames';
 import { RouteComponentProps } from 'react-router';
+import AboutModal from '@renderer/app/components/modals/AboutModal/AboutModal';
 
 const feetonmusicbox = require('@assets/img/feetonmusicbox.jpg');
 
@@ -126,14 +126,7 @@ class OnBoarding extends React.PureComponent<AllProps, State> {
                     </div>
 
                 </div>
-                <div className='sponsors animated fadeInRight faster delay-1s'>
-                    <strong className='d-block mb-1'>Our sponsors</strong>
-                    <a href='https://opencollective.com/auryo'>
-                        <img src='https://opencollective.com/auryo/tiers/platinum-sponsors-%F0%9F%9A%80.svg?avatarHeight=50' />
-                    </a>
-                </div>
-
-                <UtilitiesModal />
+                <AboutModal />
             </div>
         );
     }

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Button } from '@blueprintjs/core';
-import CheckboxConfig from '../../../app/components/modals/UtilitiesModel/SettingsTab/components/CheckboxConfig';
 import { ConfigState, setConfigKey } from '@common/store/config';
+import CheckboxConfig from '@renderer/pages/settings/components/CheckboxConfig';
 
 interface Props {
     onNext: () => void;
@@ -17,6 +17,7 @@ const PrivacyStep = React.memo<Props>(({ onNext, setConfigKey, config }) => (
             <CheckboxConfig
                 name='Send anonymous statistics'
                 configKey='app.analytics'
+                alignIndicator='left'
                 config={config}
                 setConfigKey={setConfigKey}
             />
@@ -29,6 +30,7 @@ const PrivacyStep = React.memo<Props>(({ onNext, setConfigKey, config }) => (
             <CheckboxConfig
                 name='Send crash reports'
                 configKey='app.crashReports'
+                alignIndicator='left'
                 config={config}
                 setConfigKey={setConfigKey}
             />

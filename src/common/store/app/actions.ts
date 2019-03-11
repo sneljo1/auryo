@@ -89,7 +89,7 @@ export function initWatchers(): ThunkResult<any> {
             listeners.push({
                 event: EVENTS.PLAYER.CHANGE_VOLUME,
                 handler: (_e: any, data: VolumeChangeTypes) => {
-                    const { config: { volume } } = getState();
+                    const { config: { audio: { volume } } } = getState();
 
                     let new_volume = volume + .05;
 
@@ -104,7 +104,7 @@ export function initWatchers(): ThunkResult<any> {
                     }
 
                     if (volume !== new_volume) {
-                        dispatch(setConfigKey('volume', new_volume));
+                        dispatch(setConfigKey('audio.volume', new_volume));
                     }
                 }
             });

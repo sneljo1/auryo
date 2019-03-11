@@ -80,7 +80,7 @@ class TrackGridItem extends React.Component<AllProps> {
 
         if (!track || !track.user) return null;
 
-        if (track.from_user && showReposts) {
+        if (track.from_user && showReposts && track.type.indexOf('repost') !== -1) {
             return (
                 <div className='trackArtist'>
                     <Link to={`/user/${track.user.id}`}>
