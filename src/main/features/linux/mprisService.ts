@@ -150,7 +150,8 @@ export default class MprisService extends LinuxFeature {
       });
 
     } catch (e) {
-      this.logger.warn('Mpris not supported', e);
+      this.logger.warn('Mpris not supported');
+      this.logger.warn(e);
       return;
     }
 
