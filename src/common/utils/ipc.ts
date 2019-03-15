@@ -14,11 +14,11 @@ export class IPC {
         ipcRenderer.send(EVENTS.APP.DOWNLOAD_FILE, url);
     }
 
-    static notifyTrackReposted(){
+    static notifyTrackReposted() {
         ipcRenderer.send(EVENTS.TRACK.REPOSTED);
     }
 
-    static notifyTrackLiked(){
-        ipcRenderer.send(EVENTS.TRACK.LIKED);
+    static notifyTrackLiked(trackId: number) {
+        ipcRenderer.send(EVENTS.TRACK.LIKED, trackId);
     }
 }

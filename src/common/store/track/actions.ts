@@ -40,7 +40,7 @@ export function toggleLike(trackId: number, playlist: boolean = false): ThunkRes
                 };
             })
         } as any)
-            .then(() => IPC.notifyTrackLiked())
+            .then(() => IPC.notifyTrackLiked(trackId))
             .catch((err) => {
                 if (err.response && err.response.status === 429) {
                     return err.response.json()

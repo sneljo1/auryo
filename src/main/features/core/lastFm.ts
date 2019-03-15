@@ -63,20 +63,19 @@ export default class LastFm extends Feature {
       }
     });
 
-    this.on(EVENTS.TRACK.LIKED, async () => {
+    this.on(EVENTS.TRACK.LIKED, async (args: Array<any>) => {
       try {
 
         const currentState = this.store.getState();
 
         const {
-          player: { playingTrack },
           config: { lastfm },
           auth: { likes }
         } = currentState;
 
+        const trackId = args[0];
 
-        if (playingTrack && lastfm) {
-          const trackId = playingTrack.id;
+        if (trackId && lastfm) {
           const track = getTrackEntity(trackId)(currentState);
 
           if (track) {
@@ -145,11 +144,11 @@ export default class LastFm extends Feature {
       this.logger.debug('nowplaying : ' + title + ' - ' + artist);
 
       this.lastfm
-        .update('nowplaying', session, {
+        .update('track.updateNowPlaying', session, {
           track: title,
           artist
         })
-        .on('error', (err: any) => this.logger.error(err));
+        .on('error', (track: any, err: any) => this.logger.error(err));
 
     } catch (err) {
       this.logger.error('Error updating nowPlaying');
@@ -162,11 +161,14 @@ export default class LastFm extends Feature {
 
       const session = await this.getLastFMSession();
 
-      this.lastfm.update(`track.${liked ? 'love' : 'unlove'}`, session, {
-        track: title,
-        artist,
-      })
-        .on('error', (err: any) => this.logger.error(err));
+      this.logger.debug(`track.${liked ? 'love' : 'unlove'}` + ' : ' + title + ' - ' + artist);
+
+      this.lastfm
+        .update(`track.${liked ? 'love' : 'unlove'}`, session, {
+          track: title,
+          artist,
+        })
+        .on('error', (track: any, err: any) => this.logger.error(err));
 
     } catch (err) {
       this.logger.error('Error updating updateLiked');
@@ -182,12 +184,11 @@ export default class LastFm extends Feature {
       this.logger.debug('scrobble : ' + title + ' - ' + artist);
 
       this.lastfm
-        .update('scrobble', session, {
+        .update('track.scrobble', session, {
           track: title,
           artist,
           timestamp
         })
-        .on('success', (track: any) => this.logger.info(track))
         .on('error', (track: any, err: any) => this.logger.error(err));
 
     } catch (err) {
