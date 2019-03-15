@@ -9,7 +9,6 @@ const { init } = (is.main()
   : require('@sentry/electron/dist/renderer'));
 
 const options = {
-  debug: true,
   enabled: settings.get('app.crashReports') === true && process.env.NODE_ENV === 'production',
   dsn: CONFIG.SENTRY_REPORT_URL,
   release: app.getVersion(),
