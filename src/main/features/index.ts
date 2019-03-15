@@ -1,20 +1,21 @@
 import { Auryo } from '../app';
-import ApplicationMenu from './ApplicationMenu';
-import AppUpdater from './AppUpdater';
-import ConfigManager from './ConfigManager';
-import IPCManager from './IPCManager';
+import ApplicationMenu from './core/applicationMenu';
+import AppUpdater from './core/appUpdater';
+import ConfigManager from './core/configManager';
+import IPCManager from './core/ipcManager';
 import MprisService from './linux/mprisService';
 import MediaServiceManager from './mac/mediaServiceManager';
 import TouchBarManager from './mac/touchBarManager';
-import PowerMonitor from './PowerMonitor';
-import ShortcutManager from './ShortcutManager';
+import PowerMonitor from './core/powerMonitor';
+import ShortcutManager from './core/shortcutManager';
 import Thumbar from './win32/thumbar';
 import Win10MediaService from './win32/win10/win10MediaService';
-import { IFeature } from './feature.interface';
 import Feature from './feature';
-import NotificationManager from './NotificationManager';
+import NotificationManager from './core/notificationManager';
+import LastFm from './core/lastFm';
 
 export const tools: Array<typeof Feature> = [
+  LastFm,
   ConfigManager,
   AppUpdater,
   IPCManager,
@@ -35,4 +36,6 @@ export const tools: Array<typeof Feature> = [
   MprisService,
 ];
 
-export const getTools = (app: Auryo) => tools.map((Feature) => new Feature(app)).filter((o: IFeature) => o.shouldRun());
+export const getTools = (app: Auryo) => tools
+  .map((Feature) => new Feature(app))
+  .filter((o) => o.shouldRun());

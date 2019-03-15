@@ -6,12 +6,12 @@ import { app, session } from 'electron';
 import * as _ from 'lodash';
 import { show } from 'redux-modal';
 import * as semver from 'semver';
-import { CONFIG } from '../../config';
-import { Auryo } from '../app';
-import { settings } from '../settings';
-import { Logger } from '../utils/logger';
-import { Utils } from '../utils/utils';
-import Feature, { WatchState } from './feature';
+import { CONFIG } from '../../../config';
+import { Auryo } from '../../app';
+import { settings } from '../../settings';
+import { Logger } from '../../utils/logger';
+import { Utils } from '../../utils/utils';
+import Feature, { WatchState } from '../feature';
 import * as isDeepEqual from 'react-fast-compare';
 
 export default class ConfigManager extends Feature {

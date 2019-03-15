@@ -24,6 +24,10 @@ export const CONFIG = {
     STREAM_CHECK_INTERVAL: 60000,
     UPDATE_SERVER_HOST: 'https://api.github.com/repos/Superjo149/Auryo/releases/latest',
 
+    // LastFM
+
+    LASTFM_API_KEY: process.env.LASTFM_API_KEY,
+    LASTFM_API_SECRET: process.env.LASTFM_API_SECRET,
     // Config
 
     DEFAULT_CONFIG: {
@@ -49,7 +53,8 @@ export const CONFIG = {
             analytics: false,
             crashReports: true,
             downloadPath,
-            showTrackChangeNotification: true
+            showTrackChangeNotification: true,
+            overrideClientId: null
         }
     }
 };

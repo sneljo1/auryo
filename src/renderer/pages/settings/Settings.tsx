@@ -1,4 +1,4 @@
-import { Button, Collapse } from '@blueprintjs/core';
+import { Button, Collapse, Switch } from '@blueprintjs/core';
 import { EVENTS } from '@common/constants/events';
 import { StoreState } from '@common/store';
 import { logout } from '@common/store/auth';
@@ -6,7 +6,7 @@ import { setConfig, setConfigKey } from '@common/store/config';
 import Header from '@renderer/app/components/Header/Header';
 import CustomScroll from '@renderer/_shared/CustomScroll';
 import PageHeader from '@renderer/_shared/PageHeader/PageHeader';
-import { CONFIG } from 'config';
+import { CONFIG } from '../../../config';
 import { IpcMessageEvent, ipcRenderer } from 'electron';
 import * as React from 'react';
 import { connect } from 'react-redux';
@@ -21,6 +21,7 @@ interface Props {
 }
 
 interface State {
+    lastfmLoading: boolean;
     restartMsg: boolean;
     validDir: boolean;
     advancedOpen: boolean;
@@ -40,6 +41,7 @@ class Settings extends React.PureComponent<AllProps, State> {
     };
 
     public readonly state: State = {
+        lastfmLoading: false,
         restartMsg: false,
         validDir: true,
         advancedOpen: false,
@@ -174,14 +176,14 @@ class Settings extends React.PureComponent<AllProps, State> {
 
                         {
                             authenticated && (
-                                <>
-                                    <Button onClick={this.handleClick}>
-                                        {this.state.advancedOpen ? 'Hide' : 'Show'} advanced settings
-                                    </Button>
+                                <div className='mt-3'>
                                     <Collapse isOpen={this.state.advancedOpen}>
                                         {this.renderAdvancedSettings()}
                                     </Collapse>
-                                </>
+                                    <Button onClick={this.handleClick}>
+                                        {this.state.advancedOpen ? 'Hide' : 'Show'} advanced settings
+                                    </Button>
+                                </div>
                             )
                         }
                     </div>
@@ -277,6 +279,17 @@ class Settings extends React.PureComponent<AllProps, State> {
                             <Button onClick={this.isValidDirectory} >Change directory</Button>
                         </div>
 
+                        <InputConfig
+                            config={config}
+                            setConfigKey={setConfigKey}
+                            configKey='app.overrideClientId'
+                            type='text'
+                            name='Use your own clientId'
+                            description={(
+                                <div>Read <a href='https://github.com/Superjo149/auryo/wiki/Custom-clientId'>here</a> why and how.</div>
+                            )}
+                        />
+
                     </div>
                 </div>
 
@@ -299,8 +312,66 @@ class Settings extends React.PureComponent<AllProps, State> {
                         />
                     </div>
                 </div>
+                <div className='setting-group'>
+                    <div className='setting-group-title'>Integrations</div>
+
+                    <div>
+                        <div className='setting d-flex justify-content-between align-items-start'>
+                            <div>
+                                LastFm integration
+                                <div className='mt-1'>
+                                    {
+                                        !!config.lastfm && (
+                                            <>
+                                                {
+                                                    config.lastfm && config.lastfm.key ? (
+                                                        <div className='value d-flex align-items-center'>
+                                                            <span>Authorized as {config.lastfm.user}</span>
+                                                            <a
+                                                                onClick={() => setConfigKey('lastfm', null)}
+                                                                className='text-danger'
+                                                            >
+                                                                <i className='bx bx-x' />
+                                                            </a>
+                                                        </div>
+                                                    ) : (
+                                                            <Button
+                                                                loading={this.state.lastfmLoading}
+                                                                onClick={this.authorizeLastFm}
+                                                            >
+                                                                Authorize
+                                                            </Button>
+                                                        )
+                                                }
+                                            </>
+                                        )
+                                    }
+                                </div>
+                            </div>
+                            <div>
+                                <Switch
+                                    large={true}
+                                    checked={!!config.lastfm}
+                                    onChange={this.toggleLastFm}
+                                />
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
             </>
         );
+    }
+
+    private toggleLastFm = (event: React.ChangeEvent<HTMLInputElement>) => {
+        this.props.setConfigKey('lastfm', event.target.checked ? {} : null);
+    }
+
+    private authorizeLastFm = () => {
+        this.setState({
+            lastfmLoading: true
+        });
+        ipcRenderer.send(EVENTS.APP.LASTFM.AUTH);
     }
 }
 

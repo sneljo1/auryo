@@ -9,6 +9,7 @@ export interface Config extends Object {
     repeat: RepeatTypes | null;
     shuffle: boolean;
     version: string;
+    lastfm?: LastFmConfig;
     hideReposts: boolean;
     enableProxy: boolean;
     proxy: ProxyConfig;
@@ -23,10 +24,16 @@ export interface AppConfig {
     crashReports: boolean;
     downloadPath: string;
     showTrackChangeNotification: boolean;
+    overrideClientId: string | null;
 }
 export interface AudioConfig {
     volume: number;
     playbackDeviceId: null | string;
+}
+
+export interface LastFmConfig {
+    key: string;
+    user: string;
 }
 
 export interface ProxyConfig {

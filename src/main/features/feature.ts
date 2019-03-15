@@ -4,7 +4,22 @@ import { Store } from 'redux';
 import * as ReduxWatcher from 'redux-watcher';
 import { StoreState } from '@common/store';
 import { Auryo } from '../app';
-import { IFeature } from './feature.interface';
+
+interface IFeature {
+  // tslint:disable-next-line:ban-types
+  subscribe(path: Array<string>, handler: Function): void;
+
+  sendToWebContents(channel: string, params: object): void;
+
+  register(): void;
+
+  // tslint:disable-next-line:ban-types
+  on(path: string, handler: Function): void;
+
+  unregister(path?: Array<string> | string): void;
+
+  shouldRun(): boolean;
+}
 
 // tslint:disable-next-line:max-line-length
 export type Handler<T> = (t: { store: Store<StoreState>, selector: string | Array<string>, prevState: StoreState, currentState: StoreState, prevValue: T, currentValue: T }) => void;

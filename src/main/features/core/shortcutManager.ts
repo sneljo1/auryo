@@ -1,15 +1,15 @@
 import { globalShortcut } from 'electron';
-import IFeature from './feature';
+import IFeature from '../feature';
 import { EVENTS } from '@common/constants/events';
 import { ChangeTypes, PlayerStatus } from '@common/store/player';
-import { Auryo } from '../app';
+import { Auryo } from '../../app';
 
 /**
  * Register global media shortcuts
  */
 export default class Shortcut extends IFeature {
-  constructor(app: Auryo) {
-    super(app, 'ready');
+  constructor(auryo: Auryo) {
+    super(auryo, 'ready-to-show');
   }
   register() {
     globalShortcut.register('MediaPlayPause', () => {

@@ -1,5 +1,5 @@
 import { Intent } from '@blueprintjs/core';
-import { app, BrowserWindow, BrowserWindowConstructorOptions, Menu, nativeImage, shell } from 'electron';
+import { app, BrowserWindow, BrowserWindowConstructorOptions, Menu, nativeImage, shell, protocol } from 'electron';
 import * as windowStateKeeper from 'electron-window-state';
 import * as _ from 'lodash';
 import * as os from 'os';
@@ -11,6 +11,10 @@ import { addToast } from '@common/store/ui';
 import Feature from './features/feature';
 import { Logger } from './utils/logger';
 import { Utils } from './utils/utils';
+import { setConfigKey } from '@common/store/config';
+import * as querystring from 'querystring';
+import * as is from 'electron-is';
+
 
 const logosPath = process.env.NODE_ENV === 'development' ?
   path.resolve(__dirname, '..', '..', '..', 'assets', 'img', 'logos') :
@@ -42,6 +46,15 @@ export class Auryo {
     app.requestSingleInstanceLock();
 
     app.on('second-instance', () => {
+
+      // handle protocol for windows
+      if (is.windows()) {
+        process.argv.slice(1)
+          .forEach((arg) => {
+            this.handleProtocolUrl(arg);
+          });
+      }
+
       app.exit();
     });
 
@@ -53,6 +66,15 @@ export class Auryo {
 
   start() {
     this.logger.profile('app-start');
+
+    app.setAsDefaultProtocolClient('auryo');
+
+    app.on('open-url', (event, data) => {
+      event.preventDefault();
+
+      this.handleProtocolUrl(data);
+
+    });
 
     const mainWindowState = windowStateKeeper({
       defaultWidth: 1190,
@@ -125,7 +147,30 @@ export class Auryo {
     this.logger.info('App started');
   }
 
-  registerTools() {
+  private handleProtocolUrl(url: string) {
+    const action = url.replace('auryo://', '').match(/^.*(?=\?.*)/g);
+
+    if (action && url.split('?').length) {
+      switch (action[0]) {
+        case 'launch': {
+          const result = querystring.parse(url.split('?')[1]);
+
+          if (result.client_id && result.client_id.length) {
+            this.store.dispatch(setConfigKey('app.overrideClientId', result.client_id));
+
+            this.store.dispatch(addToast({
+              message: `New clientId added`,
+              intent: Intent.SUCCESS
+            }));
+          }
+        }
+        default:
+          break;
+      }
+    }
+  }
+
+  private registerTools() {
     const { getTools } = require('./features'); // eslint-disable-line
 
     const featuresWaitUntil = _.groupBy(getTools(this), 'waitUntil');
@@ -156,7 +201,7 @@ export class Auryo {
       });
   }
 
-  loadMain() {
+  private loadMain() {
     if (this.mainWindow) {
 
       const url = process.env.NODE_ENV === 'development'
@@ -203,7 +248,7 @@ export class Auryo {
     }
   }
 
-  registerListeners = () => {
+  private registerListeners = () => {
     if (this.mainWindow) {
       this.mainWindow.webContents.on('crashed', (event: any) => {
         this.logger.error('APP CRASHED:');

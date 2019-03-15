@@ -6,7 +6,7 @@ interface Props {
     config: ConfigState;
     setConfigKey: typeof setConfigKey;
     configKey: string;
-    name: string;
+    name?: string;
     alignIndicator?: 'right' | 'left' | 'center';
     className?: string;
     onChange?: (value: boolean, setKey: () => void) => void;

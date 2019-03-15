@@ -429,7 +429,8 @@ class Player extends React.Component<AllProps, State>{
             addToast,
             volume: configVolume,
             track,
-            remainingPlays
+            remainingPlays,
+            overrideClientId
         } = this.props;
 
         const { muted } = this.state;
@@ -443,7 +444,9 @@ class Player extends React.Component<AllProps, State>{
 
         const volume = this.state.isVolumeSeeking ? this.state.volume : configVolume;
 
-        const url = track.stream_url ? SC.appendClientId(track.stream_url) : SC.appendClientId(`${track.uri}/stream`);
+        const url = track.stream_url ?
+            SC.appendClientId(track.stream_url, overrideClientId) :
+            SC.appendClientId(`${track.uri}/stream`, overrideClientId);
 
         const limitReached = remainingPlays && remainingPlays.remaining === 0;
 
@@ -501,6 +504,7 @@ const mapStateToProps = (state: StoreState) => {
         shuffle: config.shuffle,
         repeat: config.repeat,
         playbackDeviceId: config.audio.playbackDeviceId,
+        overrideClientId: config.app.overrideClientId,
         remainingPlays: app.remainingPlays,
         liked
     };

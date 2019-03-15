@@ -95,14 +95,12 @@ export default class Thumbar extends IFeature {
 
     this.setThumbarButtons(this.store.getState());
 
-    this.on(EVENTS.APP.READY, () => {
-      this.subscribe(['player', 'status'], ({ currentState }) => {
-        this.setThumbarButtons(currentState);
-      });
+    this.subscribe(['player', 'status'], ({ currentState }) => {
+      this.setThumbarButtons(currentState);
+    });
 
-      this.subscribe(['player', 'playingTrack'], ({ currentState }) => {
-        this.setThumbarButtons(currentState);
-      });
+    this.subscribe(['player', 'playingTrack'], ({ currentState }) => {
+      this.setThumbarButtons(currentState);
     });
   }
 

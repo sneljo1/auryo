@@ -66,7 +66,7 @@ class UtilitiesModal extends React.PureComponent<Props, State> {
                                         <td>Remaining plays</td>
                                         <td>
                                             <span className='bp3-tag bp3-intent-primary'>
-                                                {remainingPlays ? remainingPlays.remaining : 'Unknown'}
+                                                {remainingPlays ? remainingPlays.remaining || 'Unlimited' : 'Unknown'}
                                             </span>
                                         </td>
                                     </tr>

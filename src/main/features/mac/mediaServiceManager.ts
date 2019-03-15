@@ -63,6 +63,7 @@ export default class MediaServiceManager extends MacFeature {
      */
     this.on(EVENTS.APP.READY, () => {
       this.subscribe<PlayingTrack>(['player', 'playingTrack'], ({ currentState }) => {
+
         const {
           player: { playingTrack }
         } = currentState;

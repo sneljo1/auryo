@@ -1,19 +1,19 @@
 /* eslint-disable global-require */
+import { replace } from 'connected-react-router';
 import { ipcRenderer } from 'electron';
 import { action } from 'typesafe-actions';
-import { ThunkResult, SoundCloud } from '../../../types';
-import { getPlaylist, setObject } from '../objects/actions';
+import { SoundCloud, ThunkResult } from '../../../types';
+import fetchPersonalised from '../../api/fetchPersonalised';
+import fetchPlaylists from '../../api/fetchPlaylists';
 import fetchToJson from '../../api/helpers/fetchToJson';
 import fetchToObject from '../../api/helpers/fetchToObject';
 import { EVENTS } from '../../constants/events';
 import { SC } from '../../utils';
-import { setToken, setConfigKey } from '../config/actions';
-import { AuthActionTypes } from './types';
+import { setConfigKey, setToken } from '../config/actions';
 import { ObjectTypes, PlaylistTypes } from '../objects';
-import fetchPlaylists from '../../api/fetchPlaylists';
-import { replace } from 'connected-react-router';
-import { getPlaylistObjectSelector, getPlaylistName } from '../objects/selectors';
-import fetchPersonalised from '../../api/fetchPersonalised';
+import { getPlaylist, setObject } from '../objects/actions';
+import { getPlaylistObjectSelector } from '../objects/selectors';
+import { AuthActionTypes } from './types';
 
 export function logout(): ThunkResult<void> {
     return (dispatch) => {

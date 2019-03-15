@@ -11,10 +11,14 @@ import { toggleLike, toggleRepost } from '../track/actions';
 import { AppActionTypes, CanGoHistory, Dimensions } from './types';
 import fetchRemainingPlays from '../../api/fetchRemainingTracks';
 
-export function getRemainingPlays() {
-    return {
-        type: AppActionTypes.SET_REMAINING_PLAYS,
-        payload: fetchRemainingPlays()
+export function getRemainingPlays(): ThunkResult<void> {
+    return (dispatch, getState) => {
+        const { config: { app: { overrideClientId } } } = getState();
+
+        dispatch({
+            type: AppActionTypes.SET_REMAINING_PLAYS,
+            payload: fetchRemainingPlays(overrideClientId)
+        });
     };
 }
 

@@ -1,7 +1,7 @@
 import { app, Menu, shell, MenuItemConstructorOptions } from 'electron';
 import { EVENTS } from '@common/constants/events';
 import * as SC from '@common/utils/soundcloudUtils';
-import Feature from './feature';
+import Feature from '../feature';
 import { PlayerStatus, ChangeTypes, PlayerState, VolumeChangeTypes } from '@common/store/player';
 import { show } from 'redux-modal';
 import * as is from 'electron-is';
@@ -57,7 +57,6 @@ export default class ApplicationMenu extends Feature {
       },
       {
         label: 'Edit',
-        role: 'edit',
         submenu: [
           {
             label: 'Cut',
@@ -90,7 +89,6 @@ export default class ApplicationMenu extends Feature {
       },
       {
         label: 'Playback',
-        role: 'playback',
         submenu: [
           {
             label: !player || player.status !== PlayerStatus.PLAYING ? 'Play' : 'Pause',
@@ -127,7 +125,6 @@ export default class ApplicationMenu extends Feature {
       },
       {
         label: 'Track',
-        role: 'track',
         submenu: [
           {
             label: 'Like',
@@ -232,7 +229,7 @@ export default class ApplicationMenu extends Feature {
       const trackId = playingTrack.id;
       const track = trackEntities[trackId];
 
-      const index = template.findIndex((r) => r.role === 'track');
+      const index = template.findIndex((r) => r.label === 'Track');
 
       if (trackId && track) {
         const liked = SC.hasID(track.id, likes.track);

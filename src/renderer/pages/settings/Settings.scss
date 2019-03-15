@@ -29,6 +29,16 @@
   }
   .setting {
     font-size: 15px;
+    margin-top: 1.5rem;
+    display: flex;
+    align-items: center;
+    i {
+      vertical-align: middle;
+    }
+    .bp3-switch{
+      flex-grow:1;
+    }
+
     .value {
       color: $brand-grey;
     }
@@ -40,7 +50,7 @@
     }
     select,
     input {
-      width: 200px;
+      width: 270px;
     }
   }
 }

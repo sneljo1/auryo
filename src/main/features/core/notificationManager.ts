@@ -2,9 +2,13 @@ import { IMAGE_SIZES } from '@common/constants';
 import { EVENTS } from '@common/constants/events';
 import { getTrackEntity } from '@common/store/entities/selectors';
 import { SC } from '@common/utils';
-import Feature from './feature';
+import { Auryo } from '@main/app';
+import Feature from '../feature';
 
 export default class NotificationManager extends Feature {
+  constructor(auryo: Auryo) {
+    super(auryo, 'ready-to-show');
+  }
 
   register() {
 

@@ -30,5 +30,8 @@ export const EVENTS = {
         AUTH: {
             LOGIN: "app/auth/login",
         },
+        LASTFM: {
+            AUTH: "app/lastfm/auth",
+        },
     },
 };

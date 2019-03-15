@@ -5,9 +5,9 @@ import { app, clipboard, dialog, ipcMain, IpcMessageEvent, shell } from 'electro
 import { download } from 'electron-dl';
 import * as _ from 'lodash';
 import * as io from 'socket.io-client';
-import { CONFIG } from '../../config';
-import { Logger } from '../utils/logger';
-import Feature from './feature';
+import { CONFIG } from '../../../config';
+import { Logger } from '../../utils/logger';
+import Feature from '../feature';
 
 export default class IPCManager extends Feature {
   private logger = new Logger('IPCManager');

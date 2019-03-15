@@ -24,11 +24,12 @@
     "jsx": "react",
     "typeRoots": [
       "./node_modules/@types",
-      "src/types"
+      "types"
     ],
     "sourceRoot": "/",
     "baseUrl": "src",
     "paths": {
+      "*": ["types/*"],
 			"@common/*": ["common/*"],
 			"@main/*": ["main/*"],
 			"@renderer/*": ["renderer/*"],
@@ -39,7 +40,7 @@
     "inlineSources": true,
   },
   "include": [
-    "src",
+    "src"
   ],
   "exclude": [
     "./node_modules",

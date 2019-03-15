@@ -16,8 +16,8 @@ interface Status {
     reset_time: string;
 }
 
-export default function fetchRemainingPlays(): Promise<RemainingPlays | null> {
-    return fetch(SC.getRemainingTracks())
+export default function fetchRemainingPlays(overrideClientId?: string | null): Promise<RemainingPlays | null> {
+    return fetch(SC.getRemainingTracks(overrideClientId))
         .then(status)
         .then(asJson)
         .then((json: JsonResponse) => {

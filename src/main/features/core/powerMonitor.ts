@@ -1,6 +1,6 @@
 import { powerMonitor } from 'electron';
 import { EVENTS } from '@common/constants/events';
-import IFeature from './feature';
+import IFeature from '../feature';
 import { PlayerStatus } from '@common/store/player';
 
 /**

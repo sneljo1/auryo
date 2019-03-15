@@ -1,7 +1,7 @@
+import { settings } from '@main/settings';
 import { app as electronApp, remote } from 'electron';
 import * as is from 'electron-is';
 import { CONFIG } from '../config';
-import { settings } from '@main/settings';
 const app = is.renderer() ? remote.app : electronApp;
 
 const { init } = (is.main()

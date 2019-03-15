@@ -11,7 +11,13 @@ export function initialize(token) {
 
 function makeUrl(uri, opts, v2) {
     const options = opts;
-    if (options.client_id) { options.client_id = CONFIG.CLIENT_ID; }
+    if (options.client_id) { 
+        if(typeof options.client_id === "string"){
+            options.client_id = options.client_id 
+        } else {
+            options.client_id = CONFIG.CLIENT_ID; 
+        }
+    }
     if (options.oauth_token) { options.oauth_token = memToken; }
 
     let url = endpoint;
@@ -42,9 +48,9 @@ export function getChartsUrl(genre, sort = "top", limit = 50) {
     }, true);
 }
 
-export function getRemainingTracks() {
+export function getRemainingTracks(overrideClientId) {
     return makeUrl("rate_limit_status", {
-        client_id: true,
+        client_id: overrideClientId,
     });
 }
 export function registerPlayUrl() {
@@ -293,8 +299,8 @@ export function appendJustToken(url) {
     return `${url}?oauth_token=${memToken}`;
 }
 
-export function appendClientId(url) {
-    return `${url}?client_id=${CONFIG.CLIENT_ID}`;
+export function appendClientId(url, overrideClientId) {
+    return `${url}?client_id=${overrideClientId || CONFIG.CLIENT_ID}`;
 }
 
 export function getImageUrl(track, size = null) {

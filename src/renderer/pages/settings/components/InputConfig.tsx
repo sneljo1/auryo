@@ -9,7 +9,8 @@ interface Props {
     configKey: string;
     name: string;
     className?: string;
-    onChange?: (value: string, setKey: () => void) => void;
+    description?: React.ReactNode;
+    onChange?: (value: string | null, setKey: () => void) => void;
     usePlaceholder: boolean;
     invalid: boolean;
     type: string;
@@ -35,28 +36,39 @@ class InputConfig extends React.PureComponent<Props> {
     handleChange = (value: string) => {
         const { configKey, onChange, setConfigKey } = this.props;
 
+        const val = value.length ? value : null;
+
         if (onChange) {
-            onChange(value, () => {
-                setConfigKey(configKey, value);
+            onChange(val, () => {
+                setConfigKey(configKey, val);
             });
         } else {
-            setConfigKey(configKey, value);
+            setConfigKey(configKey, val);
         }
     }
 
 
     render() {
-        const { configKey, name, config, type, className, usePlaceholder, invalid } = this.props;
+        const { configKey, name, config, type, className, usePlaceholder, invalid, description } = this.props;
 
         const value = configKey.split('.').reduce((o, i) => o[i], config);
 
         return (
             <div className={`setting${className} d-flex justify-content-between`}>
-                {
-                    !usePlaceholder && (
-                        <label htmlFor={name}>{name}</label>
-                    )
-                }
+                <div>
+                    {
+                        !usePlaceholder && (
+                            <label htmlFor={name}>{name}</label>
+                        )
+                    }
+
+                    {
+                        !!description && (
+                            <div className='value'>{description}</div>
+                        )
+                    }
+                </div>
+
 
                 <input
                     type={type}

@@ -3,10 +3,10 @@ import * as is from 'electron-is';
 import { autoUpdater } from 'electron-updater';
 import * as request from 'request';
 import { gt as isVersionGreaterThan, valid as parseVersion } from 'semver';
-import { CONFIG } from '../../config';
+import { CONFIG } from '../../../config';
 import { EVENTS } from '@common/constants/events';
-import { Logger } from '../utils/logger';
-import Feature from './feature';
+import { Logger } from '../../utils/logger';
+import Feature from '../feature';
 import { setUpdateAvailable } from '@common/store/app';
 import { addToast } from '@common/store/ui';
 import { Intent } from '@blueprintjs/core';
@@ -17,7 +17,6 @@ export default class AppUpdater extends Feature {
   private hasUpdate = false;
   private currentVersion = parseVersion(app.getVersion());
 
-  // eslint-disable-next-line
   shouldRun() {
     return !process.env.TOKEN && process.env.NODE_ENV === 'production' && !(process.platform === 'linux' && process.env.SNAP_USER_DATA != null);
   }
