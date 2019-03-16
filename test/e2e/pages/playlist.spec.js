@@ -6,11 +6,11 @@ harness("playlist page", () => {
         await loaded();
 
         const playlistName = await app.client
-            .element('#sidebar #playlists .navItem:first-child .navLink div')
+            .element('#sidebar #playlists div:first-child span')
             .getText();
 
         return app.client
-            .element('#sidebar #playlists .navItem:first-child')
+            .element('#sidebar #playlists  div:first-child a')
             .click()
             .waitUntilWindowLoaded()
             .getText('.page-header h2')
