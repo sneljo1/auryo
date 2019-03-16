@@ -59,7 +59,7 @@ export default class LastFm extends Feature {
             config: { lastfm }
           } = currentState;
 
-          if (playingTrack && lastfm) {
+          if (playingTrack && lastfm && lastfm.key) {
             const trackId = playingTrack.id;
             const track = getTrackEntity(trackId)(currentState);
 
@@ -88,7 +88,7 @@ export default class LastFm extends Feature {
 
           const trackId = args[0];
 
-          if (trackId && lastfm) {
+          if (trackId && lastfm && lastfm.key) {
             const track = getTrackEntity(trackId)(currentState);
 
             if (track) {
@@ -115,7 +115,7 @@ export default class LastFm extends Feature {
           } = currentState;
 
 
-          if (playingTrack && lastfm) {
+          if (playingTrack && lastfm && lastfm.key) {
             const trackId = playingTrack.id;
             const track = getTrackEntity(trackId)(currentState);
 
@@ -149,6 +149,8 @@ export default class LastFm extends Feature {
 
       const session = await this.getLastFMSession();
 
+      if (!session) return;
+
       this.logger.debug('nowplaying : ' + title + ' - ' + artist);
 
       this.lastfm
@@ -169,6 +171,8 @@ export default class LastFm extends Feature {
 
       const session = await this.getLastFMSession();
 
+      if (!session) return;
+
       this.logger.debug(`track.${liked ? 'love' : 'unlove'}` + ' : ' + title + ' - ' + artist);
 
       this.lastfm
@@ -188,6 +192,8 @@ export default class LastFm extends Feature {
     try {
 
       const session = await this.getLastFMSession();
+
+      if (!session) return;
 
       this.logger.debug('scrobble : ' + title + ' - ' + artist);
 
@@ -269,7 +275,6 @@ export default class LastFm extends Feature {
         return this.lastfm.session(lastfmConfig.user, lastfmConfig.key);
       } else if (newSession) {
         return this.newSession();
-
       }
 
     } catch (err) {
