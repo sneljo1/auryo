@@ -11,11 +11,11 @@ export function initialize(token) {
 
 function makeUrl(uri, opts, v2) {
     const options = opts;
-    if (options.client_id) { 
-        if(typeof options.client_id === "string"){
-            options.client_id = options.client_id 
+    if (options.client_id) {
+        if (typeof options.client_id === "string") {
+            options.client_id = options.client_id
         } else {
-            options.client_id = CONFIG.CLIENT_ID; 
+            options.client_id = CONFIG.CLIENT_ID;
         }
     }
     if (options.oauth_token) { options.oauth_token = memToken; }
@@ -50,7 +50,7 @@ export function getChartsUrl(genre, sort = "top", limit = 50) {
 
 export function getRemainingTracks(overrideClientId) {
     return makeUrl("rate_limit_status", {
-        client_id: overrideClientId,
+        client_id: overrideClientId ? overrideClientId : true,
     });
 }
 export function registerPlayUrl() {
