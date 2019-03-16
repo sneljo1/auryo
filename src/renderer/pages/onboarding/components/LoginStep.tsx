@@ -20,7 +20,7 @@ const LoginStep = React.memo<Props>(({ error, login, show, loading }) => (
         <div className='sub-title animated fadeInLeft faster second'>
             A SoundCloud client for your desktop. This project is open-source, so consider{' '}
             <a href='https://github.com/Superjo149/auryo'>contributing</a> or becoming{' '}
-            <a href='https://opencollective.com/auryo'>a financial backer</a>. But most of all, enjoy the music. 🎉
+            <a href='https://www.patreon.com/sneljo'>a financial backer</a>. But most of all, enjoy the music. 🎉
                             </div>
 
         <div className='login_section animated fadeInLeft faster third'>

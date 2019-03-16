@@ -3,10 +3,51 @@
   padding: 0 2.5rem;
 }
 
+.donationBox {
+  background: hsl(204, 89%, 93%);
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  display: flex;
+  color: hsl(204, 47%, 34%);
+  font-size: .9rem;
+  align-items: center;
+  line-height: 1.7;
+  .iconWrapper {
+    background: hsl(204, 82%, 82%);
+    flex-shrink: 0;
+    padding: 10px;
+    border-radius: 100%;
+    height: 45px;
+    width: 45px;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $red;
+    margin-right: 2rem;
+  }
+  a {
+    color: hsl(204, 61%, 35%);
+    text-decoration: none;
+    background-color: transparent;
+    text-decoration: wavy;
+    text-decoration: underline;
+    text-decoration-color: rgba(#92d2fb, .8);
+    text-decoration-style: wavy;
+    font-weight: bold;
+    margin-left: .3rem;
+    &:hover {
+      color: hsl(204, 61%, 30%);
+      text-decoration-color: rgba(#92d2fb, 1);
+    }
+  }
+}
+
 .setting-group {
   margin: 0 0 1rem;
   font-size: .85rem;
-  &:not(:last-of-type){
+  &:not(:last-of-type) {
     margin-bottom: 2rem;
   }
   .setting-group-title {
@@ -35,10 +76,9 @@
     i {
       vertical-align: middle;
     }
-    .bp3-switch{
-      flex-grow:1;
+    .bp3-switch {
+      flex-grow: 1;
     }
-
     .value {
       color: $brand-grey;
     }

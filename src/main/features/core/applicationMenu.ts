@@ -166,11 +166,11 @@ export default class ApplicationMenu extends Feature {
           },
           {
             label: 'Donate',
-            click: () => shell.openExternal('https://opencollective.com/auryo')
+            click: () => shell.openExternal('https://www.patreon.com/sneljo')
           },
           {
             label: 'Learn More',
-            click: () => shell.openExternal('http://auryo.com')
+            click: () => shell.openExternal('https://auryo.com')
           }
         ]
       }

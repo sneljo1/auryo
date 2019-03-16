@@ -27,5 +27,5 @@ Search open/closed issues before submitting since someone might have asked the s
 
 
 
-<!-- Love Auryo? Please consider supporting our collective:
-👉  https://opencollective.com/auryo/donate -->
+<!-- Love Auryo? Please consider supporting us:
+👉  https://www.patreon.com/sneljo -->

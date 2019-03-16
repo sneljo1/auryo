@@ -86,8 +86,25 @@ class Settings extends React.PureComponent<AllProps, State> {
                     title='Settings'
                 />
 
-
                 <div className='settingsWrapper'>
+
+                    <div className='donationBox'>
+                        <div className='iconWrapper'>
+                            <i className='bx bxs-heart' />
+                        </div>
+                        <div>
+                            <strong>Are you enjoying this app as much as I am? Or even more?</strong>
+                            <div>
+                                I would love to spend more time on this, and other open-source projects.
+                                I do not earn anything off this project, so I would highly appreciate any
+                                financial contribution towards this goal.
+                                <a href='https://www.patreon.com/sneljo'>
+                                    Contribute now
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
                     {this.renderSettings()}
                 </div>
             </CustomScroll>
