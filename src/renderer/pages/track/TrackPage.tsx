@@ -317,7 +317,7 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
                                             <ShareMenuItem
                                                 title={track.title}
                                                 permalink={track.permalink_url}
-                                                username={track.user.username}
+                                                username={track.user ? track.user.username : ''}
                                             />
                                         </Menu>
                                     )}
