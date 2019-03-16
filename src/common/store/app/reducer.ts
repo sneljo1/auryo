@@ -2,7 +2,7 @@ import { Reducer } from 'redux';
 import { onError, onSuccess } from '../../utils/reduxUtils';
 import { AppActionTypes, AppState } from './types';
 
-const initialState = {
+const initialState: AppState = {
     history: {
         back: false,
         next: false
@@ -19,7 +19,8 @@ const initialState = {
         width: 0,
         height: 0
     },
-    remainingPlays: null
+    remainingPlays: null,
+    lastfmLoading: false
 };
 
 export const appReducer: Reducer<AppState> = (state = initialState, action) => {
@@ -65,6 +66,11 @@ export const appReducer: Reducer<AppState> = (state = initialState, action) => {
             return {
                 ...state,
                 dimensions: payload
+            };
+        case AppActionTypes.SET_LASTFM_LOADING:
+            return {
+                ...state,
+                lastfmLoading: payload
             };
         case AppActionTypes.SET_UPDATE_AVAILABLE:
             return {

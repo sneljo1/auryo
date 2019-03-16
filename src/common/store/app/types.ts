@@ -1,14 +1,15 @@
 // TYPES
 
 export interface AppState extends Readonly<{
-    history: CanGoHistory
-    loaded: boolean
-    loading_error: string | null
-    offline: boolean
-    update: UpdateInfo
-    last_checked: number
-    dimensions: Dimensions
-    remainingPlays: RemainingPlays | null
+    history: CanGoHistory;
+    loaded: boolean;
+    loading_error: string | null;
+    offline: boolean;
+    update: UpdateInfo;
+    last_checked: number;
+    dimensions: Dimensions;
+    remainingPlays: RemainingPlays | null;
+    lastfmLoading: boolean;
 }> { }
 
 export interface RemainingPlays {
@@ -40,4 +41,5 @@ export const enum AppActionTypes {
     SET_CAN_GO = '@@app/SET_CAN_GO',
     RESET_STORE = '@@app/RESET_STORE',
     SET_REMAINING_PLAYS = '@@app/SET_REMAINING_PLAYS',
+    SET_LASTFM_LOADING = '@@app/SET_LASTFM_LOADING',
 }

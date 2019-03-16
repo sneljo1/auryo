@@ -58,6 +58,7 @@ export function initApp(): ThunkResult<void> {
 
 export const setDimensions = (dimensions: Dimensions) => action(AppActionTypes.SET_DIMENSIONS, dimensions);
 export const canGoInHistory = (canGoHistory: CanGoHistory) => action(AppActionTypes.SET_CAN_GO, canGoHistory);
+export const setLastfmLoading = (loading: boolean) => action(AppActionTypes.SET_LASTFM_LOADING, loading);
 
 export const toggleOffline = (offline: boolean) => action(AppActionTypes.TOGGLE_OFFLINE, {
     time: new Date().getTime(),
