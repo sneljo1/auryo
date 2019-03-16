@@ -350,6 +350,7 @@ class Settings extends React.PureComponent<AllProps, State> {
                             </div>
                             <div>
                                 <Switch
+                                    alignIndicator='right'
                                     large={true}
                                     checked={!!config.lastfm}
                                     onChange={this.toggleLastFm}

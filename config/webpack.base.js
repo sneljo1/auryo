@@ -148,7 +148,7 @@ module.exports = {
     new webpack.WatchIgnorePlugin([
       /s?css\.d\.ts$/
     ]),
-    new webpack.EnvironmentPlugin(['NODE_ENV', "CLIENT_ID", "SENTRY_REPORT_URL", "FB_APP_ID", "GOOGLE_GA"]),
+    new webpack.EnvironmentPlugin(['NODE_ENV', "CLIENT_ID", "SENTRY_REPORT_URL", "FB_APP_ID", "GOOGLE_GA", "LASTFM_API_KEY", "LASTFM_API_SECRET"]),
   ],
   resolve: {
     extensions: ['.tsx', '.ts', '.js', '.jsx', '.json', '.scss'],

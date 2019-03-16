@@ -95,8 +95,13 @@ export default class LastFm extends Feature {
     });
 
 
-    this.on(EVENTS.APP.LASTFM.AUTH, () => {
-      this.getLastFMSession();
+    this.on(EVENTS.APP.LASTFM.AUTH, async () => {
+      try {
+        await this.getLastFMSession();
+      } catch (err) {
+        this.logger.error(err);
+        throw err;
+      }
     });
 
     this.subscribe(['player', 'currentTime'], async ({ currentState }: WatchState<number>) => {
@@ -222,7 +227,7 @@ export default class LastFm extends Feature {
             resolve(session);
 
           })
-          .on('error', (err: any) => {
+          .on('error', (_: any, err: any) => {
             this.store.dispatch(addToast({
               message: 'Something went wrong during authentication',
               intent: Intent.DANGER
@@ -258,8 +263,8 @@ export default class LastFm extends Feature {
         .on('success', (json: { token: string }) => {
           resolve(json.token);
         })
-        .on('error', () => {
-          reject();
+        .on('error', (err) => {
+          reject(err);
         });
     });
   }
