@@ -9,6 +9,7 @@ import { WatchState } from '../feature';
 import { MprisServiceClient } from './interfaces/mpris-service.interface';
 import LinuxFeature from './linuxFeature';
 import { getTrackEntity } from '@common/store/entities/selectors';
+import { getCurrentPosition } from '@common/utils';
 
 const logosPath = process.env.NODE_ENV === 'development' ?
   path.resolve(__dirname, '..', '..', '..', 'assets', 'img', 'logos') :
@@ -31,7 +32,7 @@ export default class MprisService extends LinuxFeature {
       mpris = require('mpris-service');
 
       this.player = mpris({
-        name: 'auryo-player',
+        name: 'auryo_player',
         identity: 'Auryo',
         canRaise: true,
         supportedInterfaces: ['player'],
@@ -108,7 +109,7 @@ export default class MprisService extends LinuxFeature {
             const trackId = playingTrack.id;
             const track = getTrackEntity(trackId)(currentState);
 
-            const position = queue.indexOf(playingTrack);
+            const position = getCurrentPosition({ queue, playingTrack });
 
             this.player.canGoPrevious = queue.length > 0 && position > 0;
             this.player.canGoNext = queue.length > 0 && position + 1 <= queue.length;
@@ -179,8 +180,8 @@ export default class MprisService extends LinuxFeature {
         ...this.player.metadata
       };
 
-      this.meta['mpris:length'] = duration * 1e3;
-      this.player.position = currentTime * 1e3;
+      this.meta['mpris:length'] = duration * 1e3 | 0;
+      this.player.position = currentTime * 1e3 | 0;
 
       if (!_.isEqual(this.meta, this.player.metadata)) {
         this.player.metadata = this.meta;

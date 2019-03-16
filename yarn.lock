@@ -638,25 +638,25 @@
     classnames "^2.2"
     tslib "^1.9.0"
 
-"@nodert-win10/windows.foundation@^0.2.95":
+"@nodert-win10/windows.foundation@^0.2.96":
   version "0.2.96"
   resolved "https://registry.yarnpkg.com/@nodert-win10/windows.foundation/-/windows.foundation-0.2.96.tgz#beb20661d87fb352f9c5c7c45899bf3c24d78cd0"
   dependencies:
     nan latest
 
-"@nodert-win10/windows.media.playback@^0.2.95":
+"@nodert-win10/windows.media.playback@^0.2.96":
   version "0.2.96"
   resolved "https://registry.yarnpkg.com/@nodert-win10/windows.media.playback/-/windows.media.playback-0.2.96.tgz#017eebc56bb530f9b8f2a456500c3b7d1ce42f35"
   dependencies:
     nan latest
 
-"@nodert-win10/windows.media@^0.2.95":
+"@nodert-win10/windows.media@^0.2.96":
   version "0.2.96"
   resolved "https://registry.yarnpkg.com/@nodert-win10/windows.media/-/windows.media-0.2.96.tgz#3287830f1c494a53d3d6bbb275f48489204498c5"
   dependencies:
     nan latest
 
-"@nodert-win10/windows.storage.streams@^0.2.95":
+"@nodert-win10/windows.storage.streams@^0.2.96":
   version "0.2.96"
   resolved "https://registry.yarnpkg.com/@nodert-win10/windows.storage.streams/-/windows.storage.streams-0.2.96.tgz#e2cf392a83c74f918ce4356d905282076a74d13c"
   dependencies:
@@ -3431,6 +3431,20 @@ dbus-next@0.3.1:
     event-stream "3.3.4"
     hexy "^0.2.10"
     jsbi "^2.0.5"
+    put "0.0.6"
+    safe-buffer "^5.1.1"
+    xml2js "^0.4.17"
+  optionalDependencies:
+    abstract-socket "^2.0.0"
+
+dbus-next@0.3.2:
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/dbus-next/-/dbus-next-0.3.2.tgz#95cbd667ad80b27873a4e6bddd161d44318435e1"
+  dependencies:
+    event-stream "3.3.4"
+    hexy "^0.2.10"
+    jsbi "^2.0.5"
+    long "^4.0.0"
     put "0.0.6"
     safe-buffer "^5.1.1"
     xml2js "^0.4.17"
@@ -6663,6 +6677,10 @@ loglevelnext@^1.0.1:
   dependencies:
     es6-symbol "^3.1.1"
     object.assign "^4.1.0"
+
+long@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/long/-/long-4.0.0.tgz#9a7b71cfb7d361a194ea555241c92f7468d5bf28"
 
 loose-envify@^1.0.0, loose-envify@^1.1.0, loose-envify@^1.2.0, loose-envify@^1.3.1, loose-envify@^1.4.0:
   version "1.4.0"

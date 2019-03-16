@@ -17,12 +17,13 @@ export default class DbusService extends LinuxFeature {
       try {
         await this.registerBindings('gnome', session);
       } catch (err) {
-        this.logger.error(err);
+        // ignore
       }
+
       try {
         await this.registerBindings('mate', session);
       } catch (err) {
-        this.logger.error(err);
+        // ignore
       }
     } catch (e) {
       this.logger.error(e);

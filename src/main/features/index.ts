@@ -13,6 +13,7 @@ import Win10MediaService from './win32/win10/win10MediaService';
 import Feature from './feature';
 import NotificationManager from './core/notificationManager';
 import LastFm from './core/lastFm';
+import DbusService from './linux/dbusService';
 
 export const tools: Array<typeof Feature> = [
   LastFm,
@@ -34,6 +35,7 @@ export const tools: Array<typeof Feature> = [
 
   // Linux
   MprisService,
+  DbusService
 ];
 
 export const getTools = (app: Auryo) => tools

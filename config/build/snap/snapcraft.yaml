@@ -52,7 +52,7 @@ apps:
 slots:
   auryo-player-mpris:
     interface: mpris
-    name: auryo-player
+    name: auryo_player
   auryo-mpris:
     interface: mpris
     name: auryo
