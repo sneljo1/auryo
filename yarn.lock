@@ -616,12 +616,12 @@
     lodash "^4.17.10"
     to-fast-properties "^2.0.0"
 
-"@blueprintjs/core@^3.2.0":
-  version "3.7.0"
-  resolved "https://registry.yarnpkg.com/@blueprintjs/core/-/core-3.7.0.tgz#ac20038266163d457b76d1bdd9a74a321401e10e"
+"@blueprintjs/core@^3.14.1":
+  version "3.14.1"
+  resolved "https://registry.yarnpkg.com/@blueprintjs/core/-/core-3.14.1.tgz#9a0c816bbe6c232d6515361f502506a1fb53acfb"
   dependencies:
-    "@blueprintjs/icons" "^3.2.0"
-    "@types/dom4" "^2.0.0"
+    "@blueprintjs/icons" "^3.6.0"
+    "@types/dom4" "^2.0.1"
     classnames "^2.2"
     dom4 "^2.0.1"
     normalize.css "^8.0.0"
@@ -631,9 +631,9 @@
     resize-observer-polyfill "^1.5.0"
     tslib "^1.9.0"
 
-"@blueprintjs/icons@^3.0.0", "@blueprintjs/icons@^3.2.0":
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/@blueprintjs/icons/-/icons-3.2.0.tgz#d21cceebfac9c1bceded047e493ee1e180b86f11"
+"@blueprintjs/icons@^3.6.0":
+  version "3.6.0"
+  resolved "https://registry.yarnpkg.com/@blueprintjs/icons/-/icons-3.6.0.tgz#af1d2de091d67927ed61671e6967c43620cb416d"
   dependencies:
     classnames "^2.2"
     tslib "^1.9.0"
@@ -817,7 +817,7 @@
   dependencies:
     "@types/node" "*"
 
-"@types/dom4@^2.0.0":
+"@types/dom4@^2.0.1":
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/@types/dom4/-/dom4-2.0.1.tgz#506d5781b9bcab81bd9a878b198aec7dee2a6033"
 

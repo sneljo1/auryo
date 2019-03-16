@@ -147,8 +147,8 @@
     "why-did-you-update": "^0.2.0"
   },
   "dependencies": {
-    "@blueprintjs/core": "^3.2.0",
-    "@blueprintjs/icons": "^3.0.0",
+    "@blueprintjs/core": "^3.14.1",
+    "@blueprintjs/icons": "^3.6.0",
     "@sentry/electron": "^0.16.0",
     "autolinker": "^1.8.3",
     "bootstrap": "^4.1.3",
