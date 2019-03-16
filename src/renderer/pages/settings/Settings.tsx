@@ -21,7 +21,6 @@ interface Props {
 }
 
 interface State {
-    lastfmLoading: boolean;
     restartMsg: boolean;
     validDir: boolean;
     advancedOpen: boolean;
@@ -41,7 +40,6 @@ class Settings extends React.PureComponent<AllProps, State> {
     };
 
     public readonly state: State = {
-        lastfmLoading: false,
         restartMsg: false,
         validDir: true,
         advancedOpen: false,
@@ -336,7 +334,7 @@ class Settings extends React.PureComponent<AllProps, State> {
                                                         </div>
                                                     ) : (
                                                             <Button
-                                                                loading={this.state.lastfmLoading}
+                                                                loading={this.props.lastfmLoading}
                                                                 onClick={this.authorizeLastFm}
                                                             >
                                                                 Authorize
@@ -369,16 +367,14 @@ class Settings extends React.PureComponent<AllProps, State> {
     }
 
     private authorizeLastFm = () => {
-        this.setState({
-            lastfmLoading: true
-        });
         ipcRenderer.send(EVENTS.APP.LASTFM.AUTH);
     }
 }
 
-const mapStateToProps = ({ config, auth }: StoreState) => ({
+const mapStateToProps = ({ config, auth, app }: StoreState) => ({
     config,
-    authenticated: !!config.token && !auth.authentication.loading
+    authenticated: !!config.token && !auth.authentication.loading,
+    lastfmLoading: app.lastfmLoading
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => bindActionCreators({

@@ -43,7 +43,7 @@ export default class LastFm extends Feature {
       // Authorize
       this.on(EVENTS.APP.LASTFM.AUTH, async () => {
         try {
-          await this.getLastFMSession();
+          await this.getLastFMSession(true);
         } catch (err) {
           this.logger.error(err);
           throw err;
@@ -215,7 +215,7 @@ export default class LastFm extends Feature {
       shell.openExternal(`http://www.last.fm/api/auth/?api_key=${CONFIG.LASTFM_API_KEY}&token=${token}`);
 
       return new Promise((resolve, reject) => {
-        this.lastfm
+        const newSession = this.lastfm
           .session({
             token
           } as any, undefined)
@@ -244,21 +244,32 @@ export default class LastFm extends Feature {
 
             reject(err);
           });
+
+        setTimeout(
+          () => {
+            if (!newSession.isAuthorised()) {
+              newSession.cancel();
+              this.store.dispatch(setLastfmLoading(false));
+            }
+          },
+          30000
+        );
       });
     } catch (err) {
       throw err;
     }
   }
 
-  getLastFMSession = async () => {
+  getLastFMSession = async (newSession = false) => {
     try {
 
       const { config: { lastfm: lastfmConfig } } = this.store.getState();
 
       if (lastfmConfig && lastfmConfig.user && lastfmConfig.key) {
         return this.lastfm.session(lastfmConfig.user, lastfmConfig.key);
-      } else {
+      } else if (newSession) {
         return this.newSession();
+
       }
 
     } catch (err) {
