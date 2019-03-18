@@ -25,7 +25,7 @@ Please read [CONTRIBUTING.md](.github/CONTRIBUTING.md) for details on our code o
 
 ## Support 💪 
 
-Auryo is a open source project. It can grow thanks to the sponsors and support by the amazing backers. If you like to donate, please visit 👉[our patreon page](https://www.patreon.com/sneljo).
+Auryo is a open source project. It can grow thanks to the sponsors and support by the amazing backers. If you like to donate, please visit 👉[my patreon page](https://www.patreon.com/sneljo).
 
 ## Author
 This application has been built by [Jonas Snellinckx](https://www.linkedin.com/in/jonas-snellinckx). It started out as a learning journey back in college-university Oct 2016, to start learning React, Redux and Electron. Since the first release in August 2017, the journey was incredibly educational. Over the next few months, Auryo has matured from a learning side-project into an escalated one. In a good sense.
@@ -33,7 +33,7 @@ This application has been built by [Jonas Snellinckx](https://www.linkedin.com/i
 As of release 2.0.0, Auryo also has been open-sourced. See the list of [contributors](https://github.com/Superjo149/auryo/contributors) who participated in this project.
 
 ### Tip Jar
-Show me some love, buy me a ☕️.
+Show me some love, buy me a 🍺.
 - Paypal: [paypal.me](https://www.paypal.me/Superjo149)
 - Ethereum: 0x6a9F12D2084CD54587BC3BBfFf52C5931d10fB38
 - Stellar: GCHNLOV4GV54LIUEULLCSGSITFO2OY2B44IF2EUL36OA3ZRLNVADPWBE
