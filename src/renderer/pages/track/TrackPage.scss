@@ -26,13 +26,22 @@
       color: black;
       margin-top: .5rem;
       display: inline-block;
+
+      .darkMode & {
+        color: $white;
+      }
     }
   }
   .taglist {
     .badge {
       background: $brand-grey-lighter;
       font-size: .9rem;
-      margin-bottom: .2rem
+      margin-bottom: .2rem;
+
+      .darkMode & {
+        background: $brand-grey-dark;
+        color: $white;
+      }
     }
   }
   .trackHeader,
@@ -61,6 +70,10 @@
     }
     &.isOpen {
       max-height: 500px;
+    }
+    .darkMode & {
+      color: $white;
+      background: $black;
     }
   }
   .user_card_wrap {

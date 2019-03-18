@@ -12,6 +12,10 @@
     &:hover {
       background: darken(#fff, 5%);
     }
+
+    .darkMode & {
+      color: #fff !important;
+    }
   }
 
   .userImage img {

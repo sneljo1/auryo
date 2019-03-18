@@ -64,6 +64,10 @@
       display: block;
       margin-top: 5px;
     }
+
+    .darkMode & {
+      color: $white;
+    }
   }
   .bp3-control {
     font-size: 15px;

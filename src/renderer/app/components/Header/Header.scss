@@ -52,6 +52,10 @@
     .navbar-wrapper {
       background: white;
       transition: .5s all;
+
+      .darkMode & {
+        background: $black;
+      }
     }
   }
 

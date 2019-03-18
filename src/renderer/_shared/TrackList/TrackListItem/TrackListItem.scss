@@ -71,6 +71,10 @@
       border-top: none !important;
       vertical-align: middle;
       padding: 8px;
+
+      .darkMode & {
+        background: $black;
+      }
     }
 
     td:first-child {
@@ -132,6 +136,10 @@
 
     a:not(.toggleButton) {
       color: #3b3e42;
+
+      .darkMode & {
+        color: $white;
+      }
     }
     .time{
       text-align: right;

@@ -186,6 +186,10 @@
       font-weight: $font-weight-bold;
       a {
         color: $black;
+
+        .darkMode & {
+          color: $white;
+        }
       }
     }
     .trackArtist {
