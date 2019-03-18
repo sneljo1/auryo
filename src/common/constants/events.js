@@ -2,6 +2,7 @@ export const EVENTS = {
     PLAYER: {
         TRACK_CHANGED: "player/track_changed",
         STATUS_CHANGED: "player/status_changed",
+        SEEK_END: "player/seek_end",
 
         CHANGE_TRACK: "player/action/change_track",
         SEEK: "player/action/seek",

@@ -36,7 +36,8 @@ export const CONFIG = {
         token: process.env.TOKEN ? process.env.TOKEN : null,
         audio: {
             volume: .5,
-            playbackDeviceId: null
+            playbackDeviceId: null,
+            muted: false
         },
         repeat: null,
         shuffle: false,

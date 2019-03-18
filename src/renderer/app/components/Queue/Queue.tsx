@@ -1,31 +1,20 @@
+import { StoreState } from '@common/store';
+import { clearUpNext, updateQueue } from '@common/store/player';
+import { getQueue } from '@common/store/player/selectors';
+import { toggleQueue } from '@common/store/ui';
 import cn from 'classnames';
 import { debounce } from 'lodash';
 import * as React from 'react';
 import * as ReactList from 'react-list';
-import { MapDispatchToProps, connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import { StoreState } from '@common/store';
-import { clearUpNext, PlayingTrack, updateQueue, UpNextState } from '@common/store/player';
-import { getQueue } from '@common/store/player/selectors';
-import { toggleQueue } from '@common/store/ui';
+import { connect } from 'react-redux';
+import { bindActionCreators, Dispatch } from 'redux';
 import CustomScroll from '../../../_shared/CustomScroll';
 import Spinner from '../../../_shared/Spinner/Spinner';
 import './Queue.scss';
 import QueueItem from './QueueItem';
 
-interface PropsFromState {
-    playingTrack: PlayingTrack | null;
-    currentIndex: number;
-    showQueue: boolean;
-    upNext: UpNextState;
-    items: Array<PlayingTrack>;
-}
-
-interface PropsFromDispatch {
-    toggleQueue: typeof toggleQueue;
-    updateQueue: typeof updateQueue;
-    clearUpNext: typeof clearUpNext;
-}
+type PropsFromState = ReturnType<typeof mapStateToProps>;
+type PropsFromDispatch = ReturnType<typeof mapDispatchToProps>;
 
 type AllProps = PropsFromDispatch & PropsFromState;
 
@@ -158,7 +147,7 @@ class Queue extends React.PureComponent<AllProps> {
 
 }
 
-const mapStateToProps = (state: StoreState): PropsFromState => {
+const mapStateToProps = (state: StoreState) => {
     const { player, ui } = state;
 
     return {
@@ -170,8 +159,7 @@ const mapStateToProps = (state: StoreState): PropsFromState => {
     };
 };
 
-const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, {}> = (dispatch) => bindActionCreators({
-
+const mapDispatchToProps = (dispatch: Dispatch) => bindActionCreators({
     toggleQueue,
     updateQueue,
     clearUpNext,

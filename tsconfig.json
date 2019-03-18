@@ -24,17 +24,26 @@
     "jsx": "react",
     "typeRoots": [
       "./node_modules/@types",
-      "types"
+      "types",
+      "src/types"
     ],
     "sourceRoot": "/",
     "baseUrl": "src",
     "paths": {
       "*": ["types/*"],
-			"@common/*": ["common/*"],
-			"@main/*": ["main/*"],
-			"@renderer/*": ["renderer/*"],
-			"@assets/*": ["assets/*"],
-		},
+      "@common/*": [
+        "common/*"
+      ],
+      "@main/*": [
+        "main/*"
+      ],
+      "@renderer/*": [
+        "renderer/*"
+      ],
+      "@assets/*": [
+        "assets/*"
+      ],
+    },
     // prod
     "sourceMap": true,
     "inlineSources": true,

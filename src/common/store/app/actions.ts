@@ -8,7 +8,7 @@ import { getAuth, getAuthFeed, getAuthFollowings, getAuthLikeIds, getAuthLikesIf
 import { setConfigKey } from '../config';
 import { changeTrack, ChangeTypes, PlayerStatus, toggleStatus, VolumeChangeTypes } from '../player';
 import { toggleLike, toggleRepost } from '../track/actions';
-import { AppActionTypes, CanGoHistory, Dimensions } from './types';
+import { AppActionTypes, CanGoHistory, Dimensions, ChromeCastDevice, DevicePlayerStatus } from './types';
 import fetchRemainingPlays from '../../api/fetchRemainingTracks';
 
 export function getRemainingPlays(): ThunkResult<void> {
@@ -59,6 +59,14 @@ export function initApp(): ThunkResult<void> {
 export const setDimensions = (dimensions: Dimensions) => action(AppActionTypes.SET_DIMENSIONS, dimensions);
 export const canGoInHistory = (canGoHistory: CanGoHistory) => action(AppActionTypes.SET_CAN_GO, canGoHistory);
 export const setLastfmLoading = (loading: boolean) => action(AppActionTypes.SET_LASTFM_LOADING, loading);
+export const addChromeCastDevices = (devices: Array<ChromeCastDevice>, groups: Array<ChromeCastDevice>) =>
+    action(AppActionTypes.SET_AVAILABLE_CHROMECAST_DEVICES, {
+        devices,
+        groups
+    });
+export const useChromeCast = (deviceId: string) => action(AppActionTypes.SET_CHROMECAST_DEVICE, deviceId);
+export const setChromeCastPlayerStatus = (playerStatus: DevicePlayerStatus) =>
+ action(AppActionTypes.SET_CHROMECAST_PLAYER_STATUS, playerStatus);
 
 export const toggleOffline = (offline: boolean) => action(AppActionTypes.TOGGLE_OFFLINE, {
     time: new Date().getTime(),

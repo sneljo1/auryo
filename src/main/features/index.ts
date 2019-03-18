@@ -14,6 +14,7 @@ import Feature from './feature';
 import NotificationManager from './core/notificationManager';
 import LastFm from './core/lastFm';
 import DbusService from './linux/dbusService';
+import ChromeCast from './core/chromeCast/chromeCast';
 
 export const tools: Array<typeof Feature> = [
   LastFm,
@@ -24,6 +25,7 @@ export const tools: Array<typeof Feature> = [
   ShortcutManager,
   ApplicationMenu,
   NotificationManager,
+  ChromeCast,
 
   // Mac
   TouchBarManager,

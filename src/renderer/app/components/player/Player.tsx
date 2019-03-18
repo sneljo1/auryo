@@ -1,14 +1,14 @@
-import { Intent, Slider, Tag } from '@blueprintjs/core';
+import { Intent, Popover, Slider, Tag } from '@blueprintjs/core';
 import { IMAGE_SIZES } from '@common/constants';
 import { EVENTS } from '@common/constants/events';
 import { StoreState } from '@common/store';
+import { useChromeCast } from '@common/store/app';
 import { hasLiked } from '@common/store/auth/selectors';
 import { setConfigKey } from '@common/store/config';
 import { getTrackEntity } from '@common/store/entities/selectors';
 import {
-    changeTrack, ChangeTypes, PlayerStatus, registerPlay, RepeatTypes, setCurrentTime, setDuration,
-    toggleShuffle,
-    toggleStatus
+    changeTrack,
+    ChangeTypes, PlayerStatus, registerPlay, RepeatTypes, setCurrentTime, setDuration, toggleShuffle, toggleStatus
 } from '@common/store/player';
 import { toggleLike } from '@common/store/track/actions';
 import { addToast, toggleQueue } from '@common/store/ui';
@@ -27,14 +27,12 @@ import TrackInfo from './components/TrackInfo/TrackInfo';
 import * as styles from './Player.module.scss';
 
 type PropsFromState = ReturnType<typeof mapStateToProps>;
-
 type PropsFromDispatch = ReturnType<typeof mapDispatchToProps>;
 
 interface State {
     nextTime: number;
     isSeeking: boolean;
     isVolumeSeeking: boolean;
-    muted: boolean;
     offline: boolean;
     volume: number;
 }
@@ -47,7 +45,6 @@ class Player extends React.Component<AllProps, State>{
         nextTime: 0,
         isSeeking: false,
         isVolumeSeeking: false,
-        muted: false,
         offline: false,
         volume: 0,
     };
@@ -57,7 +54,7 @@ class Player extends React.Component<AllProps, State>{
     async componentDidMount() {
         try {
             const { isSeeking } = this.state;
-            const { setCurrentTime, playbackDeviceId } = this.props;
+            const { setCurrentTime } = this.props;
 
             let stopSeeking: any;
 
@@ -82,6 +79,7 @@ class Player extends React.Component<AllProps, State>{
                     }
 
                     setCurrentTime(to);
+                    ipcRenderer.send(EVENTS.PLAYER.SEEK_END, to);
                 }, 100);
             });
 
@@ -169,7 +167,7 @@ class Player extends React.Component<AllProps, State>{
     }
 
     toggleMute = () => {
-        const { muted } = this.state;
+        const { muted, setConfigKey } = this.props;
 
         if (muted) {
             this.volumeChange(.5);
@@ -177,9 +175,7 @@ class Player extends React.Component<AllProps, State>{
             this.volumeChange(0);
         }
 
-        this.setState({
-            muted: !muted
-        });
+        setConfigKey('audio.muted', !muted);
     }
 
     // RENDER
@@ -215,6 +211,7 @@ class Player extends React.Component<AllProps, State>{
                     }
 
                     setCurrentTime(val);
+                    ipcRenderer.send(EVENTS.PLAYER.SEEK_END, val);
                 }}
             />
         );
@@ -229,9 +226,11 @@ class Player extends React.Component<AllProps, State>{
     }
 
     volumeChange = (volume: number) => {
+        if (this.props.muted) {
+            this.props.setConfigKey('audio.muted', false);
+        }
         this.setState({
             volume,
-            muted: false,
             isVolumeSeeking: true
         });
     }
@@ -297,10 +296,13 @@ class Player extends React.Component<AllProps, State>{
             shuffle,
             toggleStatus,
             track,
-            toggleLike
+            toggleLike,
+            chromecast,
+            useChromeCast,
+            muted
         } = this.props;
 
-        const { muted, isVolumeSeeking, nextTime, isSeeking } = this.state;
+        const { isVolumeSeeking, nextTime, isSeeking } = this.state;
 
         const {
             status,
@@ -409,6 +411,36 @@ class Player extends React.Component<AllProps, State>{
 
                     </div>
 
+                    <Popover
+                        className='mr-2'
+                        content={(
+                            <div>
+                                {
+                                    chromecast.devices.map((d) => {
+                                        return (
+                                            <div
+                                                key={d.id}
+                                                className='p-1'
+                                                onClick={() => {
+                                                    useChromeCast(d.id);
+                                                }}
+                                            >
+                                                {d.name} {chromecast.selectedDeviceId === d.id ? '(Selected)' : null}
+                                            </div>
+                                        );
+                                    })
+                                }
+                            </div>
+                        )}
+                    >
+                        <a
+                            className={styles.control}
+                            href='javascript:void(0)'
+                        >
+                            <i className='bx bx-cast' />
+                        </a>
+                    </Popover>
+
                     <a
                         className={styles.control}
                         href='javascript:void(0)'
@@ -430,10 +462,10 @@ class Player extends React.Component<AllProps, State>{
             volume: configVolume,
             track,
             remainingPlays,
-            overrideClientId
+            overrideClientId,
+            chromecast,
+            muted
         } = this.props;
-
-        const { muted } = this.state;
 
         const {
             status,
@@ -459,13 +491,15 @@ class Player extends React.Component<AllProps, State>{
             );
         }
 
+        const playingOnChromecast = !!chromecast.selectedDeviceId;
+
         return (
             <Audio
                 ref={(r) => this.audio = r}
                 src={url}
                 autoPlay={status === PlayerStatus.PLAYING}
                 volume={volume}
-                muted={muted}
+                muted={muted || playingOnChromecast}
                 id={`${playingTrack.id}`}
                 onLoadedMetadata={this.onLoad}
                 onListen={this.onPlaying}
@@ -501,12 +535,14 @@ const mapStateToProps = (state: StoreState) => {
         track,
         player,
         volume: config.audio.volume,
+        muted: config.audio.muted,
         shuffle: config.shuffle,
         repeat: config.repeat,
         playbackDeviceId: config.audio.playbackDeviceId,
         overrideClientId: config.app.overrideClientId,
         remainingPlays: app.remainingPlays,
-        liked
+        liked,
+        chromecast: app.chromecast
     };
 };
 
@@ -520,7 +556,8 @@ const mapDispatchToProps = (dispatch: Dispatch) => bindActionCreators({
     toggleQueue,
     registerPlay,
     toggleShuffle,
-    toggleLike
+    toggleLike,
+    useChromeCast
 }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(Player);

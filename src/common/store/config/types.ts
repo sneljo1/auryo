@@ -29,6 +29,7 @@ export interface AppConfig {
 export interface AudioConfig {
     volume: number;
     playbackDeviceId: null | string;
+    muted: boolean;
 }
 
 export interface LastFmConfig {

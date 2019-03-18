@@ -153,11 +153,11 @@ module.exports = {
   resolve: {
     extensions: ['.tsx', '.ts', '.js', '.jsx', '.json', '.scss'],
     alias: {
-      '@': path.resolve(__dirname, '../src')
+      // '@': path.resolve(__dirname, '../src')
     },
     plugins: [
       new TsconfigPathsPlugin({
-        extensions: [".ts", ".tsx", ".js", ".jsx"]
+        extensions: [".ts", ".tsx", ".js", ".jsx"],
       })
     ]
   },
