@@ -205,6 +205,7 @@ class Header extends React.Component<AllProps, State> {
                                     position={Position.BOTTOM_RIGHT}
                                     autoFocus={false}
                                     minimal={true}
+                                    usePortal={false}
                                     content={(
                                         <Menu>
 
