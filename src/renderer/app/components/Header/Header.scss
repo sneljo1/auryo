@@ -50,12 +50,8 @@
 
   .sticky {
     .navbar-wrapper {
-      background: white;
+      background: var(--clr-navbar-bg-sticky);
       transition: .5s all;
-
-      .darkMode & {
-        background: $black;
-      }
     }
   }
 

@@ -54,7 +54,7 @@
     padding: 6px 12px 6px 0;
     text-transform: uppercase;
     font-size: .9rem;
-    color: $black;
+    color: var(--clr-settings-group-title);
     font-weight: $font-weight-bold;
     &:after {
       content: "";
@@ -63,10 +63,6 @@
       background: theme-color("primary");
       display: block;
       margin-top: 5px;
-    }
-
-    .darkMode & {
-      color: $white;
     }
   }
   .bp3-control {

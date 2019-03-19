@@ -23,25 +23,17 @@
     font-size: 1rem;
     margin-bottom: 1rem;
     strong {
-      color: black;
+      color: var(--clr-track-info-strong);
       margin-top: .5rem;
       display: inline-block;
-
-      .darkMode & {
-        color: $white;
-      }
     }
   }
   .taglist {
     .badge {
-      background: $brand-grey-lighter;
+      background: var(--clr-badge-bg);
+      color: var(--clr-badge-text);
       font-size: .9rem;
       margin-bottom: .2rem;
-
-      .darkMode & {
-        background: $brand-grey-dark;
-        color: $white;
-      }
     }
   }
   .trackHeader,
@@ -58,8 +50,8 @@
     padding: 20px 40px;
   }
   .trackDescription {
-    color: #3a3e43;
-    background: #fbfbfb;
+    background: var(--clr-track-description-bg);
+    color: var(--clr-track-description-text);
     padding: 2rem;
     border-radius: 1rem;
     margin-bottom: 2rem;
@@ -70,10 +62,6 @@
     }
     &.isOpen {
       max-height: 500px;
-    }
-    .darkMode & {
-      color: $white;
-      background: $black;
     }
   }
   .user_card_wrap {

@@ -50,6 +50,7 @@ body {
 
 // =======================
 .body {
+  color: var(--clr-body-text);
   height: 100vh;
   &.development {
     &:before {
@@ -78,10 +79,6 @@ body {
       font-size: 20px;
       background: black;
     }
-  }
-
-  &.darkMode {
-    color: $white;
   }
 }
 
@@ -120,13 +117,10 @@ main {
 }
 
 .content {
+  background: var(--clr-content-bg);
   width: 100%;
   position: relative;
   margin-left: 260px;
-
-  .darkMode & {
-    background: $black;
-  }
 }
 
 /** -------- */
@@ -475,12 +469,8 @@ i {
         position: absolute;
         width: 100%;
         height: 50px;
-        background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(245, 245, 245, 0.8));
+        background: var(--clr-overflow-pseudo);
         bottom: 0;
-
-        .darkMode & {
-          background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba($black, 0.8));
-        }
       }
     }
   }
@@ -584,6 +574,11 @@ i {
 
 .fixed-bottom.player-container {
   z-index: 100010;
+}
+
+.bp3-menu {
+  background: var(--clr-popover-bg);
+  color: var(--clr-popover-text);
 }
 
 .bp3-menu-item {

@@ -185,11 +185,7 @@
     .trackTitle {
       font-weight: $font-weight-bold;
       a {
-        color: $black;
-
-        .darkMode & {
-          color: $white;
-        }
+        color: var(--clr-track-title);
       }
     }
     .trackArtist {
