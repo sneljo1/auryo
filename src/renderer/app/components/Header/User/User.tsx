@@ -11,7 +11,7 @@ const User = React.memo<Props>(({ me }) => (
     <div className='user'>
         {
             me ? (
-                <Link className='userPofile' to={`/user/${me.id}`}>
+                <Link className='userProfile' to={`/user/${me.id}`}>
                     <div className='d-flex align-items-center'>
                         <div className='userName'>
                             {me.username}
