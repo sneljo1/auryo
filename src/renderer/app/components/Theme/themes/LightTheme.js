@@ -6,6 +6,7 @@ export default {
   "--clr-offwhite-1": "#fbfbfb",
   "--clr-offwhite-2": "#f7f7f7",
   "--clr-offwhite-3": "#f2f2f2",
+  "--clr-offwhite-4": "#dfdfdf",
 
   "--clr-brand-grey-dark": "#25272B",
   "--clr-brand-grey": "#767c89",
@@ -37,11 +38,29 @@ export default {
   "--clr-badge-text": "var(--clr-black)",
   "--clr-overflow-pseudo": "linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(245, 245, 245, 0.8))",
 
+  // Buttons
+  "--clr-btn-bg": "var(--clr-white)",
+  "--clr-btn-text": "#3f4144",
+  "--clr-btn-hover-bg": "var(--clr-white)",
+
+  // Header
+  "--clr-header-pseudo": "linear-gradient(transparent 0%, rgba(255, 255, 255, .25) 50%, rgb(255, 255, 255) 100%)",
+
   // Sidebar
   "--clr-sidebar-bg": "var(--clr-black)",
 
+  // Charts
+  "--clr-tabs-bg": "var(--clr-white)",
+  "--clr-tabs-border": "var(--clr-offwhite-3)",
+  "--clr-tabs-border-active": "var(--clr-offwhite-4)",
+  "--clr-tabs-text": "var(--clr-brand-grey)",
+
   // Settings
   "--clr-settings-group-title": "var(--clr-black)",
+
+  // Player
+  "--clr-progress-wrapper-bg": "var(--clr-black)",
+  "--clr-play-queue-bg": "var(--clr-black)",
 
   // Popover
   "--clr-popover-bg": "var(--clr-white)",

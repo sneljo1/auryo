@@ -5,6 +5,7 @@ export default {
 
   "--clr-black-dark": "hsl(225, 6%, 12%)",
   "--clr-black-darker": "hsl(225, 6%, 10%)",
+  "--clr-black-darkest": "hsl(225, 6%, 8%)",
 
   "--clr-offwhite-1": "#fbfbfb",
   "--clr-offwhite-2": "#f7f7f7",
@@ -31,20 +32,38 @@ export default {
   "--clr-track-item-bg-active": "var(--clr-brand-grey-dark)",
   "--clr-track-item-link": "var(--clr-white)",
   "--clr-detail-page-bg": "var(--clr-black)",
-  "--clr-track-grid-user-bg": "var(--clr-black)",
+  "--clr-track-grid-user-bg": "var(--clr-black-dark)",
   "--clr-track-grid-user-title": "var(--clr-white)",
   "--clr-track-info-strong": "var(--clr-white)",
-  "--clr-track-description-bg": "var(--clr-black)",
+  "--clr-track-description-bg": "var(--clr-black-dark)",
   "--clr-track-description-text": "var(--clr-white)",
   "--clr-badge-bg": "var(--clr-brand-grey-dark)",
   "--clr-badge-text": "var(--clr-white)",
-  "--clr-overflow-pseudo": "linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(34, 35, 38, 0.8))",
+  "--clr-overflow-pseudo": "none",
+
+  // Buttons
+  "--clr-btn-bg": "var(--clr-black-dark)",
+  "--clr-btn-text": "var(--clr-white)",
+  "--clr-btn-hover-bg": "var(--clr-black-darkest)",
+
+  // Header
+  "--clr-header-pseudo": "linear-gradient(transparent 0%, rgba(34, 35, 38, .25) 40%, rgb(34, 35, 38) 100%)",
 
   // Sidebar
   "--clr-sidebar-bg": "var(--clr-black-dark)",
 
+  // Charts
+  "--clr-tabs-bg": "var(--clr-black-dark)",
+  "--clr-tabs-border": "var(--clr-black-darker)",
+  "--clr-tabs-border-active": "var(--clr-black-darkest)",
+  "--clr-tabs-text": "var(--clr-white)",
+
   // Settings
   "--clr-settings-group-title": "var(--clr-white)",
+
+  // Player
+  "--clr-progress-wrapper-bg": "var(--clr-black-dark)",
+  "--clr-play-queue-bg": "var(--clr-black-dark)",
 
   // Popover
   "--clr-popover-bg": "var(--clr-brand-grey-dark)",

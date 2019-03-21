@@ -13,7 +13,7 @@
   position: absolute;
   right: 0;
   bottom: 0;
-  background: $black;
+  background: var(--clr-play-queue-bg);
   margin-bottom: 66px;
   color: #fff;
   z-index: 100009;
