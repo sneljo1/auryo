@@ -195,13 +195,15 @@ export default class ChromeCast extends Feature {
   private async startTrack(state: StoreState, fromCurrentTime: boolean = false) {
     try {
       const {
-        player: { playingTrack, currentTime },
+        player: { playingTrack, currentTime, status, currentIndex, queue },
         config: { app: { overrideClientId } }
       } = state;
 
       if (playingTrack && this.player) {
         const trackId = playingTrack.id;
         const track = getTrackEntity(trackId)(state);
+        const nextTrackId = queue[currentIndex + 1];
+        const nextTrack = nextTrackId && nextTrackId.id ? getTrackEntity(nextTrackId.id)(state) : null;
 
         if (track) {
           const stream_url = track.stream_url ?
@@ -224,6 +226,16 @@ export default class ChromeCast extends Feature {
                 { url: SC.getImageUrl(track, IMAGE_SIZES.XSMALL) },
                 { url: SC.getImageUrl(track, IMAGE_SIZES.XLARGE) }
               ]
+            },
+            customData: {
+              nextTrack: nextTrack ? {
+                title: nextTrack.title.replace(/\s*\[.*?\]\s*/gi, ''),
+                artist: nextTrack.user ? nextTrack.user.username : 'Unknown artist',
+                images: [
+                  { url: SC.getImageUrl(nextTrack, IMAGE_SIZES.XSMALL) },
+                  { url: SC.getImageUrl(nextTrack, IMAGE_SIZES.XLARGE) }
+                ],
+              } : null
             }
           };
 
@@ -234,16 +246,14 @@ export default class ChromeCast extends Feature {
           this.logger.debug('app "%s" launched, loading media %s ...', this.player.session.displayName, media.contentId);
 
           const options: any = {
-            autoplay: true
+            autoplay: status === PlayerStatus.PLAYING
           };
 
           if (fromCurrentTime) {
             options.currentTime = currentTime;
           }
 
-          await this.player.load(media, {
-            autoplay: true,
-          });
+          await this.player.load(media, options);
         }
       }
     } catch (err) {
