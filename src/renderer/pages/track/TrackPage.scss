@@ -23,16 +23,17 @@
     font-size: 1rem;
     margin-bottom: 1rem;
     strong {
-      color: black;
+      color: var(--clr-track-info-strong);
       margin-top: .5rem;
       display: inline-block;
     }
   }
   .taglist {
     .badge {
-      background: $brand-grey-lighter;
+      background: var(--clr-badge-bg);
+      color: var(--clr-badge-text);
       font-size: .9rem;
-      margin-bottom: .2rem
+      margin-bottom: .2rem;
     }
   }
   .trackHeader,
@@ -49,8 +50,8 @@
     padding: 20px 40px;
   }
   .trackDescription {
-    color: #3a3e43;
-    background: #fbfbfb;
+    background: var(--clr-track-description-bg);
+    color: var(--clr-track-description-text);
     padding: 2rem;
     border-radius: 1rem;
     margin-bottom: 2rem;

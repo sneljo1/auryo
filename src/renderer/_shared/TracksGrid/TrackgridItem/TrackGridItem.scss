@@ -185,7 +185,7 @@
     .trackTitle {
       font-weight: $font-weight-bold;
       a {
-        color: $black;
+        color: var(--clr-track-title);
       }
     }
     .trackArtist {

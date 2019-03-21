@@ -14,6 +14,7 @@ import { NormalizedResult } from '../../types';
 import ErrorBoundary from '../_shared/ErrorBoundary';
 import Spinner from '../_shared/Spinner/Spinner';
 import AppError from './components/AppError/AppError';
+import Theme from './components/Theme/Theme';
 import ChangelogModal from './components/modals/ChangeLogModal/ChangelogModal';
 import Player from './components/player/Player';
 import Queue from './components/Queue/Queue';
@@ -25,7 +26,7 @@ interface PropsFromState {
     toasts: Array<IToastOptions>;
     playingTrack: PlayingTrack | null;
     app: AppState;
-
+    theme: string;
     userPlayerlists: Array<NormalizedResult>;
 }
 
@@ -104,6 +105,7 @@ class Layout extends React.Component<AllProps> {
             app,
             playingTrack,
             children,
+            theme,
             // Functions
             initApp,
             toasts,
@@ -115,77 +117,79 @@ class Layout extends React.Component<AllProps> {
             <ResizeSensor
                 onResize={this.debouncedHandleResize}
             >
-
-                <div
-                    className={cn('body auryo', {
-                        development: !(process.env.NODE_ENV === 'production'),
-                        mac: is.osx(),
-                        playing: !!playingTrack
-                    })}
-                >
-                    {
-                        !app.loaded && !app.offline && !app.loading_error ? (
-                            <Spinner full={true} />
-                        ) : null
-                    }
-
-                    {
-                        app.loading_error ? (
-                            <AppError
-                                error={app.loading_error}
-                                initApp={initApp}
-                            />
-                        ) : null
-                    }
-
-                    <main
-                        className={cn('d-flex flex-nowrap', {
-                            playing: playingTrack
+                <Theme variables={Theme[theme]}>
+                    <div
+                        className={cn('body auryo', {
+                            development: !(process.env.NODE_ENV === 'production'),
+                            mac: is.osx(),
+                            playing: !!playingTrack
                         })}
                     >
-                        <SideBar items={userPlayerlists} />
+                        {
+                            !app.loaded && !app.offline && !app.loading_error ? (
+                                <Spinner full={true} />
+                            ) : null
+                        }
 
-                        <Queue />
-
-                        <section className='content'>
-                            <Toastr
-                                position={Position.TOP_RIGHT}
-                                toasts={toasts}
-                                clearToasts={clearToasts}
-                            />
-
-                            <div className='f-height'>
-                                <ErrorBoundary
+                        {
+                            app.loading_error ? (
+                                <AppError
+                                    error={app.loading_error}
                                     initApp={initApp}
-                                >
-                                    {children}
-                                </ErrorBoundary>
-                            </div>
-                        </section>
-                    </main>
+                                />
+                            ) : null
+                        }
 
-                    <footer className='fixed-bottom player-container'>
-                        <Player />
-                    </footer>
+                        <main
+                            className={cn('d-flex flex-nowrap', {
+                                playing: playingTrack
+                            })}
+                        >
+                            <SideBar items={userPlayerlists} />
 
-                    {/* Register Modals */}
+                            <Queue />
 
-                    <AboutModal />
-                    <ChangelogModal />
+                            <section className='content'>
+                                <Toastr
+                                    position={Position.TOP_RIGHT}
+                                    toasts={toasts}
+                                    clearToasts={clearToasts}
+                                />
 
-                </div>
+                                <div className='f-height'>
+                                    <ErrorBoundary
+                                        initApp={initApp}
+                                    >
+                                        {children}
+                                    </ErrorBoundary>
+                                </div>
+                            </section>
+                        </main>
+
+                        <footer className='fixed-bottom player-container'>
+                            <Player />
+                        </footer>
+
+                        {/* Register Modals */}
+
+                        <AboutModal />
+                        <ChangelogModal />
+
+                    </div>
+                </Theme>
             </ResizeSensor>
         );
     }
 }
 
 const mapStateToProps = (state: StoreState): PropsFromState => {
-    const { app, player, ui } = state;
+    const { app, config, player, ui } = state;
 
     return {
         userPlayerlists: getUserPlaylists(state),
         playingTrack: player.playingTrack,
         app,
+        theme: config.app.theme,
         toasts: ui.toasts,
     };
 };

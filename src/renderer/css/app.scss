@@ -50,7 +50,10 @@ body {
 
 // =======================
 .body {
+  color: var(--clr-body-text);
   height: 100vh;
+  transition: background 0.3s ease, color 0.3s ease;
+
   &.development {
     &:before {
       @include media-breakpoint-only(xs) {
@@ -116,9 +119,12 @@ main {
 }
 
 .content {
+  background: var(--clr-content-bg);
   width: 100%;
   position: relative;
   margin-left: 260px;
+  transition: background 0.3s ease;
+  z-index: 1;
 }
 
 /** -------- */
@@ -207,8 +213,8 @@ main {
   padding: 7px 14px;
   box-shadow: 0 10px 60px rgba(0, 0, 0, 0.03),
   0 6px 50px rgba(0, 0, 0, 0.13);
-  color: #3f4144 !important;
-  background: #fff;
+  color: var(--clr-btn-text) !important;
+  background: var(--clr-btn-bg);
   transition: 0.3s box-shadow;
   text-decoration: none;
   display: inline-block;
@@ -244,7 +250,7 @@ main {
     color: theme-color("primary") !important;
   }
   &:hover {
-    background: #fff;
+    background: var(--clr-btn-hover-bg);
     box-shadow: 0 10px 60px rgba(0, 0, 0, 0.08), 0 6px 50px rgba(0, 0, 0, 0.18);
     transition: 0.3s box-shadow;
     text-decoration: none;
@@ -467,7 +473,7 @@ i {
         position: absolute;
         width: 100%;
         height: 50px;
-        background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(245, 245, 245, 0.8));
+        background: var(--clr-overflow-pseudo);
         bottom: 0;
       }
     }
@@ -572,6 +578,15 @@ i {
 
 .fixed-bottom.player-container {
   z-index: 100010;
+}
+
+// .bp3-popover .bp3-popover-content {
+//   background: var(--clr-popover-bg);
+// }
+
+.bp3-menu {
+  background: var(--clr-popover-bg);
+  color: var(--clr-popover-text);
 }
 
 .bp3-menu-item {

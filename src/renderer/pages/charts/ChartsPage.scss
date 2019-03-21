@@ -5,21 +5,20 @@
     border: none;
     .nav-link {
       font-size: .8rem;
-      color: #77797d;
-
-      background: white;
+      background: var(--clr-tabs-bg);
+      border: 1px solid var(--clr-tabs-border);
+      color: var(--clr-tabs-text);
       padding: 6px 12px;
       box-sizing: content-box;
       border-radius: 5px;
       margin-right: 10px;
-      border: 1px solid #f1f1f1;
 
       cursor: pointer;
 
       &.active {
+        border-color: var(--clr-tabs-border-active);
         color: theme-color("primary") !important;
         font-weight: $font-weight-bold;
-        border-color: #f1f1f1;
       }
     }
   }

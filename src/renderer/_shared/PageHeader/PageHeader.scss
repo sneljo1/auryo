@@ -2,7 +2,7 @@
 .page-header {
   padding: 20px 20px 15px 40px;
   h2 {
-    color: #222326;
+    color: var(--clr-page-header-title);
     font-size: 2.1rem;
     margin-bottom: .3rem;
   }
@@ -35,7 +35,7 @@
       display: block;
       width: 100%;
       height: 100%;
-      background-image: linear-gradient(transparent 0%, rgba(255, 255, 255, .25) 50%, rgb(255, 255, 255) 100%);
+      background-image: var(--clr-header-pseudo);
     }
     &:before {
       content: "";
@@ -54,7 +54,7 @@
     &+.detailPage {
       margin-top: -6.5rem;
       position: relative;
-      background: #f7f7f7;
+      background: var(--clr-detail-page-bg);
       flex-grow: 1;
     }
     .gradient {

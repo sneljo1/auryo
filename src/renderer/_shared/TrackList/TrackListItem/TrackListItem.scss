@@ -54,7 +54,7 @@
     }
     &:hover,&.isPlaying {
       td {
-        background: white;
+        background: var(--clr-track-item-bg-active);
       }
       .toggleButton{
         opacity: 1;
@@ -66,7 +66,7 @@
     }
 
     td {
-      background: #fbfbfb;
+      background: var(--clr-track-item-bg);
       text-overflow: ellipsis;
       border-top: none !important;
       vertical-align: middle;
@@ -131,7 +131,7 @@
     }
 
     a:not(.toggleButton) {
-      color: #3b3e42;
+      color: var(--clr-track-item-link);
     }
     .time{
       text-align: right;

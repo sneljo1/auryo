@@ -1,16 +1,16 @@
 .user {
   color: #717171;
 
-  .userPofile {
+  .userProfile {
     text-decoration: none !important;
-    color: #717171 !important;
+    color: var(--clr-user-profile-text) !important;
     padding: 4px 4px 4px 6px;
     border-radius: .25rem;
     margin-right: .4rem;
     display: block;
 
     &:hover {
-      background: darken(#fff, 5%);
+      background: var(--clr-user-profile-hover);
     }
   }
 

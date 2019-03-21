@@ -284,6 +284,18 @@ class Settings extends React.PureComponent<AllProps, State> {
                             setConfigKey={setConfigKey}
                         />
 
+                        <SelectConfig
+                            name='Theme'
+                            configKey='app.theme'
+                            setConfigKey={setConfigKey}
+                            config={config}
+                            data={[
+                                { k: 'Light', v: 'light' },
+                                { k: 'Dark', v: 'dark' },
+                                { k: 'Blue', v: 'blue' },
+                            ]}
+                        />
+
                         <div className='setting d-flex justify-content-between align-items-center'>
                             <div>
                                 Download path
@@ -300,6 +312,7 @@ class Settings extends React.PureComponent<AllProps, State> {
                             configKey='app.overrideClientId'
                             type='text'
                             name='Use your own clientId'
+                            placeholder='clientId'
                             description={(
                                 <div>Read <a href='https://github.com/Superjo149/auryo/wiki/Custom-clientId'>here</a> why and how.</div>
                             )}
