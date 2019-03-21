@@ -12,6 +12,7 @@ interface Props {
     description?: React.ReactNode;
     onChange?: (value: string | null, setKey: () => void) => void;
     usePlaceholder: boolean;
+    placeholder: string;
     invalid: boolean;
     type: string;
 }
@@ -21,6 +22,7 @@ class InputConfig extends React.PureComponent<Props> {
     static readonly defaultProps: Partial<Props> = {
         type: 'text',
         usePlaceholder: false,
+        placeholder: '',
         className: '',
         invalid: false
     };
@@ -49,7 +51,7 @@ class InputConfig extends React.PureComponent<Props> {
 
 
     render() {
-        const { configKey, name, config, type, className, usePlaceholder, invalid, description } = this.props;
+        const { configKey, name, config, type, className, usePlaceholder, placeholder, invalid, description } = this.props;
 
         const value = configKey.split('.').reduce((o, i) => o[i], config);
 
@@ -77,7 +79,7 @@ class InputConfig extends React.PureComponent<Props> {
                     })}
                     name={name}
                     onChange={(event: React.ChangeEvent<HTMLInputElement>) => this.saveDebounced(event.target.value)}
-                    placeholder={usePlaceholder ? name : undefined}
+                    placeholder={usePlaceholder ? name : placeholder}
                     defaultValue={value || ''}
                 />
             </div>

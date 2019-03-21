@@ -312,6 +312,7 @@ class Settings extends React.PureComponent<AllProps, State> {
                             configKey='app.overrideClientId'
                             type='text'
                             name='Use your own clientId'
+                            placeholder='clientId'
                             description={(
                                 <div>Read <a href='https://github.com/Superjo149/auryo/wiki/Custom-clientId'>here</a> why and how.</div>
                             )}
