@@ -26,7 +26,7 @@ interface PropsFromState {
     toasts: Array<IToastOptions>;
     playingTrack: PlayingTrack | null;
     app: AppState;
-    darkMode: boolean;
+    theme: string;
     userPlayerlists: Array<NormalizedResult>;
 }
 
@@ -105,7 +105,7 @@ class Layout extends React.Component<AllProps> {
             app,
             playingTrack,
             children,
-            darkMode,
+            theme,
             // Functions
             initApp,
             toasts,
@@ -117,7 +117,7 @@ class Layout extends React.Component<AllProps> {
             <ResizeSensor
                 onResize={this.debouncedHandleResize}
             >
-                <Theme variables={!!darkMode ? Theme.Dark : Theme.Light}>
+                <Theme variables={Theme[theme]}>
                     <div
                         className={cn('body auryo', {
                             development: !(process.env.NODE_ENV === 'production'),
@@ -189,7 +189,7 @@ const mapStateToProps = (state: StoreState): PropsFromState => {
         userPlayerlists: getUserPlaylists(state),
         playingTrack: player.playingTrack,
         app,
-        darkMode: config.app.darkMode,
+        theme: config.app.theme,
         toasts: ui.toasts,
     };
 };

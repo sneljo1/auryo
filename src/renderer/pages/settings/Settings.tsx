@@ -284,11 +284,16 @@ class Settings extends React.PureComponent<AllProps, State> {
                             setConfigKey={setConfigKey}
                         />
 
-                        <CheckboxConfig
-                            name='Enable Darkmode'
-                            configKey='app.darkMode'
-                            config={config}
+                        <SelectConfig
+                            name='Theme'
+                            configKey='app.theme'
                             setConfigKey={setConfigKey}
+                            config={config}
+                            data={[
+                                { k: 'Light', v: 'light' },
+                                { k: 'Dark', v: 'dark' },
+                                { k: 'Blue', v: 'blue' },
+                            ]}
                         />
 
                         <div className='setting d-flex justify-content-between align-items-center'>

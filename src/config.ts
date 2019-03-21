@@ -52,7 +52,7 @@ export const CONFIG = {
         app: {
             analytics: false,
             crashReports: true,
-            darkMode: false,
+            theme: 'light',
             downloadPath,
             showTrackChangeNotification: true,
             overrideClientId: null

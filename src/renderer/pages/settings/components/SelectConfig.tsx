@@ -47,7 +47,7 @@ class SelectConfig extends React.PureComponent<Props> {
                 >
                     {
                         data.map(({ k, v }) => (
-                            <option value={v}>{k}</option>
+                            <option value={v} key={k}>{k}</option>
                         ))}
                 </select>
             </div>
