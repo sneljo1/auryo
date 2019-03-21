@@ -1,10 +1,10 @@
 export default {
   // Colors
   "--clr-white": "#fff",
-  "--clr-black": "#222326",
+  "--clr-black": "#262a39",
 
-  "--clr-black-dark": "hsl(225, 6%, 12%)",
-  "--clr-black-darker": "hsl(225, 6%, 10%)",
+  "--clr-blue-dark": "hsla(227, 20%, 15%, 1)",
+  "--clr-blue-darker": "hsla(227, 20%, 13%, 1)",
 
   "--clr-offwhite-1": "#fbfbfb",
   "--clr-offwhite-2": "#f7f7f7",
@@ -24,29 +24,29 @@ export default {
   "--clr-content-bg": "var(--clr-black)",
   "--clr-navbar-bg-sticky": "var(--clr-black)",
   "--clr-user-profile-text": "var(--clr-white)",
-  "--clr-user-profile-hover": "var(--clr-brand-grey-dark)",
+  "--clr-user-profile-hover": "var(--clr-blue-dark)",
   "--clr-page-header-title": "var(--clr-white)",
   "--clr-track-title": "var(--clr-white)",
-  "--clr-track-item-bg": "var(--clr-black)",
-  "--clr-track-item-bg-active": "var(--clr-brand-grey-dark)",
+  "--clr-track-item-bg": "var(--clr-blue-dark)",
+  "--clr-track-item-bg-active": "var(--clr-blue-darker)",
   "--clr-track-item-link": "var(--clr-white)",
   "--clr-detail-page-bg": "var(--clr-black)",
-  "--clr-track-grid-user-bg": "var(--clr-black)",
+  "--clr-track-grid-user-bg": "var(--clr-blue-dark)",
   "--clr-track-grid-user-title": "var(--clr-white)",
   "--clr-track-info-strong": "var(--clr-white)",
-  "--clr-track-description-bg": "var(--clr-black)",
+  "--clr-track-description-bg": "var(--clr-blue-dark)",
   "--clr-track-description-text": "var(--clr-white)",
-  "--clr-badge-bg": "var(--clr-brand-grey-dark)",
+  "--clr-badge-bg": "var(--clr-blue-dark)",
   "--clr-badge-text": "var(--clr-white)",
-  "--clr-overflow-pseudo": "linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(34, 35, 38, 0.8))",
+  "--clr-overflow-pseudo": "linear-gradient(to bottom, rgba(0, 0, 0, 0), hsla(227, 20%, 15%, 0.8))",
 
   // Sidebar
-  "--clr-sidebar-bg": "var(--clr-black-dark)",
+  "--clr-sidebar-bg": "var(--clr-blue-dark)",
 
   // Settings
   "--clr-settings-group-title": "var(--clr-white)",
 
   // Popover
-  "--clr-popover-bg": "var(--clr-brand-grey-dark)",
+  "--clr-popover-bg": "var(--clr-blue-dark)",
   "--clr-popover-text": "var(--clr-white)",
 }

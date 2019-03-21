@@ -52,6 +52,8 @@ body {
 .body {
   color: var(--clr-body-text);
   height: 100vh;
+  transition: background 0.3s ease, color 0.3s ease;
+
   &.development {
     &:before {
       @include media-breakpoint-only(xs) {
@@ -121,6 +123,7 @@ main {
   width: 100%;
   position: relative;
   margin-left: 260px;
+  transition: background 0.3s ease;
 }
 
 /** -------- */
@@ -575,6 +578,10 @@ i {
 .fixed-bottom.player-container {
   z-index: 100010;
 }
+
+// .bp3-popover .bp3-popover-content {
+//   background: var(--clr-popover-bg);
+// }
 
 .bp3-menu {
   background: var(--clr-popover-bg);

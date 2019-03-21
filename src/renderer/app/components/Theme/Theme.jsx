@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { LightTheme, DarkTheme } from './themes/index';
+import { LightTheme, DarkTheme, BlueTheme } from './themes/index';
 
 class Theme extends React.Component {
   node = React.createRef();
@@ -24,7 +24,8 @@ class Theme extends React.Component {
   }
 }
 
-Theme.Light = LightTheme;
-Theme.Dark = DarkTheme;
+Theme.light = LightTheme;
+Theme.dark = DarkTheme;
+Theme.blue = BlueTheme;
 
 export default Theme;

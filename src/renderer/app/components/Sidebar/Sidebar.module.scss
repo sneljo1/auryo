@@ -5,7 +5,7 @@
 }
 
 .sidebar {
-  background: $black;
+  background: var(--clr-sidebar-bg);
   display: flex;
   flex-direction: column;
   flex-shrink: 0;

@@ -33,10 +33,15 @@ export default {
   "--clr-track-info-strong": "var(--clr-black)",
   "--clr-track-description-bg": "var(--clr-offwhite-1)",
   "--clr-track-description-text": "#3a3e43",
-  "--clr-settings-group-title": "var(--clr-black)",
   "--clr-badge-bg": "var(--clr-brand-grey-lighter)",
   "--clr-badge-text": "var(--clr-black)",
   "--clr-overflow-pseudo": "linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(245, 245, 245, 0.8))",
+
+  // Sidebar
+  "--clr-sidebar-bg": "var(--clr-black)",
+
+  // Settings
+  "--clr-settings-group-title": "var(--clr-black)",
 
   // Popover
   "--clr-popover-bg": "var(--clr-white)",
