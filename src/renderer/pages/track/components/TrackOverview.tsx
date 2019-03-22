@@ -1,28 +1,35 @@
+import { ObjectState } from '@common/store/objects';
+import { abbreviate_number } from '@common/utils';
 import * as moment from 'moment';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { ObjectState } from '@common/store/objects';
-import { abbreviate_number } from '@common/utils';
 import { NormalizedResult, SoundCloud } from '../../../../types';
-import TrackGridUser from '../../../_shared/TracksGrid/TrackgridUser/TrackGridUser';
-import ToggleMore from '../../../_shared/ToggleMore';
-import Linkify from '../../../_shared/Linkify';
 import CommentList from '../../../_shared/CommentList/CommentList';
+import Linkify from '../../../_shared/Linkify';
+import ToggleMore from '../../../_shared/ToggleMore';
+import TrackGridUser from '../../../_shared/TracksGrid/TrackgridUser/TrackGridUser';
 
 interface Props {
     track: SoundCloud.Track;
     comments: ObjectState<NormalizedResult> | null;
 }
 
-const getTags = (track: SoundCloud.Track) => track.tag_list
-    .split(/\s(?=(?:[^'"`]*(['"`])[^'"`]*\1)*[^'"`]*$)/g)
-    .reduce((all: Array<string>, obj: string) => {
-        if (obj && obj !== '"') {
-            all.push(obj.replace(/"/g, ''));
-        }
+const getTags = (track: SoundCloud.Track) => {
 
-        return all;
-    }, []);
+    if (!track.tag_list) {
+        return [];
+    }
+
+    return track.tag_list
+        .split(/\s(?=(?:[^'"`]*(['"`])[^'"`]*\1)*[^'"`]*$)/g)
+        .reduce((all: Array<string>, obj: string) => {
+            if (obj && obj !== '"') {
+                all.push(obj.replace(/"/g, ''));
+            }
+
+            return all;
+        }, []);
+};
 
 const TrackOverview = React.memo<Props>(({ track, comments }) => (
     <div className='row'>

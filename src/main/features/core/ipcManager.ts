@@ -34,6 +34,11 @@ export default class IPCManager extends Feature {
         this.win.focus();
       }
     });
+    ipcMain.on(EVENTS.APP.RELOAD, () => {
+      if (this.win) {
+        this.win.reload();
+      }
+    });
 
     ipcMain.on(EVENTS.APP.OPEN_EXTERNAL, (_e: IpcMessageEvent, arg: string) => {
       shell.openExternal(arg);

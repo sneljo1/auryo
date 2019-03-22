@@ -22,6 +22,7 @@ export const EVENTS = {
         UPDATE: "app/update",
         READY: "app/ready",
         RESTART: "app/restart",
+        RELOAD: "app/reload",
         VALID_DIR: "app/valid_dir",
         VALID_DIR_RESPONSE: "app/valid_dir/response",
         OPEN_EXTERNAL: "app/open_external",
