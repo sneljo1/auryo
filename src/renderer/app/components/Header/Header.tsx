@@ -218,7 +218,7 @@ class Header extends React.Component<AllProps, State> {
                                                 text='Settings'
                                                 icon='cog'
                                                 onClick={() => {
-                                                    push('settings');
+                                                    push('/settings');
                                                 }}
                                             />
 

@@ -1,3 +1,5 @@
+import { EVENTS } from '@common/constants/events';
+import { StoreState } from '@common/store';
 import { ConnectedRouter } from 'connected-react-router';
 import { ipcRenderer } from 'electron';
 import { History } from 'history';
@@ -5,11 +7,8 @@ import * as React from 'react';
 import { connect, Provider } from 'react-redux';
 import { Route, Switch } from 'react-router';
 import { Store } from 'redux';
-import { EVENTS } from '@common/constants/events';
-import { StoreState } from '@common/store';
 import App from './app/App';
 import OnBoarding from './pages/onboarding/OnBoarding';
-import Settings from './pages/settings/Settings';
 
 interface OwnProps {
     store: Store<StoreState>;
