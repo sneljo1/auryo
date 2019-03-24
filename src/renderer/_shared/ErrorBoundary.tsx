@@ -1,9 +1,9 @@
+import { ipcRenderer } from 'electron';
 import * as React from 'react';
-import { initApp } from '@common/store/app';
 import AppError from '../app/components/AppError/AppError';
+import { EVENTS } from '@common/constants/events';
 
 interface Props {
-    initApp: typeof initApp;
 }
 
 interface State {
@@ -23,16 +23,19 @@ class ErrorBoundary extends React.PureComponent<Props, State> {
     }
 
     render() {
-        const { initApp } = this.props;
         if (this.state.hasError) {
             return (
                 <AppError
                     error={this.state.message || ''}
-                    initApp={initApp}
+                    reload={this.reload}
                 />
             );
         }
         return this.props.children;
+    }
+
+    private reload(){
+        ipcRenderer.send(EVENTS.APP.RELOAD);
     }
 }
 

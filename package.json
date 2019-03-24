@@ -3,7 +3,7 @@
   "repository": "Superjo149/auryo",
   "homepage": "http://auryo.com",
   "productName": "Auryo",
-  "version": "2.5.0",
+  "version": "2.4.1",
   "author": {
     "name": "Jonas Snellinckx",
     "email": "jonas.snellinckx@gmail.com"
@@ -149,7 +149,8 @@
   "dependencies": {
     "@blueprintjs/core": "^3.14.1",
     "@blueprintjs/icons": "^3.6.0",
-    "@sentry/electron": "^0.16.0",
+    "@sentry/browser": "^4.6.5",
+    "@sentry/node": "^4.6.5",
     "autolinker": "^1.8.3",
     "bootstrap": "^4.1.3",
     "boxicons": "^1.7.1",
