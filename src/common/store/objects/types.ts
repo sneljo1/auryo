@@ -39,7 +39,7 @@ export interface ObjectState<T> {
     isFetching: boolean;
     error: string | null;
     meta: object;
-    items: Array<T>;
+    items: T[];
     futureUrl: string | null;
     nextUrl: string | null;
     fetchedItems: number;

@@ -25,7 +25,7 @@ export const getReposts = createSelector<StoreState, AuthState, AuthReposts>(
     (auth) => auth.reposts || {}
 );
 
-export const getUserPlaylists = createSelector<StoreState, AuthState, Array<NormalizedResult>>(
+export const getUserPlaylists = createSelector<StoreState, AuthState, NormalizedResult[]>(
     getAuth,
     (auth) => auth.playlists || []
 );
@@ -34,10 +34,10 @@ export type CombinedUserPlaylistState = { title: string, id: number } & ObjectSt
 
 export const getUserPlaylistsCombined = createSelector<
     StoreState,
-    Array<NormalizedResult>,
+    NormalizedResult[],
     ObjectGroup,
     EntitiesState,
-    Array<CombinedUserPlaylistState>
+    CombinedUserPlaylistState[]
     >(
         getUserPlaylists,
         getPlaylistsObjects,

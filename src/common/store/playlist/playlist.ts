@@ -26,7 +26,7 @@ export function togglePlaylistTrack(trackId: number, playlistId: number): ThunkR
             return;
         }
 
-        let newitems: Array<NormalizedResult> = [];
+        let newitems: NormalizedResult[] = [];
 
         const track: NormalizedResult = { id: trackId, schema: 'tracks' };
 
@@ -94,7 +94,7 @@ export function togglePlaylistTrack(trackId: number, playlistId: number): ThunkR
 }
 
 // This method is unused
-export function createPlaylist(title: string, type: string, tracks: Array<NormalizedResult>) {
+export function createPlaylist(title: string, type: string, tracks: NormalizedResult[]) {
     return () => fetchToJson(SC.getPlaylistUrl(), {
         method: 'POST',
         headers: {

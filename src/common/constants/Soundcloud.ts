@@ -4,7 +4,7 @@ export interface GenreConfig {
     gradient?: string;
 }
 
-export const MUSIC_GENRES: Array<GenreConfig> = [
+export const MUSIC_GENRES: GenreConfig[] = [
     {
         key: 'all-music',
         name: 'All music genres',
@@ -167,7 +167,7 @@ export const MUSIC_GENRES: Array<GenreConfig> = [
     },
 ];
 
-export const AUDIO_GENRES: Array<GenreConfig> = [
+export const AUDIO_GENRES: GenreConfig[] = [
     {
         key: 'all-audio',
         name: 'All audio genres',

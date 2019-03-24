@@ -43,7 +43,7 @@ export class Logger {
 
   }
 
-  public error(...args: Array<any>) {
+  public error(...args: any[]) {
     if (args.length > 0) {
       const errorIndex = args.findIndex((item) => item instanceof Error);
 
@@ -62,31 +62,31 @@ export class Logger {
     this.logger.error.apply(this.logger, args);
   }
 
-  public warn(..._args: Array<any>) {
+  public warn(..._args: any[]) {
     this.logger.warn.apply(this.logger, arguments);
   }
 
-  public info(..._args: Array<any>) {
+  public info(..._args: any[]) {
     this.logger.info.apply(this.logger, arguments);
   }
 
-  public verbose(..._args: Array<any>) {
+  public verbose(..._args: any[]) {
     this.logger.verbose.apply(this.logger, arguments);
   }
 
-  public debug(..._args: Array<any>) {
+  public debug(..._args: any[]) {
     this.logger.debug.apply(this.logger, _args);
   }
 
-  public silly(..._args: Array<any>) {
+  public silly(..._args: any[]) {
     this.logger.silly.apply(this.logger, arguments);
   }
 
-  public log(..._args: Array<any>) {
+  public log(..._args: any[]) {
     this.logger.log.apply(this.logger, arguments);
   }
 
-  public profile(..._args: Array<any>) {
+  public profile(..._args: any[]) {
     this.logger.profile.apply(this.logger, arguments);
   }
 }

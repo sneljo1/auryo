@@ -2,7 +2,7 @@ import { RemainingPlays } from '../store/app';
 import { asJson, SC, status } from '../utils';
 
 interface JsonResponse {
-    statuses: Array<Status>;
+    statuses: Status[];
 }
 
 interface Status {

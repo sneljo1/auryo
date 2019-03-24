@@ -3,7 +3,7 @@ import { playlistSchema } from '../schemas';
 import { asJson, SC, status } from '../utils';
 import { NormalizedResponse, SoundCloud } from '../../types';
 
-type JsonResponse = Array<SoundCloud.Playlist>;
+type JsonResponse = SoundCloud.Playlist[];
 
 export default function fetchPlaylists(): Promise<{
     json: JsonResponse,

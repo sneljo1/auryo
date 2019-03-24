@@ -2,15 +2,15 @@
 
 export interface PlayerState extends Readonly<{
     status: PlayerStatus;
-    queue: Array<PlayingTrack>;
-    originalQueue: Array<PlayingTrack>;
+    queue: PlayingTrack[];
+    originalQueue: PlayingTrack[];
     playingTrack: PlayingTrack | null;
     currentPlaylistId: string | null;
     currentIndex: number;
     currentTime: number;
     duration: number;
     upNext: UpNextState,
-    containsPlaylists: Array<PlayingPositionState>
+    containsPlaylists: PlayingPositionState[]
 }> { }
 
 export interface PlayingTrack {

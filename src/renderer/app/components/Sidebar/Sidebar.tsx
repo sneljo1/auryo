@@ -6,7 +6,7 @@ import SideBarPlaylist from './playlist/SideBarPlaylist';
 import * as styles from './Sidebar.module.scss';
 
 interface Props {
-    items: Array<NormalizedResult>;
+    items: NormalizedResult[];
 }
 
 type AllProps = Props & RouteComponentProps<{}>;

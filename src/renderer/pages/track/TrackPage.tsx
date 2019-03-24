@@ -45,7 +45,7 @@ interface PropsFromState {
     previousScrollTop?: number;
     track: SoundCloud.Track | null;
     songIdParam: number;
-    userPlaylists: Array<CombinedUserPlaylistState>;
+    userPlaylists: CombinedUserPlaylistState[];
 }
 
 interface PropsFromDispatch {

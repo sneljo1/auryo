@@ -13,12 +13,12 @@ interface CollectionItem {
 }
 
 interface CollectionResponse {
-    collection: Array<CollectionItem>;
+    collection: CollectionItem[];
     next_href?: string;
     future_href?: string;
 }
 
-type JsonResponse = CollectionResponse | ChartResponse | Array<SoundCloud.Playlist>;
+type JsonResponse = CollectionResponse | ChartResponse | SoundCloud.Playlist[];
 
 interface ChartCollectionItem {
     score: number;
@@ -26,7 +26,7 @@ interface ChartCollectionItem {
 
 }
 interface ChartResponse {
-    collection: Array<ChartCollectionItem>;
+    collection: ChartCollectionItem[];
     genre: string;
     kind: 'top' | 'trending';
     last_updated: SoundCloud.DateString;
@@ -80,7 +80,7 @@ export default function fetchPlaylist(url: string, objectId: string, hideReposts
                 if ((json as any).collection) { // When charts
                     const { collection, genre } = json as ChartResponse;
 
-                    let items: Array<SoundCloud.Track> = collection as Array<any>;
+                    let items: SoundCloud.Track[] = collection as any[];
 
                     if (genre) {
                         items = collection.map((item) => {

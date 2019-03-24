@@ -16,7 +16,7 @@ import LastFm from './core/lastFm';
 import DbusService from './linux/dbusService';
 import ChromeCast from './core/chromeCast/chromeCast';
 
-export const tools: Array<typeof Feature> = [
+export const tools: typeof Feature[] = [
   LastFm,
   ConfigManager,
   AppUpdater,

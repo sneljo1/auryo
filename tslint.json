@@ -2,7 +2,7 @@
   "extends": ["tslint:latest", "tslint-react", "tslint:recommended"],
   "rules": {
     "align": [true, "parameters"],
-    "array-type": [true, "generic"],
+    "array-type": [true, "array"],
     "arrow-parens": true,
     "class-name": true,
     "jsx-no-multiline-js": false,

@@ -139,7 +139,7 @@ export function setCurrentPlaylist(playlistId: string, nextTrack: PlayingTrack |
 
             const playlistObject = getPlaylistObjectSelector(playlistId.toString())(state);
 
-            const containsPlaylists: Array<PlayingPositionState> = [];
+            const containsPlaylists: PlayingPositionState[] = [];
 
             if (playlistObject && (nextTrack || playlistId !== currentPlaylistId)) {
 
@@ -173,10 +173,10 @@ export function setCurrentPlaylist(playlistId: string, nextTrack: PlayingTrack |
     };
 }
 
-export type ProcessedQueueItems = [Array<PlayingTrack>, Array<PlayingTrack>];
+export type ProcessedQueueItems = [PlayingTrack[], PlayingTrack[]];
 
 export function processQueueItems(
-    result: Array<NormalizedResult>,
+    result: NormalizedResult[],
     keepFirst: boolean = false,
     newPlaylistId?: string
 ): ThunkResult<Promise<ProcessedQueueItems>> {
@@ -192,7 +192,7 @@ export function processQueueItems(
 
             const items = await Promise.all(result
                 .filter((trackIdSchema) => (trackIdSchema && trackIdSchema.schema !== 'users'))
-                .map(async (trackIdSchema): Promise<PlayingTrack | null | Array<PlayingTrack | null>> => {
+                .map(async (trackIdSchema): Promise<PlayingTrack | null | (PlayingTrack | null)[]> => {
                     const id = trackIdSchema.id;
 
                     const playlist = getPlaylistEntity(id)(getState());
@@ -316,7 +316,7 @@ export function addUpNext(track: SoundCloud.Track | SoundCloud.Playlist, remove?
             un: Date.now()
         };
 
-        let nextList: Array<PlayingTrack> = [];
+        let nextList: PlayingTrack[] = [];
 
         if (isPlaylist) {
             const playlist = track as SoundCloud.Playlist;
@@ -333,7 +333,7 @@ export function addUpNext(track: SoundCloud.Track | SoundCloud.Playlist, remove?
                     playlistId: track.id.toString(),
                     un: Date.now()
                 };
-            }).filter((t) => t) as Array<PlayingTrack>;
+            }).filter((t) => t) as PlayingTrack[];
         }
 
         if (queue.length) {
@@ -363,7 +363,7 @@ export function addUpNext(track: SoundCloud.Track | SoundCloud.Playlist, remove?
  * @param range
  * @returns {function(*, *)}
  */
-export function updateQueue(range: Array<number>): ThunkResult<void> {
+export function updateQueue(range: number[]): ThunkResult<void> {
     return (dispatch, getState) => {
 
         const {
@@ -398,7 +398,7 @@ export function getItemsAround(position: number): ThunkResult<Promise<void>> {
             if (currentPlaylistId) {
                 const currentPlaylist = getPlaylistObjectSelector(currentPlaylistId)(getState());
 
-                const itemsToFetch: Array<{ position: number; id: number; }> = [];
+                const itemsToFetch: { position: number; id: number; }[] = [];
 
                 const lowBound = position - 3;
                 const highBound = position + 3;

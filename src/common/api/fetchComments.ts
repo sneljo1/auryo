@@ -3,7 +3,7 @@ import { NormalizedResponse, SoundCloud } from '../../types';
 import { commentSchema } from '../schemas';
 import { asJson, status } from '../utils';
 
-interface JsonResponse { collection: Array<SoundCloud.Comment>; next_href?: string; future_href?: string; }
+interface JsonResponse { collection: SoundCloud.Comment[]; next_href?: string; future_href?: string; }
 
 export default function fetchComments(url: string): Promise<{
     json: JsonResponse,

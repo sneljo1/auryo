@@ -6,7 +6,7 @@ interface Props {
     setConfigKey: typeof setConfigKey;
     configKey: string;
     name: string;
-    data: Array<{ k: string, v: any }>;
+    data: { k: string, v: any }[];
     className?: string;
     onChange?: (value: string) => void;
     usePlaceholder: boolean;

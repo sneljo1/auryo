@@ -4,7 +4,7 @@ import { playlistSchema } from '../schemas';
 import fetchToJson from './helpers/fetchToJson';
 
 interface JsonResponse {
-    collection: Array<PersonalisedCollectionItem>;
+    collection: PersonalisedCollectionItem[];
     next_href?: string;
     query_urn: string;
 }
@@ -18,7 +18,7 @@ export interface PersonalisedCollectionItem {
     last_updated: string;
     style: string;
     social_proof: SoundCloud.CompactUser;
-    system_playlists: Array<SoundCloud.SystemPlaylist>;
+    system_playlists: SoundCloud.SystemPlaylist[];
 }
 
 
@@ -26,7 +26,7 @@ export default async function fetchPersonalised(url: string): Promise<{
     json: JsonResponse,
     normalized: {
         entities: NormalizedEntities;
-        result: Array<NormalizedPersonalizedItem>;
+        result: NormalizedPersonalizedItem[];
     }
 }> {
     try {

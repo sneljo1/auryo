@@ -12,4 +12,4 @@ export const setConfigKey = (key: string, value: ConfigValue) => ({
     }
 });
 
-export type ConfigValue = string | number | boolean | object | null | Array<string | number | object>;
+export type ConfigValue = string | number | boolean | object | null | (string | number | object)[];

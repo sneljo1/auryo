@@ -76,7 +76,7 @@ export default class LastFm extends Feature {
       });
 
       // like
-      this.on(EVENTS.TRACK.LIKED, async (args: Array<any>) => {
+      this.on(EVENTS.TRACK.LIKED, async (args: any[]) => {
         try {
 
           const currentState = this.store.getState();

@@ -8,7 +8,7 @@ import { PlaylistTypes } from '@common/store/objects';
 
 interface Props {
     showInfo?: boolean;
-    items: Array<NormalizedResult>;
+    items: NormalizedResult[];
     objectId: string;
 }
 
@@ -49,7 +49,7 @@ class TracksGrid extends React.PureComponent<Props> {
         );
     }
 
-    renderWrapper = (items: Array<JSX.Element>, ref: string) => (
+    renderWrapper = (items: JSX.Element[], ref: string) => (
         <div className='row' ref={ref}>{items}</div>
     )
 

@@ -10,7 +10,7 @@ export const getPlayingTrack = createSelector<StoreState, PlayerState, PlayingTr
     (player) => player.playingTrack
 );
 
-export const getQueue = createSelector<StoreState, PlayerState, Array<PlayingTrack>>(
+export const getQueue = createSelector<StoreState, PlayerState, PlayingTrack[]>(
     [getPlayer],
     (player) => player.queue || []
 );

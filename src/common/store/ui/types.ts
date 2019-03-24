@@ -8,7 +8,7 @@ export interface UIState extends Readonly<{
     scrollPosition: {
         [path: string]: number;
     },
-    toasts: Array<IToastOptions>;
+    toasts: IToastOptions[];
 }> { }
 
 // ACTIONS

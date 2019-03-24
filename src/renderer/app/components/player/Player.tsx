@@ -84,6 +84,9 @@ class Player extends React.Component<AllProps, State>{
             });
 
             await this.setAudioPlaybackDevice();
+
+            // Get Chromecast devices
+            ipcRenderer.send(EVENTS.CHROMECAST.DISCOVER);
         } catch (err) {
             throw err;
         }
@@ -411,35 +414,39 @@ class Player extends React.Component<AllProps, State>{
 
                     </div>
 
-                    <Popover
-                        className='mr-2'
-                        content={(
-                            <div>
-                                {
-                                    chromecast.devices.map((d) => {
-                                        return (
-                                            <div
-                                                key={d.id}
-                                                className='p-1'
-                                                onClick={() => {
-                                                    useChromeCast(d.id);
-                                                }}
-                                            >
-                                                {d.name} {chromecast.selectedDeviceId === d.id ? '(Selected)' : null}
-                                            </div>
-                                        );
-                                    })
-                                }
-                            </div>
-                        )}
-                    >
-                        <a
-                            className={styles.control}
-                            href='javascript:void(0)'
-                        >
-                            <i className='bx bx-cast' />
-                        </a>
-                    </Popover>
+                    {
+                        !!chromecast.devices.length && (
+                            <Popover
+                                className='mr-2'
+                                content={(
+                                    <div>
+                                        {
+                                            chromecast.devices.map((d) => {
+                                                return (
+                                                    <div
+                                                        key={d.id}
+                                                        className='p-1'
+                                                        onClick={() => {
+                                                            useChromeCast(d.id);
+                                                        }}
+                                                    >
+                                                        {d.name} {chromecast.selectedDeviceId === d.id ? '(Selected)' : null}
+                                                    </div>
+                                                );
+                                            })
+                                        }
+                                    </div>
+                                )}
+                            >
+                                <a
+                                    className={styles.control}
+                                    href='javascript:void(0)'
+                                >
+                                    <i className='bx bx-cast' />
+                                </a>
+                            </Popover>
+                        )
+                    }
 
                     <a
                         className={styles.control}

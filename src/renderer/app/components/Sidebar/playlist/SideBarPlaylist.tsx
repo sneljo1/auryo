@@ -11,7 +11,7 @@ import { PlayerStatus } from '@common/store/player';
 import * as styles from '../Sidebar.module.scss';
 
 interface OwnProps {
-    items: Array<NormalizedResult>;
+    items: NormalizedResult[];
 }
 
 

@@ -24,7 +24,6 @@ const initialState: AppState = {
     chromecast: {
         hasDevices: false,
         devices: [],
-        groups: [],
         selectedDeviceId: null,
         devicePlayerStatus: null
     }
@@ -93,9 +92,8 @@ export const appReducer: Reducer<AppState> = (state = initialState, action) => {
                 ...state,
                 chromecast: {
                     ...state.chromecast,
-                    groups: payload.groups,
                     devices: payload.devices,
-                    hasDevices: payload.groups.length || payload.devices.length
+                    hasDevices: payload.devices.length
                 }
             };
         case AppActionTypes.SET_CHROMECAST_DEVICE:

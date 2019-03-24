@@ -905,12 +905,6 @@
   version "4.14.118"
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.118.tgz#247bab39bfcc6d910d4927c6e06cbc70ec376f27"
 
-"@types/mdns@^0.0.33":
-  version "0.0.33"
-  resolved "https://registry.yarnpkg.com/@types/mdns/-/mdns-0.0.33.tgz#f9ab02c3f34e33de9ba5711c281a86808cb89f9e"
-  dependencies:
-    "@types/node" "*"
-
 "@types/mime@*":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@types/mime/-/mime-2.0.0.tgz#5a7306e367c539b9f6543499de8dd519fac37a8b"
@@ -1588,10 +1582,6 @@ array-find@^0.1.1:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/array-find/-/array-find-0.1.1.tgz#dc813845ad5a9afc35cb92b786c878d81b5b82ce"
 
-array-find@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/array-find/-/array-find-1.0.0.tgz#6c8e286d11ed768327f8e62ecee87353ca3e78b8"
-
 array-flatten@1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/array-flatten/-/array-flatten-1.1.1.tgz#9a5f699051b1e7073328f2a008968b64ea2955d2"
@@ -2102,10 +2092,6 @@ bindings@^1.2.1:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/bindings/-/bindings-1.3.0.tgz#b346f6ecf6a95f5a815c5839fc7cdb22502f1ed7"
 
-bindings@~1.2.1:
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/bindings/-/bindings-1.2.1.tgz#14ad6113812d2d37d72e67b4cacb4bb726505f11"
-
 bl@^1.0.0:
   version "1.2.2"
   resolved "http://registry.npmjs.org/bl/-/bl-1.2.2.tgz#a160911717103c07410cef63ef51b397c025af9c"
@@ -2609,29 +2595,7 @@ caseless@~0.12.0:
   version "0.12.0"
   resolved "https://registry.yarnpkg.com/caseless/-/caseless-0.12.0.tgz#1b681c21ff84033c826543090689420d187151dc"
 
-castv2-client@^1.2.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/castv2-client/-/castv2-client-1.2.0.tgz#a9193b1a5448b8cb9a0415bd021c8811ed7b0544"
-  dependencies:
-    castv2 "~0.1.4"
-    debug "^2.2.0"
-
-castv2-player@^2.0.2:
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/castv2-player/-/castv2-player-2.0.2.tgz#c4de07d03bca18114a5e2551db04da3d7a560ac0"
-  dependencies:
-    array-find "^1.0.0"
-    castv2-client "^1.2.0"
-    dev-null "^0.1.1"
-    icy "^2.1.0"
-    mime-types "^2.1.21"
-    multicast-dns "^7.2.0"
-    playlist-parser "0.0.12"
-    sprintf-js "^1.1.2"
-    util "^0.11.1"
-    why-is-node-running "^2.0.3"
-
-castv2@~0.1.4, castv2@~0.1.9:
+castv2@~0.1.9:
   version "0.1.9"
   resolved "https://registry.yarnpkg.com/castv2/-/castv2-0.1.9.tgz#d0b0fab1fd06b0d9cca636886716ec1293a5905a"
   dependencies:
@@ -3511,7 +3475,7 @@ dbus-next@0.3.2:
   optionalDependencies:
     abstract-socket "^2.0.0"
 
-debug@2, debug@2.6.9, debug@^2.1.0, debug@^2.1.2, debug@^2.1.3, debug@^2.2.0, debug@^2.3.3, debug@^2.6.8, debug@^2.6.9:
+debug@2.6.9, debug@^2.1.0, debug@^2.1.2, debug@^2.1.3, debug@^2.2.0, debug@^2.3.3, debug@^2.6.8, debug@^2.6.9:
   version "2.6.9"
   resolved "https://registry.yarnpkg.com/debug/-/debug-2.6.9.tgz#5d128515df134ff327e90a4c93f4e077a536341f"
   dependencies:
@@ -3776,13 +3740,6 @@ dns-packet@^1.3.1:
   dependencies:
     ip "^1.1.0"
     safe-buffer "^5.0.1"
-
-dns-packet@^4.0.0:
-  version "4.2.0"
-  resolved "https://registry.yarnpkg.com/dns-packet/-/dns-packet-4.2.0.tgz#3fd6f5ff5a4ec3194ed0b15312693ffe8776b343"
-  dependencies:
-    ip "^1.1.5"
-    safe-buffer "^5.1.1"
 
 dns-txt@^2.0.2:
   version "2.0.2"
@@ -5487,14 +5444,6 @@ icss-utils@^2.1.0:
   dependencies:
     postcss "^6.0.1"
 
-icy@^2.1.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/icy/-/icy-2.1.0.tgz#13d4cabb5d382e5500e7ef881bcbaf739072c1cf"
-  dependencies:
-    debug "2"
-    readable-stream "1.0"
-    stream-parser "~0.3.0"
-
 identity-obj-proxy@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/identity-obj-proxy/-/identity-obj-proxy-3.0.0.tgz#94d2bda96084453ef36fbc5aaec37e0f79f1fc14"
@@ -6882,13 +6831,6 @@ mdast-add-list-metadata@1.0.1:
   dependencies:
     unist-util-visit-parents "1.1.2"
 
-mdns-cast-browser@^1.0.3:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/mdns-cast-browser/-/mdns-cast-browser-1.0.3.tgz#a87ef952421cc667f4ffee37a8036fa227eb0ebf"
-  dependencies:
-    debug "^2.6.9"
-    multicast-dns "*"
-
 mdns-js@^1.0.3:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/mdns-js/-/mdns-js-1.0.3.tgz#2c3a1de6ce015e55c84bddbe8c5b59ad427f429a"
@@ -6896,13 +6838,6 @@ mdns-js@^1.0.3:
     debug "~3.1.0"
     dns-js "~0.2.1"
     semver "~5.4.1"
-
-mdns@^2.4.0:
-  version "2.4.0"
-  resolved "https://registry.yarnpkg.com/mdns/-/mdns-2.4.0.tgz#dc9d7152086a2ca8f1ed81eb451a7ee4cb456940"
-  dependencies:
-    bindings "~1.2.1"
-    nan "^2.10.0"
 
 media-typer@0.3.0:
   version "0.3.0"
@@ -7009,21 +6944,11 @@ miller-rabin@^4.0.0:
   version "1.37.0"
   resolved "https://registry.yarnpkg.com/mime-db/-/mime-db-1.37.0.tgz#0b6a0ce6fdbe9576e25f1f2d2fde8830dc0ad0d8"
 
-mime-db@~1.38.0:
-  version "1.38.0"
-  resolved "https://registry.yarnpkg.com/mime-db/-/mime-db-1.38.0.tgz#1a2aab16da9eb167b49c6e4df2d9c68d63d8e2ad"
-
 mime-types@^2.1.12, mime-types@~2.1.17, mime-types@~2.1.18, mime-types@~2.1.19:
   version "2.1.21"
   resolved "https://registry.yarnpkg.com/mime-types/-/mime-types-2.1.21.tgz#28995aa1ecb770742fe6ae7e58f9181c744b3f96"
   dependencies:
     mime-db "~1.37.0"
-
-mime-types@^2.1.21:
-  version "2.1.22"
-  resolved "https://registry.yarnpkg.com/mime-types/-/mime-types-2.1.22.tgz#fe6b355a190926ab7698c9a0556a11199b2199bd"
-  dependencies:
-    mime-db "~1.38.0"
 
 mime@1.4.1:
   version "1.4.1"
@@ -7217,13 +7142,6 @@ ms@^2.1.1:
 multicast-dns-service-types@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/multicast-dns-service-types/-/multicast-dns-service-types-1.1.0.tgz#899f11d9686e5e05cb91b35d5f0e63b773cfc901"
-
-multicast-dns@*, multicast-dns@^7.2.0:
-  version "7.2.0"
-  resolved "https://registry.yarnpkg.com/multicast-dns/-/multicast-dns-7.2.0.tgz#7aa49a7efba931a346011aa02e7d1c314a65ac77"
-  dependencies:
-    dns-packet "^4.0.0"
-    thunky "^1.0.2"
 
 multicast-dns@^4.0.0:
   version "4.0.1"
@@ -8067,12 +7985,6 @@ pkg-up@^2.0.0:
   resolved "https://registry.yarnpkg.com/pkg-up/-/pkg-up-2.0.0.tgz#c819ac728059a461cab1c3889a2be3c49a004d7f"
   dependencies:
     find-up "^2.1.0"
-
-playlist-parser@0.0.12:
-  version "0.0.12"
-  resolved "https://registry.yarnpkg.com/playlist-parser/-/playlist-parser-0.0.12.tgz#4250e5b11771ad68213983bf9bb6ecab64ddf526"
-  dependencies:
-    xmldom "0.1.16"
 
 please-upgrade-node@^3.1.1:
   version "3.1.1"
@@ -9877,10 +9789,6 @@ split@^1.0.0:
   dependencies:
     through "2"
 
-sprintf-js@^1.1.2:
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/sprintf-js/-/sprintf-js-1.1.2.tgz#da1765262bf8c0f571749f2ad6c26300207ae673"
-
 sprintf-js@~1.0.2:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/sprintf-js/-/sprintf-js-1.0.3.tgz#04e6926f662895354f3dd015203633b857297e2c"
@@ -9918,10 +9826,6 @@ stack-trace@0.0.10, stack-trace@0.0.x:
 stack-utils@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/stack-utils/-/stack-utils-1.0.1.tgz#d4f33ab54e8e38778b0ca5cfd3b3afb12db68620"
-
-stackback@0.0.2:
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/stackback/-/stackback-0.0.2.tgz#1ac8a0d9483848d1695e418b6d031a3c3ce68e3b"
 
 stat-mode@^0.2.2:
   version "0.2.2"
@@ -9985,12 +9889,6 @@ stream-http@^2.7.2:
     readable-stream "^2.3.6"
     to-arraybuffer "^1.0.0"
     xtend "^4.0.0"
-
-stream-parser@~0.3.0:
-  version "0.3.1"
-  resolved "https://registry.yarnpkg.com/stream-parser/-/stream-parser-0.3.1.tgz#1618548694420021a1182ff0af1911c129761773"
-  dependencies:
-    debug "2"
 
 stream-shift@^1.0.0:
   version "1.0.0"
@@ -10889,12 +10787,6 @@ util@^0.10.3:
   dependencies:
     inherits "2.0.3"
 
-util@^0.11.1:
-  version "0.11.1"
-  resolved "https://registry.yarnpkg.com/util/-/util-0.11.1.tgz#3236733720ec64bb27f6e26f421aaa2e1b588d61"
-  dependencies:
-    inherits "2.0.3"
-
 utila@^0.4.0, utila@~0.4:
   version "0.4.0"
   resolved "https://registry.yarnpkg.com/utila/-/utila-0.4.0.tgz#8a16a05d445657a3aea5eecc5b12a4fa5379772c"
@@ -11250,12 +11142,6 @@ why-did-you-update@^0.2.0:
   dependencies:
     lodash "^4.0.0"
 
-why-is-node-running@^2.0.3:
-  version "2.0.3"
-  resolved "https://registry.yarnpkg.com/why-is-node-running/-/why-is-node-running-2.0.3.tgz#86619c2861405d3509f55268684fc85e7f4ce145"
-  dependencies:
-    stackback "0.0.2"
-
 wide-align@^1.1.0:
   version "1.1.3"
   resolved "https://registry.yarnpkg.com/wide-align/-/wide-align-1.1.3.tgz#ae074e6bdc0c14a431e804e624549c633b000457"
@@ -11358,10 +11244,6 @@ xml2js@^0.4.17:
 xmlbuilder@^9.0.7, xmlbuilder@~9.0.1:
   version "9.0.7"
   resolved "http://registry.npmjs.org/xmlbuilder/-/xmlbuilder-9.0.7.tgz#132ee63d2ec5565c557e20f4c22df9aca686b10d"
-
-xmldom@0.1.16:
-  version "0.1.16"
-  resolved "https://registry.yarnpkg.com/xmldom/-/xmldom-0.1.16.tgz#cf2602832b1ab5c3e6813fca08fe70196ba15e8c"
 
 xmldom@0.1.x:
   version "0.1.27"

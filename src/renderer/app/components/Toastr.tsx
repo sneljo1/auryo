@@ -3,7 +3,7 @@ import * as React from 'react';
 import { clearToasts } from '@common/store/ui';
 
 interface Props extends IToasterProps {
-    toasts: Array<IToastOptions>;
+    toasts: IToastOptions[];
     clearToasts: typeof clearToasts;
 }
 

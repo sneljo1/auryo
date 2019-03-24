@@ -29,6 +29,6 @@ export function status(response: Response): Response | void {
 }
 
 
-export function toObject(collection: Array<string>): { [key: string]: boolean } {
+export function toObject(collection: string[]): { [key: string]: boolean } {
     return _.reduce(collection, (obj, t) => ({ ...obj, [t]: true }), {});
 }

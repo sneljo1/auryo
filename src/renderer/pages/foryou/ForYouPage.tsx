@@ -23,7 +23,7 @@ interface OwnProps extends RouteComponentProps<{}> {
 interface PropsFromState {
     previousScrollTop?: number;
     loading: boolean;
-    items: Array<NormalizedPersonalizedItem> | null;
+    items: NormalizedPersonalizedItem[] | null;
     playlistEntities: EntitiesState['playlistEntities'];
 
 }
@@ -115,8 +115,8 @@ class ForYou extends WithHeaderComponent<AllProps, State> {
     renderPlaylist = (
         title: string,
         description: string,
-        systemPlaylistIds: Array<string> = [],
-        playlistIds: Array<string> = []
+        systemPlaylistIds: string[] = [],
+        playlistIds: string[] = []
     ) => {
 
         const ids = systemPlaylistIds.length ? systemPlaylistIds : playlistIds;

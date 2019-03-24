@@ -4,7 +4,7 @@ import { playlistSchema, trackSchema, userSchema } from '../schemas';
 import fetchToJson from './helpers/fetchToJson';
 
 interface JsonResponse {
-    collection: Array<SearchCollectionItem>;
+    collection: SearchCollectionItem[];
     next_href?: string;
     future_href?: string;
     query_urn: string;

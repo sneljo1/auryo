@@ -1,4 +1,7 @@
 export const EVENTS = {
+    CHROMECAST: {
+        DISCOVER: "chromecast/discover"
+    },
     PLAYER: {
         TRACK_CHANGED: "player/track_changed",
         STATUS_CHANGED: "player/status_changed",

@@ -22,7 +22,7 @@ const getTags = (track: SoundCloud.Track) => {
 
     return track.tag_list
         .split(/\s(?=(?:[^'"`]*(['"`])[^'"`]*\1)*[^'"`]*$)/g)
-        .reduce((all: Array<string>, obj: string) => {
+        .reduce((all: string[], obj: string) => {
             if (obj && obj !== '"') {
                 all.push(obj.replace(/"/g, ''));
             }

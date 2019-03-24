@@ -22,13 +22,11 @@ export interface ChromeCastDevice {
     id: string;
     name: string;
     address: MDNSAddress;
-    groups: Array<string>;
 }
 
 export interface ChromeCastState {
     hasDevices: boolean;
-    devices: Array<ChromeCastDevice>;
-    groups: Array<ChromeCastDevice>;
+    devices: ChromeCastDevice[];
     selectedDeviceId: string | null;
     devicePlayerStatus: DevicePlayerStatus | null;
 }

@@ -63,7 +63,7 @@ export function getPlaylist(url: string, objectId: string, options: GetPlaylistO
         const { config: { hideReposts } } = getState();
 
         try {
-            const { value } = await dispatch<Promise<{ value: { result: Array<NormalizedResult> } }>>({
+            const { value } = await dispatch<Promise<{ value: { result: NormalizedResult[] } }>>({
                 type: ObjectsActionTypes.SET,
                 payload: {
                     promise: fetchPlaylist(url, objectId, hideReposts)
@@ -153,7 +153,7 @@ export const setObject = (
     objectId: string,
     objectType: ObjectTypes,
     entities: NormalizedEntities,
-    result: Array<NormalizedResult>,
+    result: NormalizedResult[],
     nextUrl = null,
     futureUrl = null,
     fetchedItems = 0
@@ -269,7 +269,7 @@ export function canFetchPlaylistTracks(playlistId: string): ThunkResult<void> {
     };
 }
 
-export function fetchPlaylistTracks(playlistId: number, size: number = 20, ids?: Array<NormalizedResult>): ThunkResult<Promise<any>> {
+export function fetchPlaylistTracks(playlistId: number, size: number = 20, ids?: NormalizedResult[]): ThunkResult<Promise<any>> {
     return async (dispatch, getState) => {
 
         const playlist_object = getPlaylistObjectSelector(playlistId.toString())(getState());
@@ -327,7 +327,7 @@ export function fetchPlaylistTracks(playlistId: number, size: number = 20, ids?:
     };
 }
 
-export function fetchTracks(ids: Array<number>): ThunkResult<void> {
+export function fetchTracks(ids: number[]): ThunkResult<void> {
     return (dispatch) => {
         if (!ids || (ids && !ids.length)) return;
 

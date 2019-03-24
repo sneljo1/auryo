@@ -1,16 +1,34 @@
-import { PlatformSender, DefaultMediaReceiver } from '@amilajack/castv2-client';
-import { addChromeCastDevices, ChromeCastDevice, setChromeCastPlayerStatus, DevicePlayerStatus } from '@common/store/app';
+import { PlatformSender } from '@amilajack/castv2-client';
+import { IMAGE_SIZES } from '@common/constants';
+import { EVENTS } from '@common/constants/events';
+import { StoreState } from '@common/store';
+import { addChromeCastDevices, DevicePlayerStatus, setChromeCastPlayerStatus, useChromeCast } from '@common/store/app';
 import { getTrackEntity } from '@common/store/entities/selectors';
+import { PlayerStatus } from '@common/store/player';
 import { SC } from '@common/utils';
 import { Logger } from '@main/utils/logger';
-import * as CastBrowser from 'mdns-cast-browser';
-import * as equal from 'react-fast-compare';
+import * as mdns from 'mdns-js';
 import Feature, { WatchState } from '../../feature';
-import { IMAGE_SIZES } from '@common/constants';
-import { PlayerStatus } from '@common/store/player';
-import { StoreState } from '@common/store';
 import AuryoReceiver from './AuryoReceiver';
-import { EVENTS } from '@common/constants/events';
+
+interface CastDeviceType {
+  name: string;
+  protocol: string;
+  subtypes: any[];
+  description: string;
+}
+
+interface CastDeviceData {
+  addresses: string[];
+  query: any[];
+  type: CastDeviceType[];
+  txt: string[];
+  port: number;
+  fullname: string;
+  host: string;
+  interfaceIndex: number;
+  networkInterface: string;
+}
 
 export default class ChromeCast extends Feature {
   private logger = new Logger('ChromeCast');
@@ -19,35 +37,48 @@ export default class ChromeCast extends Feature {
 
   register() {
 
-    const cb = new CastBrowser();
+    const mdnsBrowser = mdns.createBrowser(mdns.tcp('googlecast'));
 
-    cb.discover();
+    mdnsBrowser.on('ready', () => {
+      mdnsBrowser.discover();
+    });
 
-    const getDevices = () => this.getDevices(cb);
-
-    this.getDevices(cb);
-
-    cb.on('deviceChange', getDevices);
-    cb.on('deviceUp', getDevices);
-    cb.on('deviceDown', getDevices);
-    cb.on('groupsDown', getDevices);
-    cb.on('groupsUp', getDevices);
+    mdnsBrowser.on('update', (data: CastDeviceData) => this.getDevices(data));
 
     this.subscribe(['app', 'chromecast', 'selectedDeviceId'], async ({ currentValue, currentState }: WatchState<string>) => {
 
       try {
         const {
           config: { audio: { volume } },
-          player: { playingTrack }
+          player: { playingTrack },
+          app: {
+            chromecast: {
+              devices
+            }
+          }
         } = currentState;
 
         if (currentValue) {
-          const d: ChromeCastDevice = cb.getDevice(currentValue).toObject();
+          const device = devices.find((d) => d.id === currentValue);
+
+          if (!device) {
+            return;
+          }
+
           this.client = new PlatformSender();
 
+          this.client.on('error', async () => {
+            if (this.client) {
+              await this.client.close();
+              this.client = undefined;
+            }
+
+            this.store.dispatch(useChromeCast());
+          });
+
           await this.client.connect({
-            host: d.address.host,
-            port: d.address.port,
+            host: device.address.host,
+            port: device.address.port,
           });
 
           await this.client.setVolume({ level: volume });
@@ -61,6 +92,7 @@ export default class ChromeCast extends Feature {
         } else {
           if (this.client) {
             await this.client.close();
+            this.client = undefined;
           }
         }
 
@@ -152,13 +184,18 @@ export default class ChromeCast extends Feature {
     });
 
     // Handle seek
-    this.on(EVENTS.PLAYER.SEEK_END, (args: Array<any>) => {
+    this.on(EVENTS.PLAYER.SEEK_END, (args: any[]) => {
       const [to] = args;
 
       if (to && this.player) {
         this.player.seek(to);
       }
 
+    });
+
+    this.on(EVENTS.CHROMECAST.DISCOVER, () => {
+      mdnsBrowser.stop();
+      mdnsBrowser.discover();
     });
 
   }
@@ -169,26 +206,32 @@ export default class ChromeCast extends Feature {
     }
   }
 
-  private getDevices(cb: CastBrowser) {
-    const allDevices = cb.getDevices();
+  private getDevices(data: CastDeviceData) {
+    const { app: { chromecast: { devices: devicesInRedux } } } = this.store.getState();
 
-    const devices: Array<ChromeCastDevice> = [];
-    const groups: Array<ChromeCastDevice> = [];
+    const hasDevice = devicesInRedux.find((d) => d.id === data.fullname);
 
-    allDevices.forEach((device) => {
-      const isGroup = allDevices.some((d) => d.groups.includes(device.id));
+    if (!hasDevice) {
+      if (data.txt) {
+        const name = data.txt.find((l) => l.startsWith('fn='));
 
-      if (isGroup) {
-        groups.push(device);
-      } else {
-        devices.push(device);
+        if (name) {
+
+          this.store.dispatch(addChromeCastDevices([
+            ...devicesInRedux,
+            {
+              id: data.fullname,
+              address: {
+                host: data.host,
+                port: data.port
+              },
+              name: name ? name.replace('fn=', '') : ''
+            }
+          ]));
+
+        }
+
       }
-    });
-
-    const { app: { chromecast: { devices: devicesInRedux, groups: groupsInRedux } } } = this.store.getState();
-
-    if (!equal(devicesInRedux, devices) || !equal(groupsInRedux, groups)) {
-      this.store.dispatch(addChromeCastDevices(devices, groups));
     }
   }
 

@@ -22,11 +22,11 @@ import Toastr from './components/Toastr';
 import AboutModal from './components/modals/AboutModal/AboutModal';
 
 interface PropsFromState {
-    toasts: Array<IToastOptions>;
+    toasts: IToastOptions[];
     playingTrack: PlayingTrack | null;
     app: AppState;
 
-    userPlayerlists: Array<NormalizedResult>;
+    userPlayerlists: NormalizedResult[];
 }
 
 interface PropsFromDispatch {
@@ -88,7 +88,7 @@ class Layout extends React.Component<AllProps> {
         toggleOffline(!navigator.onLine);
     }
 
-    handleResize = ([{ contentRect: { width, height } }]: Array<IResizeEntry>) => {
+    handleResize = ([{ contentRect: { width, height } }]: IResizeEntry[]) => {
 
         const { setDimensions } = this.props;
 

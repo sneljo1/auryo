@@ -4,7 +4,7 @@ import { NormalizedResult } from '../../../types';
 import TrackListItem from './TrackListItem/TrackListItem';
 
 interface Props {
-    items: Array<NormalizedResult>;
+    items: NormalizedResult[];
     objectId: string;
     hideFirstTrack?: boolean;
 }
@@ -36,7 +36,7 @@ class TrackList extends React.PureComponent<Props> {
         );
     }
 
-    renderWrapper = (items: Array<JSX.Element>, ref: string) => (
+    renderWrapper = (items: JSX.Element[], ref: string) => (
         <table className='table table-borderless'>
             <thead>
                 <tr className='trackListHeader'>

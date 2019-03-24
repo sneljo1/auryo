@@ -14,12 +14,12 @@ export const normalizeSchema = new schema.Array({
     comments: commentSchema
 }, (input) => `${input.kind}s`);
 
-export const getDenormalizedEntities = <T>(result: Array<NormalizedResult>) => createSelector<StoreState, EntitiesState, Array<T>>(
+export const getDenormalizedEntities = <T>(result: NormalizedResult[]) => createSelector<StoreState, EntitiesState, T[]>(
     getEntities,
     (entities) => denormalize(result, normalizeSchema, entities)
 );
 
-export const getDenormalizedEntity = <T>(result: NormalizedResult) => createSelector<StoreState, Array<T>, T | null>(
+export const getDenormalizedEntity = <T>(result: NormalizedResult) => createSelector<StoreState, T[], T | null>(
     getDenormalizedEntities([result]),
     (entities) => entities[0]
 );

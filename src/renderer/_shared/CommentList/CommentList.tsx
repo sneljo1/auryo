@@ -4,7 +4,7 @@ import { NormalizedResult } from '../../../types';
 import CommentListItem from './CommentListItem/CommentListitem';
 
 interface Props {
-    comments: Array<NormalizedResult>;
+    comments: NormalizedResult[];
 }
 
 class CommentList extends React.PureComponent<Props> {

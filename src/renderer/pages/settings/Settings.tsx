@@ -24,7 +24,7 @@ interface State {
     restartMsg: boolean;
     validDir: boolean;
     advancedOpen: boolean;
-    audioDevices: Array<MediaDeviceInfo>;
+    audioDevices: MediaDeviceInfo[];
 }
 
 type PropsFromState = ReturnType<typeof mapStateToProps>;

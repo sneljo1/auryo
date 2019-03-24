@@ -41,7 +41,7 @@ export default class ApplicationMenu extends Feature {
 
   buildMenu = (player: PlayerState) => {
 
-    const template: Array<MenuItemConstructorOptions> = [
+    const template: MenuItemConstructorOptions[] = [
       {
         label: 'View',
         submenu: [
@@ -177,7 +177,7 @@ export default class ApplicationMenu extends Feature {
     ];
 
     if (process.env.NODE_ENV === 'development') {
-      (template[0].submenu as Array<MenuItemConstructorOptions>).push(
+      (template[0].submenu as MenuItemConstructorOptions[]).push(
         {
           type: 'separator'
         },
@@ -237,9 +237,9 @@ export default class ApplicationMenu extends Feature {
 
         if (template[index]) {
           if (template[index].submenu) {
-            const submenu: Array<MenuItemConstructorOptions> = template[index].submenu as Array<MenuItemConstructorOptions>
+            const submenu: MenuItemConstructorOptions[] = template[index].submenu as MenuItemConstructorOptions[]
 
-              ; (template[index].submenu as Array<MenuItemConstructorOptions>) = [
+              ; (template[index].submenu as MenuItemConstructorOptions[]) = [
                 ...submenu,
                 {
                   ...(submenu[0] || {}),
@@ -255,7 +255,7 @@ export default class ApplicationMenu extends Feature {
           }
         }
       } else {
-        (template[index].submenu as Array<MenuItemConstructorOptions>).map((s) => {
+        (template[index].submenu as MenuItemConstructorOptions[]).map((s) => {
           s.enabled = false; // eslint-disable-line
 
           return s;

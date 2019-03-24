@@ -19,13 +19,13 @@ export interface NormalizedPersonalizedItem {
     last_updated: string;
     style: string;
     social_proof: SoundCloud.CompactUser;
-    system_playlists?: Array<string>;
-    playlists?: Array<string>;
+    system_playlists?: string[];
+    playlists?: string[];
 }
 
 export interface NormalizedResponse {
     entities: NormalizedEntities;
-    result: Array<NormalizedResult>;
+    result: NormalizedResult[];
 }
 
 export interface NormalizedEntities {
@@ -48,7 +48,7 @@ type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 // tslint:disable-next-line:no-namespace
 export namespace Normalized {
     export interface Playlist extends Omit<SoundCloud.Playlist, 'tracks' | 'user'> {
-        tracks: Array<NormalizedResult>;
+        tracks: NormalizedResult[];
         user: number;
     }
 
@@ -145,7 +145,7 @@ export namespace SoundCloud {
         public_favorites_count: number;
         followers_count: number;
         followings_count: number;
-        subscriptions: Array<any>;
+        subscriptions: any[];
         upload_seconds_left: number;
         quota: Quota;
         private_tracks_count: number;
@@ -158,7 +158,7 @@ export namespace SoundCloud {
     }
 
     export interface UserProfiles {
-        items: Array<Profile>;
+        items: Profile[];
         loading: boolean;
     }
 
@@ -237,7 +237,7 @@ export namespace SoundCloud {
         user_id: number;
         last_modified: string;
         license: string;
-        tracks: Array<Track>;
+        tracks: Track[];
         playlist_type?: any;
         downloadable: boolean;
         sharing: string;
@@ -275,7 +275,7 @@ export namespace SoundCloud {
         last_updated: SoundCloud.DateString;
         artwork_url: string;
         calculated_artwork_url: string;
-        tracks: Array<SoundCloud.Track>;
+        tracks: SoundCloud.Track[];
     }
 
     export interface Quota {

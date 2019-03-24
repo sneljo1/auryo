@@ -64,7 +64,7 @@ const getStacktrace = (event: SentryEvent): Stacktrace | undefined => {
     }
 
     // Raven JS uses the full values interface, which has been removed
-    const raven = (exception as any) as { values: Array<SentryException> };
+    const raven = (exception as any) as { values: SentryException[] };
     if (raven.values && raven.values[0]) {
       return raven.values[0].stacktrace;
     }

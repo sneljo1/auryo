@@ -7,11 +7,11 @@ export interface AuthState extends Readonly<{
     followings: AuthFollowing;
     likes: AuthLikes,
     reposts: AuthReposts,
-    playlists: Array<NormalizedResult>;
+    playlists: NormalizedResult[];
     authentication: AuthStatus
     personalizedPlaylists: {
         loading: boolean;
-        items: Array<NormalizedPersonalizedItem> | null;
+        items: NormalizedPersonalizedItem[] | null;
     }
 }> { }
 

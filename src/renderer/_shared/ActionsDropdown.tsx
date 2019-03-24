@@ -25,7 +25,7 @@ interface OwnProps {
 interface PropsFromState {
     likes: AuthLikes;
     reposts: AuthReposts;
-    userPlaylists: Array<CombinedUserPlaylistState>;
+    userPlaylists: CombinedUserPlaylistState[];
 }
 
 interface PropsFromDispatch {
