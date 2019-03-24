@@ -1958,7 +1958,7 @@ babel-register@^6.26.0:
     mkdirp "^0.5.1"
     source-map-support "^0.4.15"
 
-babel-runtime@6.x.x, babel-runtime@^6.22.0, babel-runtime@^6.26.0:
+babel-runtime@6.x.x, babel-runtime@^6.22.0, babel-runtime@^6.26.0, babel-runtime@^6.6.1:
   version "6.26.0"
   resolved "https://registry.yarnpkg.com/babel-runtime/-/babel-runtime-6.26.0.tgz#965c7058668e82b55d7bfe04ff2337bc8b5647fe"
   dependencies:
@@ -8518,6 +8518,13 @@ react-addons-css-transition-group@^15.6.2:
   resolved "https://registry.yarnpkg.com/react-addons-css-transition-group/-/react-addons-css-transition-group-15.6.2.tgz#9e4376bcf40b5217d14ec68553081cee4b08a6d6"
   dependencies:
     react-transition-group "^1.2.0"
+
+react-custom-properties@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/react-custom-properties/-/react-custom-properties-1.2.0.tgz#e58213bd3e720c75cf1a955044c4dbddefb8f107"
+  dependencies:
+    babel-runtime "^6.6.1"
+    prop-types "^15.5.8"
 
 react-dom@^16.6.3:
   version "16.6.3"

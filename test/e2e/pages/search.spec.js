@@ -17,17 +17,4 @@ harness("search page", () => {
         return app.client
             .waitForExist('.trackWrapper', 5000)
     });
-
-    it('should be able to only see users', async () => {
-        await loaded();
-
-
-        await app.client
-            .element('.search-tabs .nav-link:nth-child(2)')
-            .click()
-            .waitUntilWindowLoaded()
-            .getUrl()
-            .should.eventually.contain("#/search/user?test")
-
-    });
 })

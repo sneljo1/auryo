@@ -53,7 +53,6 @@ body {
   color: var(--clr-body-text);
   height: 100vh;
   transition: background 0.3s ease, color 0.3s ease;
-
   &.development {
     &:before {
       @include media-breakpoint-only(xs) {
@@ -199,21 +198,10 @@ main {
 }
 
 .c_btn {
-  &.disabled {
-    opacity: .9;
-    pointer-events: none;
-  }
-  &.playButton {
-    i {
-      color: theme-color("primary");
-      font-size: 2rem !important;
-    }
-  }
   border-radius: 20px;
   padding: 7px 14px;
-  box-shadow: 0 10px 60px rgba(0, 0, 0, 0.03),
-  0 6px 50px rgba(0, 0, 0, 0.13);
-  color: var(--clr-btn-text) !important;
+  box-shadow: 0 10px 60px rgba(0, 0, 0, 0.03), 0 6px 50px rgba(0, 0, 0, 0.13);
+  color: var(--clr-btn-text);
   background: var(--clr-btn-bg);
   transition: 0.3s box-shadow;
   text-decoration: none;
@@ -222,6 +210,14 @@ main {
   font-size: .9rem;
   display: flex;
   align-items: center;
+  i {
+    padding-right: 5px;
+    font-size: 1.2rem;
+  }
+  &.disabled {
+    opacity: .9;
+    pointer-events: none;
+  }
   &.round {
     width: 36px;
     height: 36px;
@@ -246,21 +242,26 @@ main {
       box-shadow: none;
     }
   }
-  &.liked {
-    color: theme-color("primary") !important;
-  }
   &:hover {
     background: var(--clr-btn-hover-bg);
     box-shadow: 0 10px 60px rgba(0, 0, 0, 0.08), 0 6px 50px rgba(0, 0, 0, 0.18);
     transition: 0.3s box-shadow;
     text-decoration: none;
+    color: var(--clr-btn-hover-text);
   }
   &:focus {
     text-decoration: none;
   }
-  i {
-    padding-right: 5px;
-    font-size: 1.2rem;
+  &.colored {
+    background: var(--clr-btn-colored-bg);
+    i {
+      color: theme-color("primary");
+      font-size: 2rem !important;
+      color: var(--clr-btn-colored-text) !important;
+    }
+  }
+  &.active {
+    color: var(--clr-btn-active-text);
   }
 }
 
@@ -330,11 +331,11 @@ i {
     border-radius: 10px;
     &:hover {
       transition: .3s background;
-      background: rgba(255, 255, 255, .1);
+      background: var(--clr-transparent-tabs-bg);
     }
     &.active {
-      background: rgba(255, 255, 255, .5);
-      color: theme-color("primary");
+      background: var(--clr-transparent-tabs-active-bg);
+      color: var(--clr-transparent-tabs-active-text);
     }
   }
 }
@@ -583,7 +584,6 @@ i {
 // .bp3-popover .bp3-popover-content {
 //   background: var(--clr-popover-bg);
 // }
-
 .bp3-menu {
   background: var(--clr-popover-bg);
   color: var(--clr-popover-text);

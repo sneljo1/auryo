@@ -14,13 +14,16 @@ import { NormalizedResult } from '../../types';
 import ErrorBoundary from '../_shared/ErrorBoundary';
 import Spinner from '../_shared/Spinner/Spinner';
 import AppError from './components/AppError/AppError';
-import Theme from './components/Theme/Theme';
 import ChangelogModal from './components/modals/ChangeLogModal/ChangelogModal';
 import Player from './components/player/Player';
 import Queue from './components/Queue/Queue';
 import SideBar from './components/Sidebar/Sidebar';
 import Toastr from './components/Toastr';
 import AboutModal from './components/modals/AboutModal/AboutModal';
+import { ipcRenderer } from 'electron';
+import { EVENTS } from '@common/constants/events';
+import Theme from 'react-custom-properties';
+import { Themes } from './components/Theme/themes';
 
 interface PropsFromState {
     toasts: Array<IToastOptions>;
@@ -107,7 +110,6 @@ class Layout extends React.Component<AllProps> {
             children,
             theme,
             // Functions
-            initApp,
             toasts,
             clearToasts,
             userPlayerlists
@@ -117,7 +119,10 @@ class Layout extends React.Component<AllProps> {
             <ResizeSensor
                 onResize={this.debouncedHandleResize}
             >
-                <Theme variables={Theme[theme]}>
+                <Theme
+                    global={true}
+                    properties={Themes[theme]}
+                >
                     <div
                         className={cn('body auryo', {
                             development: !(process.env.NODE_ENV === 'production'),
@@ -135,7 +140,7 @@ class Layout extends React.Component<AllProps> {
                             app.loading_error ? (
                                 <AppError
                                     error={app.loading_error}
-                                    initApp={initApp}
+                                    reload={() => ipcRenderer.send(EVENTS.APP.RELOAD)}
                                 />
                             ) : null
                         }
@@ -157,9 +162,7 @@ class Layout extends React.Component<AllProps> {
                                 />
 
                                 <div className='f-height'>
-                                    <ErrorBoundary
-                                        initApp={initApp}
-                                    >
+                                    <ErrorBoundary>
                                         {children}
                                     </ErrorBoundary>
                                 </div>

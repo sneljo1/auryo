@@ -14,22 +14,4 @@
     color: #fff;
     margin: 2rem 0 3.5rem;
   }
-  .search-tabs {
-    margin-left: 9.8rem;
-    padding-bottom: 1rem;
-    .nav-link {
-      font-size: .8rem;
-      color: #77797d;
-      background: white;
-      padding: 6px 12px;
-      box-sizing: content-box;
-      border-radius: 5px;
-      margin-right: 10px;
-      border: 1px solid #f1f1f1;
-      &.active {
-        color: theme-color("primary") !important;
-        font-weight: $font-weight-bold;
-      }
-    }
-  }
 }

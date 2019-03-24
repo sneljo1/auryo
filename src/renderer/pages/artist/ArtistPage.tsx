@@ -204,7 +204,7 @@ class ArtistPage extends WithHeaderComponent<AllProps, State> {
             return (
                 <a
                     href='javascript:void(0)'
-                    className='c_btn playing round playButton'
+                    className='c_btn playing round colored'
                     onClick={() => toggleStatus()}
                 >
                     <i className='bx bx-pause' />
@@ -223,7 +223,7 @@ class ArtistPage extends WithHeaderComponent<AllProps, State> {
         return (
             <a
                 href='javascript:void(0)'
-                className='c_btn round playButton'
+                className='c_btn round colored'
                 onClick={toggle}
             >
                 <i className='bx bx-play' />
@@ -280,7 +280,7 @@ class ArtistPage extends WithHeaderComponent<AllProps, State> {
                                     me && artistIdParam !== me.id ? (
                                         <a
                                             href='javascript:void(0)'
-                                            className={cn('c_btn', { liked: following })}
+                                            className={cn('c_btn', { active: following })}
                                             onClick={() => {
                                                 this.toggleFollow();
                                             }}
