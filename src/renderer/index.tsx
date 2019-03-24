@@ -1,17 +1,15 @@
-import '@common/sentryReporter';
-
 // tslint:disable-next-line:no-submodule-imports
 import '@blueprintjs/core/lib/css/blueprint.css';
 import '@blueprintjs/icons/lib/css/blueprint-icons.css';
+import '@common/sentryReporter';
+import { SC } from '@common/utils';
 // tslint:disable-next-line:no-submodule-imports
 import 'boxicons/css/boxicons.min.css';
 import { remote } from 'electron';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { AppContainer } from 'react-hot-loader';
-import { SC } from '@common/utils';
 import { configureStore, history } from './configureStore';
-// tslint:disable-next-line:no-submodule-imports
 import './css/app.scss';
 import Main from './Main';
 
@@ -27,7 +25,6 @@ const store = configureStore();
 if (!process.env.TOKEN && process.env.NODE_ENV === 'production') {
 
     const { config: { app: { analytics } } } = store.getState();
-
 
     import('@common/utils/universalAnalytics')
         .then(({ ua }) => {

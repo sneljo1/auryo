@@ -25,6 +25,7 @@ export interface AppConfig {
     downloadPath: string;
     showTrackChangeNotification: boolean;
     overrideClientId: string | null;
+    theme: string;
 }
 export interface AudioConfig {
     volume: number;

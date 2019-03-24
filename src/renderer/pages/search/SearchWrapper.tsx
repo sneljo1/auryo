@@ -44,9 +44,10 @@ class SearchWrapper extends WithHeaderComponent<OwnProps, State> {
                         focus={true}
                         query={query}
                         scrollTop={this.state.scrollTop}
-                    >
+                    />
 
-                        <Nav className='search-tabs'>
+                    <div className='search-content p-2'>
+                        <Nav className='tabs px-4' tabs={true}>
                             <NavLink
                                 exact={true}
                                 className='nav-link'
@@ -78,9 +79,6 @@ class SearchWrapper extends WithHeaderComponent<OwnProps, State> {
                                 Playlist
                             </NavLink>
                         </Nav>
-                    </Header>
-
-                    <div className='search-content p-2'>
                         {this.props.children}
                     </div>
                 </div>

@@ -92,7 +92,7 @@ class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
             return (
                 <a
                     href='javascript:void(0)'
-                    className='c_btn round playButton'
+                    className='c_btn round colored'
                     onClick={() => toggleStatus()}
                 >
                     <i className='bx bx-pause' />
@@ -111,7 +111,7 @@ class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
         return (
             <a
                 href='javascript:void(0)'
-                className='c_btn round playButton'
+                className='c_btn round colored'
                 onClick={toggle}
             >
                 <i className='bx bx-play' />
@@ -191,7 +191,7 @@ class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
                                 playlist.tracks.length && !playlistOwned ? (
                                     <a
                                         href='javascript:void(0)'
-                                        className={cn('c_btn', { liked })}
+                                        className={cn('c_btn', { active: liked })}
                                         onClick={() => {
                                             toggleLike(playlist.id, true);
                                         }}

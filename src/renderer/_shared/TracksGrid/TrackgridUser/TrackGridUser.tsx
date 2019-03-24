@@ -73,7 +73,7 @@ class TrackGridUser extends React.PureComponent<AllProps> {
                             }
                             <a
                                 href='javascript:void(0)'
-                                className={cn('c_btn outline', { liked: isFollowing })}
+                                className={cn('c_btn outline', { active: isFollowing })}
                                 onClick={() => {
                                     toggleFollowing(id);
                                 }}

@@ -130,7 +130,7 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
         if (playingTrack && playingTrack.id !== null && (playingTrack.id === songIdParam)) {
             return (
                 <TogglePlayButton
-                    className='c_btn round playButton'
+                    className='c_btn round colored'
                 />
             );
         }
@@ -140,7 +140,7 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
         };
 
         return (
-            <a href='javascript:void(0)' className='c_btn round playButton' onClick={playTrackFunc}>
+            <a href='javascript:void(0)' className='c_btn round colored' onClick={playTrackFunc}>
                 <i className='bx bx-play' />
             </a>
         );
@@ -211,7 +211,7 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
 
                                 <a
                                     href='javascript:void(0)'
-                                    className={cn('c_btn', { liked })}
+                                    className={cn('c_btn', { active: liked })}
                                     onClick={() => {
                                         toggleLike(track.id);
                                     }}
@@ -223,7 +223,7 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
 
                                 <a
                                     href='javascript:void(0)'
-                                    className={cn('c_btn', { liked: reposted })}
+                                    className={cn('c_btn', { active: reposted })}
                                     onClick={() => {
                                         toggleRepost(track.id);
                                     }}

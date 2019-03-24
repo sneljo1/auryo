@@ -88,7 +88,7 @@ class PersonalizedPlaylistPage extends WithHeaderComponent<AllProps, State> {
             return (
                 <a
                     href='javascript:void(0)'
-                    className='c_btn round playButton'
+                    className='c_btn round colored'
                     onClick={() => toggleStatus()}
                 >
                     <i className='bx bx-pause' />
@@ -107,7 +107,7 @@ class PersonalizedPlaylistPage extends WithHeaderComponent<AllProps, State> {
         return (
             <a
                 href='javascript:void(0)'
-                className='c_btn round playButton'
+                className='c_btn round colored'
                 onClick={toggle}
             >
                 <i className='bx bx-play' />

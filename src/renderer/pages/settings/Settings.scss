@@ -73,6 +73,12 @@
     margin-top: 1.5rem;
     display: flex;
     align-items: center;
+
+    .form-control{
+      background: var(--clr-input-bg);
+      color: var(--clr-input-text) !important;
+      border-color: var(--clr-input-border);
+    }
     i {
       vertical-align: middle;
     }
@@ -104,5 +110,12 @@
   font-size: 0.85rem;
   a {
     text-decoration: underline;
+  }
+}
+.bp3-button:not([class*="bp3-intent-"]){
+  background: var(--clr-input-bg);
+  color: var(--clr-input-text);
+  &:hover{
+    background: var(--clr-input-hover-bg);
   }
 }
