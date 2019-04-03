@@ -226,7 +226,7 @@ export class Application {
     getMaxListeners(): any;
     getSessions(callback: any): void;
     getStatus(callback: any): void;
-    getVolume(callback: any): void;
+    getVolume(): Promise<void>;
     join(session: any, Application: any): void;
     launch(Application: any): Promise<any>;
     listenerCount(type: any): any;

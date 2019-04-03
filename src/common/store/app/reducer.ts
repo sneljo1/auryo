@@ -22,10 +22,18 @@ const initialState: AppState = {
     remainingPlays: null,
     lastfmLoading: false,
     chromecast: {
-        hasDevices: false,
-        devices: [],
+        hasDevices: true,
+        devices: [{
+            address: {
+                host: '',
+                port: 444
+            },
+            id: 'test',
+            name: 'test name'
+        }],
         selectedDeviceId: null,
-        devicePlayerStatus: null
+        devicePlayerStatus: null,
+        castApp: null
     }
 };
 
@@ -87,13 +95,21 @@ export const appReducer: Reducer<AppState> = (state = initialState, action) => {
                     version: payload.version
                 }
             };
-        case AppActionTypes.SET_AVAILABLE_CHROMECAST_DEVICES:
+        // case AppActionTypes.SET_AVAILABLE_CHROMECAST_DEVICES:
+        //     return {
+        //         ...state,
+        //         chromecast: {
+        //             ...state.chromecast,
+        //             devices: payload.devices,
+        //             hasDevices: payload.devices.length
+        //         }
+        //     };
+        case AppActionTypes.SET_CHROMECAST_APP_STATE:
             return {
                 ...state,
                 chromecast: {
                     ...state.chromecast,
-                    devices: payload.devices,
-                    hasDevices: payload.devices.length
+                    castApp: payload
                 }
             };
         case AppActionTypes.SET_CHROMECAST_DEVICE:

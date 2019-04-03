@@ -1,4 +1,4 @@
-import { Intent, Popover, Slider, Tag } from '@blueprintjs/core';
+import { Intent, Popover, PopoverInteractionKind, Slider, Tag } from '@blueprintjs/core';
 import { IMAGE_SIZES } from '@common/constants';
 import { EVENTS } from '@common/constants/events';
 import { StoreState } from '@common/store';
@@ -6,12 +6,10 @@ import { useChromeCast } from '@common/store/app';
 import { hasLiked } from '@common/store/auth/selectors';
 import { setConfigKey } from '@common/store/config';
 import { getTrackEntity } from '@common/store/entities/selectors';
-import {
-    changeTrack,
-    ChangeTypes, PlayerStatus, registerPlay, RepeatTypes, setCurrentTime, setDuration, toggleShuffle, toggleStatus
-} from '@common/store/player';
+import { changeTrack, ChangeTypes,
+    PlayerStatus, registerPlay, RepeatTypes, setCurrentTime, setDuration, toggleShuffle, toggleStatus } from '@common/store/player';
 import { toggleLike } from '@common/store/track/actions';
-import { addToast, toggleQueue } from '@common/store/ui';
+import { addToast } from '@common/store/ui';
 import { getReadableTime, SC } from '@common/utils';
 import cn from 'classnames';
 import { IpcMessageEvent, ipcRenderer } from 'electron';
@@ -21,10 +19,12 @@ import * as isDeepEqual from 'react-fast-compare';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import FallbackImage from '../../../_shared/FallbackImage';
+import Queue from '../Queue/Queue';
 import Audio from './components/Audio';
 import PlayerControls from './components/PlayerControls/PlayerControls';
 import TrackInfo from './components/TrackInfo/TrackInfo';
 import * as styles from './Player.module.scss';
+import debounce = require('lodash/debounce');
 
 type PropsFromState = ReturnType<typeof mapStateToProps>;
 type PropsFromDispatch = ReturnType<typeof mapDispatchToProps>;
@@ -49,7 +49,16 @@ class Player extends React.Component<AllProps, State>{
         volume: 0,
     };
 
+    private debounceDiscover: () => void;
     private audio: Audio | null = null;
+
+    constructor(props: AllProps) {
+        super(props);
+        this.debounceDiscover = debounce(() => {
+            // Get Chromecast devices
+            ipcRenderer.send(EVENTS.CHROMECAST.DISCOVER);
+        }, 2000);
+    }
 
     async componentDidMount() {
         try {
@@ -292,7 +301,6 @@ class Player extends React.Component<AllProps, State>{
 
         const {
             player,
-            toggleQueue,
             volume: configVolume,
             repeat,
             liked,
@@ -305,7 +313,7 @@ class Player extends React.Component<AllProps, State>{
             muted
         } = this.props;
 
-        const { isVolumeSeeking, nextTime, isSeeking } = this.state;
+        const { nextTime, isSeeking } = this.state;
 
         const {
             status,
@@ -384,7 +392,32 @@ class Player extends React.Component<AllProps, State>{
                         <div className={styles.time}>{getReadableTime(duration, false, true)}</div>
                     </div>
 
-                    <div className={cn('pr-2', styles.playerVolume, { hover: isVolumeSeeking })}>
+                    <Popover
+                        className='mr-2'
+                        popoverClassName={styles.playerPopover}
+                        interactionKind={PopoverInteractionKind.HOVER}
+                        hoverOpenDelay={50}
+                        content={(
+                            <div className={styles.playerVolume}>
+                                <Slider
+                                    min={0}
+                                    max={1}
+                                    value={volume}
+                                    stepSize={0.1}
+                                    vertical={true}
+                                    onChange={this.volumeChange}
+                                    labelRenderer={false}
+                                    onRelease={(value) => {
+                                        this.setState({
+                                            isVolumeSeeking: false
+                                        });
+
+                                        this.props.setConfigKey('audio.volume', value);
+                                    }}
+                                />
+                            </div>
+                        )}
+                    >
                         <a
                             className={styles.control}
                             href='javascript:void(0)'
@@ -392,32 +425,14 @@ class Player extends React.Component<AllProps, State>{
                         >
                             <i className={`bx bx-${volume_icon}`} />
                         </a>
-
-                        <div className={styles.progressWrapper}>
-                            <Slider
-                                min={0}
-                                max={1}
-                                value={volume}
-                                stepSize={0.1}
-                                vertical={true}
-                                onChange={this.volumeChange}
-                                labelRenderer={false}
-                                onRelease={(value) => {
-                                    this.setState({
-                                        isVolumeSeeking: false
-                                    });
-
-                                    this.props.setConfigKey('audio.volume', value);
-                                }}
-                            />
-                        </div>
-
-                    </div>
+                    </Popover>
 
                     {
                         !!chromecast.devices.length && (
                             <Popover
                                 className='mr-2'
+
+                                onOpened={this.debounceDiscover}
                                 content={(
                                     <div>
                                         {
@@ -435,11 +450,25 @@ class Player extends React.Component<AllProps, State>{
                                                 );
                                             })
                                         }
+                                        {
+                                            !!chromecast.selectedDeviceId && (
+                                                <div
+                                                    className='p-1'
+                                                    onClick={() => {
+                                                        useChromeCast();
+                                                    }}
+                                                >
+                                                    Stop casting
+                                                </div>
+                                            )
+                                        }
                                     </div>
                                 )}
                             >
                                 <a
-                                    className={styles.control}
+                                    className={cn(styles.control, {
+                                        [styles.active]: !!chromecast.castApp
+                                    })}
                                     href='javascript:void(0)'
                                 >
                                     <i className='bx bx-cast' />
@@ -448,15 +477,20 @@ class Player extends React.Component<AllProps, State>{
                         )
                     }
 
-                    <a
-                        className={styles.control}
-                        href='javascript:void(0)'
-                        onClick={() => {
-                            toggleQueue();
-                        }}
+                    <Popover
+                        popoverClassName={styles.playerPopover}
+                        content={(
+                            <Queue />
+                        )}
+                        position={'bottom-right'}
                     >
-                        <i className='bx bxs-playlist' />
-                    </a>
+                        <a
+                            className={styles.control}
+                            href='javascript:void(0)'
+                        >
+                            <i className='bx bxs-playlist' />
+                        </a>
+                    </Popover>
                 </div>
             </div>
         );
@@ -498,7 +532,7 @@ class Player extends React.Component<AllProps, State>{
             );
         }
 
-        const playingOnChromecast = !!chromecast.selectedDeviceId;
+        const playingOnChromecast = !!chromecast.castApp;
 
         return (
             <Audio
@@ -549,7 +583,7 @@ const mapStateToProps = (state: StoreState) => {
         overrideClientId: config.app.overrideClientId,
         remainingPlays: app.remainingPlays,
         liked,
-        chromecast: app.chromecast
+        chromecast: app.chromecast,
     };
 };
 
@@ -560,11 +594,10 @@ const mapDispatchToProps = (dispatch: Dispatch) => bindActionCreators({
     setCurrentTime,
     addToast,
     setDuration,
-    toggleQueue,
     registerPlay,
     toggleShuffle,
     toggleLike,
-    useChromeCast
+    useChromeCast,
 }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(Player);

@@ -3,7 +3,6 @@ import { IToastOptions } from '@blueprintjs/core';
 // TYPES
 
 export interface UIState extends Readonly<{
-    showQueue: boolean;
     scrollTop: number;
     scrollPosition: {
         [path: string]: number;

@@ -20,6 +20,8 @@ import Queue from './components/Queue/Queue';
 import SideBar from './components/Sidebar/Sidebar';
 import Toastr from './components/Toastr';
 import AboutModal from './components/modals/AboutModal/AboutModal';
+import { ipcRenderer } from 'electron';
+import { EVENTS } from '@common/constants/events';
 
 interface PropsFromState {
     toasts: IToastOptions[];
@@ -133,7 +135,9 @@ class Layout extends React.Component<AllProps> {
                         app.loading_error ? (
                             <AppError
                                 error={app.loading_error}
-                                initApp={initApp}
+                                reload={() => {
+                                    ipcRenderer.send(EVENTS.APP.RELOAD);
+                                }}
                             />
                         ) : null
                     }
@@ -145,8 +149,6 @@ class Layout extends React.Component<AllProps> {
                     >
                         <SideBar items={userPlayerlists} />
 
-                        <Queue />
-
                         <section className='content'>
                             <Toastr
                                 position={Position.TOP_RIGHT}
@@ -155,9 +157,7 @@ class Layout extends React.Component<AllProps> {
                             />
 
                             <div className='f-height'>
-                                <ErrorBoundary
-                                    initApp={initApp}
-                                >
+                                <ErrorBoundary>
                                     {children}
                                 </ErrorBoundary>
                             </div>

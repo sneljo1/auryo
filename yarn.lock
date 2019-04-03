@@ -16,7 +16,7 @@
 
 "@amilajack/castv2-client@auryo/castv2-client":
   version "0.0.1"
-  resolved "https://codeload.github.com/auryo/castv2-client/tar.gz/94ed9dfc6d1619701ef9ecb05e604a24a5681390"
+  resolved "https://codeload.github.com/auryo/castv2-client/tar.gz/20629b21baa5a97394492d00d6639acae50475fa"
   dependencies:
     castv2 "~0.1.9"
     chromecast-scanner "^0.5.0"

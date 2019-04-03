@@ -52,7 +52,7 @@ export function getPlaylistObject(playlistId: string, position: number): ThunkRe
 
                     // Fetch more tracks
                     if (currentPlaylistObject.fetchedItems < currentPlaylistObject.items.length) {
-                        dispatch(fetchPlaylistTracks(+playlistId, 50));
+                        dispatch(fetchPlaylistTracks(playlistId, 50));
                     }
                 }
 
@@ -426,7 +426,7 @@ export function getItemsAround(position: number): ThunkResult<Promise<void>> {
 
                         if (currentPlaylist && currentPlaylist.fetchedItems && currentPlaylist.fetchedItems - 10 < i
                             && currentPlaylist.fetchedItems !== currentPlaylist.items.length) {
-                            dispatch(fetchPlaylistTracks(+currentPlaylistId, 30));
+                            dispatch(fetchPlaylistTracks(currentPlaylistId, 30));
                         }
                     }
                 }
@@ -691,7 +691,8 @@ export function registerPlay(): ThunkResult<void> {
 
             const type = getPlaylistType(playlistId);
 
-            if (!type || !(type in PlaylistTypes)) {
+
+            if ((!type || !(type in PlaylistTypes)) && typeof playlistId !== 'string') {
                 params.context_urn = `soundcloud:playlists:${playlistId}`;
             }
 

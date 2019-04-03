@@ -269,13 +269,13 @@ export function canFetchPlaylistTracks(playlistId: string): ThunkResult<void> {
     };
 }
 
-export function fetchPlaylistTracks(playlistId: number, size: number = 20, ids?: NormalizedResult[]): ThunkResult<Promise<any>> {
+export function fetchPlaylistTracks(playlistId: number | string, size: number = 20, ids?: NormalizedResult[]): ThunkResult<Promise<any>> {
     return async (dispatch, getState) => {
 
         const playlist_object = getPlaylistObjectSelector(playlistId.toString())(getState());
 
         if (!playlist_object) {
-            await dispatch(fetchPlaylistIfNeeded(playlistId));
+            await dispatch(fetchPlaylistIfNeeded(+playlistId));
 
             return;
         }

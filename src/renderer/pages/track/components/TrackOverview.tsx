@@ -29,6 +29,7 @@ const getTags = (track: SoundCloud.Track) => {
 
             return all;
         }, []);
+
 };
 
 const TrackOverview = React.memo<Props>(({ track, comments }) => (

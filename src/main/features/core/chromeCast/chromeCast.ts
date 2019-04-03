@@ -1,10 +1,13 @@
 import { PlatformSender } from '@amilajack/castv2-client';
+import { Intent } from '@blueprintjs/core';
 import { IMAGE_SIZES } from '@common/constants';
 import { EVENTS } from '@common/constants/events';
 import { StoreState } from '@common/store';
-import { addChromeCastDevices, DevicePlayerStatus, setChromeCastPlayerStatus, useChromeCast } from '@common/store/app';
+import { addChromeCastDevices, ChromeCastDevice, DevicePlayerStatus,
+  setChromecastAppState, setChromeCastPlayerStatus, useChromeCast } from '@common/store/app';
 import { getTrackEntity } from '@common/store/entities/selectors';
 import { PlayerStatus } from '@common/store/player';
+import { addToast } from '@common/store/ui';
 import { SC } from '@common/utils';
 import { Logger } from '@main/utils/logger';
 import * as mdns from 'mdns-js';
@@ -34,16 +37,14 @@ export default class ChromeCast extends Feature {
   private logger = new Logger('ChromeCast');
   private player?: AuryoReceiver;
   private client?: PlatformSender;
+  private mdnsBrowser: any;
+  private devices: ChromeCastDevice[] = [];
 
   register() {
 
-    const mdnsBrowser = mdns.createBrowser(mdns.tcp('googlecast'));
-
-    mdnsBrowser.on('ready', () => {
-      mdnsBrowser.discover();
-    });
-
-    mdnsBrowser.on('update', (data: CastDeviceData) => this.getDevices(data));
+    setInterval(() => {
+      this.getDevices();
+    }, 50000);
 
     this.subscribe(['app', 'chromecast', 'selectedDeviceId'], async ({ currentValue, currentState }: WatchState<string>) => {
 
@@ -67,11 +68,16 @@ export default class ChromeCast extends Feature {
 
           this.client = new PlatformSender();
 
-          this.client.on('error', async () => {
-            if (this.client) {
+          this.client.on('error', async (err: any) => {
+            this.logger.error(err);
+            this.store.dispatch(addToast({
+              message: `An error occurred during the connection with the cast device`,
+              intent: Intent.DANGER
+            }));
+            if (this.client && this.client.connection) {
               await this.client.close();
-              this.client = undefined;
             }
+            this.client = undefined;
 
             this.store.dispatch(useChromeCast());
           });
@@ -81,9 +87,11 @@ export default class ChromeCast extends Feature {
             port: device.address.port,
           });
 
-          await this.client.setVolume({ level: volume });
+          this.client.on('status', this.handleClientStatusChange.bind(this));
 
           this.player = await this.client.launch(AuryoReceiver);
+
+          await this.client.setVolume({ level: volume });
 
           if (playingTrack) {
             await this.startTrack(currentState, true);
@@ -91,11 +99,11 @@ export default class ChromeCast extends Feature {
 
         } else {
           if (this.client) {
+            await this.client.stop(this.player);
             await this.client.close();
             this.client = undefined;
           }
         }
-
 
       } catch (err) {
         this.logger.error(err);
@@ -106,7 +114,7 @@ export default class ChromeCast extends Feature {
     this.subscribe(['player', 'playingTrack'], async ({ currentState }) => {
       try {
 
-        if (this.player) {
+        if (this.client && this.player) {
           await this.startTrack(currentState);
         }
 
@@ -194,8 +202,7 @@ export default class ChromeCast extends Feature {
     });
 
     this.on(EVENTS.CHROMECAST.DISCOVER, () => {
-      mdnsBrowser.stop();
-      mdnsBrowser.discover();
+      this.getDevices();
     });
 
   }
@@ -206,10 +213,53 @@ export default class ChromeCast extends Feature {
     }
   }
 
-  private getDevices(data: CastDeviceData) {
-    const { app: { chromecast: { devices: devicesInRedux } } } = this.store.getState();
+  private handleClientStatusChange(status: any) {
+    if (status.applications) {
+      const auryoReceiverApp = status.applications.find((a: any) => a.displayName === 'Auryo');
 
-    const hasDevice = devicesInRedux.find((d) => d.id === data.fullname);
+      if (auryoReceiverApp) {
+        this.store.dispatch(setChromecastAppState({
+          appId: auryoReceiverApp.appId,
+          displayName: auryoReceiverApp.displayName,
+          launchedFromCloud: auryoReceiverApp.launchedFromCloud,
+          sessionId: auryoReceiverApp.sessionId,
+          transportId: auryoReceiverApp.transportId
+        }));
+      } else {
+        this.store.dispatch(setChromecastAppState(null));
+        this.store.dispatch(useChromeCast());
+      }
+    }
+  }
+
+  private getDevices(timeout: number = 3000) {
+    if (!this.mdnsBrowser) {
+      this.mdnsBrowser = mdns.createBrowser(mdns.tcp('googlecast'));
+
+
+      this.mdnsBrowser.on('ready', () => {
+        this.mdnsBrowser.discover();
+
+        setTimeout(() => {
+          if (this.mdnsBrowser) {
+            this.mdnsBrowser.stop();
+            this.mdnsBrowser.removeAllListeners();
+            this.mdnsBrowser = undefined;
+          }
+
+          this.store.dispatch(addChromeCastDevices(this.devices));
+
+          this.devices = [];
+        }, timeout);
+
+        this.mdnsBrowser.on('update', (data: CastDeviceData) => this.onHasDevice(data));
+      });
+    }
+  }
+
+  private onHasDevice(data: CastDeviceData) {
+
+    const hasDevice = this.devices.find((d) => d.id === data.fullname);
 
     if (!hasDevice) {
       if (data.txt) {
@@ -217,17 +267,14 @@ export default class ChromeCast extends Feature {
 
         if (name) {
 
-          this.store.dispatch(addChromeCastDevices([
-            ...devicesInRedux,
-            {
-              id: data.fullname,
-              address: {
-                host: data.host,
-                port: data.port
-              },
-              name: name ? name.replace('fn=', '') : ''
-            }
-          ]));
+          this.devices.push({
+            id: data.fullname,
+            address: {
+              host: data.host,
+              port: data.port
+            },
+            name: name ? name.replace('fn=', '') : ''
+          });
 
         }
 
@@ -285,8 +332,6 @@ export default class ChromeCast extends Feature {
           this.player.on('status', (status: any) => {
             this.store.dispatch(setChromeCastPlayerStatus(status.playerState));
           });
-
-          this.logger.debug('app "%s" launched, loading media %s ...', this.player.session.displayName, media.contentId);
 
           const options: any = {
             autoplay: status === PlayerStatus.PLAYING
