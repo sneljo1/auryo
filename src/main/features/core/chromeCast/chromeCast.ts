@@ -3,42 +3,28 @@ import { Intent } from '@blueprintjs/core';
 import { IMAGE_SIZES } from '@common/constants';
 import { EVENTS } from '@common/constants/events';
 import { StoreState } from '@common/store';
-import { addChromeCastDevices, ChromeCastDevice, DevicePlayerStatus,
-  setChromecastAppState, setChromeCastPlayerStatus, useChromeCast } from '@common/store/app';
+import {
+  addChromeCastDevices, ChromeCastDevice, DevicePlayerStatus,
+  setChromecastAppState, setChromeCastPlayerStatus, useChromeCast
+} from '@common/store/app';
 import { getTrackEntity } from '@common/store/entities/selectors';
 import { PlayerStatus } from '@common/store/player';
 import { addToast } from '@common/store/ui';
 import { SC } from '@common/utils';
 import { Logger } from '@main/utils/logger';
-import * as mdns from 'mdns-js';
 import Feature, { WatchState } from '../../feature';
 import AuryoReceiver from './AuryoReceiver';
+import Mdns from 'node-mdns-easy-local';
 
-interface CastDeviceType {
-  name: string;
-  protocol: string;
-  subtypes: any[];
-  description: string;
-}
-
-interface CastDeviceData {
-  addresses: string[];
-  query: any[];
-  type: CastDeviceType[];
-  txt: string[];
-  port: number;
-  fullname: string;
-  host: string;
-  interfaceIndex: number;
-  networkInterface: string;
-}
+const mdns = new Mdns();
+const browser = mdns.createBrowser(mdns.getLibrary().tcp('googlecast'));
 
 export default class ChromeCast extends Feature {
   private logger = new Logger('ChromeCast');
   private player?: AuryoReceiver;
   private client?: PlatformSender;
-  private mdnsBrowser: any;
   private devices: ChromeCastDevice[] = [];
+  private isSearching: boolean = false;
 
   register() {
 
@@ -202,7 +188,7 @@ export default class ChromeCast extends Feature {
     });
 
     this.on(EVENTS.CHROMECAST.DISCOVER, () => {
-      this.getDevices();
+      this.getDevices(2000);
     });
 
   }
@@ -232,53 +218,39 @@ export default class ChromeCast extends Feature {
     }
   }
 
-  private getDevices(timeout: number = 3000) {
-    if (!this.mdnsBrowser) {
-      this.mdnsBrowser = mdns.createBrowser(mdns.tcp('googlecast'));
+  private getDevices(timeout: number = 1500) {
+    if (!this.isSearching) {
+      this.isSearching = true;
 
+      if (browser.ready) {
+        browser.browse();
+      } else {
+        browser.once('ready', () => {
+          browser.browse();
+        });
+      }
 
-      this.mdnsBrowser.on('ready', () => {
-        this.mdnsBrowser.discover();
+      setTimeout(() => {
+        browser.removeAllListeners();
+        this.store.dispatch(addChromeCastDevices(this.devices));
 
-        setTimeout(() => {
-          if (this.mdnsBrowser) {
-            this.mdnsBrowser.stop();
-            this.mdnsBrowser.removeAllListeners();
-            this.mdnsBrowser = undefined;
-          }
+        this.devices = [];
+        this.isSearching = false;
+      }, timeout);
 
-          this.store.dispatch(addChromeCastDevices(this.devices));
-
-          this.devices = [];
-        }, timeout);
-
-        this.mdnsBrowser.on('update', (data: CastDeviceData) => this.onHasDevice(data));
-      });
-    }
-  }
-
-  private onHasDevice(data: CastDeviceData) {
-
-    const hasDevice = this.devices.find((d) => d.id === data.fullname);
-
-    if (!hasDevice) {
-      if (data.txt) {
-        const name = data.txt.find((l) => l.startsWith('fn='));
-
-        if (name) {
-
+      browser.on('serviceUp', (data: any) => {
+        if (!this.devices.some((d) => d.id === data.fullname)) {
           this.devices.push({
             id: data.fullname,
+            name: data.txtRecord.fn,
             address: {
-              host: data.host,
+              host: data.addresses[0],
               port: data.port
-            },
-            name: name ? name.replace('fn=', '') : ''
+            }
           });
-
         }
+      });
 
-      }
     }
   }
 

@@ -6,8 +6,10 @@ import { useChromeCast } from '@common/store/app';
 import { hasLiked } from '@common/store/auth/selectors';
 import { setConfigKey } from '@common/store/config';
 import { getTrackEntity } from '@common/store/entities/selectors';
-import { changeTrack, ChangeTypes,
-    PlayerStatus, registerPlay, RepeatTypes, setCurrentTime, setDuration, toggleShuffle, toggleStatus } from '@common/store/player';
+import {
+    changeTrack, ChangeTypes,
+    PlayerStatus, registerPlay, RepeatTypes, setCurrentTime, setDuration, toggleShuffle, toggleStatus
+} from '@common/store/player';
 import { toggleLike } from '@common/store/track/actions';
 import { addToast } from '@common/store/ui';
 import { getReadableTime, SC } from '@common/utils';
@@ -95,7 +97,7 @@ class Player extends React.Component<AllProps, State>{
             await this.setAudioPlaybackDevice();
 
             // Get Chromecast devices
-            ipcRenderer.send(EVENTS.CHROMECAST.DISCOVER);
+            this.debounceDiscover();
         } catch (err) {
             throw err;
         }
@@ -431,16 +433,17 @@ class Player extends React.Component<AllProps, State>{
                         !!chromecast.devices.length && (
                             <Popover
                                 className='mr-2'
-
+                                popoverClassName={styles.playerPopover}
                                 onOpened={this.debounceDiscover}
                                 content={(
-                                    <div>
+                                    <div style={{ minWidth: 200 }}>
+                                        <div className={styles.popoverTitle}>Nearby devices</div>
                                         {
                                             chromecast.devices.map((d) => {
                                                 return (
                                                     <div
                                                         key={d.id}
-                                                        className='p-1'
+                                                        className={styles.castDevice}
                                                         onClick={() => {
                                                             useChromeCast(d.id);
                                                         }}

@@ -118,10 +118,26 @@
   }
 }
 
+.castDevice{
+  font-size: .9rem;
+  color: #f1f1f1;
+  padding: .5rem .8rem;
+}
+
 .playerPopover {
 
-  :global(.bp3-popover-arrow-fill) {
+  :global(.bp3-popover-arrow-fill),
+  :global(.bp3-popover-content) {
     fill: #222326;
+    background: #222326;
+    color: #fff;
+  }
+
+  .popoverTitle {
+    padding: 10px 10px;
+    border-bottom: 1px solid grey;
+    font-size: .9rem;
+    height: 44px;
   }
 }
 
@@ -185,6 +201,6 @@
   @extend %playerControl;
 
   &.active {
-    color: theme("primary")
+    color: theme("primary") !important;
   }
 }
