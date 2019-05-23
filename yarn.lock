@@ -6263,9 +6263,9 @@ jest@^23.4.2:
     import-local "^1.0.0"
     jest-cli "^23.6.0"
 
-jquery@1.9.1:
-  version "1.9.1"
-  resolved "https://registry.yarnpkg.com/jquery/-/jquery-1.9.1.tgz#e4cd4835faaefbade535857613c0fc3ff2adaf34"
+jquery@3.4.0:
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.4.0.tgz#8de513fa0fa4b2c7d2e48a530e26f0596936efdf"
 
 js-base64@^2.1.8, js-base64@^2.1.9:
   version "2.4.9"
