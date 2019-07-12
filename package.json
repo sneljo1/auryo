@@ -167,7 +167,7 @@
     "history": "^4.7.2",
     "jquery": "1.9.1",
     "lastfm": "auryo/lastfm-node#ef31b1d42e20cbc3c18ae6daa509dcfa9f81dc90",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.13",
     "moment": "^2.17.0",
     "normalizr": "^3.2.2",
     "popper.js": "^1.12.9",
