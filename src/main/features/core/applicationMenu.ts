@@ -3,7 +3,6 @@ import { EVENTS } from '@common/constants/events';
 import * as SC from '@common/utils/soundcloudUtils';
 import Feature from '../feature';
 import { PlayerStatus, ChangeTypes, PlayerState, VolumeChangeTypes } from '@common/store/player';
-import { show } from 'redux-modal';
 import * as is from 'electron-is';
 
 export default class ApplicationMenu extends Feature {
@@ -200,11 +199,8 @@ export default class ApplicationMenu extends Feature {
           {
             label: 'Preferences',
             accelerator: 'CmdOrCtrl+,',
-            role: 'preferences',
             click: () => {
-              this.store.dispatch(show('utilities', {
-                activeTab: 'settings'
-              }));
+              this.sendToWebContents(EVENTS.APP.PUSH_NAVIGATION, '/settings');
             }
           },
           { type: 'separator' },
