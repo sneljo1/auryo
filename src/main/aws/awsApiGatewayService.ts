@@ -1,5 +1,5 @@
 import * as aws4 from "aws4";
-import axios, { AxiosRequestConfig } from "axios";
+import axios, { AxiosRequestConfig, Method } from "axios";
 import { CONFIG } from "../../config";
 import { Logger, LoggerInstance } from "../utils/logger";
 import { TokenResponse } from "./awsIotService";
@@ -41,7 +41,7 @@ export class AWSApiGatewayService {
 
     }
 
-    public performRequest<T>(path: string, method: string = "GET", body?: object) {
+    public async performRequest<T>(path: string, method: Method = "GET", body?: object) {
 
         const signedRequest = this.prepareRequest(path, method, body);
 
@@ -53,7 +53,7 @@ export class AWSApiGatewayService {
     }
 
     // tslint:disable-next-line: no-any
-    public prepareRequest(path: string, method: string = "GET", body?: object): { host: string; path: string; headers: any; } {
+    public prepareRequest(path: string, method: Method = "GET", body?: object): { host: string; path: string; headers: any; } {
 
         const host = CONFIG.AWS_API_URL.match(/[a-z0-9.-]*.com/g);
 

@@ -211,13 +211,8 @@ export default class ApplicationMenu extends Feature {
 					{
 						label: "Preferences",
 						accelerator: "CmdOrCtrl+,",
-						role: "preferences",
 						click: () => {
-							this.store.dispatch(
-								show("utilities", {
-									activeTab: "settings"
-								})
-							);
+							this.sendToWebContents(EVENTS.APP.PUSH_NAVIGATION, "/settings");
 						}
 					},
 					{ type: "separator" },
