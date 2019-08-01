@@ -40,7 +40,7 @@ export class Auryo {
 	constructor(store: Store<StoreState>) {
 		this.store = store;
 
-		app.setAppUserModelId("com.auryo.core");
+    app.setAppUserModelId("com.auryo.core");
 
 		app.requestSingleInstanceLock();
 
@@ -97,8 +97,6 @@ export class Auryo {
 
 		// Create the browser window
 		this.mainWindow = new BrowserWindow(Utils.posCenter(mainWindowOption));
-
-		app.setAccessibilitySupportEnabled(true);
 
 		this.registerTools();
 

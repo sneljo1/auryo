@@ -1,19 +1,22 @@
-import { Intent, IResizeEntry, IToastOptions, Position, ResizeSensor } from "@blueprintjs/core";
+import { Intent, IResizeEntry, Position, ResizeSensor } from "@blueprintjs/core";
 import { EVENTS } from "@common/constants/events";
 import { StoreState } from "@common/store";
-import { AppState, initApp, setDimensions, stopWatchers, toggleOffline } from "@common/store/app";
+import { initApp, setDimensions, stopWatchers, toggleOffline } from "@common/store/app";
 import { getUserPlaylists } from "@common/store/auth/selectors";
-import { PlayingTrack } from "@common/store/player";
-import { addToast, clearToasts, removeToast } from "@common/store/ui";
+import { addToast, clearToasts, removeToast, setScrollPosition } from "@common/store/ui";
+import { getPreviousScrollTop } from "@common/store/ui/selectors";
+import { ContentContext } from "@renderer/_shared/context/contentContext";
 import cn from "classnames";
+import { autobind } from "core-decorators";
 import { ipcRenderer } from "electron";
 import * as is from "electron-is";
 import { debounce } from "lodash";
 import * as React from "react";
 import Theme from "react-custom-properties";
-import { connect, MapDispatchToProps } from "react-redux";
-import { bindActionCreators } from "redux";
-import { NormalizedResult } from "../../types";
+import { connect } from "react-redux";
+import { RouteComponentProps, withRouter } from "react-router";
+import { FixedSizeList } from "react-window";
+import { bindActionCreators, compose, Dispatch } from "redux";
 import ErrorBoundary from "../_shared/ErrorBoundary";
 import Spinner from "../_shared/Spinner/Spinner";
 import AppError from "./components/AppError/AppError";
@@ -25,42 +28,40 @@ import SideBar from "./components/Sidebar/Sidebar";
 import { Themes } from "./components/Theme/themes";
 import Toastr from "./components/Toastr";
 
-interface PropsFromState {
-    toasts: IToastOptions[];
-    playingTrack: PlayingTrack | null;
-    app: AppState;
-    theme: string;
-    userPlayerlists: NormalizedResult[];
+interface State {
+    isScrolling: boolean;
+    getList?(): FixedSizeList | null;
 }
 
-interface PropsFromDispatch {
-    initApp: typeof initApp;
-    toggleOffline: typeof toggleOffline;
-    addToast: typeof addToast;
-    clearToasts: typeof clearToasts;
-    removeToast: typeof removeToast;
-    setDimensions: typeof setDimensions;
-}
+type PropsFromState = ReturnType<typeof mapStateToProps>;
 
-type AllProps = PropsFromState & PropsFromDispatch;
+type PropsFromDispatch = ReturnType<typeof mapDispatchToProps>;
 
-class Layout extends React.Component<AllProps> {
+type AllProps = PropsFromState & PropsFromDispatch & RouteComponentProps;
 
-    private readonly debouncedHandleResize: any;
+@autobind
+class Layout extends React.Component<AllProps, State> {
+
+    public state: State = {
+        isScrolling: false
+    }
+
+    private readonly contentRef: React.RefObject<HTMLDivElement> = React.createRef();
+    private readonly debouncedHandleResize: (entries: IResizeEntry[]) => void;
+    private readonly debouncedSetScrollPosition: (scrollTop: number, pathname: string) => any;
 
     constructor(props: AllProps) {
         super(props);
 
         this.debouncedHandleResize = debounce(this.handleResize, 500, { leading: true });
+        this.debouncedSetScrollPosition = debounce(props.setScrollPosition, 250);
     }
 
     public componentDidMount() {
-        const { initApp } = this.props;
-
-        initApp();
-
         window.addEventListener("online", this.setOnlineStatus);
         window.addEventListener("offline", this.setOnlineStatus);
+
+        this.handlePreviousScrollPositionOnBack();
 
     }
 
@@ -84,22 +85,6 @@ class Layout extends React.Component<AllProps> {
 
         window.removeEventListener("online", this.setOnlineStatus);
         window.removeEventListener("offline", this.setOnlineStatus);
-    }
-
-    public setOnlineStatus = () => {
-        const { toggleOffline } = this.props;
-
-        toggleOffline(!navigator.onLine);
-    }
-
-    public handleResize = ([{ contentRect: { width, height } }]: IResizeEntry[]) => {
-
-        const { setDimensions } = this.props;
-
-        setDimensions({
-            height,
-            width
-        });
     }
 
     public render() {
@@ -147,33 +132,32 @@ class Layout extends React.Component<AllProps> {
                             ) : null
                         }
 
+                        <Queue />
+
                         <main
-                            className={cn("d-flex flex-nowrap", {
+                            className={cn({
                                 playing: playingTrack
                             })}
                         >
                             <SideBar items={userPlayerlists} />
 
-                            <Queue />
+                            <ContentContext.Provider value={{ list: this.state.getList, setList: (getList) => this.setState({ getList }) }}>
+                                <section className="content" ref={this.contentRef}>
+                                    <Toastr
+                                        position={Position.TOP_RIGHT}
+                                        toasts={toasts}
+                                        clearToasts={clearToasts}
+                                    />
 
-                            <section className="content">
-                                <Toastr
-                                    position={Position.TOP_RIGHT}
-                                    toasts={toasts}
-                                    clearToasts={clearToasts}
-                                />
-
-                                <div className="f-height">
                                     <ErrorBoundary>
                                         {children}
                                     </ErrorBoundary>
-                                </div>
-                            </section>
-                        </main>
+                                </section>
+                            </ContentContext.Provider>
 
-                        <footer className="fixed-bottom player-container">
+
                             <Player />
-                        </footer>
+                        </main>
 
                         {/* Register Modals */}
 
@@ -185,9 +169,73 @@ class Layout extends React.Component<AllProps> {
             </ResizeSensor>
         );
     }
+
+    private setOnlineStatus() {
+        const { toggleOffline } = this.props;
+
+        toggleOffline(!navigator.onLine);
+    }
+
+    private handleResize([{ contentRect: { width, height } }]: IResizeEntry[]) {
+
+        const { setDimensions } = this.props;
+
+        setDimensions({
+            height,
+            width
+        });
+    }
+
+    private handlePreviousScrollPositionOnBack() {
+        if (this.contentRef.current) {
+            this.contentRef.current.addEventListener("scroll", (e) => {
+                if (this.state.getList) {
+                    const list = this.state.getList();
+
+                    if (list) {
+                        list.scrollTo((e.target as any).scrollTop)
+                    }
+                }
+
+                this.debouncedSetScrollPosition((e.target as any).scrollTop, this.props.location.pathname)
+
+            })
+        }
+
+        this.props.history.listen((_location, action) => {
+            if (!this.state.isScrolling) {
+
+                const scrollTo = action === "POP" ? this.props.previousScrollTop : 0;
+
+                this.setState({
+                    isScrolling: true
+                }, () => {
+                    requestAnimationFrame(() => {
+                        // Scroll content to correct place
+                        if (this.contentRef.current) {
+                            this.contentRef.current.scrollTo({ top: scrollTo });
+                        }
+
+                        // if (this.state.getList) {
+                        //     const list = this.state.getList();
+
+                        //     if (list) {
+                        //         list.scrollTo(scrollTo)
+                        //     }
+                        // }
+
+                        this.setState({
+                            isScrolling: false
+                        })
+                    })
+                })
+
+            }
+        });
+    }
 }
 
-const mapStateToProps = (state: StoreState): PropsFromState => {
+const mapStateToProps = (state: StoreState) => {
     const { app, config, player, ui } = state;
 
     return {
@@ -196,16 +244,21 @@ const mapStateToProps = (state: StoreState): PropsFromState => {
         app,
         theme: config.app.theme,
         toasts: ui.toasts,
+        previousScrollTop: getPreviousScrollTop(state) || 0
     };
 };
 
-const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, {}> = (dispatch) => bindActionCreators({
+const mapDispatchToProps = (dispatch: Dispatch) => bindActionCreators({
     addToast,
     clearToasts,
     initApp,
     removeToast,
     setDimensions,
     toggleOffline,
+    setScrollPosition,
 }, dispatch);
 
-export default connect(mapStateToProps, mapDispatchToProps)(Layout);
+export default compose(
+    withRouter,
+    connect(mapStateToProps, mapDispatchToProps),
+)(Layout);

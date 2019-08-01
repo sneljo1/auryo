@@ -2,47 +2,28 @@ import { Menu, MenuDivider, MenuItem, Popover, Position } from "@blueprintjs/cor
 import { IMAGE_SIZES } from "@common/constants";
 import { StoreState } from "@common/store";
 import { getPlaylistEntity } from "@common/store/entities/selectors";
-import { fetchPlaylistIfNeeded, fetchPlaylistTracks, ObjectState } from "@common/store/objects";
+import { fetchPlaylistIfNeeded, fetchPlaylistTracks } from "@common/store/objects";
 import { getPlaylistObjectSelector } from "@common/store/objects/selectors";
 import { addUpNext, PlayerStatus, playTrack, toggleStatus } from "@common/store/player";
-import { setScrollPosition } from "@common/store/ui";
-import { getPreviousScrollTop } from "@common/store/ui/selectors";
 import { SC } from "@common/utils";
 import { IPC } from "@common/utils/ipc";
 import cn from "classnames";
 import * as React from "react";
-import { connect, MapDispatchToProps } from "react-redux";
+import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router-dom";
-import { bindActionCreators } from "redux";
-import { NormalizedResult, SoundCloud } from "../../../types";
-import CustomScroll from "../../_shared/CustomScroll";
+import { bindActionCreators, Dispatch } from "redux";
 import PageHeader from "../../_shared/PageHeader/PageHeader";
 import Spinner from "../../_shared/Spinner/Spinner";
 import TracksGrid from "../../_shared/TracksGrid/TracksGrid";
-import WithHeaderComponent from "../../_shared/WithHeaderComponent";
 import Header from "../../app/components/Header/Header";
 import "./PlaylistPage.scss";
 
 interface OwnProps extends RouteComponentProps<{ playlistId: string }> {
 }
 
-interface PropsFromState {
-    isPlayerPlaylist: boolean;
-    isPlaylistPlaying: boolean;
-    previousScrollTop?: number;
-    playlist: SoundCloud.SystemPlaylist | null;
-    playlistObject: ObjectState<NormalizedResult> | null;
-    playlistIdParam: number;
-}
+type PropsFromState = ReturnType<typeof mapStateToProps>;
 
-interface PropsFromDispatch {
-    playTrack: typeof playTrack;
-    setScrollPosition: typeof setScrollPosition;
-    fetchPlaylistIfNeeded: typeof fetchPlaylistIfNeeded;
-    fetchPlaylistTracks: typeof fetchPlaylistTracks;
-    addUpNext: typeof addUpNext;
-    toggleStatus: typeof toggleStatus;
-}
+type PropsFromDispatch = ReturnType<typeof mapDispatchToProps>;
 
 interface State {
     scrollTop: number;
@@ -50,11 +31,9 @@ interface State {
 
 type AllProps = OwnProps & PropsFromState & PropsFromDispatch;
 
-class PersonalizedPlaylistPage extends WithHeaderComponent<AllProps, State> {
+class PersonalizedPlaylistPage extends React.Component<AllProps, State> {
 
     public componentDidMount() {
-        super.componentDidMount();
-
         const { fetchPlaylistTracks, playlistIdParam } = this.props;
 
         fetchPlaylistTracks(playlistIdParam, 30);
@@ -141,25 +120,7 @@ class PersonalizedPlaylistPage extends WithHeaderComponent<AllProps, State> {
         const image = hasImage ? SC.getImageUrl(playlist.artwork_url || playlist.calculated_artwork_url, IMAGE_SIZES.XLARGE) : null;
 
         return (
-            <CustomScroll
-                heightRelativeToParent="100%"
-                allowOuterScroll={true}
-                threshold={300}
-                isFetching={playlistObject.isFetching}
-                ref={(r) => this.scroll = r}
-                loadMore={() => {
-                    fetchPlaylistTracks(playlistIdParam, 30);
-                }}
-                loader={<Spinner />}
-                onScroll={this.debouncedOnScroll}
-            >
-
-                <Header
-                    className={cn({
-                        withImage: hasImage
-                    })}
-                    scrollTop={this.state.scrollTop}
-                />
+            <>
 
                 <PageHeader
                     image={image}
@@ -192,7 +153,7 @@ class PersonalizedPlaylistPage extends WithHeaderComponent<AllProps, State> {
                                                             <MenuItem
                                                                 text="Add to queue"
                                                                 onClick={() => {
-                                                                    addUpNext(playlist as any);
+                                                                    addUpNext(playlist);
                                                                 }}
                                                             />
                                                             <MenuDivider />
@@ -237,16 +198,19 @@ class PersonalizedPlaylistPage extends WithHeaderComponent<AllProps, State> {
                             <TracksGrid
                                 items={playlistObject.items.slice(0, playlistObject.fetchedItems)}
                                 objectId={playlistIdParam.toString()}
+                                isLoading={playlistObject.isFetching}
+                                loadMore={() => fetchPlaylistTracks(playlistIdParam, 30) as any}
+                                isItemLoaded={(index) => !!playlistObject.items.slice(0, playlistObject.fetchedItems)[index]}
                             />
 
                         )
                 }
-            </CustomScroll>
+            </>
         );
     }
 }
 
-const mapStateToProps = (state: StoreState, props: OwnProps): PropsFromState => {
+const mapStateToProps = (state: StoreState, props: OwnProps) => {
     const { player: { currentPlaylistId, status } } = state;
     const { match: { params: { playlistId } } } = props;
 
@@ -259,13 +223,11 @@ const mapStateToProps = (state: StoreState, props: OwnProps): PropsFromState => 
         playlist: getPlaylistEntity(playlistId as any)(state) as any,
         playlistObject: getPlaylistObjectSelector(playlistId)(state),
         playlistIdParam: playlistId as any,
-        previousScrollTop: getPreviousScrollTop(state)
     };
 };
 
-const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, OwnProps> = (dispatch) => bindActionCreators({
+const mapDispatchToProps = (dispatch: Dispatch) => bindActionCreators({
     playTrack,
-    setScrollPosition,
     fetchPlaylistIfNeeded,
     fetchPlaylistTracks,
     addUpNext,

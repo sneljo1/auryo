@@ -2,19 +2,16 @@ import { StoreState } from "@common/store";
 import { canFetchMoreOf, fetchMore, ObjectTypes, PlaylistTypes } from "@common/store/objects";
 import { search } from "@common/store/objects/playlists/search/actions";
 import { getPlaylistName, getPlaylistObjectSelector } from "@common/store/objects/selectors";
-import { setScrollPosition } from "@common/store/ui";
-import { getPreviousScrollTop } from "@common/store/ui/selectors";
 import cn from "classnames";
+import { autobind } from "core-decorators";
 import * as React from "react";
 import { connect } from "react-redux";
 import { NavLink, RouteComponentProps } from "react-router-dom";
 import { Nav } from "reactstrap";
 import { bindActionCreators, Dispatch } from "redux";
-import CustomScroll from "../../_shared/CustomScroll";
 import PageHeader from "../../_shared/PageHeader/PageHeader";
 import Spinner from "../../_shared/Spinner/Spinner";
 import TracksGrid from "../../_shared/TracksGrid/TracksGrid";
-import WithHeaderComponent from "../../_shared/WithHeaderComponent";
 import Header from "../../app/components/Header/Header";
 
 interface OwnProps extends RouteComponentProps<{ tag: string, type: string }> {
@@ -35,7 +32,8 @@ enum TabTypes {
 
 type AllProps = OwnProps & PropsFromState & PropsFromDispatch;
 
-class TagsPage extends WithHeaderComponent<AllProps, State> {
+@autobind
+class TagsPage extends React.Component<AllProps, State> {
 
     public componentDidMount() {
         const { tag, playlist, objectId, search } = this.props;
@@ -53,17 +51,24 @@ class TagsPage extends WithHeaderComponent<AllProps, State> {
         }
     }
 
-    public hasMore = (): boolean => {
+    public hasMore(): boolean {
         const { objectId, canFetchMoreOf } = this.props;
 
         return canFetchMoreOf(objectId, ObjectTypes.PLAYLISTS) as any;
     }
 
-    public loadMore = () => {
+    public async loadMore() {
         const { objectId, fetchMore, canFetchMoreOf } = this.props;
 
-        if (canFetchMoreOf(objectId, ObjectTypes.PLAYLISTS)) {
-            fetchMore(objectId, ObjectTypes.PLAYLISTS);
+        try {
+            if (canFetchMoreOf(objectId, ObjectTypes.PLAYLISTS)) {
+                return fetchMore(objectId, ObjectTypes.PLAYLISTS);
+            }
+
+            return null;
+
+        } catch (err) {
+            throw err;
         }
     }
 
@@ -75,20 +80,8 @@ class TagsPage extends WithHeaderComponent<AllProps, State> {
             tag,
         } = this.props;
 
-        const isFetching = playlist && playlist.isFetching;
-
         return (
-            <CustomScroll
-                heightRelativeToParent="100%"
-                // heightMargin={35}
-                allowOuterScroll={true}
-                threshold={300}
-                isFetching={isFetching}
-                ref={(r) => this.scroll = r}
-                loadMore={this.loadMore}
-                onScroll={this.debouncedOnScroll}
-                hasMore={this.hasMore}
-            >
+            <>
 
                 <Header scrollTop={this.state.scrollTop} />
 
@@ -124,12 +117,16 @@ class TagsPage extends WithHeaderComponent<AllProps, State> {
                             <TracksGrid
                                 items={playlist.items}
                                 objectId={objectId}
+                                hasMore={this.hasMore()}
+                                loadMore={() => this.loadMore() as any}
+                                isLoading={playlist.isFetching}
+                                isItemLoaded={index => !!playlist.items[index]}
                             />
                         )
                 }
 
 
-            </CustomScroll>
+            </>
         );
     }
 }
@@ -146,7 +143,6 @@ const mapStateToProps = (state: StoreState, props: OwnProps) => {
         playlist: getPlaylistObjectSelector(objectId)(state),
         tag,
         showType,
-        previousScrollTop: getPreviousScrollTop(state)
     };
 };
 
@@ -154,7 +150,6 @@ const mapDispatchToProps = (dispatch: Dispatch) => bindActionCreators({
     search,
     canFetchMoreOf,
     fetchMore,
-    setScrollPosition
 }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(TagsPage);

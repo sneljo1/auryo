@@ -6,14 +6,28 @@ import { SC } from "@common/utils";
 // tslint:disable-next-line:no-submodule-imports
 import "boxicons/css/boxicons.min.css";
 import { remote } from "electron";
+import * as is from "electron-is";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { AppContainer } from "react-hot-loader";
 import { configureStore, history } from "./configureStore";
 import "./css/app.scss";
 import Main from "./Main";
+import * as serviceWorker from "./serviceWorker";
 
 const app = remote.app;
+
+let osClass = "";
+
+if (is.macOS()) {
+    osClass = "macOS";;
+} else if (is.windows()) {
+    osClass = "win";
+} else if (is.linux()) {
+    osClass = "linux";
+}
+
+document.getElementsByTagName("html")[0].classList.add(osClass);
 
 if (process.env.NODE_ENV === "development") {
     // const { whyDidYouUpdate } = require('why-did-you-update');
@@ -55,6 +69,8 @@ ReactDOM.render(
     </AppContainer>,
     document.getElementById("root")
 );
+
+serviceWorker.register();
 
 if (module.hot) {
     module.hot.accept("./Main", () => {

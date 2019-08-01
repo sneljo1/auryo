@@ -38,7 +38,7 @@ export default class DbusService extends LinuxFeature {
 
 			const player = obj.getInterface(`org.${desktopEnv}.SettingsDaemon.MediaKeys`);
 
-			player.on("MediaPlayerKeyPressed", (n: number, keyName: string) => {
+			player.on("MediaPlayerKeyPressed", (_: number, keyName: string) => {
 				switch (keyName) {
 					case "Next":
 						this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, ChangeTypes.NEXT);

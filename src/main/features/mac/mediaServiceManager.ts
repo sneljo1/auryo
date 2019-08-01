@@ -8,118 +8,121 @@ import { MediaService, MediaStates, MetaData, milliseconds } from "./interfaces/
 import MacFeature from "./macFeature";
 
 export default class MediaServiceManager extends MacFeature {
-  private myService: MediaService | null = null;
-  private readonly meta: MetaData = {
-    state: MediaStates.STOPPED
-  };
 
-  public register() {
-    const MediaService = require("electron-media-service");
+	private myService: MediaService | null = null;
+	private readonly meta: MetaData = {
+		state: MediaStates.STOPPED,
+		title: "",
+		id: -1,
+		album: "",
+		artist: "",
+		duration: 0,
+		currentTime: 0
+	};
 
-    const myService = (this.myService = new MediaService());
+	public register() {
+		const MediaService = require("electron-media-service");
 
-    myService.startService();
+		const myService = (this.myService = new MediaService());
 
-    myService.setMetaData(this.meta);
+		myService.startService();
+		myService.setMetaData(this.meta);
 
-    myService.on("play", () => {
-      if (this.meta.state !== MediaStates.PLAYING) {
-        this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PlayerStatus.PLAYING);
-      }
-    });
+		myService.on("play", () => {
+			if (this.meta.state !== MediaStates.PLAYING) {
+				this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PlayerStatus.PLAYING);
+			}
+		});
 
-    myService.on("pause", () => {
-      if (this.meta.state === MediaStates.PLAYING) {
-        this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PlayerStatus.PAUSED);
-      }
-    });
+		myService.on("pause", () => {
+			if (this.meta.state !== MediaStates.PAUSED) {
+				this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PlayerStatus.PAUSED);
+			}
+		});
 
-    myService.on("stop", () => {
-      this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PlayerStatus.STOPPED);
-    });
+		myService.on("stop", () => {
+			this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PlayerStatus.STOPPED);
+		});
 
-    myService.on("playPause", () => {
-      this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS);
-    });
+		myService.on("playPause", () => {
+			this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS);
+		});
 
-    myService.on("next", () => {
-      this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, ChangeTypes.NEXT);
-    });
+		myService.on("next", () => {
+			this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, ChangeTypes.NEXT);
+		});
 
-    myService.on("previous", () => {
-      this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, ChangeTypes.PREV);
-    });
+		myService.on("previous", () => {
+			this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, ChangeTypes.PREV);
+		});
 
-    myService.on("seek", (to: milliseconds) => {
-      this.sendToWebContents(EVENTS.PLAYER.SEEK, to / 1000);
-    });
+		myService.on("seek", (to: milliseconds) => {
+			this.sendToWebContents(EVENTS.PLAYER.SEEK, to / 1000);
+		});
 
-    //
-    // WATCHERS
-    //
+		//
+		// WATCHERS
+		//
 
-    /**
-     * Update track information
-     */
-    this.on(EVENTS.APP.READY, () => {
-      this.subscribe<PlayingTrack>(["player", "playingTrack"], ({ currentState }) => {
+		/**
+		 * Update track information
+		 */
+		this.on(EVENTS.APP.READY, () => {
+			this.subscribe<PlayingTrack>(["player", "playingTrack"], ({ currentState }) => {
+				const {
+					player: { playingTrack }
+				} = currentState;
 
-        const {
-          player: { playingTrack }
-        } = currentState;
+				if (playingTrack) {
+					const trackId = playingTrack.id;
+					const track = getTrackEntity(trackId)(this.store.getState());
 
-        if (playingTrack) {
-          const trackId = playingTrack.id;
-          const track = getTrackEntity(trackId)(this.store.getState());
+					if (track) {
+						this.meta.id = track.id;
+						this.meta.title = track.title;
 
-          if (track) {
-            this.meta.id = track.id;
-            this.meta.title = track.title;
+						this.meta.artist = track.user && track.user.username ? track.user.username : "Unknown artist";
+						this.meta.albumArt = SC.getImageUrl(track, IMAGE_SIZES.LARGE);
+						myService.setMetaData(this.meta);
+					}
+				}
+			});
 
-            this.meta.artist = track.user && track.user.username ? track.user.username : "Unknown artist";
-            this.meta.albumArt = SC.getImageUrl(track, IMAGE_SIZES.LARGE);
+			/**
+			 * Update playback status
+			 */
+			this.subscribe<PlayerStatus>(["player", "status"], ({ currentValue: status }: any) => {
+				this.meta.state = status.toLowerCase();
 
-            myService.setMetaData(this.meta);
-          }
-        }
-      });
+				myService.setMetaData(this.meta);
+			});
 
-      /**
-       * Update playback status
-       */
-      this.subscribe<PlayerStatus>(["player", "status"], ({ currentValue: status }: any) => {
-        this.meta.state = status.toLowerCase();
+			/**
+			 * Update time
+			 */
+			this.subscribe(["player", "currentTime"], this.updateTime);
+			this.subscribe(["player", "duration"], this.updateTime);
+		});
+	}
 
-        myService.setMetaData(this.meta);
-      });
+	public updateTime = ({
+		currentState: {
+			player: { currentTime, duration }
+		}
+	}: WatchState<number>) => {
+		this.meta.currentTime = currentTime * 1e3;
+		this.meta.duration = duration * 1e3;
 
-      /**
-       * Update time
-       */
-      this.subscribe(["player", "currentTime"], this.updateTime);
-      this.subscribe(["player", "duration"], this.updateTime);
-    });
-  }
+		if (this.myService) {
+			this.myService.setMetaData(this.meta);
+		}
+	};
 
-  public updateTime = ({
-    currentState: {
-      player: { currentTime, duration }
-    }
-  }: WatchState<number>) => {
+	public unregister() {
+		super.unregister();
 
-    this.meta.currentTime = currentTime * 1e3;
-    this.meta.duration = duration * 1e3;
-
-    if (this.myService) {
-      this.myService.setMetaData(this.meta);
-    }
-  }
-
-  public unregister() {
-    super.unregister();
-
-    if (this.myService && this.myService.isStarted()) {
-      this.myService.stopService();
-    }
-  }
+		if (this.myService && this.myService.isStarted()) {
+			this.myService.stopService();
+		}
+	}
 }

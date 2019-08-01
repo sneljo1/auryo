@@ -1,9 +1,13 @@
 import { StoreState } from "@common/store";
+import { initApp } from "@common/store/app";
+import { getScrollPositions } from "@common/store/ui/selectors";
 import { Utils } from "@common/utils/utils";
 import Settings from "@renderer/pages/settings/Settings";
+import { autobind } from "core-decorators";
 import * as React from "react";
 import { connect } from "react-redux";
 import { Redirect, Route, RouteComponentProps, Switch, withRouter } from "react-router";
+import { bindActionCreators, compose, Dispatch } from "redux";
 import Spinner from "../_shared/Spinner/Spinner";
 import ArtistPage from "../pages/artist/ArtistPage";
 import ChartsDetailsPage from "../pages/charts/ChartsDetailsPage";
@@ -19,19 +23,32 @@ import SearchCategoryPage from "../pages/search/Category/SearchCategoryPage";
 import SearchPage from "../pages/search/SearchPage";
 import TagsPage from "../pages/tags/TagsPage";
 import TrackPage from "../pages/track/TrackPage";
+import Header from "./components/Header/Header";
 import IsOffline from "./components/Offline/Offline";
 import Layout from "./Layout";
 
-interface PropsFromState {
-    offline: boolean;
-    loaded: boolean;
+interface State {
+    previousScrollTop?: number;
+    isScrolling: boolean;
 }
 
-type AllProps = PropsFromState & RouteComponentProps;
+type PropsFromState = ReturnType<typeof mapStateToProps>;
 
-class App extends React.PureComponent<AllProps> {
+type PropsFromDispatch = ReturnType<typeof mapDispatchToProps>;
 
-    public handleResolve = (props: RouteComponentProps<any>) => {
+type AllProps = PropsFromState & RouteComponentProps & PropsFromDispatch;
+
+@autobind
+class App extends React.PureComponent<AllProps, State> {
+
+    public componentDidMount() {
+
+        const { initApp } = this.props;
+
+        initApp();
+    }
+
+    public handleResolve(props: RouteComponentProps<any>) {
         const { location: { search } } = props;
 
         const url = search.replace("?", "");
@@ -46,14 +63,25 @@ class App extends React.PureComponent<AllProps> {
     }
 
     public render() {
-        const { loaded, offline } = this.props;
+        const { loaded, offline, location: { pathname }, scrollPositions } = this.props;
 
         if (!loaded && offline) {
             return <IsOffline full={true} />;
         }
 
+        if (!loaded) {
+            return <Spinner full={true} />;
+        }
+
+        const scrollTop = scrollPositions[pathname] || 0;
+
         return (
             <Layout>
+                <Header
+                    scrollTop={scrollTop}
+                // className={cn({ withImage: backgroundImage })}
+                // scrollTop={this.state.scrollTop}
+                />
                 <Switch>
                     <Route exact={true} path="/" component={FeedPlaylistPage} />
                     <Route path="/charts/genre/:genre" component={ChartsDetailsPage} />
@@ -77,6 +105,21 @@ class App extends React.PureComponent<AllProps> {
     }
 }
 
-const mapStateToProps = ({ app }: StoreState): PropsFromState => ({ offline: app.offline, loaded: app.loaded });
+const mapStateToProps = (state: StoreState) => {
+    const { app } = state;
 
-export default withRouter(connect(mapStateToProps)(App));
+    return {
+        offline: app.offline,
+        loaded: app.loaded,
+        scrollPositions: getScrollPositions(state)
+    }
+};
+
+const mapDispatchToProps = (dispatch: Dispatch) => bindActionCreators({
+    initApp,
+}, dispatch);
+
+export default compose(
+    withRouter,
+    connect(mapStateToProps, mapDispatchToProps)
+)(App);

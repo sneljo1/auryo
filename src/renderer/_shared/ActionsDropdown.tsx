@@ -60,9 +60,9 @@ class ActionsDropdown extends React.Component<AllProps> {
             addUpNext,
             playing,
             index,
-            userPlaylists,
+            // userPlaylists,
             // togglePlaylistTrack,
-            currentPlaylistId
+            // currentPlaylistId
         } = this.props;
 
         const trackId = track.id;
@@ -70,8 +70,8 @@ class ActionsDropdown extends React.Component<AllProps> {
         const liked = SC.hasID(track.id, (track.kind === "playlist" ? likes.playlist : likes.track));
         const reposted = SC.hasID(track.id, (track.kind === "playlist" ? reposts.playlist : reposts.track));
 
-        const currentPlaylist: CombinedUserPlaylistState | null =
-            currentPlaylistId ? userPlaylists.find((p) => p.id === +currentPlaylistId) || null : null;
+        // const currentPlaylist: CombinedUserPlaylistState | null =
+        //     currentPlaylistId ? userPlaylists.find((p) => p.id === +currentPlaylistId) || null : null;
 
         // const inPlaylist = currentPlaylist ? currentPlaylist.items.find((t) => t.id === trackId) : false;
 

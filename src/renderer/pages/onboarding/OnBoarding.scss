@@ -1,6 +1,9 @@
 .login {
   height: 100vh;
 
+  overflow: hidden;
+  position: relative;
+  
   &:not(.login_small){
     .login_svg {
       transform: translateX(200px);

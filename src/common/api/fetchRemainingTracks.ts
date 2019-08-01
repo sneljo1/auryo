@@ -1,5 +1,5 @@
 import { RemainingPlays } from "../store/app";
-import { asJson, SC, status } from "../utils";
+import { SC } from "../utils";
 import fetchToJson from "./helpers/fetchToJson";
 
 interface JsonResponse {

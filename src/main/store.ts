@@ -1,5 +1,5 @@
 import { rootReducer, StoreState } from "@common/store";
-import { ipcMain, IpcMessageEvent } from "electron";
+import { ipcMain } from "electron";
 import { Action, applyMiddleware, compose, createStore, Store } from "redux";
 import { electronEnhancer } from "redux-electron-store";
 import thunk from "redux-thunk";
@@ -12,7 +12,7 @@ const enhancer = compose(
 const configureStore = (): Store<StoreState> => {
 	const store: Store<StoreState> = createStore<any, Action, any, any>(rootReducer, enhancer as any);
 
-	ipcMain.on("renderer-reload", (event: IpcMessageEvent) => {
+	ipcMain.on("renderer-reload", (event) => {
 		// tslint:disable-next-line: no-dynamic-delete
 		delete require.cache[require.resolve("@common/store")];
 
@@ -26,3 +26,4 @@ const configureStore = (): Store<StoreState> => {
 };
 
 export { configureStore };
+

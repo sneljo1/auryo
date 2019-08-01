@@ -5,5 +5,7 @@
         ".cache-loader": true,
         ".vscode": true,
         "node_modules": true,
-    }
+    },
+    "typescriptHero.imports.stringQuoteStyle": "\"",
+    "npm-intellisense.importQuotes": "\""
 }

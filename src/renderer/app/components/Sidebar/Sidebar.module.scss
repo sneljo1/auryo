@@ -5,11 +5,11 @@
 }
 
 .sidebar {
+  grid-area: side-bar;
   background: var(--clr-sidebar-bg);
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  position: fixed;
   height: 100%;
   overflow: hidden;
   width: 260px;

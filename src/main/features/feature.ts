@@ -8,114 +8,127 @@ import * as ReduxWatcher from "redux-watcher";
 import { Auryo } from "../app";
 
 interface IFeature {
-  // tslint:disable-next-line:ban-types
-  subscribe(path: string[], handler: Function): void;
+	// tslint:disable-next-line:ban-types
+	subscribe(path: string[], handler: Function): void;
 
-  sendToWebContents(channel: string, params: object): void;
+	sendToWebContents(channel: string, params: object): void;
 
-  register(): void;
+	register(): void;
 
-  // tslint:disable-next-line:ban-types
-  on(path: string, handler: Function): void;
+	// tslint:disable-next-line:ban-types
+	on(path: string, handler: Function): void;
 
-  unregister(path?: string[] | string): void;
+	unregister(path?: string[] | string): void;
 
-  shouldRun(): boolean;
+	shouldRun(): boolean;
 }
 
 // tslint:disable-next-line:max-line-length
-export type Handler<T> = (t: { store: Store<StoreState>; selector: string | string[]; prevState: StoreState; currentState: StoreState; prevValue: T; currentValue: T }) => void;
+export type Handler<T> = (
+	t: {
+		store: Store<StoreState>;
+		selector: string | string[];
+		prevState: StoreState;
+		currentState: StoreState;
+		prevValue: T;
+		currentValue: T;
+	}
+) => void;
 
 // tslint:disable-next-line:max-line-length
-export interface WatchState<T> { store: Store<StoreState>; selector: string | string[]; prevState: StoreState; currentState: StoreState; prevValue: T; currentValue: T; }
-
+export interface WatchState<T> {
+	store: Store<StoreState>;
+	selector: string | string[];
+	prevState: StoreState;
+	currentState: StoreState;
+	prevValue: T;
+	currentValue: T;
+}
 
 export class Feature implements IFeature {
+	public timers: any[] = [];
+	public win: BrowserWindow | null = null;
+	public store: Store<StoreState>;
+	public watcher: any;
+	private readonly listeners: { path: string[]; handler: Function }[] = [];
+	private readonly ipclisteners: { name: string; handler: Function }[] = [];
 
-  public timers: any[] = [];
-  public win: BrowserWindow | null = null;
-  public store: Store<StoreState>;
-  public watcher: any;
-  private readonly listeners: { path: string[]; handler: Function }[] = [];
-  private readonly ipclisteners: { name: string; handler: Function }[] = [];
+	constructor(protected app: Auryo, protected waitUntil: string = "default") {
+		if (app.mainWindow) {
+			this.win = app.mainWindow;
+		}
+		this.store = app.store;
 
-  constructor(protected app: Auryo, protected waitUntil: string = "default") {
-    if (app.mainWindow) {
-      this.win = app.mainWindow;
-    }
-    this.store = app.store;
+		this.watcher = new ReduxWatcher(app.store);
+	}
 
-    this.watcher = new ReduxWatcher(app.store);
-  }
+	public subscribe<T>(path: string[], handler: Handler<T>) {
+		this.watcher.watch(path, handler);
 
-  public subscribe<T>(path: string[], handler: Handler<T>) {
-    this.watcher.watch(path, handler);
+		this.listeners.push({
+			path,
+			handler
+		});
+	}
 
-    this.listeners.push({
-      path,
-      handler
-    });
-  }
+	public sendToWebContents(channel: string, params?: any) {
+		if (this.win && this.win.webContents) {
+			this.win.webContents.send(channel, params, this.constructor.name);
+		}
+	}
 
-  public sendToWebContents(channel: string, params?: any) {
-    if (this.win && this.win.webContents) {
-      this.win.webContents.send(channel, params);
-    }
-  }
+	public on(path: string, handler: any) {
+		ipcMain.on(path, (_: any, ...args: any[]) => {
+			handler(args);
+		});
 
+		this.ipclisteners.push({
+			name: path,
+			handler
+		});
+	}
 
-  public on(path: string, handler: any) {
-    ipcMain.on(path, (_: any, ...args: any[]) => {
-      handler(args);
-    });
+	// tslint:disable-next-line:no-empty
+	public register() {}
 
-    this.ipclisteners.push({
-      name: path,
-      handler
-    });
-  }
+	public unregister(path?: string[] | string) {
+		if (path) {
+			const ipcListener = this.ipclisteners.find(l => isEqual(l.name, path));
 
-  // tslint:disable-next-line:no-empty
-  public register() { }
+			if (typeof path === "string") {
+				if (ipcListener) {
+					ipcMain.removeAllListeners(ipcListener.name);
+				}
+			} else {
+				const listener = this.listeners.find(l => isEqual(l.path, path));
 
-  public unregister(path?: string[] | string) {
-    if (path) {
-      const ipcListener = this.ipclisteners.find((l) => isEqual(l.name, path));
+				if (listener) {
+					this.watcher.off(listener.path, listener.handler);
+				}
+			}
+		} else {
+			this.listeners.forEach(listener => {
+				try {
+					this.watcher.off(listener.path, listener.handler);
+				} catch (err) {
+					if (!err.message.startsWith("No such listener for")) {
+						throw err;
+					}
+				}
+			});
 
-      if (typeof path === "string") {
-        if (ipcListener) {
-          ipcMain.removeAllListeners(ipcListener.name);
-        }
-      } else {
-        const listener = this.listeners.find((l) => isEqual(l.path, path));
+			this.ipclisteners.forEach(listener => {
+				ipcMain.removeAllListeners(listener.name);
+			});
+		}
 
-        if (listener) {
-          this.watcher.off(listener.path, listener.handler);
-        }
-      }
-    } else {
-      this.listeners.forEach((listener) => {
-        try {
-          this.watcher.off(listener.path, listener.handler);
-        } catch (err) {
-          if (!err.message.startsWith("No such listener for")) {
-            throw err;
-          }
-        }
-      });
+		this.timers.forEach(timeout => {
+			clearTimeout(timeout);
+		});
+	}
 
-      this.ipclisteners.forEach((listener) => {
-        ipcMain.removeListener(listener.name, listener.handler);
-      });
-    }
-
-    this.timers.forEach((timeout) => {
-      clearTimeout(timeout);
-    });
-  }
-
-  // eslint-disable-next-line
-  public shouldRun() {
-    return true;
-  }
+	// eslint-disable-next-line
+	public shouldRun() {
+		return true;
+	}
 }

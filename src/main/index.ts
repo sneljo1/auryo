@@ -45,13 +45,18 @@ app.on("activate", () => {
 // This method will be called when Electron has done everything
 // initialization and ready for creating browser windows.
 app.on("ready", async () => {
+    
+  app.accessibilitySupportEnabled = true;
+  
 	try {
 		if (process.env.NODE_ENV === "development") {
 			const {
 				default: installExtension,
 				REACT_DEVELOPER_TOOLS,
 				REDUX_DEVTOOLS
-			} = require("electron-devtools-installer");
+      } = require("electron-devtools-installer");
+      
+      require("devtron").install()
 
 			await installExtension([REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS], true);
 		}

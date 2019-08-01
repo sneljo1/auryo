@@ -10,9 +10,9 @@ import { isEqual } from "lodash";
 import * as React from "react";
 import { connect, MapDispatchToProps } from "react-redux";
 import { RouteComponentProps, withRouter } from "react-router";
+import * as Sticky from "react-stickynode";
 import { bindActionCreators } from "redux";
 import { show } from "redux-modal";
-import Sticky from "../../../_shared/Sticky";
 import "./Header.scss";
 import SearchBox from "./Search/SearchBox";
 import User from "./User/User";
@@ -167,10 +167,8 @@ class Header extends React.Component<AllProps, State> {
         return (
             <div className={`header-wrapper ${className}`} style={{ minHeight: height }}>
                 <Sticky
-                    className="stickymaker"
-                    activeClassName="sticky sticky-3"
-                    stickyWidth={`calc(100% - ${260}px)`}
-                    isSticky={isSticky}
+                    activeClass="sticky sticky-3"
+                    enabled={isSticky}
                 >
 
                     <div className="navbar-wrapper" ref={(navBarWrapper) => this.navBarWrapper = navBarWrapper}>
@@ -277,7 +275,7 @@ class Header extends React.Component<AllProps, State> {
 const mapStateToProps = ({ app, auth }: StoreState): PropsFromState => ({
     update: app.update,
     me: auth.me,
-    locHistory: app.history
+    locHistory: app.history,
 });
 
 const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, OwnProps> = (dispatch) => bindActionCreators({

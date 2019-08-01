@@ -4,6 +4,7 @@
 @import "./scroll";
 @import './notification';
 @import "node_modules/bootstrap/scss/bootstrap";
+
 body {
   font-family: $font-family-base, sans-serif;
   -webkit-touch-callout: none;
@@ -21,6 +22,8 @@ body {
   height: 100%;
   overflow: hidden;
   font-weight: $font-family-base;
+  overscroll-behavior-y: none;
+  height: 100%;
 }
 
 :focus {
@@ -53,23 +56,29 @@ body {
   color: var(--clr-body-text);
   height: 100vh;
   transition: background 0.3s ease, color 0.3s ease;
+
   &.development {
     &:before {
       @include media-breakpoint-only(xs) {
         content: "xs";
       }
+
       @include media-breakpoint-only(sm) {
         content: "sm";
       }
+
       @include media-breakpoint-only(md) {
         content: "md";
       }
+
       @include media-breakpoint-only(lg) {
         content: "lg";
       }
+
       @include media-breakpoint-only(xl) {
         content: "xl";
       }
+
       position: absolute;
       bottom: 0;
       left: 0;
@@ -96,11 +105,29 @@ h6 {
 // Set appropriate height
 html,
 #root {
+  width: 100%;
   height: 100%;
 }
 
-main {
-  height: 100%;
+body {
+  background: var(--clr-content-bg)
+}
+
+::-webkit-scrollbar {
+  -webkit-appearance: none;
+}
+
+::-webkit-scrollbar {
+  width: 16px;
+}
+
+
+html.macOS ::-webkit-scrollbar-thumb {
+  border-radius: 8px;
+  background-color: rgba(0, 0, 0, .5);
+  border: 4px solid transparent;
+  background-clip: padding-box;
+  min-height: 30px;
 }
 
 .scroll {
@@ -108,7 +135,9 @@ main {
     &:not(:first-child) {
       z-index: 999;
     }
-  } // &.playing {
+  }
+
+  // &.playing {
   //   & > div {
   //     &:last-child {
   //       //height: calc(100% - 125px) !important;
@@ -118,18 +147,22 @@ main {
 }
 
 .content {
+  grid-area: main-content;
   background: var(--clr-content-bg);
   width: 100%;
   position: relative;
-  margin-left: 260px;
   transition: background 0.3s ease;
   z-index: 1;
+
+  max-height: 100%;
+  overflow: auto;
 }
 
 /** -------- */
 
 .flex {
   display: flex;
+
   &.column {
     flex-flow: column;
   }
@@ -149,18 +182,22 @@ main {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06), 0 6px 25px rgba(0, 0, 0, 0.12);
   border-radius: .2rem;
   padding: 5px;
+
   .dropdown-item {
     font-size: .9rem;
     border-radius: .2rem;
     padding: 2px 10px;
+
     i {
       font-size: 1.2rem;
       padding-right: 5px;
       width: 25px;
     }
+
     &:active {
       color: #1d1e1f;
     }
+
     &:hover {
       background: darken(#fff, 8%);
     }
@@ -172,6 +209,7 @@ main {
     background: #fff;
     margin-right: -4px;
     margin-top: 10px;
+
     .dropdown-item {
       padding: 3px 12px;
     }
@@ -185,13 +223,16 @@ main {
       margin-right: 0;
     }
   }
+
   &>.c_btn:not(:last-child),
   &>*:not(:last-child) .c_btn {
     margin-right: 10px;
   }
+
   &:not(:last-child) .c_btn {
     margin-right: 10px;
   }
+
   .c_btn {
     margin-bottom: 15px;
   }
@@ -210,14 +251,17 @@ main {
   font-size: .9rem;
   display: flex;
   align-items: center;
+
   i {
     padding-right: 5px;
     font-size: 1.2rem;
   }
+
   &.disabled {
     opacity: .9;
     pointer-events: none;
   }
+
   &.round {
     width: 36px;
     height: 36px;
@@ -225,6 +269,7 @@ main {
     display: inline-block;
     text-align: center;
     padding: 0;
+
     i {
       font-size: 1.1rem;
       padding: 0;
@@ -235,13 +280,16 @@ main {
       height: 36px;
     }
   }
+
   &.outline {
     box-shadow: none;
     border: 1px solid;
+
     &:hover {
       box-shadow: none;
     }
   }
+
   &:hover {
     background: var(--clr-btn-hover-bg);
     box-shadow: 0 10px 60px rgba(0, 0, 0, 0.08), 0 6px 50px rgba(0, 0, 0, 0.18);
@@ -249,17 +297,21 @@ main {
     text-decoration: none;
     color: var(--clr-btn-hover-text);
   }
+
   &:focus {
     text-decoration: none;
   }
+
   &.colored {
     background: var(--clr-btn-colored-bg);
+
     i {
       color: theme-color("primary");
       font-size: 2rem !important;
       color: var(--clr-btn-colored-text) !important;
     }
   }
+
   &.active {
     color: var(--clr-btn-active-text);
   }
@@ -322,6 +374,7 @@ i {
   font-family: $font-family-title;
   align-items: center;
   margin-top: 1rem;
+
   a {
     padding: 10px 15px;
     margin-right: 10px;
@@ -329,10 +382,12 @@ i {
     color: #fff;
     position: relative;
     border-radius: 10px;
+
     &:hover {
       transition: .3s background;
       background: var(--clr-transparent-tabs-bg);
     }
+
     &.active {
       background: var(--clr-transparent-tabs-active-bg);
       color: var(--clr-transparent-tabs-active-text);
@@ -345,6 +400,7 @@ i {
   color: #fff;
   padding: 25px 20px;
   align-items: center;
+
   .overlayWrapper {
     position: absolute;
     height: 100%;
@@ -353,6 +409,7 @@ i {
     z-index: -1;
     top: 0;
     left: 0;
+
     .gradient-wrapper {
       position: absolute;
       height: 100%;
@@ -367,6 +424,7 @@ i {
         transition: 1s ease opacity;
       }*/
     }
+
     &:after {
       content: '';
       position: absolute;
@@ -378,6 +436,7 @@ i {
       background-color: rgba(0, 0, 0, 0.2);
       z-index: 1;
     }
+
     .overlayImg {
       width: 120%;
       margin-left: -10%;
@@ -390,6 +449,7 @@ i {
       position: absolute;
     }
   }
+
   .imageWrapper {
     text-align: center;
     left: 0;
@@ -397,13 +457,16 @@ i {
     position: relative;
     max-width: 200px;
     margin: 20px 0 5px 0;
+
     @include media-breakpoint-down(sm) {
       margin: 0 auto;
     }
+
     img {
       width: 100%;
       max-width: 300px;
     }
+
     .imgShadow {
       position: absolute;
       left: 0;
@@ -414,14 +477,17 @@ i {
       margin: auto;
     }
   }
+
   .trackInfo {
     position: relative;
     margin-top: 20px;
   }
+
   .trackTitle {
     font-weight: 400;
     font-size: 1.8rem;
   }
+
   .trackArtist {
     font-family: $font-family-base;
     font-weight: $font-weight-base;
@@ -431,16 +497,19 @@ i {
 
 .overflow-container {
   margin-bottom: 20px;
+
   .overflow-div {
     transition: .4s height ease-in;
     overflow: hidden;
   }
+
   .overflow-bottom {
     text-align: center;
     z-index: 5;
     position: absolute;
     left: 0;
     right: 0;
+
     .overflow-button {
       background: #fff;
       border-radius: 100%;
@@ -448,10 +517,12 @@ i {
       text-decoration: none;
       box-shadow: 0 10px 60px rgba(0, 0, 0, 0.03), 0 6px 50px rgba(0, 0, 0, 0.10);
       transition: .5s box-shadow;
+
       &:hover {
         box-shadow: 0 10px 60px rgba(0, 0, 0, 0.08), 0 6px 50px rgba(0, 0, 0, 0.18);
         transition: .5s box-shadow;
       }
+
       i {
         font-size: 1.4rem;
         width: 30px;
@@ -463,12 +534,15 @@ i {
       }
     }
   }
+
   &:not(.open) {
     .overflow-bottom {
       margin-top: -20px;
     }
+
     .overflow-div {
       position: relative;
+
       &:after {
         content: '';
         position: absolute;
@@ -479,9 +553,25 @@ i {
       }
     }
   }
+
   &.open>.overflow-div {
     transition: .4s height ease-out;
   }
+}
+
+main,
+.body {
+  height: 100%;
+  position: relative;
+}
+
+main {
+  min-height: 100%;
+  width: 100%;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  grid-template-columns: auto 1fr;
+  grid-template-areas: "side-bar main-content""now-playing-bar now-playing-bar";
 }
 
 .hidden {
@@ -526,6 +616,7 @@ i {
     transform: rotate(0deg);
     /* Firefox 16+, IE 10+, Opera */
   }
+
   100% {
     -webkit-transform: rotate(360deg);
     /* Chrome, Opera 15+, Safari 3.1+ */
@@ -545,6 +636,7 @@ i {
     transform: rotate(0deg);
     /* Firefox 16+, IE 10+, Opera */
   }
+
   100% {
     -webkit-transform: rotate(360deg);
     /* Chrome, Opera 15+, Safari 3.1+ */
@@ -577,10 +669,6 @@ i {
   z-index: -1 !important;
 }
 
-.fixed-bottom.player-container {
-  z-index: 100010;
-}
-
 // .bp3-popover .bp3-popover-content {
 //   background: var(--clr-popover-bg);
 // }
@@ -596,6 +684,7 @@ i {
 .column .content-wrapper {
   display: flex;
   flex-flow: column;
+
   .header-wrapper,
   .page-header {
     flex-shrink: 0;

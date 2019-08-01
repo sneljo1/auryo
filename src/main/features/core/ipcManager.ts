@@ -4,7 +4,7 @@ import { setToken } from "@common/store/config/actions";
 import { createAuthWindow } from "@main/authWindow";
 import { AWSApiGatewayService } from "@main/aws/awsApiGatewayService";
 import { AWSIotService } from "@main/aws/awsIotService";
-import { app, clipboard, dialog, ipcMain, IpcMessageEvent, shell } from "electron";
+import { app, clipboard, dialog, ipcMain, shell } from "electron";
 import { download } from "electron-dl";
 import * as _ from "lodash";
 import { CONFIG } from "../../../config";
@@ -18,11 +18,11 @@ export default class IPCManager extends Feature {
 
 	// tslint:disable-next-line: max-func-body-length
 	public register() {
-		ipcMain.on(EVENTS.APP.VALID_DIR, (_e: IpcMessageEvent) => {
-			const res = dialog.showOpenDialog({ properties: ["openDirectory"] });
+		ipcMain.on(EVENTS.APP.VALID_DIR, async (_e) => {
+			const res = await dialog.showOpenDialog({ properties: ["openDirectory"] });
 
-			if (res && res.length) {
-				this.sendToWebContents(EVENTS.APP.VALID_DIR_RESPONSE, res[0]);
+			if (res && res.filePaths && res.filePaths.length) {
+				this.sendToWebContents(EVENTS.APP.VALID_DIR_RESPONSE, res.filePaths[0]);
 			}
 		});
 
@@ -42,7 +42,7 @@ export default class IPCManager extends Feature {
 			}
 		});
 
-		ipcMain.on(EVENTS.APP.OPEN_EXTERNAL, async (_e: IpcMessageEvent, arg: string) => {
+		ipcMain.on(EVENTS.APP.OPEN_EXTERNAL, async (_e, arg) => {
 			try {
 				await shell.openExternal(arg);
 			} catch (err) {
@@ -50,11 +50,11 @@ export default class IPCManager extends Feature {
 			}
 		});
 
-		ipcMain.on(EVENTS.APP.WRITE_CLIPBOARD, (_e: IpcMessageEvent, arg: string) => {
+		ipcMain.on(EVENTS.APP.WRITE_CLIPBOARD, (_e, arg: string) => {
 			clipboard.writeText(arg);
 		});
 
-		ipcMain.on(EVENTS.APP.DOWNLOAD_FILE, (_e: IpcMessageEvent, url: string) => {
+		ipcMain.on(EVENTS.APP.DOWNLOAD_FILE, (_e, url: string) => {
 			const { config } = this.store.getState();
 
 			const downloadSettings: any = {};
@@ -79,7 +79,11 @@ export default class IPCManager extends Feature {
 
 				this.logger.debug("Starting login");
 
-				authWindow = createAuthWindow();
+        authWindow = createAuthWindow();
+        
+				authWindow.on("close", () => {
+					this.store.dispatch(setLoginLoading(false));
+				});
 
 				const getKeysResponse = await this.awsApiGateway.getKeys();
 
@@ -104,10 +108,6 @@ export default class IPCManager extends Feature {
 				const tokenResponse = await awsIotWrapper.waitForMessageOrTimeOut();
 
 				authWindow.close();
-
-				authWindow.on("close", () => {
-					this.store.dispatch(setLoginLoading(false));
-				});
 
 				if (tokenResponse) {
 					this.logger.debug("Auth successfull");

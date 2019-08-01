@@ -5,7 +5,6 @@ import { NavLink } from "react-router-dom";
 import { Nav } from "reactstrap";
 import CustomScroll from "../../_shared/CustomScroll";
 import Spinner from "../../_shared/Spinner/Spinner";
-import WithHeaderComponent from "../../_shared/WithHeaderComponent";
 import Header from "../../app/components/Header/Header";
 
 interface OwnProps {
@@ -22,7 +21,7 @@ interface State {
     scrollTop: number;
 }
 
-class SearchWrapper extends WithHeaderComponent<OwnProps, State> {
+class SearchWrapper extends React.Component<OwnProps, State> {
 
     public render() {
         const { query, loadMore } = this.props;

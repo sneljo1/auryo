@@ -1,17 +1,10 @@
 import { AUDIO_GENRES, MUSIC_GENRES } from "@common/constants";
-import { StoreState } from "@common/store";
-import { setScrollPosition } from "@common/store/ui";
-import { getPreviousScrollTop } from "@common/store/ui/selectors";
 import cn from "classnames";
 import * as React from "react";
 import Masonry from "react-masonry-css";
-import { connect } from "react-redux";
 import { NavLink, RouteComponentProps } from "react-router-dom";
 import { Nav, TabContent, TabPane } from "reactstrap";
-import CustomScroll from "../../_shared/CustomScroll";
 import PageHeader from "../../_shared/PageHeader/PageHeader";
-import WithHeaderComponent from "../../_shared/WithHeaderComponent";
-import Header from "../../app/components/Header/Header";
 import "./ChartsPage.scss";
 import ChartGenre from "./components/ChartGenre";
 
@@ -52,38 +45,17 @@ export const GENRE_IMAGES = {
 interface OwnProps extends RouteComponentProps<{ type?: string }> {
 }
 
-interface PropsFromState {
-    previousScrollTop?: number;
-}
-
-interface PropsFromDispatch {
-    setScrollPosition: typeof setScrollPosition;
-}
-
-interface State {
-    scrollTop: number;
-}
-
 enum TabTypes {
     MUSIC = "MUSIC",
     AUDIO = "AUDIO"
 }
 
-type AllProps = OwnProps & PropsFromState & PropsFromDispatch;
+type AllProps = OwnProps;
 
-class ChartsPage extends WithHeaderComponent<AllProps, State> {
+class ChartsPage extends React.Component<AllProps> {
 
-    public readonly state: State = {
-        scrollTop: 0
-    };
-
-    public shouldComponentUpdate(_nextProps: AllProps, nextState: State) {
-        const { scrollTop } = this.state;
-
-        return this.props.match.params !== _nextProps.match.params ||
-            (scrollTop < 52 && nextState.scrollTop > 52) ||
-            (scrollTop > 52 && nextState.scrollTop < 52);
-
+    public shouldComponentUpdate(_nextProps: AllProps) {
+        return this.props.match.params !== _nextProps.match.params;
     }
 
     public render() {
@@ -92,18 +64,7 @@ class ChartsPage extends WithHeaderComponent<AllProps, State> {
         const type = params.type || TabTypes.MUSIC;
 
         return (
-            <CustomScroll
-                heightRelativeToParent="100%"
-                allowOuterScroll={true}
-                threshold={300}
-                isFetching={false}
-                ref={(r) => this.scroll = r}
-                onScroll={this.debouncedOnScroll}
-                hasMore={false}
-            >
-
-                <Header scrollTop={this.state.scrollTop} />
-
+            <>
                 <PageHeader title="Charts" />
 
                 <div className="container-fluid charts">
@@ -160,13 +121,9 @@ class ChartsPage extends WithHeaderComponent<AllProps, State> {
                         </TabPane>
                     </TabContent>
                 </div>
-            </CustomScroll>
+            </>
         );
     }
 }
 
-const mapStateToProps = (state: StoreState): PropsFromState => ({
-    previousScrollTop: getPreviousScrollTop(state)
-});
-
-export default connect(mapStateToProps)(ChartsPage);
+export default ChartsPage;

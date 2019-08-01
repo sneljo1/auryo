@@ -230,7 +230,7 @@ class TrackGridItem extends React.Component<AllProps> {
 
         return (
             <div
-                className={cn("trackWrapper col-12 col-sm-6 col-lg-4", {
+                className={cn("trackWrapper", {
                     playlist: track.kind === "playlist"
                 })}
             >

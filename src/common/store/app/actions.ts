@@ -147,6 +147,7 @@ export function initWatchers(): ThunkResult<any> {
 			listeners.push({
 				event: EVENTS.PLAYER.TOGGLE_STATUS,
 				handler: (_e: any, changedStatus: PlayerStatus) => {
+
 					const {
 						player: { status }
 					} = getState();

@@ -14,6 +14,7 @@ import { Logger, LoggerInstance } from "../../utils/logger";
 import { Utils } from "../../utils/utils";
 import { Feature, WatchState } from "../feature";
 
+
 export default class ConfigManager extends Feature {
 	private readonly logger: LoggerInstance = Logger.createLogger(ConfigManager.name);
 	private isNewVersion: boolean = false;

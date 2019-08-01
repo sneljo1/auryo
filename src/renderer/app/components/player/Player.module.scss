@@ -1,5 +1,7 @@
 @import "../../../css/bootstrap.imports.scss";
 .player {
+  grid-area: now-playing-bar;
+  
   :global {
     .bp3-slider {
       &:not(.bp3-vertical) {

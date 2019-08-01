@@ -5,16 +5,12 @@ import { StoreState } from "@common/store";
 import { hasLiked } from "@common/store/auth/selectors";
 import { setConfigKey } from "@common/store/config";
 import { getTrackEntity } from "@common/store/entities/selectors";
-import {
-    changeTrack, ChangeTypes, PlayerStatus, registerPlay, RepeatTypes, setCurrentTime, setDuration,
-    toggleShuffle,
-    toggleStatus
-} from "@common/store/player";
+import { changeTrack, ChangeTypes, PlayerStatus, registerPlay, RepeatTypes, setCurrentTime, setDuration, toggleShuffle, toggleStatus } from "@common/store/player";
 import { toggleLike } from "@common/store/track/actions";
 import { addToast, toggleQueue } from "@common/store/ui";
 import { getReadableTime, SC } from "@common/utils";
 import cn from "classnames";
-import { IpcMessageEvent, ipcRenderer } from "electron";
+import { ipcRenderer } from "electron";
 import * as moment from "moment";
 import * as React from "react";
 import * as isDeepEqual from "react-fast-compare";
@@ -57,11 +53,13 @@ class Player extends React.Component<AllProps, State>{
     public async componentDidMount() {
         try {
             const { isSeeking } = this.state;
-            const { setCurrentTime, playbackDeviceId } = this.props;
+            const { setCurrentTime,
+                // playbackDeviceId
+            } = this.props;
 
             let stopSeeking: any;
 
-            ipcRenderer.on(EVENTS.PLAYER.SEEK, (_event: IpcMessageEvent, to: number) => {
+            ipcRenderer.on(EVENTS.PLAYER.SEEK, (_event, to: number) => {
                 if (!isSeeking) {
                     this.setState({
                         isSeeking: true
@@ -475,7 +473,7 @@ class Player extends React.Component<AllProps, State>{
                 onLoadedMetadata={this.onLoad}
                 onListen={this.onPlaying}
                 onEnded={this.onFinishedPlaying}
-                onError={(e: ErrorEvent, message: string) => {
+                onError={(_e: ErrorEvent, message: string) => {
                     addToast({
                         message,
                         intent: Intent.DANGER

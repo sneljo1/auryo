@@ -58,7 +58,9 @@
 		"no-void-expression": false,
 		"no-shadowed-variable": false,
 		"no-backbone-get-set-outside-model": false,
-		"underscore-consistent-invocation": false
+		"underscore-consistent-invocation": false,
+		"function-name": false,
+		"no-console": false
 	},
 	"linterOptions": {
 		"exclude": [
