@@ -1,7 +1,7 @@
 // tslint:disable:no-empty
 
-import * as React from 'react';
-import { PlayerStatus } from '@common/store/player';
+import { PlayerStatus } from "@common/store/player";
+import * as React from "react";
 
 interface Props {
     autoPlay?: boolean;
@@ -13,31 +13,31 @@ interface Props {
     listenInterval?: number;
     loop?: boolean;
     muted?: boolean;
-    onAbort?: (event: UIEvent) => void;
-    onCanPlay?: (event: Event) => void;
-    onCanPlayThrough?: (event: Event) => void;
-    onEnded?: (event: Event) => void;
-    onError?: (event: ErrorEvent, message: string) => void;
-    onListen?: (currentTime: number, duration: number) => void;
-    onLoadedMetadata?: (event: Event, duration: number) => void;
-    onPause?: (event: Event) => void;
-    onPlay?: (event: Event) => void;
-    onSeeked?: (event: Event) => void;
-    onVolumeChanged?: (event: Event) => void;
-    preload?: '' | 'none' | 'metadata' | 'auto';
+    preload?: "" | "none" | "metadata" | "auto";
     src: string | null;
     style?: any;
     title?: string;
     volume?: number;
+    onAbort?(event: UIEvent): void;
+    onCanPlay?(event: Event): void;
+    onCanPlayThrough?(event: Event): void;
+    onEnded?(event: Event): void;
+    onError?(event: ErrorEvent, message: string): void;
+    onListen?(currentTime: number, duration: number): void;
+    onLoadedMetadata?(event: Event, duration: number): void;
+    onPause?(event: Event): void;
+    onPlay?(event: Event): void;
+    onSeeked?(event: Event): void;
+    onVolumeChanged?(event: Event): void;
 }
 
 const defaultProps = {
     autoPlay: false,
     children: null,
-    className: '',
+    className: "",
     controls: false,
     crossOrigin: null,
-    id: '',
+    id: "",
     listenInterval: 1000,
     loop: false,
     muted: false,
@@ -52,9 +52,9 @@ const defaultProps = {
     onPlay: (_event: React.SyntheticEvent<HTMLAudioElement>, _duration: number) => { },
     onSeeked: (_event: Event) => { },
     onVolumeChanged: (_event: Event) => { },
-    preload: 'metadata',
+    preload: "metadata",
     style: {},
-    title: '',
+    title: "",
     volume: 1.0,
 };
 
@@ -68,76 +68,82 @@ type AllProps = DefaultProps & Props;
 
 class ReactAudioPlayer extends React.PureComponent<AllProps, State> {
 
-    static readonly defaultProps: DefaultProps = defaultProps;
+    public static readonly defaultProps: DefaultProps = defaultProps;
 
-    readonly state: State = {
+    public readonly state: State = {
         isLoading: false
     };
 
     private audioEl: HTMLAudioElement | null = null;
     private listenTracker: NodeJS.Timer | null = null;
 
-    componentDidMount() {
+    public componentDidMount() {
 
         const audio = this.audioEl;
 
         if (audio) {
             this.updateVolume(this.props.volume);
 
-            audio.addEventListener('error', (e) => this.handleError(e));
+            audio.addEventListener("error", (e) => {
+                this.handleError(e)
+            });
 
             // When enough of the file has downloaded to start playing
-            audio.addEventListener('canplay', (e) => this.props.onCanPlay(e));
+            audio.addEventListener("canplay", (e) => {
+                this.props.onCanPlay(e);
+            });
 
             // When enough of the file has downloaded to play the entire file
-            audio.addEventListener('canplaythrough', (e) => this.props.onCanPlayThrough(e));
+            audio.addEventListener("canplaythrough", (e) => {
+                this.props.onCanPlayThrough(e)
+            });
 
             // When audio play starts
-            audio.addEventListener('play', (e) => {
+            audio.addEventListener("play", (e) => {
                 this.setListenTrack();
                 this.props.onPlay(e);
             });
 
             // When unloading the audio player (switching to another src)
-            audio.addEventListener('abort', (e) => {
+            audio.addEventListener("abort", (e) => {
                 this.clearListenTrack();
                 this.props.onAbort(e);
             });
 
             // When the file has finished playing to the end
-            audio.addEventListener('ended', (e) => {
+            audio.addEventListener("ended", (e) => {
                 this.clearListenTrack();
                 this.props.onEnded(e);
             });
 
             // When the user pauses playback
-            audio.addEventListener('pause', (e) => {
+            audio.addEventListener("pause", (e) => {
                 this.clearListenTrack();
                 this.props.onPause(e);
             });
 
             // When the user drags the time indicator to a new time
-            audio.addEventListener('seeked', (e) => {
+            audio.addEventListener("seeked", (e) => {
                 this.props.onSeeked(e);
             });
 
-            audio.addEventListener('loadedmetadata', (e) => {
+            audio.addEventListener("loadedmetadata", (e) => {
                 this.props.onLoadedMetadata(e, audio.duration);
             });
 
-            audio.addEventListener('volumechange', (e) => {
+            audio.addEventListener("volumechange", (e) => {
                 this.props.onVolumeChanged(e);
             });
         }
     }
 
-    componentWillUnmount() {
+    public componentWillUnmount() {
         if (this.audioEl) {
             this.audioEl = null;
         }
     }
 
-    componentDidUpdate() {
+    public componentDidUpdate() {
         this.updateVolume(this.props.volume);
     }
 
@@ -145,7 +151,7 @@ class ReactAudioPlayer extends React.PureComponent<AllProps, State> {
         return this.audioEl;
     }
 
-    stop() {
+    public stop() {
         if (this.audioEl) {
             this.audioEl.pause();
             this.audioEl.currentTime = 0;
@@ -154,7 +160,7 @@ class ReactAudioPlayer extends React.PureComponent<AllProps, State> {
     /**
      * Set an interval to call props.onListen every props.listenInterval time period
      */
-    setListenTrack() {
+    public setListenTrack() {
         if (!this.listenTracker) {
             const listenInterval = this.props.listenInterval;
             this.time();
@@ -164,13 +170,13 @@ class ReactAudioPlayer extends React.PureComponent<AllProps, State> {
         }
     }
 
-    time() {
+    public time() {
         if (this.audioEl) {
             this.props.onListen(this.audioEl.currentTime, this.audioEl.duration);
         }
     }
 
-    getStatus(): PlayerStatus {
+    public getStatus(): PlayerStatus {
         if (this.audioEl) {
             if (this.audioEl.currentTime > 0
                 && !this.audioEl.paused
@@ -181,10 +187,11 @@ class ReactAudioPlayer extends React.PureComponent<AllProps, State> {
                 return PlayerStatus.PAUSED;
             }
         }
+
         return PlayerStatus.STOPPED;
     }
 
-    setNewStatus(status: PlayerStatus) {
+    public setNewStatus(status: PlayerStatus) {
         const { isLoading } = this.state;
         if (this.audioEl) {
             switch (status) {
@@ -211,7 +218,7 @@ class ReactAudioPlayer extends React.PureComponent<AllProps, State> {
         }
     }
 
-    play = () => {
+    public play = () => {
         if (this.audioEl) {
             this.audioEl.play()
                 .then(() => {
@@ -231,12 +238,8 @@ class ReactAudioPlayer extends React.PureComponent<AllProps, State> {
 
     }
 
-    /**
-     * Set the volume on the audio element from props
-     * @param {Number} volume
-     */
-    updateVolume(volume: number) {
-        if (typeof volume === 'number' && this.audioEl && volume !== this.audioEl.volume) {
+    public updateVolume(volume: number) {
+        if (typeof volume === "number" && this.audioEl && volume !== this.audioEl.volume) {
             this.audioEl.volume = volume;
         }
     }
@@ -244,14 +247,14 @@ class ReactAudioPlayer extends React.PureComponent<AllProps, State> {
     /**
      * Clear the onListen interval
      */
-    clearListenTrack() {
+    public clearListenTrack() {
         if (this.listenTracker) {
             clearInterval(this.listenTracker);
             this.listenTracker = null;
         }
     }
 
-    clearTime = () => {
+    public clearTime = () => {
         if (this.audioEl) {
             this.audioEl.currentTime = 0;
         }
@@ -261,7 +264,9 @@ class ReactAudioPlayer extends React.PureComponent<AllProps, State> {
         return this.audioEl;
     }
 
-    render() {
+    public render() {
+
+        const src = this.props.src || "";
 
         return (
             <audio
@@ -270,18 +275,17 @@ class ReactAudioPlayer extends React.PureComponent<AllProps, State> {
                 muted={this.props.muted}
                 preload={this.props.preload}
                 ref={(ref) => this.audioEl = ref}
-                src={this.props.src || ''}
+                src={src}
                 style={this.props.style}
 
             />
         );
     }
 
-    private handleError = (e: any) => {
+    private readonly handleError = (e: any) => {
         switch (e.target.error.code) {
             case e.target.error.MEDIA_ERR_NETWORK:
                 setTimeout(() => {
-                    console.log('retry-ing');
                     if (this.audioEl) {
                         const fromTime = this.audioEl.currentTime;
                         this.audioEl.load();
@@ -293,8 +297,7 @@ class ReactAudioPlayer extends React.PureComponent<AllProps, State> {
             case e.target.error.MEDIA_ERR_DECODE:
             case e.target.error.MEDIA_ERR_SRC_NOT_SUPPORTED:
             default:
-                this.props.onError(e, 'An error occurred during playback.');
-                break;
+                this.props.onError(e, "An error occurred during playback.");
         }
     }
 }

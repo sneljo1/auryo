@@ -1,21 +1,21 @@
-import { Icon, Menu, MenuDivider, MenuItem, Popover, Position } from '@blueprintjs/core';
-import cn from 'classnames';
-import { ipcRenderer } from 'electron';
-import { isEqual } from 'lodash';
-import * as React from 'react';
-import { connect, MapDispatchToProps } from 'react-redux';
-import { RouteComponentProps, withRouter } from 'react-router';
-import { bindActionCreators } from 'redux';
-import { show } from 'redux-modal';
-import { EVENTS } from '@common/constants/events';
-import { StoreState } from '@common/store';
-import { CanGoHistory, UpdateInfo } from '@common/store/app';
-import { AuthUser, logout } from '@common/store/auth';
-import Sticky from '../../../_shared/Sticky';
-import SearchBox from './Search/SearchBox';
-import User from './User/User';
-import { replace, push } from 'connected-react-router';
-import './Header.scss';
+import { Icon, Menu, MenuDivider, MenuItem, Popover, Position } from "@blueprintjs/core";
+import { EVENTS } from "@common/constants/events";
+import { StoreState } from "@common/store";
+import { CanGoHistory, UpdateInfo } from "@common/store/app";
+import { AuthUser, logout } from "@common/store/auth";
+import cn from "classnames";
+import { push, replace } from "connected-react-router";
+import { ipcRenderer } from "electron";
+import { isEqual } from "lodash";
+import * as React from "react";
+import { connect, MapDispatchToProps } from "react-redux";
+import { RouteComponentProps, withRouter } from "react-router";
+import { bindActionCreators } from "redux";
+import { show } from "redux-modal";
+import Sticky from "../../../_shared/Sticky";
+import "./Header.scss";
+import SearchBox from "./Search/SearchBox";
+import User from "./User/User";
 
 interface OwnProps {
     children?: React.ReactNode;
@@ -42,25 +42,25 @@ interface State {
     height: number;
 }
 
-type AllProps = OwnProps & PropsFromState & PropsFromDispatch & RouteComponentProps<{}>;
+type AllProps = OwnProps & PropsFromState & PropsFromDispatch & RouteComponentProps;
 
 class Header extends React.Component<AllProps, State> {
 
-    static readonly defaultProps: Partial<AllProps> = {
-        className: '',
-        query: '',
+    public static readonly defaultProps: Partial<AllProps> = {
+        className: "",
+        query: "",
         focus: false,
         children: null
     };
 
-    readonly state: State = {
+    public readonly state: State = {
         height: 0
     };
 
     private navBarWrapper: HTMLDivElement | null = null;
     private search: SearchBox | null = null;
 
-    componentDidMount() {
+    public componentDidMount() {
         const { focus } = this.props;
 
         if (this.navBarWrapper) {
@@ -74,7 +74,7 @@ class Header extends React.Component<AllProps, State> {
         }
     }
 
-    shouldComponentUpdate(nextProps: AllProps, nextState: State) {
+    public shouldComponentUpdate(nextProps: AllProps, nextState: State) {
         const { scrollTop, locHistory, me, update, location } = this.props;
 
         return !isEqual(locHistory, nextProps.locHistory) ||
@@ -85,7 +85,7 @@ class Header extends React.Component<AllProps, State> {
             (scrollTop !== nextProps.scrollTop);
     }
 
-    componentDidUpdate(prevProps: AllProps) {
+    public componentDidUpdate(prevProps: AllProps) {
         const { height } = this.state;
 
         if (this.navBarWrapper && height !== this.navBarWrapper.clientHeight) {
@@ -104,7 +104,7 @@ class Header extends React.Component<AllProps, State> {
         }
     }
 
-    goBack = () => {
+    public goBack = () => {
         const { locHistory: { back }, history } = this.props;
 
         if (back) {
@@ -112,7 +112,7 @@ class Header extends React.Component<AllProps, State> {
         }
     }
 
-    goForward = () => {
+    public goForward = () => {
         const { locHistory: { next }, history } = this.props;
 
         if (next) {
@@ -120,23 +120,24 @@ class Header extends React.Component<AllProps, State> {
         }
     }
 
-    showUtilitiesModal = (activeTab: string) => {
+    public showUtilitiesModal = (activeTab: string) => {
         const { show } = this.props;
 
-        show('utilities', {
+        show("utilities", {
             activeTab
         });
     }
 
-    doUpdate() {
+    public doUpdate() {
         ipcRenderer.send(EVENTS.APP.UPDATE);
     }
 
-    handleSearch = (prev: string, rawQuery?: string) => {
+    public handleSearch = (prev: string, rawQuery?: string) => {
         const { push, replace } = this.props;
 
         if (!rawQuery) {
-            replace('/search');
+            replace("/search");
+
             return;
         }
 
@@ -155,38 +156,41 @@ class Header extends React.Component<AllProps, State> {
         }
     }
 
-    render() {
+    // tslint:disable-next-line: max-func-body-length
+    public render() {
         const { locHistory: { next, back }, me, logout, scrollTop, className, query, children, update, push } = this.props;
 
         const { height } = this.state;
 
+        const isSticky = scrollTop - 52 > 0;
+
         return (
             <div className={`header-wrapper ${className}`} style={{ minHeight: height }}>
                 <Sticky
-                    className='stickymaker'
-                    activeClassName='sticky sticky-3'
+                    className="stickymaker"
+                    activeClassName="sticky sticky-3"
                     stickyWidth={`calc(100% - ${260}px)`}
-                    isSticky={scrollTop - 52 > 0}
+                    isSticky={isSticky}
                 >
 
-                    <div className='navbar-wrapper' ref={(navBarWrapper) => this.navBarWrapper = navBarWrapper}>
-                        <nav className='navbar justify-content-between'>
-                            <div className='d-flex flex-nowrap align-items-center'>
-                                <div className='control-nav'>
-                                    <div className='control-nav-inner flex'>
+                    <div className="navbar-wrapper" ref={(navBarWrapper) => this.navBarWrapper = navBarWrapper}>
+                        <nav className="navbar justify-content-between">
+                            <div className="d-flex flex-nowrap align-items-center">
+                                <div className="control-nav">
+                                    <div className="control-nav-inner flex">
                                         <a
                                             className={cn({ disabled: !back })}
-                                            href='javascript:void(0)'
+                                            href="javascript:void(0)"
                                             onClick={this.goBack}
                                         >
-                                            <i className='bx bx-chevron-left' />
+                                            <i className="bx bx-chevron-left" />
                                         </a>
                                         <a
                                             className={cn({ disabled: !next })}
-                                            href='javascript:void(0)'
+                                            href="javascript:void(0)"
                                             onClick={this.goForward}
                                         >
-                                            <i className='bx bx-chevron-right' />
+                                            <i className="bx bx-chevron-right" />
                                         </a>
                                     </div>
                                 </div>
@@ -198,7 +202,7 @@ class Header extends React.Component<AllProps, State> {
                                 />
                             </div>
 
-                            <div className='d-flex align-items-center justify-content-between'>
+                            <div className="d-flex align-items-center justify-content-between">
                                 <User me={me} />
 
                                 <Popover
@@ -209,25 +213,25 @@ class Header extends React.Component<AllProps, State> {
                                         <Menu>
 
                                             <MenuItem
-                                                text='About'
-                                                icon='info-sign'
-                                                onClick={this.showUtilitiesModal.bind(this, 'about')}
+                                                text="About"
+                                                icon="info-sign"
+                                                onClick={this.showUtilitiesModal.bind(this, "about")}
                                             />
 
                                             <MenuItem
-                                                text='Settings'
-                                                icon='cog'
+                                                text="Settings"
+                                                icon="cog"
                                                 onClick={() => {
-                                                    push('/settings');
+                                                    push("/settings");
                                                 }}
                                             />
 
                                             {
                                                 update.available && (
                                                     <MenuItem
-                                                        className='text-primary'
-                                                        text='Update'
-                                                        icon='box'
+                                                        className="text-primary"
+                                                        text="Update"
+                                                        icon="box"
                                                         onClick={this.doUpdate}
                                                     />
                                                 )
@@ -235,27 +239,27 @@ class Header extends React.Component<AllProps, State> {
 
                                             <MenuDivider />
 
-                                            <MenuItem text='Contribute' href='https://github.com/Superjo149/auryo/' />
-                                            <MenuItem text='Report an issue' href='https://github.com/Superjo149/auryo/issues' />
-                                            <MenuItem text='Suggest a feature' href='https://github.com/Superjo149/auryo/issues' />
-                                            <MenuItem text='Donate' href='https://www.patreon.com/sneljo' />
+                                            <MenuItem text="Contribute" href="https://github.com/Superjo149/auryo/" />
+                                            <MenuItem text="Report an issue" href="https://github.com/Superjo149/auryo/issues" />
+                                            <MenuItem text="Suggest a feature" href="https://github.com/Superjo149/auryo/issues" />
+                                            <MenuItem text="Donate" href="https://www.patreon.com/sneljo" />
 
                                             <MenuDivider />
 
                                             <MenuItem
-                                                text='Logout'
-                                                icon='log-out'
+                                                text="Logout"
+                                                icon="log-out"
                                                 onClick={logout}
                                             />
 
                                         </Menu>
                                     )}
                                 >
-                                    <a href='javascript:void(0)' className='toggle'>
-                                        <Icon icon='more' />
+                                    <a href="javascript:void(0)" className="toggle">
+                                        <Icon icon="more" />
                                         {
                                             update.available && (
-                                                <sup data-show='true' title='5' />
+                                                <sup data-show="true" title="5" />
                                             )
                                         }
                                     </a>

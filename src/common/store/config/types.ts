@@ -1,4 +1,4 @@
-import { RepeatTypes } from '../player';
+import { RepeatTypes } from "../player";
 
 // TYPES
 
@@ -47,7 +47,7 @@ export interface ProxyConfig {
 // ACTIONS
 
 export const enum ConfigActionTypes {
-    SET_TOKEN = '@@config/SET_TOKEN',
-    SET_ALL = '@@config/SET_ALL',
-    SET_KEY = '@@config/SET_KEY',
+    SET_TOKEN = "@@config/SET_TOKEN",
+    SET_ALL = "@@config/SET_ALL",
+    SET_KEY = "@@config/SET_KEY",
 }

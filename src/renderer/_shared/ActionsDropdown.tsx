@@ -1,19 +1,19 @@
-import { Menu, MenuDivider, MenuItem, Popover, Position, Tooltip } from '@blueprintjs/core';
-import cn from 'classnames';
-import * as _ from 'lodash';
-import * as React from 'react';
-import { connect, MapDispatchToProps } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import { StoreState } from '@common/store';
-import { AuthLikes, AuthReposts } from '@common/store/auth';
-import { CombinedUserPlaylistState, getLikes, getReposts, getUserPlaylistsCombined } from '@common/store/auth/selectors';
-import { addUpNext } from '@common/store/player';
-import { togglePlaylistTrack } from '@common/store/playlist/playlist';
-import { toggleLike, toggleRepost } from '@common/store/track/actions';
-import { SC } from '@common/utils';
-import { IPC } from '@common/utils/ipc';
-import { SoundCloud } from '../../types';
-import ShareMenuItem from './ShareMenuItem';
+import { Menu, MenuDivider, MenuItem, Popover, Position } from "@blueprintjs/core";
+import { StoreState } from "@common/store";
+import { AuthLikes, AuthReposts } from "@common/store/auth";
+import { CombinedUserPlaylistState, getLikes, getReposts, getUserPlaylistsCombined } from "@common/store/auth/selectors";
+import { addUpNext } from "@common/store/player";
+import { togglePlaylistTrack } from "@common/store/playlist/playlist";
+import { toggleLike, toggleRepost } from "@common/store/track/actions";
+import { SC } from "@common/utils";
+import { IPC } from "@common/utils/ipc";
+import cn from "classnames";
+import * as _ from "lodash";
+import * as React from "react";
+import { connect, MapDispatchToProps } from "react-redux";
+import { bindActionCreators } from "redux";
+import { SoundCloud } from "../../types";
+import ShareMenuItem from "./ShareMenuItem";
 
 interface OwnProps {
     track: SoundCloud.Music;
@@ -25,7 +25,7 @@ interface OwnProps {
 interface PropsFromState {
     likes: AuthLikes;
     reposts: AuthReposts;
-    userPlaylists: Array<CombinedUserPlaylistState>;
+    userPlaylists: CombinedUserPlaylistState[];
 }
 
 interface PropsFromDispatch {
@@ -39,7 +39,7 @@ type AllProps = OwnProps & PropsFromState & PropsFromDispatch;
 
 class ActionsDropdown extends React.Component<AllProps> {
 
-    shouldComponentUpdate(nextProps: AllProps) {
+    public shouldComponentUpdate(nextProps: AllProps) {
         const { track, likes, index, reposts, userPlaylists } = this.props;
 
         return track.id !== nextProps.track.id ||
@@ -49,7 +49,8 @@ class ActionsDropdown extends React.Component<AllProps> {
             !_.isEqual(userPlaylists, nextProps.userPlaylists);
     }
 
-    render() {
+    // tslint:disable-next-line: max-func-body-length
+    public render() {
         const {
             toggleLike,
             toggleRepost,
@@ -60,54 +61,57 @@ class ActionsDropdown extends React.Component<AllProps> {
             playing,
             index,
             userPlaylists,
-            togglePlaylistTrack,
+            // togglePlaylistTrack,
             currentPlaylistId
         } = this.props;
 
         const trackId = track.id;
 
-        const liked = SC.hasID(track.id, (track.kind === 'playlist' ? likes.playlist : likes.track));
-        const reposted = SC.hasID(track.id, (track.kind === 'playlist' ? reposts.playlist : reposts.track));
+        const liked = SC.hasID(track.id, (track.kind === "playlist" ? likes.playlist : likes.track));
+        const reposted = SC.hasID(track.id, (track.kind === "playlist" ? reposts.playlist : reposts.track));
 
         const currentPlaylist: CombinedUserPlaylistState | null =
             currentPlaylistId ? userPlaylists.find((p) => p.id === +currentPlaylistId) || null : null;
 
-        const inPlaylist = currentPlaylist ? currentPlaylist.items.find((t) => t.id === trackId) : false;
+        // const inPlaylist = currentPlaylist ? currentPlaylist.items.find((t) => t.id === trackId) : false;
+
+        const likedText = liked ? "Liked" : "Like";
+        const repostedText = reposted ? "Reposted" : "Repost";
 
         return (
             <Popover
-                className='actions-dropdown'
+                className="actions-dropdown"
                 autoFocus={false}
                 minimal={true}
                 position={Position.BOTTOM_LEFT}
                 content={(
                     <Menu>
                         <MenuItem
-                            className={cn({ 'text-primary': liked })}
-                            text={liked ? 'Liked' : 'Like'}
-                            onClick={() => toggleLike(trackId, track.kind === 'playlist')}
+                            className={cn({ "text-primary": liked })}
+                            text={likedText}
+                            onClick={() => toggleLike(trackId, track.kind === "playlist")}
                         />
 
                         <MenuItem
-                            className={cn({ 'text-primary': reposted })}
-                            text={reposted ? 'Reposted' : 'Repost'}
-                            onClick={() => toggleRepost(trackId, track.kind === 'playlist')}
+                            className={cn({ "text-primary": reposted })}
+                            text={repostedText}
+                            onClick={() => toggleRepost(trackId, track.kind === "playlist")}
                         />
 
                         {
                             _.isNil(index) && (
                                 <MenuItem
-                                    text='Add to queue'
+                                    text="Add to queue"
                                     onClick={() => addUpNext(track)}
                                 />
                             )
                         }
 
                         {
-                            track.kind !== 'playlist' ? (
+                            track.kind !== "playlist" ? (
 
-                                <MenuItem text='Add to playlist'>
-                                    <div style={{ fontSize: '.8rem', opacity: .8, color: 'grey', padding: '5px' }}>
+                                <MenuItem text="Add to playlist">
+                                    <div style={{ fontSize: ".8rem", opacity: .8, color: "grey", padding: "5px" }}>
                                         I'm sorry, this feature has been disabled to preserve your playlists.
                                         Since we are unable to fetch all tracks, we do not know for sure if
                                         we will delete tracks upon adding/removing track via Auryo.
@@ -145,7 +149,7 @@ class ActionsDropdown extends React.Component<AllProps> {
                         {
                             index !== undefined && !playing ? (
                                 <MenuItem
-                                    text='Remove from queue'
+                                    text="Remove from queue"
                                     onClick={() => addUpNext(track, index)}
                                 />
                             ) : null
@@ -154,7 +158,7 @@ class ActionsDropdown extends React.Component<AllProps> {
                         <MenuDivider />
 
                         <MenuItem
-                            text='View in browser'
+                            text="View in browser"
                             onClick={() => IPC.openExternal(track.permalink_url)}
                         />
                         <ShareMenuItem
@@ -166,8 +170,8 @@ class ActionsDropdown extends React.Component<AllProps> {
                     </Menu>
                 )}
             >
-                <a href='javascript:void(0)'>
-                    <i className='bx bx-dots-horizontal-rounded' />
+                <a href="javascript:void(0)">
+                    <i className="bx bx-dots-horizontal-rounded" />
                 </a>
             </Popover>
         );

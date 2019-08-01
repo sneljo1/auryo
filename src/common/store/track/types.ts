@@ -4,5 +4,5 @@
 // ACTIONS
 
 export const enum TrackActionTypes {
-    ADD = '@@track/ADD',
+    ADD = "@@track/ADD",
 }

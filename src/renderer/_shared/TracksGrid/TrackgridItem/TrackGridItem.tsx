@@ -1,25 +1,25 @@
 
-import cn from 'classnames';
-import * as React from 'react';
-import { connect, MapDispatchToProps } from 'react-redux';
-import { Link } from 'react-router-dom';
-import { IMAGE_SIZES } from '@common/constants';
-import { StoreState } from '@common/store';
-import { abbreviate_number, SC } from '@common/utils';
-import { getReadableTime } from '@common/utils/appUtils';
-import { NormalizedResult, SoundCloud } from '../../../../types';
-import ActionsDropdown from '../../ActionsDropdown';
-import FallbackImage from '../../FallbackImage';
-import TextShortener from '../../TextShortener';
-import TogglePlayButton from '../../TogglePlayButton';
-import { playTrack, PlayingTrack } from '@common/store/player';
-import { fetchPlaylistIfNeeded } from '@common/store/objects';
-import { bindActionCreators } from 'redux';
-import { isPlaying } from '@common/store/player/selectors';
-import { getMusicEntity } from '@common/store/entities/selectors';
-import * as _ from 'lodash';
-import * as isDeepEqual from 'react-fast-compare';
-import './TrackGridItem.scss';
+import { IMAGE_SIZES } from "@common/constants";
+import { StoreState } from "@common/store";
+import { getMusicEntity } from "@common/store/entities/selectors";
+import { fetchPlaylistIfNeeded } from "@common/store/objects";
+import { PlayingTrack, playTrack } from "@common/store/player";
+import { isPlaying } from "@common/store/player/selectors";
+import { abbreviate_number, SC } from "@common/utils";
+import { getReadableTime } from "@common/utils/appUtils";
+import cn from "classnames";
+import * as _ from "lodash";
+import * as React from "react";
+import * as isDeepEqual from "react-fast-compare";
+import { connect, MapDispatchToProps } from "react-redux";
+import { Link } from "react-router-dom";
+import { bindActionCreators } from "redux";
+import { NormalizedResult, SoundCloud } from "../../../../types";
+import ActionsDropdown from "../../ActionsDropdown";
+import FallbackImage from "../../FallbackImage";
+import TextShortener from "../../TextShortener";
+import TogglePlayButton from "../../TogglePlayButton";
+import "./TrackGridItem.scss";
 
 interface OwnProps {
     idResult: NormalizedResult;
@@ -44,19 +44,19 @@ type AllProps = OwnProps & PropsFromState & PropsFromDispatch;
 
 class TrackGridItem extends React.Component<AllProps> {
 
-    static defaultProps: Partial<AllProps> = {
+    public static defaultProps: Partial<AllProps> = {
         showInfo: false
     };
 
-    componentDidMount() {
+    public componentDidMount() {
         const { track, fetchPlaylistIfNeeded, skipFetch } = this.props;
 
-        if (track && track.kind === 'playlist' && track.track_count && !track.tracks && !skipFetch) {
+        if (track && track.kind === "playlist" && track.track_count && !track.tracks && !skipFetch) {
             fetchPlaylistIfNeeded(track.id);
         }
     }
 
-    shouldComponentUpdate(nextProps: AllProps) {
+    public shouldComponentUpdate(nextProps: AllProps) {
 
         if (!isDeepEqual(nextProps, this.props)) {
             return true;
@@ -65,32 +65,32 @@ class TrackGridItem extends React.Component<AllProps> {
         return false;
     }
 
-    componentDidUpdate(prevProps: AllProps) {
+    public componentDidUpdate(prevProps: AllProps) {
         const { track, fetchPlaylistIfNeeded, skipFetch } = this.props;
 
         if ((prevProps.track === null && track != null) || (prevProps.track && track && prevProps.track.id !== track.id) && !skipFetch) {
-            if (track.kind === 'playlist' && track.track_count && !track.tracks) {
+            if (track.kind === "playlist" && track.track_count && !track.tracks) {
                 fetchPlaylistIfNeeded(track.id);
             }
         }
     }
 
-    renderArtist = () => {
+    public renderArtist = () => {
         const { track, showReposts } = this.props;
 
-        if (!track || !track.user) return null;
+        if (!track || !track.user) { return null; }
 
-        if (track.from_user && showReposts && track.type.indexOf('repost') !== -1) {
+        if (track.from_user && showReposts && track.type.indexOf("repost") !== -1) {
             return (
-                <div className='trackArtist'>
+                <div className="trackArtist">
                     <Link to={`/user/${track.user.id}`}>
                         {
                             track.user.username
                         }
                     </Link>
-                    <i className='bx bx-repost' />
+                    <i className="bx bx-repost" />
 
-                    <Link to={`/user/${track.from_user.id}`} className='repost'>
+                    <Link to={`/user/${track.from_user.id}`} className="repost">
                         {track.from_user.username}
                     </Link>
                 </div>
@@ -98,7 +98,7 @@ class TrackGridItem extends React.Component<AllProps> {
         }
 
         return (
-            <div className='trackArtist'>
+            <div className="trackArtist">
                 <Link to={`/user/${track.user.id}`}>
                     {track.user.username}
                 </Link>
@@ -106,27 +106,27 @@ class TrackGridItem extends React.Component<AllProps> {
         );
     }
 
-    renderToggleButton = () => {
+    public renderToggleButton = () => {
         const { isPlaying, playTrack, currentPlaylistId, track } = this.props;
 
-        if (!track) return null;
+        if (!track) { return null; }
 
         if (isPlaying) {
-            return <TogglePlayButton className='toggleButton minimal' />;
+            return <TogglePlayButton className="toggleButton minimal" />;
         }
 
-        const icon = isPlaying ? 'pause' : 'play';
+        const icon = isPlaying ? "pause" : "play";
 
         let next: Partial<PlayingTrack> = { id: track.id };
 
-        if (track.kind === 'playlist') {
+        if (track.kind === "playlist") {
             next = { playlistId: track.id.toString() };
         }
 
         return (
             <a
-                href='javascript:void(0)'
-                className='toggleButton minimal'
+                href="javascript:void(0)"
+                className="toggleButton minimal"
                 onClick={() => {
                     playTrack(currentPlaylistId, next as PlayingTrack, true);
                 }}
@@ -136,25 +136,25 @@ class TrackGridItem extends React.Component<AllProps> {
         );
     }
 
-    renderStats() {
+    public renderStats() {
         const { track, showInfo, currentPlaylistId } = this.props;
 
-        if (!track || !track.user) return null;
+        if (!track || !track.user) { return null; }
 
-        const isLiked = track.type && track.type.indexOf('like') !== -1;
+        const isLiked = track.type && track.type.indexOf("like") !== -1;
 
         return (
-            <div className='trackFooter d-flex justify-content-between align-items-center'>
-                <div className='trackStats'>
+            <div className="trackFooter d-flex justify-content-between align-items-center">
+                <div className="trackStats">
                     {
                         showInfo ? (
                             <>
-                                <div className='stat'>
-                                    <i className='bx bxs-heart' />
+                                <div className="stat">
+                                    <i className="bx bxs-heart" />
                                     <span>{abbreviate_number(track.likes_count)}</span>
                                 </div>
-                                <div className='stat'>
-                                    <i className='bx bx-repost' />
+                                <div className="stat">
+                                    <i className="bx bx-repost" />
                                     <span>{abbreviate_number(track.reposts_count)}</span>
                                 </div>
                             </>
@@ -162,7 +162,7 @@ class TrackGridItem extends React.Component<AllProps> {
                     }
                     {
                         isLiked && (
-                            <><span className='stat'><i className='bx bxs-heart text-danger' /> Liked</span></>
+                            <><span className="stat"><i className="bx bxs-heart text-danger" /> Liked</span></>
                         )
                     }
 
@@ -184,8 +184,8 @@ class TrackGridItem extends React.Component<AllProps> {
                         currentPlaylistId={currentPlaylistId}
                     />
 
-                    <div className='trackTime'>
-                        <i className='bx bx-alarm' />
+                    <div className="trackTime">
+                        <i className="bx bx-alarm" />
                         <span>{getReadableTime(track.duration, true, true)}</span>
                     </div>
                 </div>
@@ -195,17 +195,17 @@ class TrackGridItem extends React.Component<AllProps> {
         );
     }
 
-    renderInfo() {
+    public renderInfo() {
         const { track } = this.props;
 
-        if (!track) return null;
+        if (!track) { return null; }
 
-        const object_url = (track.kind === 'playlist' ? '/playlist/' : '/track/') + track.id;
+        const objectUrl = `${(track.kind === "playlist" ? "/playlist" : "/track")}/${track.id}`;
 
         return (
-            <div className='trackInfo'>
-                <div className='trackTitle'>
-                    <Link to={object_url}>
+            <div className="trackInfo">
+                <div className="trackTitle">
+                    <Link to={objectUrl}>
                         <TextShortener text={track.title} />
                     </Link>
                 </div>
@@ -217,7 +217,7 @@ class TrackGridItem extends React.Component<AllProps> {
     }
 
 
-    render() {
+    public render() {
 
         const {
             isPlaying,
@@ -226,30 +226,30 @@ class TrackGridItem extends React.Component<AllProps> {
 
         const image = SC.getImageUrl(track, IMAGE_SIZES.LARGE);
 
-        if (!track || !track.user) return null;
+        if (!track || !track.user) { return null; }
 
         return (
             <div
-                className={cn('trackWrapper col-12 col-sm-6 col-lg-4', {
-                    playlist: track.kind === 'playlist'
+                className={cn("trackWrapper col-12 col-sm-6 col-lg-4", {
+                    playlist: track.kind === "playlist"
                 })}
             >
                 <div
                     className={cn(
-                        'track-grid-item', track.id,
+                        "track-grid-item", track.id,
                         {
                             isPlaying,
-                            playlist: track.kind === 'playlist'
+                            playlist: track.kind === "playlist"
                         }
                     )}
                 >
 
-                    <div className='trackImage'>
-                        <div className='imageWrapper'>
+                    <div className="trackImage">
+                        <div className="imageWrapper">
                             {
-                                track.kind === 'playlist' ? (
+                                track.kind === "playlist" ? (
                                     <div
-                                        className='trackCount d-flex align-items-center justify-content-center flex-column'
+                                        className="trackCount d-flex align-items-center justify-content-center flex-column"
                                     >
                                         <span>{track.track_count}</span> <span>tracks</span>
                                     </div>
@@ -259,7 +259,7 @@ class TrackGridItem extends React.Component<AllProps> {
                                 src={image}
                             />
                             {
-                                SC.isStreamable(track) || track.kind === 'playlist' ? this.renderToggleButton() : null
+                                SC.isStreamable(track) || track.kind === "playlist" ? this.renderToggleButton() : null
                             }
                         </div>
 
@@ -267,7 +267,7 @@ class TrackGridItem extends React.Component<AllProps> {
                             this.renderStats()
                         }
                         {
-                            track.genre && track.genre !== '' ? <Link to={`/tags/${track.genre}`} className='trackGenre'>{track.genre}</Link> : null}
+                            track.genre && track.genre !== "" ? <Link to={`/tags/${track.genre}`} className="trackGenre">{track.genre}</Link> : null}
 
                     </div>
 
@@ -285,7 +285,7 @@ const mapStateToProps = (state: StoreState, props: OwnProps): PropsFromState => 
 
     return {
         isPlaying: isPlaying(idResult, currentPlaylistId)(state),
-        track: getMusicEntity(idResult)(state)
+        track: getMusicEntity<SoundCloud.Playlist | SoundCloud.Track>(idResult)(state)
     };
 };
 

@@ -1,135 +1,137 @@
-import { EVENTS } from '@common/constants/events';
-import { setLoginError, setLoginLoading } from '@common/store/auth/actions';
-import { setToken } from '@common/store/config/actions';
-import { app, clipboard, dialog, ipcMain, IpcMessageEvent, shell } from 'electron';
-import { download } from 'electron-dl';
-import * as _ from 'lodash';
-import * as io from 'socket.io-client';
-import { CONFIG } from '../../../config';
-import { Logger } from '../../utils/logger';
-import Feature from '../feature';
+import { EVENTS } from "@common/constants/events";
+import { setLoginError, setLoginLoading } from "@common/store/auth/actions";
+import { setToken } from "@common/store/config/actions";
+import { createAuthWindow } from "@main/authWindow";
+import { AWSApiGatewayService } from "@main/aws/awsApiGatewayService";
+import { AWSIotService } from "@main/aws/awsIotService";
+import { app, clipboard, dialog, ipcMain, IpcMessageEvent, shell } from "electron";
+import { download } from "electron-dl";
+import * as _ from "lodash";
+import { CONFIG } from "../../../config";
+import { Logger, LoggerInstance } from "../../utils/logger";
+import { Feature } from "../feature";
 
 export default class IPCManager extends Feature {
-  private logger = new Logger('IPCManager');
+	private readonly logger: LoggerInstance = Logger.createLogger(IPCManager.name);
 
-  private socket: SocketIOClient.Socket | null = null;
+	private readonly awsApiGateway: AWSApiGatewayService = new AWSApiGatewayService();
 
-  register() {
-    ipcMain.on(EVENTS.APP.VALID_DIR, (_e: IpcMessageEvent) => {
-      const res = dialog.showOpenDialog({ properties: ['openDirectory'] });
+	// tslint:disable-next-line: max-func-body-length
+	public register() {
+		ipcMain.on(EVENTS.APP.VALID_DIR, (_e: IpcMessageEvent) => {
+			const res = dialog.showOpenDialog({ properties: ["openDirectory"] });
 
-      if (res && res.length) {
-        this.sendToWebContents(EVENTS.APP.VALID_DIR_RESPONSE, res[0]);
-      }
+			if (res && res.length) {
+				this.sendToWebContents(EVENTS.APP.VALID_DIR_RESPONSE, res[0]);
+			}
+		});
 
-    });
+		ipcMain.on(EVENTS.APP.RESTART, () => {
+			app.relaunch({ args: process.argv.slice(1).concat(["--relaunch"]) });
+			app.exit(0);
+		});
 
-    ipcMain.on(EVENTS.APP.RESTART, () => {
-      app.relaunch({ args: process.argv.slice(1).concat(['--relaunch']) });
-      app.exit(0);
-    });
+		ipcMain.on(EVENTS.APP.RAISE, () => {
+			if (this.win) {
+				this.win.focus();
+			}
+		});
+		ipcMain.on(EVENTS.APP.RELOAD, () => {
+			if (this.win) {
+				this.win.reload();
+			}
+		});
 
-    ipcMain.on(EVENTS.APP.RAISE, () => {
-      if (this.win) {
-        this.win.focus();
-      }
-    });
-    ipcMain.on(EVENTS.APP.RELOAD, () => {
-      if (this.win) {
-        this.win.reload();
-      }
-    });
+		ipcMain.on(EVENTS.APP.OPEN_EXTERNAL, async (_e: IpcMessageEvent, arg: string) => {
+			try {
+				await shell.openExternal(arg);
+			} catch (err) {
+				this.logger.error(err);
+			}
+		});
 
-    ipcMain.on(EVENTS.APP.OPEN_EXTERNAL, (_e: IpcMessageEvent, arg: string) => {
-      shell.openExternal(arg);
-    });
+		ipcMain.on(EVENTS.APP.WRITE_CLIPBOARD, (_e: IpcMessageEvent, arg: string) => {
+			clipboard.writeText(arg);
+		});
 
-    ipcMain.on(EVENTS.APP.WRITE_CLIPBOARD, (_e: IpcMessageEvent, arg: string) => {
-      clipboard.writeText(arg);
-    });
+		ipcMain.on(EVENTS.APP.DOWNLOAD_FILE, (_e: IpcMessageEvent, url: string) => {
+			const { config } = this.store.getState();
 
-    ipcMain.on(EVENTS.APP.DOWNLOAD_FILE, (_e: IpcMessageEvent, url: string) => {
-      const { config } = this.store.getState();
+			const downloadSettings: any = {};
 
-      const downloadSettings: any = {};
+			if (!_.isEmpty(_.get(config, "app.downloadPath"))) {
+				downloadSettings.directory = config.app.downloadPath;
+			}
 
-      if (!_.isEmpty(_.get(config, 'app.downloadPath'))) {
-        downloadSettings.directory = config.app.downloadPath;
-      }
+			if (this.win) {
+				download(this.win, url, downloadSettings)
+					.then(dl => this.logger.info("filed saved to", dl.getSavePath()))
+					.catch(this.logger.error);
+			}
+		});
 
-      if (this.win) {
-        download(this.win, url, downloadSettings)
-          .then((dl) => this.logger.info('filed saved to', dl.getSavePath()))
-          .catch(this.logger.error);
-      }
-    });
+		ipcMain.on(EVENTS.APP.AUTH.LOGIN, async () => {
+			let authWindow: Electron.BrowserWindow | null = null;
+			let awsIotWrapper: AWSIotService | undefined;
 
-    ipcMain.on(EVENTS.APP.AUTH.LOGIN, () => {
-      this.store.dispatch(setLoginLoading());
+			try {
+				this.store.dispatch(setLoginLoading());
 
-      this.logger.debug('Starting login');
+				this.logger.debug("Starting login");
 
-      this.startLoginSocket();
+				authWindow = createAuthWindow();
 
-    });
-  }
+				const getKeysResponse = await this.awsApiGateway.getKeys();
 
-  login = () => {
-    this.logger.debug('Proceeding to login');
-    if (this.socket) {
-      shell.openExternal(CONFIG.getConnectUrl(this.socket.id));
-      this.store.dispatch(setLoginLoading(false));
-      this.socket.removeListener('connect', this.login);
-    }
-  }
+				awsIotWrapper = new AWSIotService(getKeysResponse);
 
-  startLoginSocket = () => {
+				await awsIotWrapper.connect();
 
-    const handleError = (err: any) => {
-      this.store.dispatch(setLoginError('Something went wrong during login'));
-      this.logger.error(err);
+				await awsIotWrapper.subscribe("/oauth/token");
 
-      if (this.socket) {
-        this.socket.disconnect();
-      }
-    };
+				const path = `/auth/signin/soundcloud`;
+				const signedRequest = this.awsApiGateway.prepareRequest(path);
 
-    if (!this.socket) {
-      this.socket = io(CONFIG.BASE_URL, {
-        timeout: 15000
-      });
+				await authWindow.loadURL(`${CONFIG.AWS_API_URL}${path}`, {
+					extraHeaders: Object.keys(signedRequest.headers).reduce(
+						(prevString, headerName) =>
+							`${prevString}${headerName}: ${signedRequest.headers[headerName]}\n`,
+						""
+					)
+				});
 
-      this.socket.on('connect', this.login);
+				// tslint:disable-next-line: no-unnecessary-local-variable
+				const tokenResponse = await awsIotWrapper.waitForMessageOrTimeOut();
 
-      this.socket.on('token', (data: string) => {
-        this.logger.debug('Received token');
+				authWindow.close();
 
-        this.store.dispatch(setToken(data));
-        this.sendToWebContents('login-success');
-      });
+				authWindow.on("close", () => {
+					this.store.dispatch(setLoginLoading(false));
+				});
 
-      this.socket.on('error', handleError);
+				if (tokenResponse) {
+					this.logger.debug("Auth successfull");
 
-      this.socket.on('connect_error', handleError);
+					this.store.dispatch(setToken(tokenResponse.access_token));
+					this.sendToWebContents("login-success");
+				}
 
-      this.socket.on('connect_timeout', (err: any) => {
-        this.store.dispatch(setLoginError('Timed out, login took longer than expected'));
-        if (this.socket) {
-          this.socket.disconnect();
-        }
-      });
+				return tokenResponse;
+			} catch (err) {
+				if (authWindow) {
+					authWindow.close();
+				}
+				if (awsIotWrapper) {
+					try {
+						await awsIotWrapper.disconnect();
+					} catch (err) {}
+				}
 
-      this.socket.on('disconnect', (reason: string) => {
-        if (reason === 'io server disconnect' && this.socket) {
-          this.socket.connect();
-        }
-      });
-    } else {
-      if (this.socket.disconnected) {
-        this.socket.connect();
-      } else {
-        this.login();
-      }
-    }
-  }
+				this.store.dispatch(setLoginError("Something went wrong during login"));
+				this.logger.error(err);
+
+				throw err;
+			}
+		});
+	}
 }

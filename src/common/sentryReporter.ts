@@ -20,18 +20,18 @@
 //     id: (settings.get('token') as string || '')
 //   });
 // });
-import { BrowserOptions, init as BrowserInit } from '@sentry/browser';
-import { init as NodeInit, NodeOptions } from '@sentry/node';
-import { SentryEvent, SentryEventHint, SentryException, Stacktrace } from '@sentry/types';
-import { app as electronApp, remote } from 'electron';
-import * as is from 'electron-is';
-import { CONFIG } from '../config';
-import { settings } from '../main/settings';
+import { BrowserOptions, init as BrowserInit } from "@sentry/browser";
+import { init as NodeInit, NodeOptions } from "@sentry/node";
+import { SentryEvent, SentryEventHint, SentryException, Stacktrace } from "@sentry/types";
+import { app as electronApp, remote } from "electron";
+import * as is from "electron-is";
+import { CONFIG } from "../config";
+import { settings } from "../main/settings";
 
 
 const app = is.renderer() ? remote.app : electronApp;
 
-const APP_PATH = app.getAppPath().replace(/\\/g, '/');
+const APP_PATH = app.getAppPath().replace(/\\/g, "/");
 
 const normalizeUrl = (url: string, base: string = APP_PATH): string => {
 
@@ -64,7 +64,7 @@ const getStacktrace = (event: SentryEvent): Stacktrace | undefined => {
     }
 
     // Raven JS uses the full values interface, which has been removed
-    const raven = (exception as any) as { values: Array<SentryException> };
+    const raven = (exception as any) as { values: SentryException[] };
     if (raven.values && raven.values[0]) {
       return raven.values[0].stacktrace;
     }
@@ -74,7 +74,7 @@ const getStacktrace = (event: SentryEvent): Stacktrace | undefined => {
 };
 
 const options: BrowserOptions | NodeOptions = {
-  enabled: settings.get('app.crashReports') === true && process.env.NODE_ENV === 'production',
+  enabled: settings.get("app.crashReports") === true && process.env.NODE_ENV === "production",
   dsn: CONFIG.SENTRY_REPORT_URL,
   release: app.getVersion(),
   environment: process.env.NODE_ENV,
@@ -98,7 +98,7 @@ const options: BrowserOptions | NodeOptions = {
     // information, which we don't want. Generally remove it, since we know that
     // we are browsing with Chrome.
     if (request.headers) {
-      delete request.headers['User-Agent'];
+      delete request.headers["User-Agent"];
     }
 
     // The Node SDK currently adds a default tag for server_name, which contains
@@ -114,7 +114,7 @@ const options: BrowserOptions | NodeOptions = {
 if (is.renderer()) {
   BrowserInit(options);
 } else {
-  if (!(process.platform === 'linux' && process.env.SNAP_USER_DATA != null)) {
+  if (!(process.platform === "linux" && process.env.SNAP_USER_DATA != null)) {
     NodeInit(options);
   }
 }

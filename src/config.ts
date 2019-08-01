@@ -1,9 +1,9 @@
 
-const app = require('electron').app || require('electron').remote.app; // eslint-disable-line
+const app = require("electron").app || require("electron").remote.app; // eslint-disable-line
 
-const BASE_URL = 'https://api.auryo.com';
+const BASE_URL = "https://api.auryo.com";
 
-const downloadPath = app.getPath('downloads');
+const downloadPath = app.getPath("downloads");
 
 export const CONFIG = {
     // SoundCloud
@@ -11,8 +11,6 @@ export const CONFIG = {
     CLIENT_ID: process.env.CLIENT_ID,
     SENTRY_REPORT_URL: process.env.SENTRY_REPORT_URL as string,
     FB_APP_ID: process.env.FB_APP_ID,
-
-    getConnectUrl: (socketID: string) => `${BASE_URL}/connect?state=${socketID}&env=${process.env.NODE_ENV}`,
 
     // Google
 
@@ -22,12 +20,16 @@ export const CONFIG = {
 
     MAIN_WINDOW: `file://${__dirname}/renderer/app.html`,
     STREAM_CHECK_INTERVAL: 60000,
-    UPDATE_SERVER_HOST: 'https://api.github.com/repos/Superjo149/Auryo/releases/latest',
+    UPDATE_SERVER_HOST: "https://api.github.com/repos/Superjo149/Auryo/releases/latest",
 
     // LastFM
 
     LASTFM_API_KEY: process.env.LASTFM_API_KEY,
     LASTFM_API_SECRET: process.env.LASTFM_API_SECRET,
+
+    // Auth
+    AWS_API_URL: "https://auth-api.auryo.com",
+
     // Config
 
     DEFAULT_CONFIG: {
@@ -52,7 +54,7 @@ export const CONFIG = {
         app: {
             analytics: false,
             crashReports: true,
-            theme: 'light',
+            theme: "light",
             downloadPath,
             showTrackChangeNotification: true,
             overrideClientId: null

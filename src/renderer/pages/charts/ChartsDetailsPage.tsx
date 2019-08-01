@@ -1,9 +1,9 @@
-import * as React from 'react';
-import { RouteComponentProps } from 'react-router';
-import { AUDIO_GENRES, GenreConfig, MUSIC_GENRES } from '@common/constants';
-import { SortTypes } from '@common/store/playlist/types';
-import PlaylistPage from '../playlists/Playlist';
-import { GENRE_IMAGES } from './ChartsPage';
+import { AUDIO_GENRES, GenreConfig, MUSIC_GENRES } from "@common/constants";
+import { SortTypes } from "@common/store/playlist/types";
+import * as React from "react";
+import { RouteComponentProps } from "react-router";
+import PlaylistPage from "../playlists/Playlist";
+import { GENRE_IMAGES } from "./ChartsPage";
 
 interface OwnProps extends RouteComponentProps<{ genre: string }> {
 
@@ -15,17 +15,17 @@ interface State {
 
 class ChartsDetailsPage extends React.PureComponent<OwnProps> {
 
-    readonly state: State = {
+    public readonly state: State = {
         sort: SortTypes.TOP
     };
 
-    sortTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    public sortTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         this.setState({
             sort: event.target.value
         });
     }
 
-    render() {
+    public render() {
         const { match: { params: { genre } } } = this.props;
         const { sort } = this.state;
 

@@ -1,45 +1,46 @@
-import * as React from 'react';
-const autolinker = require('autolinker');
+import * as React from "react";
+const autolinker = require("autolinker");
 
 interface Props {
     text: string;
 }
 
 const Linkify = React.memo<Props>(({ text }) => {
-    if (!text || (text && !text.length)) return null;
+    if (!text || (text && !text.length)) { return null; }
 
     let tag = null;
     let a = null;
 
     return (
+        // tslint:disable-next-line: react-no-dangerous-html
         <div
             dangerouslySetInnerHTML={{
-                __html: autolinker.link(text.replace(/\n/g, '</br>'), {
-                    mention: 'soundcloud',
+                __html: autolinker.link(text.replace(/\n/g, "</br>"), {
+                    mention: "soundcloud",
                     replaceFn: (match: any) => {
                         switch (match.getType()) {
-                            case 'url':
+                            case "url":
                                 if (/https?:\/\/(www.)?soundcloud\.com\//g.exec(match.getUrl()) !== null) {
 
                                     tag = match.buildTag();
-                                    tag.setAttr('target', '_self');
+                                    tag.setAttr("target", "_self");
 
                                     return tag;
                                 }
 
                                 return true;
 
-                            case 'mention':
+                            case "mention":
                                 tag = match.buildTag();
-                                tag.setAttr('href', `https://soundcloud.com/${match.getMention()}`);
-                                tag.setAttr('target', '_self');
+                                tag.setAttr("href", `https://soundcloud.com/${match.getMention()}`);
+                                tag.setAttr("target", "_self");
 
                                 return tag;
 
-                            case 'email':
+                            case "email":
                                 a = match.buildTag();
 
-                                a.setAttr('target', '_self');
+                                a.setAttr("target", "_self");
 
                                 return a;
                             default:

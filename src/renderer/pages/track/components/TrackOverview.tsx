@@ -1,13 +1,13 @@
-import { ObjectState } from '@common/store/objects';
-import { abbreviate_number } from '@common/utils';
-import * as moment from 'moment';
-import * as React from 'react';
-import { Link } from 'react-router-dom';
-import { NormalizedResult, SoundCloud } from '../../../../types';
-import CommentList from '../../../_shared/CommentList/CommentList';
-import Linkify from '../../../_shared/Linkify';
-import ToggleMore from '../../../_shared/ToggleMore';
-import TrackGridUser from '../../../_shared/TracksGrid/TrackgridUser/TrackGridUser';
+import { ObjectState } from "@common/store/objects";
+import { abbreviate_number } from "@common/utils";
+import * as moment from "moment";
+import * as React from "react";
+import { Link } from "react-router-dom";
+import { NormalizedResult, SoundCloud } from "../../../../types";
+import CommentList from "../../../_shared/CommentList/CommentList";
+import Linkify from "../../../_shared/Linkify";
+import ToggleMore from "../../../_shared/ToggleMore";
+import TrackGridUser from "../../../_shared/TracksGrid/TrackgridUser/TrackGridUser";
 
 interface Props {
     track: SoundCloud.Track;
@@ -22,27 +22,27 @@ const getTags = (track: SoundCloud.Track) => {
 
     return track.tag_list
         .split(/\s(?=(?:[^'"`]*(['"`])[^'"`]*\1)*[^'"`]*$)/g)
-        .reduce((all: Array<string>, obj: string) => {
-            if (obj && obj !== '"') {
-                all.push(obj.replace(/"/g, ''));
+        .reduce((all: string[], obj: string) => {
+            if (obj && obj !== "\"") {
+                all.push(obj.replace(/"/g, ""));
             }
 
             return all;
         }, []);
 };
 
-const TrackOverview = React.memo<Props>(({ track, comments }) => (
-    <div className='row'>
-        <div className='col-12 col-lg-3'>
-            <div className='row'>
-                <div className='col-6 col-lg-12'>
+export const TrackOverview = React.memo<Props>(({ track, comments }) => (
+    <div className="row">
+        <div className="col-12 col-lg-3">
+            <div className="row">
+                <div className="col-6 col-lg-12">
                     <TrackGridUser
-                        idResult={{ id: track.user_id, schema: 'users' }}
+                        idResult={{ id: track.user_id, schema: "users" }}
                     />
                 </div>
 
-                <div className='col-6 col-lg-12'>
-                    <div className='p-3 track-info'>
+                <div className="col-6 col-lg-12">
+                    <div className="p-3 track-info">
                         <strong>Created</strong>
                         <div>{moment(new Date(track.created_at)).fromNow()}</div>
 
@@ -60,29 +60,29 @@ const TrackOverview = React.memo<Props>(({ track, comments }) => (
             </div>
         </div>
 
-        <div className='trackPadding col-12 col-lg'>
-            <div className='flex stats align-items-center justify-content-between'>
+        <div className="trackPadding col-12 col-lg">
+            <div className="flex stats align-items-center justify-content-between">
                 <div
-                    className='taglist'
+                    className="taglist"
                 >
                     {
                         getTags(track)
                             .map((tag) => (
-                                <Link key={tag} to={`/tags/${tag.replace('#', '')}`}>
-                                    <span className='badge badge-secondary'>{tag}</span>
+                                <Link key={tag} to={`/tags/${tag.replace("#", "")}`}>
+                                    <span className="badge badge-secondary">{tag}</span>
                                 </Link>
                             ))
                     }
                 </div>
-                <div className='d-flex align-items-center'>
-                    <i className='bx bxs-heart' />
+                <div className="d-flex align-items-center">
+                    <i className="bx bxs-heart" />
 
                     <span>{abbreviate_number(track.likes_count)}</span>
 
-                    <i className='bx bx-play' />
+                    <i className="bx bx-play" />
                     <span>{abbreviate_number(track.playback_count)}</span>
 
-                    <i className='bx bx-repost' />
+                    <i className="bx bx-repost" />
                     <span>{abbreviate_number(track.reposts_count)}</span>
 
                 </div>
@@ -90,7 +90,7 @@ const TrackOverview = React.memo<Props>(({ track, comments }) => (
 
             {
                 track.description && (
-                    <ToggleMore className='trackDescription'>
+                    <ToggleMore className="trackDescription">
                         <Linkify
                             text={track.description}
                         />
@@ -109,5 +109,3 @@ const TrackOverview = React.memo<Props>(({ track, comments }) => (
         </div>
     </div>
 ));
-
-export default TrackOverview;

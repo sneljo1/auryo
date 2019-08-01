@@ -1,16 +1,16 @@
-import { IMAGE_SIZES } from '@common/constants';
-import { EVENTS } from '@common/constants/events';
-import { getTrackEntity } from '@common/store/entities/selectors';
-import { SC } from '@common/utils';
-import { Auryo } from '@main/app';
-import Feature from '../feature';
+import { IMAGE_SIZES } from "@common/constants";
+import { EVENTS } from "@common/constants/events";
+import { getTrackEntity } from "@common/store/entities/selectors";
+import { SC } from "@common/utils";
+import { Auryo } from "@main/app";
+import { Feature } from "../feature";
 
 export default class NotificationManager extends Feature {
   constructor(auryo: Auryo) {
-    super(auryo, 'ready-to-show');
+    super(auryo, "ready-to-show");
   }
 
-  register() {
+  public register() {
 
     this.on(EVENTS.PLAYER.TRACK_CHANGED, () => {
 
@@ -33,7 +33,7 @@ export default class NotificationManager extends Feature {
 
           this.sendToWebContents(EVENTS.APP.SEND_NOTIFICATION, {
             title: track.title,
-            message: `${track.user && track.user.username ? track.user.username : ''}`,
+            message: `${track.user && track.user.username ? track.user.username : ""}`,
             image: SC.getImageUrl(track, IMAGE_SIZES.SMALL)
           });
 

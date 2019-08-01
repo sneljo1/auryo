@@ -1,14 +1,14 @@
-import { EVENTS } from '@common/constants/events';
-import { StoreState } from '@common/store';
-import { ConnectedRouter } from 'connected-react-router';
-import { ipcRenderer } from 'electron';
-import { History } from 'history';
-import * as React from 'react';
-import { connect, Provider } from 'react-redux';
-import { Route, Switch } from 'react-router';
-import { Store } from 'redux';
-import App from './app/App';
-import OnBoarding from './pages/onboarding/OnBoarding';
+import { EVENTS } from "@common/constants/events";
+import { StoreState } from "@common/store";
+import { ConnectedRouter } from "connected-react-router";
+import { ipcRenderer } from "electron";
+import { History } from "history";
+import * as React from "react";
+import { connect, Provider } from "react-redux";
+import { Route, Switch } from "react-router";
+import { Store } from "redux";
+import App from "./app/App";
+import OnBoarding from "./pages/onboarding/OnBoarding";
 
 interface OwnProps {
     store: Store<StoreState>;
@@ -17,7 +17,7 @@ interface OwnProps {
 
 class Main extends React.PureComponent<OwnProps> {
 
-    componentDidMount() {
+    public componentDidMount() {
         const { history } = this.props;
 
         ipcRenderer.send(EVENTS.APP.READY);
@@ -27,15 +27,15 @@ class Main extends React.PureComponent<OwnProps> {
         });
     }
 
-    render() {
+    public render() {
         const { store, history } = this.props;
 
         return (
             <Provider store={store}>
                 <ConnectedRouter history={history}>
                     <Switch>
-                        <Route path='/login' component={OnBoarding} />
-                        <Route path='/' component={App} />
+                        <Route path="/login" component={OnBoarding} />
+                        <Route path="/" component={App} />
                     </Switch>
                 </ConnectedRouter>
             </Provider>

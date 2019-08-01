@@ -1,30 +1,30 @@
-import { Intent, Slider, Tag } from '@blueprintjs/core';
-import { IMAGE_SIZES } from '@common/constants';
-import { EVENTS } from '@common/constants/events';
-import { StoreState } from '@common/store';
-import { hasLiked } from '@common/store/auth/selectors';
-import { setConfigKey } from '@common/store/config';
-import { getTrackEntity } from '@common/store/entities/selectors';
+import { Intent, Slider, Tag } from "@blueprintjs/core";
+import { IMAGE_SIZES } from "@common/constants";
+import { EVENTS } from "@common/constants/events";
+import { StoreState } from "@common/store";
+import { hasLiked } from "@common/store/auth/selectors";
+import { setConfigKey } from "@common/store/config";
+import { getTrackEntity } from "@common/store/entities/selectors";
 import {
     changeTrack, ChangeTypes, PlayerStatus, registerPlay, RepeatTypes, setCurrentTime, setDuration,
     toggleShuffle,
     toggleStatus
-} from '@common/store/player';
-import { toggleLike } from '@common/store/track/actions';
-import { addToast, toggleQueue } from '@common/store/ui';
-import { getReadableTime, SC } from '@common/utils';
-import cn from 'classnames';
-import { IpcMessageEvent, ipcRenderer } from 'electron';
-import * as moment from 'moment';
-import * as React from 'react';
-import * as isDeepEqual from 'react-fast-compare';
-import { connect } from 'react-redux';
-import { bindActionCreators, Dispatch } from 'redux';
-import FallbackImage from '../../../_shared/FallbackImage';
-import Audio from './components/Audio';
-import PlayerControls from './components/PlayerControls/PlayerControls';
-import TrackInfo from './components/TrackInfo/TrackInfo';
-import * as styles from './Player.module.scss';
+} from "@common/store/player";
+import { toggleLike } from "@common/store/track/actions";
+import { addToast, toggleQueue } from "@common/store/ui";
+import { getReadableTime, SC } from "@common/utils";
+import cn from "classnames";
+import { IpcMessageEvent, ipcRenderer } from "electron";
+import * as moment from "moment";
+import * as React from "react";
+import * as isDeepEqual from "react-fast-compare";
+import { connect } from "react-redux";
+import { bindActionCreators, Dispatch } from "redux";
+import FallbackImage from "../../../_shared/FallbackImage";
+import Audio from "./components/Audio";
+import PlayerControls from "./components/PlayerControls/PlayerControls";
+import TrackInfo from "./components/TrackInfo/TrackInfo";
+import * as styles from "./Player.module.scss";
 
 type PropsFromState = ReturnType<typeof mapStateToProps>;
 
@@ -43,7 +43,7 @@ type AllProps = PropsFromState & PropsFromDispatch;
 
 class Player extends React.Component<AllProps, State>{
 
-    state: State = {
+    public state: State = {
         nextTime: 0,
         isSeeking: false,
         isVolumeSeeking: false,
@@ -54,7 +54,7 @@ class Player extends React.Component<AllProps, State>{
 
     private audio: Audio | null = null;
 
-    async componentDidMount() {
+    public async componentDidMount() {
         try {
             const { isSeeking } = this.state;
             const { setCurrentTime, playbackDeviceId } = this.props;
@@ -92,7 +92,7 @@ class Player extends React.Component<AllProps, State>{
 
     }
 
-    async componentDidUpdate(prevProps: AllProps) {
+    public async componentDidUpdate(prevProps: AllProps) {
         try {
             const { player: { status, duration }, playbackDeviceId } = this.props;
 
@@ -114,14 +114,14 @@ class Player extends React.Component<AllProps, State>{
         }
     }
 
-    async setAudioPlaybackDevice() {
+    public async setAudioPlaybackDevice() {
         const { playbackDeviceId } = this.props;
 
         try {
 
             if (playbackDeviceId && this.audio && this.audio.audio) {
                 const devices = await navigator.mediaDevices.enumerateDevices();
-                const audioDevices = devices.filter((device) => device.kind === 'audiooutput');
+                const audioDevices = devices.filter((device) => device.kind === "audiooutput");
 
                 const selectedAudioDevice = audioDevices.find((d) => d.deviceId === playbackDeviceId);
 
@@ -134,27 +134,27 @@ class Player extends React.Component<AllProps, State>{
         }
     }
 
-    shouldComponentUpdate(nextProps: AllProps, nextState: State) {
+    public shouldComponentUpdate(nextProps: AllProps, nextState: State) {
         return nextState !== this.state || !isDeepEqual(nextProps, this.props);
     }
 
-    componentWillUnmount() {
+    public componentWillUnmount() {
         ipcRenderer.removeAllListeners(EVENTS.PLAYER.SEEK);
     }
 
-    changeSong = (changeType: ChangeTypes) => {
+    public changeSong = (changeType: ChangeTypes) => {
         const { changeTrack } = this.props;
 
         changeTrack(changeType);
     }
 
-    toggleShuffle = () => {
+    public toggleShuffle = () => {
         const { shuffle, toggleShuffle } = this.props;
 
         toggleShuffle(!shuffle);
     }
 
-    toggleRepeat = () => {
+    public toggleRepeat = () => {
         const { setConfigKey, repeat } = this.props;
 
         let newRepeatType: RepeatTypes | null = null;
@@ -165,10 +165,10 @@ class Player extends React.Component<AllProps, State>{
             newRepeatType = RepeatTypes.ONE;
         }
 
-        setConfigKey('repeat', newRepeatType);
+        setConfigKey("repeat", newRepeatType);
     }
 
-    toggleMute = () => {
+    public toggleMute = () => {
         const { muted } = this.state;
 
         if (muted) {
@@ -184,7 +184,7 @@ class Player extends React.Component<AllProps, State>{
 
     // RENDER
 
-    renderProgressBar() {
+    public renderProgressBar() {
         const {
             player: {
                 currentTime,
@@ -197,11 +197,13 @@ class Player extends React.Component<AllProps, State>{
             isSeeking, nextTime
         } = this.state;
 
+        const sliderValue = isSeeking ? nextTime : currentTime;
+
         return (
             <Slider
                 min={0}
                 max={duration}
-                value={isSeeking ? nextTime : currentTime}
+                value={sliderValue}
                 stepSize={1}
                 onChange={this.seekChange}
                 labelRenderer={false}
@@ -221,14 +223,14 @@ class Player extends React.Component<AllProps, State>{
     }
 
 
-    seekChange = (nextTime: number) => {
+    public seekChange = (nextTime: number) => {
         this.setState({
             nextTime,
             isSeeking: true
         });
     }
 
-    volumeChange = (volume: number) => {
+    public volumeChange = (volume: number) => {
         this.setState({
             volume,
             muted: false,
@@ -238,7 +240,7 @@ class Player extends React.Component<AllProps, State>{
 
     // PLAYER LISTENERS
 
-    onLoad = (_e: Event, duration: number) => {
+    public onLoad = (_e: Event, duration: number) => {
         const {
             setDuration,
             registerPlay
@@ -249,7 +251,7 @@ class Player extends React.Component<AllProps, State>{
         registerPlay();
     }
 
-    onPlaying = (position: number, newDuration: number) => {
+    public onPlaying = (position: number, newDuration: number) => {
         const {
             player: {
                 status,
@@ -261,7 +263,7 @@ class Player extends React.Component<AllProps, State>{
 
         const { isSeeking } = this.state;
 
-        if (isSeeking) return;
+        if (isSeeking) { return; }
 
         if (status === PlayerStatus.PLAYING) {
             setCurrentTime(position);
@@ -274,7 +276,7 @@ class Player extends React.Component<AllProps, State>{
 
     }
 
-    onFinishedPlaying = () => {
+    public onFinishedPlaying = () => {
         const { changeTrack, toggleStatus } = this.props;
 
         if (this.audio) {
@@ -286,7 +288,8 @@ class Player extends React.Component<AllProps, State>{
         changeTrack(ChangeTypes.NEXT, true);
     }
 
-    render() {
+    // tslint:disable-next-line: max-func-body-length
+    public render() {
 
         const {
             player,
@@ -313,20 +316,20 @@ class Player extends React.Component<AllProps, State>{
          * If Track ID is empty, just exit here
          */
 
-        if (!track || !playingTrack) return null;
+        if (!track || !playingTrack) { return null; }
 
-        if (!track.title || !track.user) return <div>Loading</div>;
+        if (!track.title || !track.user) { return <div>Loading</div>; }
 
         const overlay_image = SC.getImageUrl(track, IMAGE_SIZES.XSMALL);
 
         const volume = this.state.isVolumeSeeking ? this.state.volume : configVolume;
 
-        let volume_icon = 'volume-full';
+        let volume_icon = "volume-full";
 
         if (muted || volume === 0) {
-            volume_icon = 'volume-mute';
+            volume_icon = "volume-mute";
         } else if (volume !== 1) {
-            volume_icon = 'volume-low';
+            volume_icon = "volume-low";
         }
 
         return (
@@ -340,7 +343,7 @@ class Player extends React.Component<AllProps, State>{
 
                 {this.renderAudio()}
 
-                <div className='d-flex align-items-center'>
+                <div className="d-flex align-items-center">
 
                     <TrackInfo
                         title={track.title}
@@ -379,10 +382,10 @@ class Player extends React.Component<AllProps, State>{
                         <div className={styles.time}>{getReadableTime(duration, false, true)}</div>
                     </div>
 
-                    <div className={cn('pr-2', styles.playerVolume, { hover: isVolumeSeeking })}>
+                    <div className={cn("pr-2", styles.playerVolume, { hover: isVolumeSeeking })}>
                         <a
                             className={styles.control}
-                            href='javascript:void(0)'
+                            href="javascript:void(0)"
                             onClick={this.toggleMute}
                         >
                             <i className={`bx bx-${volume_icon}`} />
@@ -402,7 +405,7 @@ class Player extends React.Component<AllProps, State>{
                                         isVolumeSeeking: false
                                     });
 
-                                    this.props.setConfigKey('audio.volume', value);
+                                    this.props.setConfigKey("audio.volume", value);
                                 }}
                             />
                         </div>
@@ -411,19 +414,19 @@ class Player extends React.Component<AllProps, State>{
 
                     <a
                         className={styles.control}
-                        href='javascript:void(0)'
+                        href="javascript:void(0)"
                         onClick={() => {
                             toggleQueue();
                         }}
                     >
-                        <i className='bx bxs-playlist' />
+                        <i className="bx bxs-playlist" />
                     </a>
                 </div>
             </div>
         );
     }
 
-    renderAudio = () => {
+    public renderAudio = () => {
         const {
             player,
             addToast,
@@ -440,7 +443,7 @@ class Player extends React.Component<AllProps, State>{
             playingTrack,
         } = player;
 
-        if (!track || !playingTrack) return null;
+        if (!track || !playingTrack) { return null; }
 
         const volume = this.state.isVolumeSeeking ? this.state.volume : configVolume;
 
@@ -454,16 +457,18 @@ class Player extends React.Component<AllProps, State>{
             return (
                 <div className={styles.rateLimit}>
                     Stream limit reached! Unfortunately the API enforces a 15K plays/day limit.
-                    This limit will expire in <Tag className='ml-2' intent={Intent.PRIMARY}>{moment(remainingPlays.resetTime).fromNow()}</Tag>
+                    This limit will expire in <Tag className="ml-2" intent={Intent.PRIMARY}>{moment(remainingPlays.resetTime).fromNow()}</Tag>
                 </div>
             );
         }
+
+        const autoplay = status === PlayerStatus.PLAYING;
 
         return (
             <Audio
                 ref={(r) => this.audio = r}
                 src={url}
-                autoPlay={status === PlayerStatus.PLAYING}
+                autoPlay={autoplay}
                 volume={volume}
                 muted={muted}
                 id={`${playingTrack.id}`}

@@ -1,27 +1,40 @@
-import { normalize, schema } from 'normalizr';
-import { NormalizedResponse, SoundCloud } from '../../types';
-import { commentSchema } from '../schemas';
-import { asJson, status } from '../utils';
+import { normalize, schema } from "normalizr";
+import { NormalizedResponse, SoundCloud } from "../../types";
+import { commentSchema } from "../schemas";
+import fetchToJson from "./helpers/fetchToJson";
 
-interface JsonResponse { collection: Array<SoundCloud.Comment>; next_href?: string; future_href?: string; }
+interface JsonResponse {
+	collection: SoundCloud.Comment[];
+	next_href?: string;
+	future_href?: string;
+}
 
-export default function fetchComments(url: string): Promise<{
-    json: JsonResponse,
-    normalized: NormalizedResponse
+export default async function fetchComments(
+	url: string
+): Promise<{
+	json: JsonResponse;
+	normalized: NormalizedResponse;
 }> {
-    return fetch(url)
-        .then(status)
-        .then(asJson)
-        .then((json: JsonResponse) => {
-            const { collection } = json;
+	try {
+		const json = await fetchToJson<JsonResponse>(url)
 
-            const n = normalize(collection, new schema.Array({
-                comments: commentSchema
-            }, (input) => `${input.kind}s`));
+		const { collection } = json;
 
-            return {
-                normalized: n,
-                json
-            };
-        });
+		const n = normalize(
+			collection,
+			new schema.Array(
+				{
+					comments: commentSchema
+				},
+				input => `${input.kind}s`
+			)
+		);
+
+		return {
+			normalized: n,
+			json
+		};
+	} catch (err) {
+		throw err;
+	}
 }

@@ -1,15 +1,15 @@
-import { nativeImage } from 'electron';
-import * as is from 'electron-is';
-import * as path from 'path';
-import { EVENTS } from '@common/constants/events';
-import IFeature from '../feature';
-import { Auryo } from '../../app';
-import { PlayerStatus, ChangeTypes } from '@common/store/player';
-import { StoreState } from '@common/store';
+import { EVENTS } from "@common/constants/events";
+import { StoreState } from "@common/store";
+import { ChangeTypes, PlayerStatus } from "@common/store/player";
+import { nativeImage } from "electron";
+import * as is from "electron-is";
+import * as path from "path";
+import { Auryo } from "../../app";
+import { Feature } from "../feature";
 
-const iconsDirectory = process.env.NODE_ENV === 'development' ?
-  path.resolve(__dirname, '..', '..', '..', '..', 'static', 'icons') :
-  path.resolve(__dirname, '../static/icons');
+const iconsDirectory = process.env.NODE_ENV === "development" ?
+  path.resolve(__dirname, "..", "..", "..", "..", "static", "icons") :
+  path.resolve(__dirname, "../static/icons");
 
 interface ThumbarPreset {
   play: Electron.ThumbarButton;
@@ -22,72 +22,72 @@ interface ThumbarPreset {
   nextDisabled: Electron.ThumbarButton;
 }
 
-export default class Thumbar extends IFeature {
+export default class Thumbar extends Feature {
   private thumbarButtons: ThumbarPreset | null = null;
 
   constructor(auryo: Auryo) {
-    super(auryo, 'focus');
+    super(auryo, "focus");
   }
 
-  shouldRun() {
+  public shouldRun() {
     return is.windows();
   }
 
-  register() {
+  public register() {
     this.thumbarButtons = {
       play: {
-        tooltip: 'Play',
-        icon: nativeImage.createFromPath(path.join(iconsDirectory, 'play.png')),
+        tooltip: "Play",
+        icon: nativeImage.createFromPath(path.join(iconsDirectory, "play.png")),
         click: () => {
           this.togglePlay(PlayerStatus.PLAYING);
         }
       },
       playDisabled: {
-        tooltip: 'Play',
-        flags: ['disabled'],
-        icon: nativeImage.createFromPath(path.join(iconsDirectory, 'play-disabled.png')),
+        tooltip: "Play",
+        flags: ["disabled"],
+        icon: nativeImage.createFromPath(path.join(iconsDirectory, "play-disabled.png")),
         // tslint:disable-next-line:no-empty
         click: () => { }
       },
       pause: {
-        tooltip: 'Pause',
-        icon: nativeImage.createFromPath(path.join(iconsDirectory, 'pause.png')),
+        tooltip: "Pause",
+        icon: nativeImage.createFromPath(path.join(iconsDirectory, "pause.png")),
         click: () => {
           this.togglePlay(PlayerStatus.PAUSED);
         }
       },
       pauseDisabled: {
-        tooltip: 'Pause',
-        flags: ['disabled'],
-        icon: nativeImage.createFromPath(path.join(iconsDirectory, 'pause-disabled.png')),
+        tooltip: "Pause",
+        flags: ["disabled"],
+        icon: nativeImage.createFromPath(path.join(iconsDirectory, "pause-disabled.png")),
         // tslint:disable-next-line:no-empty
         click: () => { }
       },
       prev: {
-        tooltip: 'Prev',
-        icon: nativeImage.createFromPath(path.join(iconsDirectory, 'previous.png')),
+        tooltip: "Prev",
+        icon: nativeImage.createFromPath(path.join(iconsDirectory, "previous.png")),
         click: () => {
           this.changeTrack(ChangeTypes.PREV);
         }
       },
       prevDisabled: {
-        tooltip: 'Prev',
-        flags: ['disabled'],
-        icon: nativeImage.createFromPath(path.join(iconsDirectory, 'previous-disabled.png')),
+        tooltip: "Prev",
+        flags: ["disabled"],
+        icon: nativeImage.createFromPath(path.join(iconsDirectory, "previous-disabled.png")),
         // tslint:disable-next-line:no-empty
         click: () => { }
       },
       next: {
-        tooltip: 'Next',
-        icon: nativeImage.createFromPath(path.join(iconsDirectory, 'next.png')),
+        tooltip: "Next",
+        icon: nativeImage.createFromPath(path.join(iconsDirectory, "next.png")),
         click: () => {
           this.changeTrack(ChangeTypes.NEXT);
         }
       },
       nextDisabled: {
-        tooltip: 'Next',
-        flags: ['disabled'],
-        icon: nativeImage.createFromPath(path.join(iconsDirectory, 'next-disabled.png')),
+        tooltip: "Next",
+        flags: ["disabled"],
+        icon: nativeImage.createFromPath(path.join(iconsDirectory, "next-disabled.png")),
         // tslint:disable-next-line:no-empty
         click: () => { }
       }
@@ -95,16 +95,16 @@ export default class Thumbar extends IFeature {
 
     this.setThumbarButtons(this.store.getState());
 
-    this.subscribe(['player', 'status'], ({ currentState }) => {
+    this.subscribe(["player", "status"], ({ currentState }) => {
       this.setThumbarButtons(currentState);
     });
 
-    this.subscribe(['player', 'playingTrack'], ({ currentState }) => {
+    this.subscribe(["player", "playingTrack"], ({ currentState }) => {
       this.setThumbarButtons(currentState);
     });
   }
 
-  setThumbarButtons = (state: StoreState) => {
+  public setThumbarButtons = (state: StoreState) => {
     const {
       player: { status, queue, currentIndex }
     } = state;
@@ -129,12 +129,11 @@ export default class Thumbar extends IFeature {
           this.win.setThumbarButtons([this.thumbarButtons.prevDisabled, this.thumbarButtons.playDisabled, this.thumbarButtons.nextDisabled]);
           break;
         default:
-          break;
       }
     }
   }
 
-  togglePlay = (newStatus: PlayerStatus) => {
+  public togglePlay = (newStatus: PlayerStatus) => {
     const {
       player: { status }
     } = this.store.getState();
@@ -144,7 +143,7 @@ export default class Thumbar extends IFeature {
     }
   }
 
-  changeTrack = (changeType: ChangeTypes) => {
+  public changeTrack = (changeType: ChangeTypes) => {
     this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, changeType);
   }
 }

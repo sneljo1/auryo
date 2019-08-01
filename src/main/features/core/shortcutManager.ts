@@ -1,36 +1,36 @@
-import { globalShortcut } from 'electron';
-import IFeature from '../feature';
-import { EVENTS } from '@common/constants/events';
-import { ChangeTypes, PlayerStatus } from '@common/store/player';
-import { Auryo } from '../../app';
+import { EVENTS } from "@common/constants/events";
+import { ChangeTypes, PlayerStatus } from "@common/store/player";
+import { globalShortcut } from "electron";
+import { Auryo } from "../../app";
+import { Feature } from "../feature";
 
 /**
  * Register global media shortcuts
  */
-export default class Shortcut extends IFeature {
+export default class Shortcut extends Feature {
   constructor(auryo: Auryo) {
-    super(auryo, 'ready-to-show');
+    super(auryo, "ready-to-show");
   }
-  register() {
-    globalShortcut.register('MediaPlayPause', () => {
+  public register() {
+    globalShortcut.register("MediaPlayPause", () => {
       this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS);
     });
-    globalShortcut.register('MediaPreviousTrack', () => {
+    globalShortcut.register("MediaPreviousTrack", () => {
       this.changeTrack(ChangeTypes.PREV);
     });
-    globalShortcut.register('MediaNextTrack', () => {
+    globalShortcut.register("MediaNextTrack", () => {
       this.changeTrack(ChangeTypes.NEXT);
     });
-    globalShortcut.register('MediaStop', () => {
+    globalShortcut.register("MediaStop", () => {
       this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PlayerStatus.STOPPED);
     });
   }
 
-  unregister() {
+  public unregister() {
     globalShortcut.unregisterAll();
   }
 
-  changeTrack = (changeType: ChangeTypes) => {
+  public changeTrack = (changeType: ChangeTypes) => {
     this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, changeType);
   }
 }

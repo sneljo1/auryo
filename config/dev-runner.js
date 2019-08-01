@@ -3,6 +3,7 @@ process.env.NODE_ENV = 'development'
 const ora = require('ora')
 const rm = require('rimraf')
 const chalk = require('chalk')
+const log = console.log
 const electron = require('electron')
 const path = require('path')
 const { spawn } = require('child_process')
@@ -41,6 +42,20 @@ function startMain() {
       if (err) {
         console.log('here error: ', err)
         reject(err)
+      }
+
+      if (stats.hasErrors()) {
+        log(stats.toString())
+
+        process.stdout.write(
+          stats.toString({
+            errors: true,
+            errorDetails: true,
+            colors: true,
+          }) + '\n\n'
+        )
+
+        reject('Build failed with errors.\n')
       }
 
       if (electronProcess && electronProcess.kill) {

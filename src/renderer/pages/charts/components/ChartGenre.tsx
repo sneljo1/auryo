@@ -1,7 +1,7 @@
-import cn from 'classnames';
-import * as React from 'react';
-import { Link } from 'react-router-dom';
-import { GenreConfig } from '@common/constants';
+import { GenreConfig } from "@common/constants";
+import cn from "classnames";
+import * as React from "react";
+import { Link } from "react-router-dom";
 
 interface Props {
     genre: GenreConfig;
@@ -10,18 +10,18 @@ interface Props {
 
 const ChartGenre = React.memo<Props>(({ genre, img }) => (
     <Link to={`/charts/genre/${genre.key}`}>
-        <div className={cn('chart', { withImage: !!img })}>
+        <div className={cn("chart", { withImage: !!img })}>
             <h1>{genre.name}</h1>
             {
                 img && (
-                    <img src={img} />
+                    <img src={img} alt="chart" />
                 )
             }
 
             {
                 genre.gradient && (
                     <div
-                        className='overlay'
+                        className="overlay"
                         style={{ backgroundImage: genre.gradient }}
                     />
                 )

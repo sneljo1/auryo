@@ -1,8 +1,8 @@
-import * as React from 'react';
-import { connect, MapDispatchToProps } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import { StoreState } from '@common/store';
-import { PlayerStatus, toggleStatus } from '@common/store/player';
+import { StoreState } from "@common/store";
+import { PlayerStatus, toggleStatus } from "@common/store/player";
+import * as React from "react";
+import { connect, MapDispatchToProps } from "react-redux";
+import { bindActionCreators } from "redux";
 
 interface OwnProps {
     className?: string;
@@ -20,7 +20,7 @@ type AllProps = OwnProps & PropsFromState & PropsFromDispatch;
 
 class TogglePlayButton extends React.Component<AllProps> {
 
-    togglePlay = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    public togglePlay = (event: React.MouseEvent<HTMLAnchorElement>) => {
         const { toggleStatus, status } = this.props;
 
         event.preventDefault();
@@ -34,32 +34,31 @@ class TogglePlayButton extends React.Component<AllProps> {
 
     }
 
-    render() {
+    public render() {
         const { status, className } = this.props;
 
-        let icon = '';
+        let icon = "";
 
         switch (status) {
             // case PlayerStatus.ERROR:
             //     icon = "icon-alert-circle";
             //     break;
             case PlayerStatus.PLAYING:
-                icon = 'pause';
+                icon = "pause";
                 break;
             case PlayerStatus.PAUSED:
             case PlayerStatus.STOPPED:
-                icon = 'play';
+                icon = "play";
                 break;
             // case PlayerStatus.LOADING:
             //     icon = "more_horiz";
             //     break;
             default:
-                break;
         }
 
         return (
             <a
-                href='javascript:void(0)'
+                href="javascript:void(0)"
                 className={className}
                 onClick={this.togglePlay}
             >

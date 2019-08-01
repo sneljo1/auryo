@@ -1,19 +1,15 @@
-import { NormalizedResult, ThunkResult } from '../../../types';
-import fetchToJson from '../../api/helpers/fetchToJson';
-import { SC } from '../../utils';
-import { ObjectsActionTypes, ObjectTypes } from '../objects';
-import { addToast } from '../ui';
-import { Intent } from '@blueprintjs/core';
-import { getPlaylistObjectSelector } from '../objects/selectors';
-import { getPlaylistEntity } from '../entities/selectors';
+import { Intent } from "@blueprintjs/core";
+import { NormalizedResult, ThunkResult } from "../../../types";
+import fetchToJson from "../../api/helpers/fetchToJson";
+import { SC } from "../../utils";
+import { getPlaylistEntity } from "../entities/selectors";
+import { ObjectsActionTypes, ObjectTypes } from "../objects";
+import { getPlaylistObjectSelector } from "../objects/selectors";
+import { addToast } from "../ui";
 
 
 /**
  * Add track to certain playlist
- *
- * @param trackId
- * @param playlistId
- * @returns {function(*, *)}
  */
 export function togglePlaylistTrack(trackId: number, playlistId: number): ThunkResult<any> {
     return async (dispatch, getState) => {
@@ -26,9 +22,9 @@ export function togglePlaylistTrack(trackId: number, playlistId: number): ThunkR
             return;
         }
 
-        let newitems: Array<NormalizedResult> = [];
+        let newitems: NormalizedResult[] = [];
 
-        const track: NormalizedResult = { id: trackId, schema: 'tracks' };
+        const track: NormalizedResult = { id: trackId, schema: "tracks" };
 
         const found: boolean = !!playlist_object.items.find((t) => t.id === track.id && t.schema === track.schema);
 
@@ -46,7 +42,7 @@ export function togglePlaylistTrack(trackId: number, playlistId: number): ThunkR
             type: ObjectsActionTypes.UPDATE_ITEMS,
             payload: {
                 promise: fetchToJson(SC.getPlaylistupdateUrl(playlistId), {
-                    method: 'PUT',
+                    method: "PUT",
                     body: JSON.stringify({
                         playlist: {
                             tracks: newitems.map((i) => i.id)
@@ -64,7 +60,7 @@ export function togglePlaylistTrack(trackId: number, playlistId: number): ThunkR
                         const track = trackEntities[trackId];
 
                         dispatch(addToast({
-                            message: `Track ${add ? 'added to' : 'removed from'} playlist`,
+                            message: `Track ${add ? "added to" : "removed from"} playlist`,
                             intent: Intent.SUCCESS
                         }));
 
@@ -94,12 +90,12 @@ export function togglePlaylistTrack(trackId: number, playlistId: number): ThunkR
 }
 
 // This method is unused
-export function createPlaylist(title: string, type: string, tracks: Array<NormalizedResult>) {
+export function createPlaylist(title: string, type: string, tracks: NormalizedResult[]) {
     return () => fetchToJson(SC.getPlaylistUrl(), {
-        method: 'POST',
+        method: "POST",
         headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json'
+            Accept: "application/json",
+            "Content-Type": "application/json"
         },
         body: JSON.stringify({
             playlist: {
@@ -127,7 +123,7 @@ export function deletePlaylist(playlistId: string): ThunkResult<any> {
         if (playlist_entitity) {
 
             fetchToJson(SC.getPlaylistDeleteUrl(playlistId), {
-                method: 'DELETE'
+                method: "DELETE"
             })
                 .then(() => {
                     dispatch(addToast({

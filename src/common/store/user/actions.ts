@@ -1,10 +1,10 @@
-import { SoundCloud, ThunkResult } from '../../../types';
-import fetchToJson from '../../api/helpers/fetchToJson';
-import { SC } from '../../utils';
-import { PlaylistTypes } from '../objects';
-import { getPlaylist } from '../objects/actions';
-import { getArtistLikesPlaylistObject, getArtistTracksPlaylistObject, getPlaylistName } from '../objects/selectors';
-import { UserActionTypes } from './types';
+import { SoundCloud, ThunkResult } from "../../../types";
+import fetchToJson from "../../api/helpers/fetchToJson";
+import { SC } from "../../utils";
+import { PlaylistTypes } from "../objects";
+import { getPlaylist } from "../objects/actions";
+import { getArtistLikesPlaylistObject, getArtistTracksPlaylistObject, getPlaylistName } from "../objects/selectors";
+import { UserActionTypes } from "./types";
 
 
 export function fetchArtistIfNeeded(userId: number): ThunkResult<any> {
@@ -35,9 +35,6 @@ export function fetchArtistIfNeeded(userId: number): ThunkResult<any> {
 
 /**
  * Get and save user
- *
- * @param userId
- * @returns {{type, payload: Promise}}
  */
 function getUser(userId: number) {
     return {

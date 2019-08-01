@@ -1,7 +1,7 @@
 export enum MediaStates {
-    STOPPED = 'stopped',
-    PLAYING = 'playing',
-    PAUSED = 'paused'
+    STOPPED = "stopped",
+    PLAYING = "playing",
+    PAUSED = "paused"
 }
 
 export interface MetaData {

@@ -1,20 +1,20 @@
-import * as React from 'react';
-import { connect, MapDispatchToProps } from 'react-redux';
-import { RouteComponentProps } from 'react-router';
-import { bindActionCreators } from 'redux';
-import { StoreState } from '@common/store';
-import { canFetchMoreOf, fetchMore, ObjectState, ObjectTypes, PlaylistTypes } from '@common/store/objects';
-import { search } from '@common/store/objects/playlists/search/actions';
-import { getPlaylistName, getPlaylistObjectSelector } from '@common/store/objects/selectors';
-import { setScrollPosition } from '@common/store/ui';
-import { getPreviousScrollTop } from '@common/store/ui/selectors';
-import { NormalizedResult } from '../../../../types';
-import Spinner from '../../../_shared/Spinner/Spinner';
-import TracksGrid from '../../../_shared/TracksGrid/TracksGrid';
-import SearchWrapper from '../SearchWrapper';
+import { StoreState } from "@common/store";
+import { canFetchMoreOf, fetchMore, ObjectState, ObjectTypes, PlaylistTypes } from "@common/store/objects";
+import { search } from "@common/store/objects/playlists/search/actions";
+import { getPlaylistName, getPlaylistObjectSelector } from "@common/store/objects/selectors";
+import { setScrollPosition } from "@common/store/ui";
+import { getPreviousScrollTop } from "@common/store/ui/selectors";
+import * as React from "react";
+import { connect, MapDispatchToProps } from "react-redux";
+import { RouteComponentProps } from "react-router";
+import { bindActionCreators } from "redux";
+import { NormalizedResult } from "../../../../types";
+import Spinner from "../../../_shared/Spinner/Spinner";
+import TracksGrid from "../../../_shared/TracksGrid/TracksGrid";
+import SearchWrapper from "../SearchWrapper";
 
 interface OwnProps extends RouteComponentProps<{
-    category: 'user' | 'playlist' | 'track';
+    category: "user" | "playlist" | "track";
 }> {
 
 }
@@ -37,7 +37,7 @@ type AllProps = OwnProps & PropsFromState & PropsFromDispatch;
 
 class SearchCategory extends React.Component<AllProps> {
 
-    componentDidMount() {
+    public componentDidMount() {
         const { query, playlist, objectId, search } = this.props;
 
         if (!playlist && query && query.length) {
@@ -45,7 +45,7 @@ class SearchCategory extends React.Component<AllProps> {
         }
     }
 
-    componentDidUpdate(prevProps: AllProps) {
+    public componentDidUpdate(prevProps: AllProps) {
         const { query, playlist, objectId, search } = this.props;
 
         if ((query !== prevProps.query || !playlist) && query && query.length) {
@@ -53,13 +53,13 @@ class SearchCategory extends React.Component<AllProps> {
         }
     }
 
-    hasMore = (): boolean => {
+    public hasMore = (): boolean => {
         const { objectId, canFetchMoreOf } = this.props;
 
         return canFetchMoreOf(objectId, ObjectTypes.PLAYLISTS) as any;
     }
 
-    loadMore = () => {
+    public loadMore = () => {
         const { objectId, fetchMore, canFetchMoreOf } = this.props;
 
         if (canFetchMoreOf(objectId, ObjectTypes.PLAYLISTS)) {
@@ -67,7 +67,7 @@ class SearchCategory extends React.Component<AllProps> {
         }
     }
 
-    render() {
+    public render() {
         const {
             objectId,
             playlist,
@@ -107,22 +107,21 @@ class SearchCategory extends React.Component<AllProps> {
 const mapStateToProps = (state: StoreState, props: OwnProps): PropsFromState => {
     const { match: { params: { category } }, location: { search: rawSearch } } = props;
 
-    const query: string = decodeURI(rawSearch.replace('?', ''));
+    const query: string = decodeURI(rawSearch.replace("?", ""));
 
-    let objectId: string = '';
+    let objectId: string = "";
 
     switch (category) {
-        case 'user':
+        case "user":
             objectId = getPlaylistName(query, PlaylistTypes.SEARCH_USER);
             break;
-        case 'playlist':
+        case "playlist":
             objectId = getPlaylistName(query, PlaylistTypes.SEARCH_PLAYLIST);
             break;
-        case 'track':
+        case "track":
             objectId = getPlaylistName(query, PlaylistTypes.SEARCH_TRACK);
             break;
         default:
-            break;
     }
 
     return {

@@ -138,6 +138,10 @@ module.exports = {
             name: 'fonts/[name]--[folder].[ext]'
           }
         }
+      },
+      {
+        test: /(pino-tee\/tee|mqtt\/mqtt|mqtt\/bin\/.*)\.js$/,
+        loader: "shebang-loader"
       }
     ]
   },

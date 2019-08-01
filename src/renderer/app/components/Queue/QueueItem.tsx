@@ -1,18 +1,18 @@
-import cn from 'classnames';
-import * as React from 'react';
-import { connect, MapDispatchToProps } from 'react-redux';
-import { Link } from 'react-router-dom';
-import ActionsDropdown from '../../../_shared/ActionsDropdown';
-import FallbackImage from '../../../_shared/FallbackImage';
-import TextShortener from '../../../_shared/TextShortener';
-import { bindActionCreators } from 'redux';
-import { PlayingTrack, playTrack } from '@common/store/player';
-import { SoundCloud } from '../../../../types';
-import { SC } from '@common/utils';
-import { IMAGE_SIZES } from '@common/constants';
-import { StoreState } from '@common/store';
-import { getTrackEntity } from '@common/store/entities/selectors';
-import { getCurrentPlaylistId } from '@common/store/player/selectors';
+import { IMAGE_SIZES } from "@common/constants";
+import { StoreState } from "@common/store";
+import { getTrackEntity } from "@common/store/entities/selectors";
+import { PlayingTrack, playTrack } from "@common/store/player";
+import { getCurrentPlaylistId } from "@common/store/player/selectors";
+import { SC } from "@common/utils";
+import cn from "classnames";
+import * as React from "react";
+import { connect, MapDispatchToProps } from "react-redux";
+import { Link } from "react-router-dom";
+import { bindActionCreators } from "redux";
+import { SoundCloud } from "../../../../types";
+import ActionsDropdown from "../../../_shared/ActionsDropdown";
+import FallbackImage from "../../../_shared/FallbackImage";
+import TextShortener from "../../../_shared/TextShortener";
 
 interface OwnProps {
     trackData: PlayingTrack;
@@ -35,7 +35,8 @@ type AllProps = OwnProps & PropsFromState & PropsFromDispatch;
 
 class QueueItem extends React.PureComponent<AllProps> {
 
-    render() {
+    // tslint:disable-next-line: max-func-body-length
+    public render() {
         const {
             // Vars
             track,
@@ -50,28 +51,28 @@ class QueueItem extends React.PureComponent<AllProps> {
 
         } = this.props;
 
-        if (!currentPlaylistId) return null;
+        if (!currentPlaylistId) { return null; }
 
         if (!track || !track.user || (track && track.loading && !track.title)) {
             return (
-                <div className='track d-flex flex-nowrap align-items-center'>
-                    <div className='image-wrap'>
-                        <svg width='40' height='40'>
-                            <rect width='40' height='40' style={{ fill: '#eeeeee' }} />
+                <div className="track d-flex flex-nowrap align-items-center">
+                    <div className="image-wrap">
+                        <svg width="40" height="40">
+                            <rect width="40" height="40" style={{ fill: "#eeeeee" }} />
                             Sorry, your browser does not support inline SVG.
                     </svg>
                     </div>
-                    <div className='item-info'>
-                        <div className='title'>
-                            <svg width='150' height='14'>
-                                <rect width='150' height='14' style={{ fill: '#eeeeee' }} />
+                    <div className="item-info">
+                        <div className="title">
+                            <svg width="150" height="14">
+                                <rect width="150" height="14" style={{ fill: "#eeeeee" }} />
                                 Sorry, your browser does not support inline SVG.
                         </svg>
 
                         </div>
-                        <div className='stats'>
-                            <svg width='50' height='14'>
-                                <rect width='50' height='14' style={{ fill: '#eeeeee' }} />
+                        <div className="stats">
+                            <svg width="50" height="14">
+                                <rect width="50" height="14" style={{ fill: "#eeeeee" }} />
                                 Sorry, your browser does not support inline SVG.
                         </svg>
                         </div>
@@ -81,29 +82,29 @@ class QueueItem extends React.PureComponent<AllProps> {
         }
 
         return (
-            <div className='queueItem'>
+            <div className="queueItem">
                 <div
-                    role='button'
+                    role="button"
                     tabIndex={0}
-                    className={cn('track d-flex flex-nowrap align-items-center', {
+                    className={cn("track d-flex flex-nowrap align-items-center", {
                         played,
                         playing
                     })}
                     onClick={(e) => {
-                        if ((e.target as any).className !== 'bx bx-dots-horizontal-rounded') {
+                        if ((e.target as any).className !== "bx bx-dots-horizontal-rounded") {
                             playTrack(currentPlaylistId, trackData);
                         }
                     }}
                 >
-                    <div className='image-wrap'>
+                    <div className="image-wrap">
                         <FallbackImage
                             src={SC.getImageUrl(track, IMAGE_SIZES.XSMALL)}
                             width={35}
                             height={35}
                         />
                     </div>
-                    <div className='item-info'>
-                        <div className='title'>
+                    <div className="item-info">
+                        <div className="title">
                             <Link
                                 onClick={(e) => {
                                     e.stopPropagation();
@@ -115,7 +116,7 @@ class QueueItem extends React.PureComponent<AllProps> {
                             </Link>
 
                         </div>
-                        <div className='stats'>
+                        <div className="stats">
                             <Link
                                 onClick={(e) => {
                                     e.stopPropagation();

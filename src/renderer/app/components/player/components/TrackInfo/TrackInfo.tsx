@@ -1,9 +1,9 @@
-import * as React from 'react';
-import { Link } from 'react-router-dom';
-import * as styles from './TrackInfo.module.scss';
-import FallbackImage from '../../../../../_shared/FallbackImage';
-import TextShortener from '../../../../../_shared/TextShortener';
-import * as cn from 'classnames';
+import * as cn from "classnames";
+import * as React from "react";
+import { Link } from "react-router-dom";
+import FallbackImage from "../../../../../_shared/FallbackImage";
+import TextShortener from "../../../../../_shared/TextShortener";
+import * as styles from "./TrackInfo.module.scss";
 
 interface Props {
     img: string;
@@ -13,7 +13,7 @@ interface Props {
     username: string;
 
     liked: boolean;
-    toggleLike: () => void;
+    toggleLike(): void;
 }
 
 const TrackInfo = React.memo<Props>(({ img, title, id, userId, username, liked, toggleLike }) => (
@@ -21,14 +21,14 @@ const TrackInfo = React.memo<Props>(({ img, title, id, userId, username, liked, 
         <div className={styles.playerAlbum}>
             <a
                 className={cn(styles.trackLike, { [styles.trackLike__liked]: liked })}
-                href='javascript:void(0)'
+                href="javascript:void(0)"
                 onClick={toggleLike}
             >
-                <i className={`bx ${liked ? 'bxs-heart' : 'bx-heart'}`} />
+                <i className={`bx ${liked ? "bxs-heart" : "bx-heart"}`} />
             </a>
             <FallbackImage
                 noPlaceholder={true}
-                className='img-fluid'
+                className="img-fluid"
                 src={img}
             />
         </div>

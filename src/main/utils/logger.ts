@@ -1,92 +1,43 @@
-import * as winston from 'winston';
-import * as path from 'path';
-import { app } from 'electron';
+import { app } from "electron";
+import * as pino from "pino";
+import rfs from "rotating-file-stream";
 
-const defaultFileLogLevel = 'info';
-const defaultConsoleLogLevel = process.env.NODE_ENV === 'development' || process.env.ENV === 'development' ? 'debug' : 'info';
+const isProd = process.env.NODE_ENV === "production";
 
-function prodFormat() {
-  const replaceError = ({ label, level, message, stack }: any) => ({ label, level, message, stack });
-  const replacer = (_key: any, value: any) => value instanceof Error ? replaceError(value) : value;
-  return winston.format.json({ replacer });
-}
+let stream: pino.DestinationStream;
 
-function devFormat() {
-  const formatMessage = (info: any) => `${info.level} ${info.message}`;
-  const formatError = (info: any) => `${info.level} ${info.stack}\n`;
-  const format = (info: any) => info.stack ? formatError(info) : formatMessage(info);
-  return winston.format.printf(format);
-}
-
-export class Logger {
-  private logger: winston.Logger;
-
-  constructor(id: string) {
-    this.logger = winston.createLogger({
-      transports: [
-        new winston.transports.File({
-          filename: path.resolve(app.getPath('userData'), 'auryo.log'),
-          level: defaultFileLogLevel,
-          maxsize: 5000000,
-        }),
-        new winston.transports.Console({
-          level: defaultConsoleLogLevel,
-          handleExceptions: true,
-          format: winston.format.combine(
-            winston.format.colorize(),
-            (process.env.NODE_ENV === 'production' ? devFormat() : devFormat()),
-            winston.format.label({ label: id }),
-          )
-        })
-      ]
+if (isProd) {
+    stream = rfs("main.log", {
+        path: app.getPath("logs"),
+        maxFiles: 1,
+        size: "10M",
+        interval: "7d"
     });
+}
 
-  }
 
-  public error(...args: Array<any>) {
-    if (args.length > 0) {
-      const errorIndex = args.findIndex((item) => item instanceof Error);
+const config: pino.LoggerOptions = {
+    prettyPrint: !isProd && {
+        colorize: true
+    },
+    base: null,
+    level: isProd ? "info" : "debug"
+}
 
-      if (errorIndex >= 0) {
-        const error: Error = args.splice(errorIndex, 1)[0];
+export type LoggerInstance = pino.Logger;
 
-        this.logger.error({
-          stack: error.stack,
-          message: error.message
-        });
-
-        return;
-      }
+export namespace Logger {
+    export function createLogger(name: string): LoggerInstance {
+        return pino({
+            ...config,
+            name: name,
+            base: { name },
+        }, stream)
     }
 
-    this.logger.error.apply(this.logger, args);
-  }
-
-  public warn(..._args: Array<any>) {
-    this.logger.warn.apply(this.logger, arguments);
-  }
-
-  public info(..._args: Array<any>) {
-    this.logger.info.apply(this.logger, arguments);
-  }
-
-  public verbose(..._args: Array<any>) {
-    this.logger.verbose.apply(this.logger, arguments);
-  }
-
-  public debug(..._args: Array<any>) {
-    this.logger.debug.apply(this.logger, _args);
-  }
-
-  public silly(..._args: Array<any>) {
-    this.logger.silly.apply(this.logger, arguments);
-  }
-
-  public log(..._args: Array<any>) {
-    this.logger.log.apply(this.logger, arguments);
-  }
-
-  public profile(..._args: Array<any>) {
-    this.logger.profile.apply(this.logger, arguments);
-  }
+    export function defaultLogger(): LoggerInstance {
+        return pino({
+            ...config,
+        }, stream)
+    }
 }

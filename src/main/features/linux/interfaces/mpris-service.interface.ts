@@ -1,37 +1,37 @@
 // tslint:disable-next-line:no-namespace
 export namespace MprisServiceClient {
   export interface MetaData {
-    'xesam:title'?: string;
-    'mpris:trackId'?: string;
-    'mpris:artUrl'?: string;
-    'mpris:length'?: microseconds;
-    'xesam:artist'?: Array<string>;
-    'xesam:asText'?: string;
-    'xesam:audioBPM'?: number;
-    'xesam:autoRating'?: number;
-    'xesam:comment'?: Array<number>;
-    'xesam:composer'?: Array<string>;
-    'xesam:url'?: string;
-    'xesam:lastUsed'?: ISOString;
-    'xesam:genre'?: Array<string>;
-    'xesam:contentCreated'?: ISOString;
-    'xesam:useCount'?: number;
+    "xesam:title"?: string;
+    "mpris:trackId"?: string;
+    "mpris:artUrl"?: string;
+    "mpris:length"?: microseconds;
+    "xesam:artist"?: string[];
+    "xesam:asText"?: string;
+    "xesam:audioBPM"?: number;
+    "xesam:autoRating"?: number;
+    "xesam:comment"?: number[];
+    "xesam:composer"?: string[];
+    "xesam:url"?: string;
+    "xesam:lastUsed"?: ISOString;
+    "xesam:genre"?: string[];
+    "xesam:contentCreated"?: ISOString;
+    "xesam:useCount"?: number;
   }
 
   export interface PlayerOptions {
     name: string;
     identity: string;
-    supportedUriSchemes: Array<string>;
-    supportedMimeTypes: Array<string>;
-    supportedInterfaces: Array<string>;
+    supportedUriSchemes: string[];
+    supportedMimeTypes: string[];
+    supportedInterfaces: string[];
   }
 
   export type double = number;
   export type ISOString = string;
 
   export interface Player {
-    playbackStatus: 'Stopped' | 'Playing' | 'Paused';
-    loopStatus: 'None';
+    playbackStatus: "Stopped" | "Playing" | "Paused";
+    loopStatus: "None";
     rate: double;
     shuffle: boolean;
     metadata: MetaData;
@@ -54,9 +54,9 @@ export namespace MprisServiceClient {
     objectPath(trackId: string): string;
 
     // tslint:disable-next-line:ban-types
-    on(event: 'next' | 'previous' | 'pause' | 'playpause' | 'stop' | 'play' | 'raise' | 'quit', callback: Function): void;
-    on(event: 'seek', data: { delta: number; position: number }): void;
-    on(event: 'position' | 'open', data: { trackId: string; position: number }): void;
+    on(event: "next" | "previous" | "pause" | "playpause" | "stop" | "play" | "raise" | "quit", callback: Function): void;
+    on(event: "seek", data: { delta: number; position: number }): void;
+    on(event: "position" | "open", data: { trackId: string; position: number }): void;
 
   }
 

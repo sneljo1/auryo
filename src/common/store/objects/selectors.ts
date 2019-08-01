@@ -1,10 +1,10 @@
 
 
-import { createSelector } from 'reselect';
-import { ObjectGroup, ObjectState, ObjectTypes } from '.';
-import { StoreState } from '..';
-import { NormalizedResult } from '../../../types';
-import { PlaylistTypes } from './types';
+import { createSelector } from "reselect";
+import { ObjectGroup, ObjectState, ObjectTypes } from ".";
+import { StoreState } from "..";
+import { NormalizedResult } from "../../../types";
+import { PlaylistTypes } from "./types";
 
 export const getPlaylistsObjects = (state: StoreState) => state.objects[ObjectTypes.PLAYLISTS] || {};
 export const getCommentsObjects = (state: StoreState) => state.objects[ObjectTypes.COMMENTS] || {};
@@ -19,23 +19,23 @@ export const getCommentObject = (trackId: string) => createSelector<StoreState, 
     (comments) => (trackId in comments) ? comments[trackId] : null
 );
 
-export const getPlaylistName = (id: string, playlistType: PlaylistTypes) => [id, playlistType].join('|');
+export const getPlaylistName = (id: string, playlistType: PlaylistTypes) => [id, playlistType].join("|");
 
 export const getPlaylistType = (objectId: string): PlaylistTypes | null => {
 
-    if (!objectId || typeof objectId !== 'string') return null;
+    if (!objectId || typeof objectId !== "string") { return null; }
 
     if (objectId in PlaylistTypes) {
         return objectId as PlaylistTypes;
     }
 
-    const split = objectId.split('|');
+    const split = objectId.split("|");
 
     if (split.length !== 2) {
         return null;
     }
 
-    return objectId.split('|')[1] as PlaylistTypes;
+    return objectId.split("|")[1] as PlaylistTypes;
 };
 
 export const getRelatedTracksPlaylistObject = (trackId: string) => getPlaylistObjectSelector(getPlaylistName(trackId, PlaylistTypes.RELATED));

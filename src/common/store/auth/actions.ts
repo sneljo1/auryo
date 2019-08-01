@@ -1,26 +1,25 @@
-/* eslint-disable global-require */
-import { replace } from 'connected-react-router';
-import { ipcRenderer } from 'electron';
-import { action } from 'typesafe-actions';
-import { SoundCloud, ThunkResult } from '../../../types';
-import fetchPersonalised from '../../api/fetchPersonalised';
-import fetchPlaylists from '../../api/fetchPlaylists';
-import fetchToJson from '../../api/helpers/fetchToJson';
-import fetchToObject from '../../api/helpers/fetchToObject';
-import { EVENTS } from '../../constants/events';
-import { SC } from '../../utils';
-import { setConfigKey, setToken } from '../config/actions';
-import { ObjectTypes, PlaylistTypes } from '../objects';
-import { getPlaylist, setObject } from '../objects/actions';
-import { getPlaylistObjectSelector } from '../objects/selectors';
-import { AuthActionTypes } from './types';
+import { replace } from "connected-react-router";
+import { ipcRenderer } from "electron";
+import { action } from "typesafe-actions";
+import { SoundCloud, ThunkResult } from "../../../types";
+import fetchPersonalised from "../../api/fetchPersonalised";
+import fetchPlaylists from "../../api/fetchPlaylists";
+import fetchToJson from "../../api/helpers/fetchToJson";
+import fetchToObject from "../../api/helpers/fetchToObject";
+import { EVENTS } from "../../constants/events";
+import { SC } from "../../utils";
+import { setConfigKey, setToken } from "../config/actions";
+import { ObjectTypes, PlaylistTypes } from "../objects";
+import { getPlaylist, setObject } from "../objects/actions";
+import { getPlaylistObjectSelector } from "../objects/selectors";
+import { AuthActionTypes } from "./types";
 
 export function logout(): ThunkResult<void> {
     return (dispatch) => {
         dispatch({
-            type: 'APP_RESET_STORE'
+            type: "APP_RESET_STORE"
         });
-        dispatch(replace('/login'));
+        dispatch(replace("/login"));
         dispatch(setToken(null));
     };
 }
@@ -30,21 +29,21 @@ export function login(): ThunkResult<void> {
 
         ipcRenderer.send(EVENTS.APP.AUTH.LOGIN);
 
-        ipcRenderer.once('login-success', () => {
+        ipcRenderer.once("login-success", () => {
             const { config: { lastLogin } } = getState();
 
             if (lastLogin) {
-                dispatch(replace('/'));
+                dispatch(replace("/"));
             }
 
-            dispatch(setConfigKey('lastLogin', Date.now()));
+            dispatch(setConfigKey("lastLogin", Date.now()));
         });
     };
 }
 
 export const setLoginError = (data: string) => action(AuthActionTypes.ERROR, data);
 
-export const setLoginLoading = (loading = true) => action(AuthActionTypes.LOADING, loading);
+export const setLoginLoading = (loading: boolean = true) => action(AuthActionTypes.LOADING, loading);
 
 export function getAuth(): ThunkResult<void> {
     return (dispatch, getState) => {
@@ -52,11 +51,12 @@ export function getAuth(): ThunkResult<void> {
 
         dispatch(action(AuthActionTypes.SET, fetchToJson<SoundCloud.User>(SC.getMeUrl())
             .then((user) => {
-                if (process.env.NODE_ENV === 'production' && analytics) {
-                    const { ua } = require('../../utils/universalAnalytics');
+                if (process.env.NODE_ENV === "production" && analytics) {
+                    const { ua } = require("../../utils/universalAnalytics");
 
-                    ua.set('userId', user.id);
+                    ua.set("userId", user.id);
                 }
+
                 return user;
             })));
     };
@@ -66,7 +66,7 @@ export function getAuthTracksIfNeeded(): ThunkResult<void> {
     return (dispatch, getState) => {
         const { objects, auth: { me } } = getState();
 
-        if (!me || !me.id) return;
+        if (!me || !me.id) { return; }
 
         const playlist_objects = objects[ObjectTypes.PLAYLISTS];
         const playlist_object = playlist_objects[PlaylistTypes.MYTRACKS];
@@ -81,7 +81,7 @@ export function getAuthAllPlaylistsIfNeeded(): ThunkResult<void> {
     return (dispatch, getState) => {
         const { objects, auth: { me } } = getState();
 
-        if (!me || !me.id) return;
+        if (!me || !me.id) { return; }
 
         const playlist_objects = objects[ObjectTypes.PLAYLISTS];
         const playlist_object = playlist_objects[PlaylistTypes.PLAYLISTS];
@@ -91,12 +91,6 @@ export function getAuthAllPlaylistsIfNeeded(): ThunkResult<void> {
         }
     };
 }
-
-/**
- * Get auth like ids
- *
- * @returns {function(*)}
- */
 
 export function getAuthLikeIds(): ThunkResult<Promise<any>> {
     return (dispatch) => Promise.all([
@@ -111,11 +105,6 @@ export function getAuthLikeIds(): ThunkResult<Promise<any>> {
     ]);
 }
 
-/**
- * Get auth likes playlist if needed
- *
- * @returns {function(*, *)}
- */
 export function getAuthLikesIfNeeded(): ThunkResult<void> {
     return (dispatch, getState) => {
 
@@ -132,9 +121,6 @@ export const getAuthFollowings = () => action(AuthActionTypes.SET_FOLLOWINGS, fe
 
 /**
  * Toggle following of a specific user
- *
- * @param user_id
- * @returns {function(*, *)}
  */
 export function toggleFollowing(userId: number): ThunkResult<void> {
     return (dispatch, getState) => {
@@ -145,7 +131,7 @@ export function toggleFollowing(userId: number): ThunkResult<void> {
         dispatch({
             type: AuthActionTypes.SET_FOLLOWING,
             payload: fetchToJson(SC.updateFollowingUrl(userId), {
-                method: (!following) ? 'PUT' : 'DELETE'
+                method: (!following) ? "PUT" : "DELETE"
             }).then(() => ({
                 userId,
                 following: !following
@@ -169,7 +155,7 @@ export function getAuthReposts(): ThunkResult<Promise<any>> {
 }
 
 export function getAuthFeed(refresh?: boolean): ThunkResult<Promise<any>> {
-    return (dispatch, getState) => {
+    return async (dispatch, getState) => {
         const { config: { hideReposts } } = getState();
 
         return dispatch<Promise<any>>(getPlaylist(SC.getFeedUrl(hideReposts ? 40 : 20), PlaylistTypes.STREAM, { refresh }));
@@ -178,8 +164,6 @@ export function getAuthFeed(refresh?: boolean): ThunkResult<Promise<any>> {
 
 /**
  * Get playlists from the authenticated user
- *
- * @returns {function(*=)}
  */
 export function getAuthPlaylists(): ThunkResult<any> {
     return (dispatch) => dispatch({
@@ -210,15 +194,15 @@ export function getAuthPlaylists(): ThunkResult<any> {
 }
 
 export function fetchPersonalizedPlaylistsIfNeeded(): ThunkResult<void> {
-    return (dispatch, getState) => {
+    return async (dispatch, getState) => {
         const { auth: { personalizedPlaylists } } = getState();
 
         if (!personalizedPlaylists.items && !personalizedPlaylists.loading) {
-            dispatch<Promise<any>>({
+            return dispatch<Promise<any>>({
                 type: AuthActionTypes.SET_PERSONALIZED_PLAYLISTS,
                 payload: {
                     promise: fetchPersonalised(SC.getPersonalizedurl())
-                        .then(({ normalized, json }) => {
+                        .then(({ normalized }) => {
 
                             normalized.result.forEach((playlistResult) => {
 

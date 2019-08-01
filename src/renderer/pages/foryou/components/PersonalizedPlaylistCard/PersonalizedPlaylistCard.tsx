@@ -1,10 +1,10 @@
-import * as React from 'react';
-import { SoundCloud } from '../../../../../types';
-import * as ColorHash from 'color-hash';
-import * as styles from './PersonalizedPlaylistCard.module.scss';
-import { Link } from 'react-router-dom';
-import TextShortener from '../../../../_shared/TextShortener';
-import moment = require('moment');
+import * as ColorHash from "color-hash";
+import * as moment from "moment";
+import * as React from "react";
+import { Link } from "react-router-dom";
+import { SoundCloud } from "../../../../../types";
+import TextShortener from "../../../../_shared/TextShortener";
+import * as styles from "./PersonalizedPlaylistCard.module.scss";
 
 const colorHash = new ColorHash({ saturation: .7, lightness: .775 });
 
@@ -15,6 +15,9 @@ interface Props {
 }
 
 export const PersonalizedPlaylistCard = React.memo<Props>(({ playlist, title, system }) => {
+    const shortTitle = playlist.short_title || playlist.description;
+    const imageUrl = playlist.artwork_url || playlist.calculated_artwork_url;
+
     return (
         <Link
             className={styles.card}
@@ -27,14 +30,17 @@ export const PersonalizedPlaylistCard = React.memo<Props>(({ playlist, title, sy
             >
 
                 <img
+                    alt="bgImage"
                     className={styles.bgImage}
-                    src={playlist.artwork_url || playlist.calculated_artwork_url}
+                    src={imageUrl}
 
                 />
-                <img src={playlist.artwork_url || playlist.calculated_artwork_url} />
+                <img
+                    alt="bgImage"
+                    src={imageUrl} />
 
                 <div className={styles.title}>{playlist.short_description || playlist.title || title}</div>
-                <div><TextShortener text={playlist.short_title || playlist.description} /></div>
+                <div><TextShortener text={shortTitle} /></div>
             </div>
             {
                 system && playlist.last_updated && (

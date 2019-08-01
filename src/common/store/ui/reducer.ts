@@ -1,6 +1,6 @@
-import { Reducer } from 'redux';
-import { AppActionTypes } from '../app';
-import { UIActionTypes, UIState } from './types';
+import { Reducer } from "redux";
+import { AppActionTypes } from "../app";
+import { UIActionTypes, UIState } from "./types";
 
 const initialState = {
     showQueue: false,

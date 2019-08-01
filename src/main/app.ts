@@ -1,288 +1,304 @@
-import { Intent } from '@blueprintjs/core';
-import { app, BrowserWindow, BrowserWindowConstructorOptions, Menu, nativeImage, shell, protocol } from 'electron';
-import * as windowStateKeeper from 'electron-window-state';
-import * as _ from 'lodash';
-import * as os from 'os';
-import * as path from 'path';
-import { Store } from 'redux';
-import { EVENTS } from '@common/constants/events';
-import { StoreState } from '@common/store';
-import { addToast } from '@common/store/ui';
-import Feature from './features/feature';
-import { Logger } from './utils/logger';
-import { Utils } from './utils/utils';
-import { setConfigKey } from '@common/store/config';
-import * as querystring from 'querystring';
-import * as is from 'electron-is';
+import { Intent } from "@blueprintjs/core";
+import { EVENTS } from "@common/constants/events";
+import { StoreState } from "@common/store";
+import { setConfigKey } from "@common/store/config";
+import { addToast } from "@common/store/ui";
+import { app, BrowserWindow, BrowserWindowConstructorOptions, Menu, nativeImage, shell } from "electron";
+import * as is from "electron-is";
+import * as windowStateKeeper from "electron-window-state";
+import * as _ from "lodash";
+import * as os from "os";
+import * as path from "path";
+import * as querystring from "querystring";
+import { Store } from "redux";
+import { Feature } from "./features/feature";
+import { Logger, LoggerInstance } from "./utils/logger";
+import { Utils } from "./utils/utils";
 
-
-const logosPath = process.env.NODE_ENV === 'development' ?
-  path.resolve(__dirname, '..', '..', '..', 'assets', 'img', 'logos') :
-  path.resolve(__dirname, './assets/img/logos');
+const logosPath =
+	process.env.NODE_ENV === "development"
+		? path.resolve(__dirname, "..", "..", "..", "assets", "img", "logos")
+		: path.resolve(__dirname, "./assets/img/logos");
 
 const icons = {
-  256: nativeImage.createFromPath(path.join(logosPath, 'auryo.png')),
-  128: nativeImage.createFromPath(path.join(logosPath, 'auryo-128.png')),
-  64: nativeImage.createFromPath(path.join(logosPath, 'auryo-64.png')),
-  48: nativeImage.createFromPath(path.join(logosPath, 'auryo-48.png')),
-  32: nativeImage.createFromPath(path.join(logosPath, 'auryo-32.png')),
-  ico: nativeImage.createFromPath(path.join(logosPath, 'auryo.ico')),
-  tray: nativeImage.createFromPath(path.join(logosPath, 'auryo-tray.png')).resize({ width: 24, height: 24 }),
-  'tray-ico': nativeImage.createFromPath(path.join(logosPath, 'auryo-tray.ico')).resize({ width: 24, height: 24 })
+	256: nativeImage.createFromPath(path.join(logosPath, "auryo.png")),
+	128: nativeImage.createFromPath(path.join(logosPath, "auryo-128.png")),
+	64: nativeImage.createFromPath(path.join(logosPath, "auryo-64.png")),
+	48: nativeImage.createFromPath(path.join(logosPath, "auryo-48.png")),
+	32: nativeImage.createFromPath(path.join(logosPath, "auryo-32.png")),
+	ico: nativeImage.createFromPath(path.join(logosPath, "auryo.ico")),
+	tray: nativeImage.createFromPath(path.join(logosPath, "auryo-tray.png")).resize({ width: 24, height: 24 }),
+	"tray-ico": nativeImage.createFromPath(path.join(logosPath, "auryo-tray.ico")).resize({ width: 24, height: 24 })
 };
 
 export class Auryo {
+	public mainWindow: Electron.BrowserWindow | undefined;
+	public store: Store<StoreState>;
+	public quitting: boolean = false;
+	private readonly logger: LoggerInstance = Logger.createLogger(Auryo.name);
 
-  public mainWindow: Electron.BrowserWindow | undefined;
-  public store: Store<StoreState>;
-  public quitting: boolean = false;
-  private logger = new Logger('Main');
+	constructor(store: Store<StoreState>) {
+		this.store = store;
 
-  constructor(store: Store<StoreState>) {
-    this.store = store;
+		app.setAppUserModelId("com.auryo.core");
 
-    app.setAppUserModelId('com.auryo.core');
+		app.requestSingleInstanceLock();
 
-    app.requestSingleInstanceLock();
+		app.on("second-instance", () => {
+			// handle protocol for windows
+			if (is.windows()) {
+				process.argv.slice(1).forEach(arg => {
+					this.handleProtocolUrl(arg);
+				});
+			}
 
-    app.on('second-instance', () => {
+			app.exit();
+		});
 
-      // handle protocol for windows
-      if (is.windows()) {
-        process.argv.slice(1)
-          .forEach((arg) => {
-            this.handleProtocolUrl(arg);
-          });
-      }
+		app.on("before-quit", () => {
+			this.logger.info("Application exiting...");
+			this.quitting = true;
+		});
+	}
 
-      app.exit();
-    });
+	public async start() {
+		app.setAsDefaultProtocolClient("auryo");
 
-    app.on('before-quit', () => {
-      this.logger.info('Application exiting...');
-      this.quitting = true;
-    });
-  }
+		app.on("open-url", (event, data) => {
+			event.preventDefault();
 
-  start() {
-    this.logger.profile('app-start');
+			this.handleProtocolUrl(data);
+		});
 
-    app.setAsDefaultProtocolClient('auryo');
+		const mainWindowState = windowStateKeeper({
+			defaultWidth: 1190,
+			defaultHeight: 728
+		});
 
-    app.on('open-url', (event, data) => {
-      event.preventDefault();
+		// Browser Window options
+		const mainWindowOption: BrowserWindowConstructorOptions = {
+			title: `Auryo - ${app.getVersion()}`,
+			icon: os.platform() === "win32" ? icons.ico : icons["256"],
+			x: mainWindowState.x,
+			y: mainWindowState.y,
+			width: mainWindowState.width,
+			height: mainWindowState.height,
+			minWidth: 950,
+			minHeight: 400,
+			titleBarStyle: "hiddenInset",
+			show: false,
+			fullscreen: mainWindowState.isFullScreen,
+			webPreferences: {
+				nodeIntegration: true,
+				nodeIntegrationInWorker: true,
+				webSecurity: process.env.NODE_ENV !== "development"
+			}
+		};
 
-      this.handleProtocolUrl(data);
+		// Create the browser window
+		this.mainWindow = new BrowserWindow(Utils.posCenter(mainWindowOption));
 
-    });
+		app.setAccessibilitySupportEnabled(true);
 
-    const mainWindowState = windowStateKeeper({
-      defaultWidth: 1190,
-      defaultHeight: 728
-    });
+		this.registerTools();
 
-    // Browser Window options
-    const mainWindowOption: BrowserWindowConstructorOptions = {
-      title: `Auryo - ${app.getVersion()}`,
-      icon: os.platform() === 'win32' ? icons.ico : icons['256'],
-      x: mainWindowState.x,
-      y: mainWindowState.y,
-      width: mainWindowState.width,
-      height: mainWindowState.height,
-      minWidth: 950,
-      minHeight: 400,
-      titleBarStyle: 'hiddenInset',
-      show: false,
-      fullscreen: mainWindowState.isFullScreen,
-      webPreferences: {
-        nodeIntegrationInWorker: true,
-        webSecurity: process.env.NODE_ENV !== 'development'
-      }
-    };
+		mainWindowState.manage(this.mainWindow);
 
-    // Create the browser window
-    this.mainWindow = new BrowserWindow(Utils.posCenter(mainWindowOption));
+		this.mainWindow.setMenu(null);
 
-    app.setAccessibilitySupportEnabled(true);
+		try {
+			await this.loadMain();
+		} catch (err) {
+			throw err;
+		}
 
-    this.registerTools();
+		this.registerListeners();
 
-    mainWindowState.manage(this.mainWindow);
+		if (process.env.NODE_ENV === "development" || process.env.ENV === "development") {
+			this.mainWindow.webContents.on("context-menu", (_e, props) => {
+				const { x, y } = props;
+				Menu.buildFromTemplate([
+					{
+						label: "Inspect element",
+						click: () => {
+							if (this.mainWindow) {
+								this.mainWindow.webContents.inspectElement(x, y);
+							}
+						}
+					},
+					{
+						label: "Reload",
+						click: () => {
+							if (this.mainWindow) {
+								this.mainWindow.reload();
+							}
+						}
+					}
+				]).popup({ window: this.mainWindow });
+			});
 
-    this.mainWindow.setMenu(null);
+			if (process.env.OPEN_DEVTOOLS) {
+				this.mainWindow.webContents.openDevTools();
+			}
+		}
 
-    this.loadMain();
+		this.logger.info("App started");
+	}
 
-    this.registerListeners();
+	private handleProtocolUrl(url: string) {
+		const action = url.replace("auryo://", "").match(/^.*(?=\?.*)/g);
 
-    if (process.env.NODE_ENV === 'development' || process.env.ENV === 'development') {
-      this.mainWindow.webContents.on('context-menu', (_e, props) => {
-        const { x, y } = props;
-        Menu.buildFromTemplate([
-          {
-            label: 'Inspect element',
-            click: () => {
-              if (this.mainWindow) {
-                this.mainWindow.webContents.inspectElement(x, y);
-              }
-            }
-          },
-          {
-            label: 'Reload',
-            click: () => {
-              if (this.mainWindow) {
-                this.mainWindow.reload();
-              }
-            }
-          }
-        ]).popup({ window: this.mainWindow });
-      });
+		if (action && url.split("?").length) {
+			switch (action[0]) {
+				case "launch": {
+					const result = querystring.parse(url.split("?")[1]);
 
-      if (process.env.OPEN_DEVTOOLS) {
-        this.mainWindow.webContents.openDevTools();
-      }
-    }
+					if (result.client_id && result.client_id.length) {
+						this.store.dispatch(setConfigKey("app.overrideClientId", result.client_id));
 
-    this.logger.profile('app-start');
-    this.logger.info('App started');
-  }
+						this.store.dispatch(
+							addToast({
+								message: `New clientId added`,
+								intent: Intent.SUCCESS
+							})
+						);
+					}
+				}
+				default:
+			}
+		}
+	}
 
-  private handleProtocolUrl(url: string) {
-    const action = url.replace('auryo://', '').match(/^.*(?=\?.*)/g);
+	private registerTools() {
+		const { getTools } = require("./features"); // eslint-disable-line
 
-    if (action && url.split('?').length) {
-      switch (action[0]) {
-        case 'launch': {
-          const result = querystring.parse(url.split('?')[1]);
+		const featuresWaitUntil = _.groupBy(getTools(this), "waitUntil");
 
-          if (result.client_id && result.client_id.length) {
-            this.store.dispatch(setConfigKey('app.overrideClientId', result.client_id));
+		const registerFeature = (feature: Feature) => {
+			this.logger.debug(`Registering feature: ${feature.constructor.name}`);
+			try {
+				feature.register();
+			} catch (error) {
+				this.logger.error(`Error starting feature: ${feature.constructor.name}`);
+				this.logger.error(error);
+			}
+		};
 
-            this.store.dispatch(addToast({
-              message: `New clientId added`,
-              intent: Intent.SUCCESS
-            }));
-          }
-        }
-        default:
-          break;
-      }
-    }
-  }
+		Object.keys(featuresWaitUntil).forEach((event: any) => {
+			const features = featuresWaitUntil[event];
 
-  private registerTools() {
-    const { getTools } = require('./features'); // eslint-disable-line
+			features.forEach((feature: Feature) => {
+				if (event === "default") {
+					registerFeature(feature);
+				} else {
+					if (this.mainWindow) {
+						this.mainWindow.on(event, registerFeature.bind(this, feature));
+					}
+				}
+			});
+		});
+	}
 
-    const featuresWaitUntil = _.groupBy(getTools(this), 'waitUntil');
+	private async loadMain() {
+		try {
+			if (this.mainWindow) {
+				const url =
+					process.env.NODE_ENV === "development"
+						? `http://localhost:${process.env.DEV_PORT || 8080}`
+						: `file://${__dirname}/index.html`;
 
-    const registerFeature = (feature: Feature) => {
-      this.logger.debug(`Registering feature: ${feature.constructor.name}`);
-      try {
-        feature.register();
-      } catch (error) {
-        this.logger.error(`Error starting feature: ${feature.constructor.name}`);
-        this.logger.error(error);
-      }
-    };
+				await this.mainWindow.loadURL(url);
 
-    Object.keys(featuresWaitUntil)
-      .forEach((event: any) => {
-        const features = featuresWaitUntil[event];
+				this.mainWindow.webContents.on("will-navigate", async (e, u) => {
+					e.preventDefault();
 
-        features.forEach((feature: Feature) => {
-          if (event === 'default') {
-            registerFeature(feature);
-          } else {
-            if (this.mainWindow) {
-              this.mainWindow.on(event, registerFeature.bind(this, feature));
-            }
-          }
-        });
-      });
-  }
+					try {
+						if (/^(https?:\/\/)/g.exec(u) !== null) {
+							if (/https?:\/\/(www.)?soundcloud\.com\//g.exec(u) !== null) {
+								if (this.mainWindow) {
+									this.mainWindow.webContents.send(EVENTS.APP.PUSH_NAVIGATION, "/resolve", u);
+								}
+							} else {
+								await shell.openExternal(u);
+							}
+						} else if (/^mailto:/g.exec(u) !== null) {
+							await shell.openExternal(u);
+						}
+					} catch (err) {
+						this.logger.error(err);
+					}
+				});
 
-  private loadMain() {
-    if (this.mainWindow) {
+				this.mainWindow.webContents.on("new-window", async (e, u) => {
+					e.preventDefault();
+					try {
+						if (/^(https?:\/\/)/g.exec(u) !== null) {
+							await shell.openExternal(u);
+						}
+					} catch (err) {
+						this.logger.error(err);
+					}
+				});
 
-      const url = process.env.NODE_ENV === 'development'
-        ? `http://localhost:${process.env.DEV_PORT || 8080}`
-        : `file://${__dirname}/index.html`;
+				this.mainWindow.webContents.session.webRequest.onCompleted(details => {
+					if (
+						this.mainWindow &&
+						(details.url.indexOf("/stream?client_id=") !== -1 ||
+							details.url.indexOf("cf-media.sndcdn.com") !== -1)
+					) {
+						if (details.statusCode < 200 && details.statusCode > 300) {
+							if (details.statusCode === 404) {
+								this.store.dispatch(
+									addToast({
+										message: "This resource might not exists anymore",
+										intent: Intent.DANGER
+									})
+								);
+							}
+						}
+					}
+				});
+			}
+		} catch (err) {
+			throw err;
+		}
+	}
 
-      this.mainWindow.loadURL(url);
+	private readonly registerListeners = () => {
+		if (this.mainWindow) {
+			this.mainWindow.webContents.on("crashed", (event: any) => {
+				this.logger.error("APP CRASHED:");
+				this.logger.error(event);
+			});
 
-      this.mainWindow.webContents.on('will-navigate', (e, u) => {
-        e.preventDefault();
+			this.mainWindow.on("unresponsive", (event: any) => {
+				this.logger.error("APP UNRESPONSIVE:");
+				this.logger.error(event);
+			});
 
-        if (/^(https?:\/\/)/g.exec(u) !== null) {
-          if (/https?:\/\/(www.)?soundcloud\.com\//g.exec(u) !== null) {
-            if (this.mainWindow) {
-              this.mainWindow.webContents.send(EVENTS.APP.PUSH_NAVIGATION, '/resolve', u);
-            }
-          } else {
-            shell.openExternal(u);
-          }
-        } else if (/^mailto:/g.exec(u) !== null) {
-          shell.openExternal(u);
-        }
-      });
+			this.mainWindow.on("closed", () => {
+				this.mainWindow = undefined;
+			});
 
-      this.mainWindow.webContents.on('new-window', (e, u) => {
-        e.preventDefault();
-        if (/^(https?:\/\/)/g.exec(u) !== null) {
-          shell.openExternal(u);
-        }
-      });
+			this.mainWindow.on("close", event => {
+				if (process.platform === "darwin") {
+					if (this.quitting) {
+						this.mainWindow = undefined;
+					} else {
+						event.preventDefault();
 
-      this.mainWindow.webContents.session.webRequest.onCompleted((details) => {
-        if (this.mainWindow && (details.url.indexOf('/stream?client_id=') !== -1 || details.url.indexOf('cf-media.sndcdn.com') !== -1)) {
-          if (details.statusCode < 200 && details.statusCode > 300) {
-            if (details.statusCode === 404) {
-              this.store.dispatch(addToast({
-                message: 'This resource might not exists anymore',
-                intent: Intent.DANGER
-              }));
-            }
-          }
-        }
-      });
-    }
-  }
+						if (this.mainWindow) {
+							this.mainWindow.hide();
+						}
+					}
+				}
+			});
 
-  private registerListeners = () => {
-    if (this.mainWindow) {
-      this.mainWindow.webContents.on('crashed', (event: any) => {
-        this.logger.error('APP CRASHED:');
-        this.logger.error(event);
-      });
-
-      this.mainWindow.on('unresponsive', (event: any) => {
-        this.logger.error('APP UNRESPONSIVE:');
-        this.logger.error(event);
-      });
-
-      this.mainWindow.on('closed', () => {
-        this.mainWindow = undefined;
-      });
-
-      this.mainWindow.on('close', (event) => {
-        if (process.platform === 'darwin') {
-          if (this.quitting) {
-            this.mainWindow = undefined;
-          } else {
-            event.preventDefault();
-
-            if (this.mainWindow) {
-              this.mainWindow.hide();
-            }
-          }
-        }
-      });
-
-      this.mainWindow.on('ready-to-show', () => {
-        if (this.mainWindow) {
-          this.mainWindow.show();
-        }
-      });
-    }
-  }
+			this.mainWindow.on("ready-to-show", () => {
+				if (this.mainWindow) {
+					this.mainWindow.show();
+				}
+			});
+		}
+	};
 }

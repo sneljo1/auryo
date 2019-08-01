@@ -1,12 +1,12 @@
-import { Location } from 'history';
-import { debounce } from 'lodash';
-import * as React from 'react';
-import CustomScroll from './CustomScroll';
+import { Location } from "history";
+import { debounce } from "lodash";
+import * as React from "react";
+import CustomScroll from "./CustomScroll";
 
 interface Props {
     location: Location;
     previousScrollTop?: number;
-    setScrollPosition: (scrollTop: number, pathname: string) => void;
+    setScrollPosition(scrollTop: number, pathname: string): void;
 }
 
 interface State {
@@ -16,7 +16,7 @@ interface State {
 class WithHeaderComponent<P extends Props, S extends State> extends React.Component<P, S> {
 
     // tslint:disable-next-line:no-object-literal-type-assertion
-    state: S = {
+    public state: S = {
         scrollTop: 0
     } as State as S;
 
@@ -29,7 +29,7 @@ class WithHeaderComponent<P extends Props, S extends State> extends React.Compon
         this.debouncedOnScroll = debounce(this.onScroll, 15);
     }
 
-    componentDidMount() {
+    public componentDidMount() {
         const { previousScrollTop } = this.props;
 
         if (previousScrollTop && this.scroll) {
@@ -41,7 +41,7 @@ class WithHeaderComponent<P extends Props, S extends State> extends React.Compon
         }
     }
 
-    componentWillUnmount() {
+    public componentWillUnmount() {
         const { setScrollPosition, location } = this.props;
         const { scrollTop } = this.state;
 

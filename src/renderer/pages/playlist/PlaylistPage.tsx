@@ -1,31 +1,30 @@
-import { Menu, MenuDivider, MenuItem, Popover, Position } from '@blueprintjs/core';
-import cn from 'classnames';
-import * as React from 'react';
-import { connect, MapDispatchToProps } from 'react-redux';
-import { RouteComponentProps } from 'react-router-dom';
-import { bindActionCreators } from 'redux';
-import { IMAGE_SIZES } from '@common/constants';
-import { StoreState } from '@common/store';
-import { AuthState } from '@common/store/auth';
-import { getPlaylistEntity } from '@common/store/entities/selectors';
-import { fetchPlaylistIfNeeded, fetchPlaylistTracks, ObjectState } from '@common/store/objects';
-import { getPlaylistObjectSelector } from '@common/store/objects/selectors';
-import { addUpNext, PlayerStatus, playTrack, toggleStatus } from '@common/store/player';
-import { toggleLike, toggleRepost } from '@common/store/track/actions';
-import { setScrollPosition } from '@common/store/ui';
-import { getPreviousScrollTop } from '@common/store/ui/selectors';
-import { getReadableTimeFull, SC } from '@common/utils';
-import { IPC } from '@common/utils/ipc';
-import { NormalizedResult, SoundCloud } from '../../../types';
-import Header from '../../app/components/Header/Header';
-import CustomScroll from '../../_shared/CustomScroll';
-import PageHeader from '../../_shared/PageHeader/PageHeader';
-import ShareMenuItem from '../../_shared/ShareMenuItem';
-import Spinner from '../../_shared/Spinner/Spinner';
-import TracksGrid from '../../_shared/TracksGrid/TracksGrid';
-import WithHeaderComponent from '../../_shared/WithHeaderComponent';
-import './PlaylistPage.scss';
-import _ = require('lodash');
+import { Menu, MenuDivider, MenuItem, Popover, Position } from "@blueprintjs/core";
+import { IMAGE_SIZES } from "@common/constants";
+import { StoreState } from "@common/store";
+import { AuthState } from "@common/store/auth";
+import { getPlaylistEntity } from "@common/store/entities/selectors";
+import { fetchPlaylistIfNeeded, fetchPlaylistTracks, ObjectState } from "@common/store/objects";
+import { getPlaylistObjectSelector } from "@common/store/objects/selectors";
+import { addUpNext, PlayerStatus, playTrack, toggleStatus } from "@common/store/player";
+import { toggleLike, toggleRepost } from "@common/store/track/actions";
+import { setScrollPosition } from "@common/store/ui";
+import { getPreviousScrollTop } from "@common/store/ui/selectors";
+import { getReadableTimeFull, SC } from "@common/utils";
+import { IPC } from "@common/utils/ipc";
+import cn from "classnames";
+import * as React from "react";
+import { connect, MapDispatchToProps } from "react-redux";
+import { RouteComponentProps } from "react-router-dom";
+import { bindActionCreators } from "redux";
+import { NormalizedResult, SoundCloud } from "../../../types";
+import CustomScroll from "../../_shared/CustomScroll";
+import PageHeader from "../../_shared/PageHeader/PageHeader";
+import ShareMenuItem from "../../_shared/ShareMenuItem";
+import Spinner from "../../_shared/Spinner/Spinner";
+import TracksGrid from "../../_shared/TracksGrid/TracksGrid";
+import WithHeaderComponent from "../../_shared/WithHeaderComponent";
+import Header from "../../app/components/Header/Header";
+import "./PlaylistPage.scss";
 
 interface OwnProps extends RouteComponentProps<{ playlistId: string }> {
 }
@@ -59,7 +58,7 @@ type AllProps = OwnProps & PropsFromState & PropsFromDispatch;
 
 class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
 
-    componentDidMount() {
+    public componentDidMount() {
         super.componentDidMount();
 
         const { fetchPlaylistIfNeeded, playlistIdParam } = this.props;
@@ -68,7 +67,7 @@ class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
 
     }
 
-    componentDidUpdate(prevProps: AllProps) {
+    public componentDidUpdate(prevProps: AllProps) {
         const { fetchPlaylistIfNeeded, playlistIdParam } = this.props;
 
         if (playlistIdParam !== prevProps.playlistIdParam) {
@@ -76,7 +75,7 @@ class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
         }
     }
 
-    renderPlayButton = () => {
+    public renderPlayButton = () => {
         const {
             playlist,
             playlistIdParam,
@@ -86,16 +85,18 @@ class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
             toggleStatus
         } = this.props;
 
-        if (!playlist) return null;
+        if (!playlist) { return null; }
 
         if (isPlaylistPlaying) {
             return (
                 <a
-                    href='javascript:void(0)'
-                    className='c_btn round colored'
-                    onClick={() => toggleStatus()}
+                    href="javascript:void(0)"
+                    className="c_btn round colored"
+                    onClick={() => {
+                        toggleStatus();
+                    }}
                 >
-                    <i className='bx bx-pause' />
+                    <i className="bx bx-pause" />
                 </a>
             );
         }
@@ -110,16 +111,17 @@ class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
 
         return (
             <a
-                href='javascript:void(0)'
-                className='c_btn round colored'
+                href="javascript:void(0)"
+                className="c_btn round colored"
                 onClick={toggle}
             >
-                <i className='bx bx-play' />
+                <i className="bx bx-play" />
             </a>
         );
     }
 
-    render() {
+    // tslint:disable-next-line: max-func-body-length cyclomatic-complexity
+    public render() {
         const {
             // Vars
             playlistObject,
@@ -148,9 +150,12 @@ class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
 
         const isEmpty = !playlistObject.isFetching && (playlist.tracks.length === 0 && playlist.duration === 0 || playlist.track_count === 0);
 
+        const likedIcon = liked ? "bx bxs-heart" : "bx bx-heart";
+        const image = hasImage ? SC.getImageUrl(playlist.artwork_url || first_item.artwork_url, IMAGE_SIZES.XLARGE) : null;
+
         return (
             <CustomScroll
-                heightRelativeToParent='100%'
+                heightRelativeToParent="100%"
                 allowOuterScroll={true}
                 threshold={300}
                 isFetching={playlistObject.isFetching}
@@ -170,16 +175,16 @@ class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
                 />
 
                 <PageHeader
-                    image={hasImage ? SC.getImageUrl(playlist.artwork_url || first_item.artwork_url, IMAGE_SIZES.XLARGE) : null}
+                    image={image}
                 >
 
                     <h2>{playlist.title}</h2>
                     <div>
-                        <div className='stats'>
-                            {playlist.track_count} titles{' - '}{getReadableTimeFull(playlist.duration, true)}
+                        <div className="stats">
+                            {playlist.track_count} titles{" - "}{getReadableTimeFull(playlist.duration, true)}
                         </div>
 
-                        <div className='button-group'>
+                        <div className="button-group">
                             {
                                 first_item && !isEmpty ? (
                                     this.renderPlayButton()
@@ -190,14 +195,14 @@ class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
                             {
                                 playlist.tracks.length && !playlistOwned ? (
                                     <a
-                                        href='javascript:void(0)'
-                                        className={cn('c_btn', { active: liked })}
+                                        href="javascript:void(0)"
+                                        className={cn("c_btn", { active: liked })}
                                         onClick={() => {
                                             toggleLike(playlist.id, true);
                                         }}
                                     >
-                                        <i className={liked ? 'bx bxs-heart' : 'bx bx-heart'} />
-                                        <span>{liked ? 'Liked' : 'Like'}</span>
+                                        <i className={likedIcon} />
+                                        <span>{liked ? "Liked" : "Like"}</span>
                                     </a>
                                 ) : null
                             }
@@ -205,14 +210,14 @@ class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
                             {
                                 playlist.tracks.length && !playlistOwned ? (
                                     <a
-                                        href='javascript:void(0)'
-                                        className={cn('c_btn', { 'text-primary': reposted })}
+                                        href="javascript:void(0)"
+                                        className={cn("c_btn", { "text-primary": reposted })}
                                         onClick={() => {
                                             toggleRepost(playlist.id, true);
                                         }}
                                     >
-                                        <i className='bx bx-repost' />
-                                        <span>{reposted ? 'Reposted' : 'Repost'}</span>
+                                        <i className="bx bx-repost" />
+                                        <span>{reposted ? "Reposted" : "Repost"}</span>
                                     </a>
                                 ) : null
                             }
@@ -229,7 +234,7 @@ class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
                                                     playlist.tracks.length ? (
                                                         <React.Fragment>
                                                             <MenuItem
-                                                                text='Add to queue'
+                                                                text="Add to queue"
                                                                 onClick={() => {
                                                                     addUpNext(playlist);
                                                                 }}
@@ -240,7 +245,7 @@ class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
                                                 }
 
                                                 <MenuItem
-                                                    text='View in browser'
+                                                    text="View in browser"
                                                     onClick={() => {
                                                         IPC.openExternal(playlist.permalink_url);
                                                     }}
@@ -258,8 +263,8 @@ class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
                                             </Menu>
                                         )}
                                     >
-                                        <a href='javascript:void(0)' className='c_btn round'>
-                                            <i className='bx bx-dots-horizontal-rounded' />
+                                        <a href="javascript:void(0)" className="c_btn round">
+                                            <i className="bx bx-dots-horizontal-rounded" />
                                         </a>
                                     </Popover>
                                 )
@@ -272,14 +277,14 @@ class PlaylistContainer extends WithHeaderComponent<AllProps, State> {
                     isEmpty ? (
                         <div
                             className={cn({
-                                'mt-5': !hasImage
+                                "mt-5": !hasImage
                             })}
                         >
-                            <h5 className='text-muted text-center'>
-                                This{' '}<a target='_blank' rel='noopener noreferrer' href={playlist.permalink_url}>playlist</a>{' '}
+                            <h5 className="text-muted text-center">
+                                This{" "}<a target="_blank" rel="noopener noreferrer" href={playlist.permalink_url}>playlist</a>{" "}
                                 is empty or not available via a third party!</h5>
-                            <div className='text-center' style={{ fontSize: '5rem' }}>
-                                <span role='img'>😲</span>
+                            <div className="text-center" style={{ fontSize: "5rem" }}>
+                                <span role="img">😲</span>
                             </div>
                         </div>
                     ) : (

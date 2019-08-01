@@ -1,18 +1,18 @@
-import { Intent } from '@blueprintjs/core';
-import { ipcRenderer } from 'electron';
-import * as _ from 'lodash';
-import { action } from 'typesafe-actions';
-import { NormalizedResult, SoundCloud, ThunkResult } from '../../../types';
-import { EVENTS } from '../../constants/events';
-import { SC } from '../../utils';
-import { getCurrentPosition } from '../../utils/playerUtils';
-import { getPlaylistEntity, getTrackEntity } from '../entities/selectors';
-import { ObjectsActionTypes, ObjectTypes, PlaylistTypes } from '../objects';
-import { fetchMore, fetchPlaylistIfNeeded, fetchPlaylistTracks, fetchTracks } from '../objects/actions';
-import { getPlaylistObjectSelector, getPlaylistType } from '../objects/selectors';
-import { addToast } from '../ui';
-import { ChangeTypes, PlayerActionTypes, PlayerStatus, PlayingPositionState, PlayingTrack, RepeatTypes } from './types';
-import { EntitiesState } from '../entities';
+import { Intent } from "@blueprintjs/core";
+import { ipcRenderer } from "electron";
+import * as _ from "lodash";
+import { action } from "typesafe-actions";
+import { NormalizedResult, SoundCloud, ThunkResult } from "../../../types";
+import { EVENTS } from "../../constants/events";
+import { SC } from "../../utils";
+import { getCurrentPosition } from "../../utils/playerUtils";
+import { EntitiesState } from "../entities";
+import { getPlaylistEntity, getTrackEntity } from "../entities/selectors";
+import { ObjectsActionTypes, ObjectTypes, PlaylistTypes } from "../objects";
+import { fetchMore, fetchPlaylistIfNeeded, fetchPlaylistTracks, fetchTracks } from "../objects/actions";
+import { getPlaylistObjectSelector, getPlaylistType } from "../objects/selectors";
+import { addToast } from "../ui";
+import { ChangeTypes, PlayerActionTypes, PlayerStatus, PlayingPositionState, PlayingTrack, RepeatTypes } from "./types";
 
 export const setCurrentTime = (time: number) => action(PlayerActionTypes.SET_TIME, { time });
 export const setDuration = (time: number) => action(PlayerActionTypes.SET_DURATION, { time });
@@ -47,7 +47,7 @@ export function getPlaylistObject(playlistId: string, position: number): ThunkRe
                         (currentPlaylistObject.items.length === 0 && currentPlaylistEntity.duration === 0 ||
                             currentPlaylistEntity.track_count === 0)
                     ) {
-                        throw new Error('This playlist is empty or not available via a third party!');
+                        throw new Error("This playlist is empty or not available via a third party!");
                     }
 
                     // Fetch more tracks
@@ -81,7 +81,7 @@ export function getPlaylistObject(playlistId: string, position: number): ThunkRe
     };
 }
 
-export function toggleStatus(newStatus?: PlayerStatus): ThunkResult<void> {
+export function toggleStatus(toggleStatus?: PlayerStatus): ThunkResult<void> {
     return (dispatch, getState) => {
         const state = getState();
         const {
@@ -91,6 +91,8 @@ export function toggleStatus(newStatus?: PlayerStatus): ThunkResult<void> {
             },
         } = state;
 
+        let newStatus = toggleStatus;
+
         const stream_playlist = getPlaylistObjectSelector(PlaylistTypes.STREAM)(state);
 
         if (stream_playlist && currentPlaylistId === null && newStatus === PlayerStatus.PLAYING) {
@@ -98,7 +100,7 @@ export function toggleStatus(newStatus?: PlayerStatus): ThunkResult<void> {
 
             let next: Partial<PlayingTrack> = { id: first.id };
 
-            if (first.schema === 'playlists') {
+            if (first.schema === "playlists") {
                 next = { playlistId: first.id.toString() };
             }
 
@@ -122,9 +124,6 @@ export function toggleStatus(newStatus?: PlayerStatus): ThunkResult<void> {
 
 /**
  * Set new playlist as first or add a playlist if it doesn't exist yet
- *
- * @param playlistId
- * @param nextTrack
  */
 export function setCurrentPlaylist(playlistId: string, nextTrack: PlayingTrack | null): ThunkResult<Promise<any>> {
     return async (dispatch, getState) => {
@@ -139,7 +138,7 @@ export function setCurrentPlaylist(playlistId: string, nextTrack: PlayingTrack |
 
             const playlistObject = getPlaylistObjectSelector(playlistId.toString())(state);
 
-            const containsPlaylists: Array<PlayingPositionState> = [];
+            const containsPlaylists: PlayingPositionState[] = [];
 
             if (playlistObject && (nextTrack || playlistId !== currentPlaylistId)) {
 
@@ -147,7 +146,7 @@ export function setCurrentPlaylist(playlistId: string, nextTrack: PlayingTrack |
                     dispatch<Promise<ProcessedQueueItems>>(processQueueItems(playlistObject.items, true, playlistId));
 
                 if (nextTrack && !nextTrack.id) {
-                    await dispatch(fetchPlaylistIfNeeded(+nextTrack.playlistId));
+                    await dispatch<Promise<any>>(fetchPlaylistIfNeeded(+nextTrack.playlistId));
                 }
 
                 return dispatch<Promise<any>>({
@@ -173,10 +172,10 @@ export function setCurrentPlaylist(playlistId: string, nextTrack: PlayingTrack |
     };
 }
 
-export type ProcessedQueueItems = [Array<PlayingTrack>, Array<PlayingTrack>];
+export type ProcessedQueueItems = [PlayingTrack[], PlayingTrack[]];
 
 export function processQueueItems(
-    result: Array<NormalizedResult>,
+    result: NormalizedResult[],
     keepFirst: boolean = false,
     newPlaylistId?: string
 ): ThunkResult<Promise<ProcessedQueueItems>> {
@@ -186,13 +185,13 @@ export function processQueueItems(
         try {
             const { player: { currentPlaylistId }, config: { shuffle } } = getState();
 
-            if (!currentPlaylistId && !newPlaylistId) return [[], []];
+            if (!currentPlaylistId && !newPlaylistId) { return [[], []]; }
 
             const currentPlaylist = newPlaylistId || currentPlaylistId as string;
 
             const items = await Promise.all(result
-                .filter((trackIdSchema) => (trackIdSchema && trackIdSchema.schema !== 'users'))
-                .map(async (trackIdSchema): Promise<PlayingTrack | null | Array<PlayingTrack | null>> => {
+                .filter((trackIdSchema) => (trackIdSchema && trackIdSchema.schema !== "users"))
+                .map(async (trackIdSchema): Promise<PlayingTrack | null | (PlayingTrack | null)[]> => {
                     const id = trackIdSchema.id;
 
                     const playlist = getPlaylistEntity(id)(getState());
@@ -259,9 +258,6 @@ export function processQueueItems(
 
 /**
  * Set currentrackIndex & start playing
- *
- * @param nextTrack
- * @param position
  */
 export function setPlayingTrack(nextTrack: PlayingTrack, position: number, changeType?: ChangeTypes): ThunkResult<any> {
     return (dispatch, getState) => {
@@ -293,10 +289,6 @@ export function setPlayingTrack(nextTrack: PlayingTrack, position: number, chang
 
 /**
  * Add up next feature
- *
- * @param trackId
- * @param track_playlist
- * @param remove
  */
 export function addUpNext(track: SoundCloud.Track | SoundCloud.Playlist, remove?: number): ThunkResult<void> {
     return (dispatch, getState) => {
@@ -308,7 +300,7 @@ export function addUpNext(track: SoundCloud.Track | SoundCloud.Playlist, remove?
             }
         } = getState();
 
-        const isPlaylist = track.kind === 'playlist';
+        const isPlaylist = track.kind === "playlist";
 
         const nextTrack = {
             id: track.id,
@@ -316,7 +308,7 @@ export function addUpNext(track: SoundCloud.Track | SoundCloud.Playlist, remove?
             un: Date.now()
         };
 
-        let nextList: Array<PlayingTrack> = [];
+        let nextList: PlayingTrack[] = [];
 
         if (isPlaylist) {
             const playlist = track as SoundCloud.Playlist;
@@ -333,13 +325,13 @@ export function addUpNext(track: SoundCloud.Track | SoundCloud.Playlist, remove?
                     playlistId: track.id.toString(),
                     un: Date.now()
                 };
-            }).filter((t) => t) as Array<PlayingTrack>;
+            }).filter((t) => t) as PlayingTrack[];
         }
 
         if (queue.length) {
             if (remove === undefined) {
                 dispatch(addToast({
-                    message: `Added ${isPlaylist ? 'playlist' : 'track'} to play queue`,
+                    message: `Added ${isPlaylist ? "playlist" : "track"} to play queue`,
                     intent: Intent.SUCCESS
                 }));
 
@@ -359,11 +351,8 @@ export function addUpNext(track: SoundCloud.Track | SoundCloud.Playlist, remove?
 
 /**
  * Update queue when scrolling through
- *
- * @param range
- * @returns {function(*, *)}
  */
-export function updateQueue(range: Array<number>): ThunkResult<void> {
+export function updateQueue(range: number[]): ThunkResult<void> {
     return (dispatch, getState) => {
 
         const {
@@ -398,7 +387,7 @@ export function getItemsAround(position: number): ThunkResult<Promise<void>> {
             if (currentPlaylistId) {
                 const currentPlaylist = getPlaylistObjectSelector(currentPlaylistId)(getState());
 
-                const itemsToFetch: Array<{ position: number; id: number; }> = [];
+                const itemsToFetch: { position: number; id: number; }[] = [];
 
                 const lowBound = position - 3;
                 const highBound = position + 3;
@@ -472,17 +461,12 @@ export function getItemsAround(position: number): ThunkResult<Promise<void>> {
  *
  * Before playing the current track, check if the track passed to the function is a playlist. If so, save the parent
  * playlist and execute the function with the child playlist. If the new playlist doesn't exist, fetch it before moving on.
- *
- * @param playlistId
- * @param trackId
- * @param trackPlaylist
- * @param force_set_playlist
- * @returns {function(*, *)}
  */
 
 interface Next { id: number; playlistId?: string; }
 
 export function playTrack(playlistId: string, next?: Next, force_set_playlist: boolean = false, changeType?: ChangeTypes): ThunkResult<any> {
+    // tslint:disable-next-line: max-func-body-length cyclomatic-complexity
     return async (dispatch, getState) => {
 
         const {
@@ -495,6 +479,7 @@ export function playTrack(playlistId: string, next?: Next, force_set_playlist: b
             const object = getPlaylistObjectSelector(playlistId)(getState());
 
             if (object) {
+                // tslint:disable-next-line: no-parameter-reassignment
                 next = {
                     playlistId: playlistId.toString(),
                     id: object.items[0].id
@@ -581,7 +566,7 @@ export function playTrack(playlistId: string, next?: Next, force_set_playlist: b
                     !trackPlaylistObject.items.length &&
                     playlistEntitity.track_count !== 0
                 ) {
-                    throw new Error('This playlist is empty or not available via a third party!');
+                    throw new Error("This playlist is empty or not available via a third party!");
                 } else if (trackPlaylistObject.items.length) {
                     // If queue doesn't contain playlist yet
 
@@ -620,7 +605,7 @@ export function changeTrack(changeType: ChangeTypes, finished?: boolean): ThunkR
             currentTime
         } = player;
 
-        if (!currentPlaylistId) return;
+        if (!currentPlaylistId) { return; }
 
         const currentPlaylistObject = getPlaylistObjectSelector(currentPlaylistId)(getState());
 
@@ -637,7 +622,6 @@ export function changeTrack(changeType: ChangeTypes, finished?: boolean): ThunkR
             }
                 break;
             default:
-                break;
         }
 
         if (finished && repeat === RepeatTypes.ONE) {
@@ -657,7 +641,7 @@ export function changeTrack(changeType: ChangeTypes, finished?: boolean): ThunkR
             }
         }
 
-        if (nextIndex > (queue.length - 1)) return;
+        if (nextIndex > (queue.length - 1)) { return; }
 
         if (nextIndex < 0) {
             nextIndex = 0;
@@ -672,7 +656,7 @@ export function changeTrack(changeType: ChangeTypes, finished?: boolean): ThunkR
 }
 
 export function registerPlay(): ThunkResult<void> {
-    return (_dispatch, getState) => {
+    return async (_dispatch, getState) => {
         const {
             player: { playingTrack },
         } = getState();
@@ -683,10 +667,10 @@ export function registerPlay(): ThunkResult<void> {
             const params: any = {
                 track_urn: `soundcloud:tracks:${id}`
             };
-
-            import('@common/utils/universalAnalytics')
+            
+            await import("@common/utils/universalAnalytics")
                 .then(({ ua }) => {
-                    ua.event('SoundCloud', 'Play', '', id).send();
+                    ua.event("SoundCloud", "Play", "", id).send();
                 });
 
             const type = getPlaylistType(playlistId);
@@ -695,8 +679,8 @@ export function registerPlay(): ThunkResult<void> {
                 params.context_urn = `soundcloud:playlists:${playlistId}`;
             }
 
-            fetch(SC.registerPlayUrl(), {
-                method: 'POST',
+            await fetch(SC.registerPlayUrl(), {
+                method: "POST",
                 body: JSON.stringify(params)
             });
         }

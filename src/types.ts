@@ -1,5 +1,5 @@
-import { ThunkAction } from 'redux-thunk';
-import { StoreState } from './common/store';
+import { ThunkAction } from "redux-thunk";
+import { StoreState } from "./common/store";
 
 export type ThunkResult<R> = ThunkAction<R, StoreState, undefined, any>;
 
@@ -8,7 +8,7 @@ export interface GetPlaylistOptions {
     appendId?: number | null;
 }
 
-export interface NormalizedResult { schema: 'users' | 'tracks' | 'playlists' | 'comments'; id: number; }
+export interface NormalizedResult { schema: "users" | "tracks" | "playlists" | "comments"; id: number; }
 
 export interface NormalizedPersonalizedItem {
     urn: string;
@@ -19,27 +19,27 @@ export interface NormalizedPersonalizedItem {
     last_updated: string;
     style: string;
     social_proof: SoundCloud.CompactUser;
-    system_playlists?: Array<string>;
-    playlists?: Array<string>;
+    system_playlists?: string[];
+    playlists?: string[];
 }
 
 export interface NormalizedResponse {
     entities: NormalizedEntities;
-    result: Array<NormalizedResult>;
+    result: NormalizedResult[];
 }
 
 export interface NormalizedEntities {
     playlistEntities?: {
-        [playlistId: string]: Normalized.Playlist
+        [playlistId: string]: Normalized.Playlist;
     };
     trackEntities?: {
-        [trackId: string]: Normalized.Track
+        [trackId: string]: Normalized.Track;
     };
     userEntities?: {
-        [trackId: string]: SoundCloud.User
+        [trackId: string]: SoundCloud.User;
     };
     commentEntities?: {
-        [commentId: string]: SoundCloud.Comment
+        [commentId: string]: SoundCloud.Comment;
     };
 }
 
@@ -47,12 +47,12 @@ type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 
 // tslint:disable-next-line:no-namespace
 export namespace Normalized {
-    export interface Playlist extends Omit<SoundCloud.Playlist, 'tracks' | 'user'> {
-        tracks: Array<NormalizedResult>;
+    export interface Playlist extends Omit<SoundCloud.Playlist, "tracks" | "user"> {
+        tracks: NormalizedResult[];
         user: number;
     }
 
-    export interface Track extends Omit<SoundCloud.Track, 'user'> {
+    export interface Track extends Omit<SoundCloud.Track, "user"> {
         user: number;
     }
 }
@@ -71,27 +71,27 @@ export namespace SoundCloud {
     }
 
     export enum AssetType {
-        USER = 'user',
-        COMMENT = 'comment',
-        TRACK = 'track',
-        PLAYLIST = 'playlist',
-        WEBPROFILE = 'web-profile',
-        SYSTEMPLAYLIST = 'system-playlist',
+        USER = "user",
+        COMMENT = "comment",
+        TRACK = "track",
+        PLAYLIST = "playlist",
+        WEBPROFILE = "web-profile",
+        SYSTEMPLAYLIST = "system-playlist",
     }
 
     export enum ProfileService {
-        SOUNDCLOUD = 'soundcloud',
-        INSTAGRAM = 'instagram',
-        FACEBOOK = 'facebook',
-        TWITTER = 'twitter',
-        YOUTUBE = 'youtube',
-        SPOTIFY = 'spotify',
-        TUMBLR = 'tumblr',
-        PINTEREST = 'pinterest',
-        SNAPCHAT = 'snapchat',
-        PERSONAL = 'personal',
-        SONGKICK = 'songkick',
-        BEATPORT = 'beatport'
+        SOUNDCLOUD = "soundcloud",
+        INSTAGRAM = "instagram",
+        FACEBOOK = "facebook",
+        TWITTER = "twitter",
+        YOUTUBE = "youtube",
+        SPOTIFY = "spotify",
+        TUMBLR = "tumblr",
+        PINTEREST = "pinterest",
+        SNAPCHAT = "snapchat",
+        PERSONAL = "personal",
+        SONGKICK = "songkick",
+        BEATPORT = "beatport"
     }
 
     export interface Profile extends Asset<AssetType.WEBPROFILE> {
@@ -145,7 +145,7 @@ export namespace SoundCloud {
         public_favorites_count: number;
         followers_count: number;
         followings_count: number;
-        subscriptions: Array<any>;
+        subscriptions: any[];
         upload_seconds_left: number;
         quota: Quota;
         private_tracks_count: number;
@@ -158,7 +158,7 @@ export namespace SoundCloud {
     }
 
     export interface UserProfiles {
-        items: Array<Profile>;
+        items: Profile[];
         loading: boolean;
     }
 
@@ -237,7 +237,7 @@ export namespace SoundCloud {
         user_id: number;
         last_modified: string;
         license: string;
-        tracks: Array<Track>;
+        tracks: Track[];
         playlist_type?: any;
         downloadable: boolean;
         sharing: string;
@@ -272,10 +272,10 @@ export namespace SoundCloud {
         short_title: string;
         short_description: string;
         tracking_feature_name: string;
-        last_updated: SoundCloud.DateString;
+        last_updated: DateString;
         artwork_url: string;
         calculated_artwork_url: string;
-        tracks: Array<SoundCloud.Track>;
+        tracks: Track[];
     }
 
     export interface Quota {
@@ -290,7 +290,7 @@ export namespace SoundCloud {
 }
 
 export enum REDUX_STATES {
-    LOADING = 'LOADING',
-    SUCCESS = 'SUCCESS',
-    ERROR = 'ERROR'
+    LOADING = "LOADING",
+    SUCCESS = "SUCCESS",
+    ERROR = "ERROR"
 }

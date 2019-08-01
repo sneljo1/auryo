@@ -1,36 +1,37 @@
-import { Menu, MenuDivider, MenuItem, Popover, Position } from '@blueprintjs/core';
-import cn from 'classnames';
-import * as React from 'react';
-import { connect, MapDispatchToProps } from 'react-redux';
-import { RouteComponentProps } from 'react-router-dom';
-import { Col, Row, TabContent, TabPane } from 'reactstrap';
-import { bindActionCreators } from 'redux';
-import { IMAGE_SIZES } from '@common/constants';
-import { StoreState } from '@common/store';
-import { AuthState, toggleFollowing } from '@common/store/auth';
-import { CombinedUserPlaylistState, getUserPlaylistsCombined } from '@common/store/auth/selectors';
-import { getTrackEntity } from '@common/store/entities/selectors';
-import { canFetchMoreOf, fetchMore, ObjectState, ObjectTypes, PlaylistTypes } from '@common/store/objects';
-import { getCommentObject, getPlaylistName, getRelatedTracksPlaylistObject } from '@common/store/objects/selectors';
-import { addUpNext, PlayerStatus, PlayingTrack, playTrack } from '@common/store/player';
-import { togglePlaylistTrack } from '@common/store/playlist/playlist';
-import { fetchTrackIfNeeded, toggleLike, toggleRepost } from '@common/store/track/actions';
-import { setScrollPosition } from '@common/store/ui';
-import { getPreviousScrollTop } from '@common/store/ui/selectors';
-import { SC } from '@common/utils';
-import { IPC } from '@common/utils/ipc';
-import { NormalizedResult, SoundCloud } from '../../../types';
-import Header from '../../app/components/Header/Header';
-import CustomScroll from '../../_shared/CustomScroll';
-import FallbackImage from '../../_shared/FallbackImage';
-import PageHeader from '../../_shared/PageHeader/PageHeader';
-import ShareMenuItem from '../../_shared/ShareMenuItem';
-import Spinner from '../../_shared/Spinner/Spinner';
-import TogglePlayButton from '../../_shared/TogglePlayButton';
-import TrackList from '../../_shared/TrackList/TrackList';
-import WithHeaderComponent from '../../_shared/WithHeaderComponent';
-import TrackOverview from './components/TrackOverview';
-import './TrackPage.scss';
+import { Menu, MenuDivider, MenuItem, Popover, Position } from "@blueprintjs/core";
+import { IMAGE_SIZES } from "@common/constants";
+import { StoreState } from "@common/store";
+import { AuthState, toggleFollowing } from "@common/store/auth";
+import { CombinedUserPlaylistState, getUserPlaylistsCombined } from "@common/store/auth/selectors";
+import { getTrackEntity } from "@common/store/entities/selectors";
+import { canFetchMoreOf, fetchMore, ObjectState, ObjectTypes, PlaylistTypes } from "@common/store/objects";
+import { getCommentObject, getPlaylistName, getRelatedTracksPlaylistObject } from "@common/store/objects/selectors";
+import { addUpNext, PlayerStatus, PlayingTrack, playTrack } from "@common/store/player";
+import { togglePlaylistTrack } from "@common/store/playlist/playlist";
+import { fetchTrackIfNeeded, toggleLike, toggleRepost } from "@common/store/track/actions";
+import { setScrollPosition } from "@common/store/ui";
+import { getPreviousScrollTop } from "@common/store/ui/selectors";
+import { SC } from "@common/utils";
+import { IPC } from "@common/utils/ipc";
+import cn from "classnames";
+import * as _ from "lodash";
+import * as React from "react";
+import { connect, MapDispatchToProps } from "react-redux";
+import { RouteComponentProps } from "react-router-dom";
+import { Col, Row, TabContent, TabPane } from "reactstrap";
+import { bindActionCreators } from "redux";
+import { NormalizedResult, SoundCloud } from "../../../types";
+import CustomScroll from "../../_shared/CustomScroll";
+import FallbackImage from "../../_shared/FallbackImage";
+import PageHeader from "../../_shared/PageHeader/PageHeader";
+import ShareMenuItem from "../../_shared/ShareMenuItem";
+import Spinner from "../../_shared/Spinner/Spinner";
+import TogglePlayButton from "../../_shared/TogglePlayButton";
+import TrackList from "../../_shared/TrackList/TrackList";
+import WithHeaderComponent from "../../_shared/WithHeaderComponent";
+import Header from "../../app/components/Header/Header";
+import { TrackOverview } from "./components/TrackOverview";
+import "./TrackPage.scss";
 
 interface OwnProps extends RouteComponentProps<{ songId: string }> {
 }
@@ -45,7 +46,7 @@ interface PropsFromState {
     previousScrollTop?: number;
     track: SoundCloud.Track | null;
     songIdParam: number;
-    userPlaylists: Array<CombinedUserPlaylistState>;
+    userPlaylists: CombinedUserPlaylistState[];
 }
 
 interface PropsFromDispatch {
@@ -67,20 +68,20 @@ interface State {
 }
 
 enum TabTypes {
-    OVERVIEW = 'overview',
-    RELATED_TRACKS = 'related'
+    OVERVIEW = "overview",
+    RELATED_TRACKS = "related"
 }
 
 type AllProps = OwnProps & PropsFromState & PropsFromDispatch;
 
 class TrackPage extends WithHeaderComponent<AllProps, State> {
 
-    readonly state: State = {
+    public readonly state: State = {
         activeTab: TabTypes.OVERVIEW,
         scrollTop: 0
     };
 
-    componentDidMount() {
+    public componentDidMount() {
         super.componentDidMount();
 
         const { fetchTrackIfNeeded, songIdParam } = this.props;
@@ -89,14 +90,14 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
 
     }
 
-    componentDidUpdate() {
+    public componentDidUpdate() {
         const { fetchTrackIfNeeded, songIdParam } = this.props;
 
         fetchTrackIfNeeded(songIdParam);
 
     }
 
-    toggle = (tab: TabTypes) => {
+    public toggle = (tab: TabTypes) => {
         if (this.state.activeTab !== tab) {
             this.setState({
                 activeTab: tab
@@ -104,7 +105,7 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
         }
     }
 
-    fetchMore = () => {
+    public fetchMore = () => {
         const { match: { params: { songId } }, fetchMore } = this.props;
 
         if (this.state.activeTab === TabTypes.OVERVIEW) {
@@ -112,7 +113,7 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
         }
     }
 
-    canFetchMore = () => {
+    public canFetchMore = () => {
         const { match: { params: { songId } }, canFetchMoreOf } = this.props;
 
         if (this.state.activeTab === TabTypes.OVERVIEW) {
@@ -122,7 +123,7 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
         return false;
     }
 
-    renderToggleButton = () => {
+    public renderToggleButton = () => {
         const { songIdParam, playTrack, relatedPlaylistId, playingTrack } = this.props;
 
         // TODO redundant?
@@ -130,7 +131,7 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
         if (playingTrack && playingTrack.id !== null && (playingTrack.id === songIdParam)) {
             return (
                 <TogglePlayButton
-                    className='c_btn round colored'
+                    className="c_btn round colored"
                 />
             );
         }
@@ -140,13 +141,14 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
         };
 
         return (
-            <a href='javascript:void(0)' className='c_btn round colored' onClick={playTrackFunc}>
-                <i className='bx bx-play' />
+            <a href="javascript:void(0)" className="c_btn round colored" onClick={playTrackFunc}>
+                <i className="bx bx-play" />
             </a>
         );
     }
 
-    render() {
+    // tslint:disable-next-line: max-func-body-length
+    public render() {
         const {
             // Vars
             auth: { likes, reposts },
@@ -171,10 +173,14 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
 
         const image = SC.getImageUrl(track, IMAGE_SIZES.LARGE);
 
+        const purchaseTitle = track.purchase_title || "Download";
+
+        const likedIcon = liked ? "bx bxs-heart" : "bx bx-heart";
+
         return (
             <CustomScroll
-                className='column withHeader'
-                heightRelativeToParent='100%'
+                className="column withHeader"
+                heightRelativeToParent="100%"
                 allowOuterScroll={true}
                 threshold={300}
                 ref={(r) => this.scroll = r}
@@ -184,65 +190,65 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
             >
 
                 <Header
-                    className='withImage'
+                    className="withImage"
                     scrollTop={this.state.scrollTop}
                 />
 
                 <PageHeader image={image}>
-                    <Row className='trackHeader'>
-                        <Col xs='12' md='4' xl='3'>
-                            <div className='imageWrapper'>
+                    <Row className="trackHeader">
+                        <Col xs="12" md="4" xl="3">
+                            <div className="imageWrapper">
                                 <FallbackImage
                                     src={image}
                                 />
                             </div>
                         </Col>
 
-                        <Col xs='12' md='8' xl='' className='trackInfo text-md-left text-xs-center'>
+                        <Col xs="12" md="8" xl="" className="trackInfo text-md-left text-xs-center">
                             <h2>{track.title}</h2>
 
-                            <div className='button-group'>
+                            <div className="button-group">
                                 {
                                     SC.isStreamable(track) ? this.renderToggleButton() :
-                                        <a href='javascript:void(0)' className='disabled c_btn'>
+                                        <a href="javascript:void(0)" className="disabled c_btn">
                                             <span>This track is not streamable</span>
                                         </a>
                                 }
 
                                 <a
-                                    href='javascript:void(0)'
-                                    className={cn('c_btn', { active: liked })}
+                                    href="javascript:void(0)"
+                                    className={cn("c_btn", { active: liked })}
                                     onClick={() => {
                                         toggleLike(track.id);
                                     }}
                                 >
-                                    <i className={liked ? 'bx bxs-heart' : 'bx bx-heart'} />
-                                    <span>{liked ? 'Liked' : 'Like'}</span>
+                                    <i className={likedIcon} />
+                                    <span>{liked ? "Liked" : "Like"}</span>
                                 </a>
 
 
                                 <a
-                                    href='javascript:void(0)'
-                                    className={cn('c_btn', { active: reposted })}
+                                    href="javascript:void(0)"
+                                    className={cn("c_btn", { active: reposted })}
                                     onClick={() => {
                                         toggleRepost(track.id);
                                     }}
                                 >
-                                    <i className='bx bx-repost' />
-                                    <span>{reposted ? 'Reposted' : 'Repost'}</span>
+                                    <i className="bx bx-repost" />
+                                    <span>{reposted ? "Reposted" : "Repost"}</span>
                                 </a>
 
 
                                 {
                                     !track.purchase_url && track.download_url && track.downloadable && (
                                         <a
-                                            href='javascript:void(0)'
-                                            className='c_btn round'
+                                            href="javascript:void(0)"
+                                            className="c_btn round"
                                             onClick={() => {
                                                 IPC.downloadFile(SC.appendClientId(track.download_url));
                                             }}
                                         >
-                                            <i className='bx bxs-download-alt' />
+                                            <i className="bx bxs-download-alt" />
                                         </a>
                                     )
                                 }
@@ -260,8 +266,8 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
                                                         {
                                                             track.purchase_url && (
                                                                 <MenuItem
-                                                                    icon='link'
-                                                                    text={track.purchase_title || 'Download'}
+                                                                    icon="link"
+                                                                    text={purchaseTitle}
                                                                     onClick={() => {
                                                                         IPC.openExternal(track.purchase_url);
                                                                     }}
@@ -274,8 +280,8 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
                                                 )
                                             }
 
-                                            <MenuItem text='Add to playlist'>
-                                                <div style={{ fontSize: '.8rem', opacity: .8, color: 'grey', padding: '5px' }}>
+                                            <MenuItem text="Add to playlist">
+                                                <div style={{ fontSize: ".8rem", opacity: .8, color: "grey", padding: "5px" }}>
                                                     I'm sorry, this feature has been disabled to preserve your playlists.
                                                     Since we are unable to fetch all tracks, we do not know for sure if
                                                     we will delete tracks upon adding/removing track via Auryo.
@@ -299,7 +305,7 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
                                             </MenuItem>
 
                                             <MenuItem
-                                                text='Add to queue'
+                                                text="Add to queue"
                                                 onClick={() => {
                                                     addUpNext(track);
                                                 }}
@@ -308,7 +314,7 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
                                             <MenuDivider />
 
                                             <MenuItem
-                                                text='View in browser'
+                                                text="View in browser"
                                                 onClick={() => {
                                                     IPC.openExternal(track.permalink_url);
                                                 }}
@@ -317,13 +323,13 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
                                             <ShareMenuItem
                                                 title={track.title}
                                                 permalink={track.permalink_url}
-                                                username={track.user ? track.user.username : ''}
+                                                username={_.get(track, "user.username", "")}
                                             />
                                         </Menu>
                                     )}
                                 >
-                                    <a href='javascript:void(0)' className='c_btn round'>
-                                        <i className='bx bx-dots-horizontal-rounded' />
+                                    <a href="javascript:void(0)" className="c_btn round">
+                                        <i className="bx bx-dots-horizontal-rounded" />
                                     </a>
                                 </Popover>
                             </div>
@@ -332,9 +338,9 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
                     </Row>
 
 
-                    <div className='flex tracktabs row'>
+                    <div className="flex tracktabs row">
                         <a
-                            href='javascript:void(0)'
+                            href="javascript:void(0)"
                             className={cn({ active: this.state.activeTab === TabTypes.OVERVIEW })}
                             onClick={() => this.toggle(TabTypes.OVERVIEW)}
                         >
@@ -342,7 +348,7 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
                         </a>
 
                         <a
-                            href='javascript:void(0)'
+                            href="javascript:void(0)"
                             className={cn({ active: this.state.activeTab === TabTypes.RELATED_TRACKS, playing: isRelatedPlaylistsPlaying })}
                             onClick={() => this.toggle(TabTypes.RELATED_TRACKS)}
                         >
@@ -352,11 +358,11 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
 
                 </PageHeader>
 
-                <div className='trackDetails container-fluid main_track_content detailPage'>
+                <div className="trackDetails container-fluid main_track_content detailPage">
                     <TabContent activeTab={this.state.activeTab}>
 
                         {/* OVERVIEW */}
-                        <TabPane tabId={TabTypes.OVERVIEW} className='overview'>
+                        <TabPane tabId={TabTypes.OVERVIEW} className="overview">
                             <TrackOverview
                                 track={track}
                                 comments={comments}
@@ -365,7 +371,7 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
 
                         {/* RELATED TRACKS */}
                         {/* TODO ADD Spinner */}
-                        <TabPane tabId={TabTypes.RELATED_TRACKS} className='trackPadding-side'>
+                        <TabPane tabId={TabTypes.RELATED_TRACKS} className="trackPadding-side">
                             {
                                 (relatedTracks && this.state.activeTab === TabTypes.RELATED_TRACKS) && (
                                     <TrackList

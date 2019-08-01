@@ -1,6 +1,6 @@
-import * as React from 'react';
-import * as Marquee from 'react-marquee';
-import * as ReactDotDotDot from 'react-dotdotdot';
+import * as React from "react";
+import * as ReactDotDotDot from "react-dotdotdot";
+import * as Marquee from "react-marquee";
 
 interface Props {
     text: string;
@@ -15,7 +15,7 @@ const TextShortener = React.memo<Props>(({ text, clamp }) => {
     }
 
     return (
-        <Marquee loop={true} text={text || ''} trailing={1500} />
+        <Marquee loop={true} text={text || ""} trailing={1500} />
     );
 });
 

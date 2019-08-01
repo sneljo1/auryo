@@ -1,21 +1,21 @@
-import { StoreState } from '@common/store';
-import { canFetchMoreOf, fetchMore, ObjectTypes, PlaylistTypes } from '@common/store/objects';
-import { search } from '@common/store/objects/playlists/search/actions';
-import { getPlaylistName, getPlaylistObjectSelector } from '@common/store/objects/selectors';
-import { setScrollPosition } from '@common/store/ui';
-import { getPreviousScrollTop } from '@common/store/ui/selectors';
-import cn from 'classnames';
-import * as React from 'react';
-import { connect } from 'react-redux';
-import { NavLink, RouteComponentProps } from 'react-router-dom';
-import { Nav } from 'reactstrap';
-import { bindActionCreators, Dispatch } from 'redux';
-import Header from '../../app/components/Header/Header';
-import CustomScroll from '../../_shared/CustomScroll';
-import PageHeader from '../../_shared/PageHeader/PageHeader';
-import Spinner from '../../_shared/Spinner/Spinner';
-import TracksGrid from '../../_shared/TracksGrid/TracksGrid';
-import WithHeaderComponent from '../../_shared/WithHeaderComponent';
+import { StoreState } from "@common/store";
+import { canFetchMoreOf, fetchMore, ObjectTypes, PlaylistTypes } from "@common/store/objects";
+import { search } from "@common/store/objects/playlists/search/actions";
+import { getPlaylistName, getPlaylistObjectSelector } from "@common/store/objects/selectors";
+import { setScrollPosition } from "@common/store/ui";
+import { getPreviousScrollTop } from "@common/store/ui/selectors";
+import cn from "classnames";
+import * as React from "react";
+import { connect } from "react-redux";
+import { NavLink, RouteComponentProps } from "react-router-dom";
+import { Nav } from "reactstrap";
+import { bindActionCreators, Dispatch } from "redux";
+import CustomScroll from "../../_shared/CustomScroll";
+import PageHeader from "../../_shared/PageHeader/PageHeader";
+import Spinner from "../../_shared/Spinner/Spinner";
+import TracksGrid from "../../_shared/TracksGrid/TracksGrid";
+import WithHeaderComponent from "../../_shared/WithHeaderComponent";
+import Header from "../../app/components/Header/Header";
 
 interface OwnProps extends RouteComponentProps<{ tag: string, type: string }> {
 }
@@ -29,15 +29,15 @@ interface State {
 }
 
 enum TabTypes {
-    TRACKS = 'TRACKS',
-    PLAYLISTS = 'PLAYLISTS'
+    TRACKS = "TRACKS",
+    PLAYLISTS = "PLAYLISTS"
 }
 
 type AllProps = OwnProps & PropsFromState & PropsFromDispatch;
 
 class TagsPage extends WithHeaderComponent<AllProps, State> {
 
-    componentDidMount() {
+    public componentDidMount() {
         const { tag, playlist, objectId, search } = this.props;
 
         if (!playlist && tag && tag.length) {
@@ -45,7 +45,7 @@ class TagsPage extends WithHeaderComponent<AllProps, State> {
         }
     }
 
-    componentDidUpdate(prevProps: AllProps) {
+    public componentDidUpdate(prevProps: AllProps) {
         const { tag, playlist, objectId, search, showType } = this.props;
 
         if ((tag !== prevProps.tag || !playlist) && tag && tag.length || showType !== prevProps.showType) {
@@ -53,13 +53,13 @@ class TagsPage extends WithHeaderComponent<AllProps, State> {
         }
     }
 
-    hasMore = (): boolean => {
+    public hasMore = (): boolean => {
         const { objectId, canFetchMoreOf } = this.props;
 
         return canFetchMoreOf(objectId, ObjectTypes.PLAYLISTS) as any;
     }
 
-    loadMore = () => {
+    public loadMore = () => {
         const { objectId, fetchMore, canFetchMoreOf } = this.props;
 
         if (canFetchMoreOf(objectId, ObjectTypes.PLAYLISTS)) {
@@ -67,7 +67,7 @@ class TagsPage extends WithHeaderComponent<AllProps, State> {
         }
     }
 
-    render() {
+    public render() {
         const {
             objectId,
             playlist,
@@ -75,13 +75,15 @@ class TagsPage extends WithHeaderComponent<AllProps, State> {
             tag,
         } = this.props;
 
+        const isFetching = playlist && playlist.isFetching;
+
         return (
             <CustomScroll
-                heightRelativeToParent='100%'
+                heightRelativeToParent="100%"
                 // heightMargin={35}
                 allowOuterScroll={true}
                 threshold={300}
-                isFetching={playlist && playlist.isFetching}
+                isFetching={isFetching}
                 ref={(r) => this.scroll = r}
                 loadMore={this.loadMore}
                 onScroll={this.debouncedOnScroll}
@@ -92,22 +94,22 @@ class TagsPage extends WithHeaderComponent<AllProps, State> {
 
                 <PageHeader
                     title={tag}
-                    subtitle={`Most popular ${showType === TabTypes.TRACKS ? 'tracks' : 'playlists'}`}
+                    subtitle={`Most popular ${showType === TabTypes.TRACKS ? "tracks" : "playlists"}`}
                 />
 
-                <div className='container-fluid charts'>
-                    <Nav className='tabs' tabs={true}>
+                <div className="container-fluid charts">
+                    <Nav className="tabs" tabs={true}>
                         <NavLink
-                            className={cn('nav-link', { active: showType === TabTypes.TRACKS })}
+                            className={cn("nav-link", { active: showType === TabTypes.TRACKS })}
                             to={`/tags/${tag}/${TabTypes.TRACKS}`}
-                            activeClassName='active'
+                            activeClassName="active"
                         >
                             Tracks
                         </NavLink>
 
                         <NavLink
-                            className={cn('nav-link', { active: showType === TabTypes.PLAYLISTS })}
-                            activeClassName='active'
+                            className={cn("nav-link", { active: showType === TabTypes.PLAYLISTS })}
+                            activeClassName="active"
                             to={`/tags/${tag}/${TabTypes.PLAYLISTS}`}
                         >
                             Playlists

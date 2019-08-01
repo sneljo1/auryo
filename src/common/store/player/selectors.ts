@@ -1,7 +1,7 @@
-import { StoreState } from '..';
-import { createSelector } from 'reselect';
-import { PlayerState, PlayingTrack } from './types';
-import { NormalizedResult } from '../../../types';
+import { createSelector } from "reselect";
+import { StoreState } from "..";
+import { NormalizedResult } from "../../../types";
+import { PlayerState, PlayingTrack } from "./types";
 
 export const getPlayer = (state: StoreState) => state.player;
 
@@ -10,7 +10,7 @@ export const getPlayingTrack = createSelector<StoreState, PlayerState, PlayingTr
     (player) => player.playingTrack
 );
 
-export const getQueue = createSelector<StoreState, PlayerState, Array<PlayingTrack>>(
+export const getQueue = createSelector<StoreState, PlayerState, PlayingTrack[]>(
     [getPlayer],
     (player) => player.queue || []
 );
@@ -23,9 +23,9 @@ export const getCurrentPlaylistId = createSelector<StoreState, PlayerState, stri
 export const isPlaying = (result: NormalizedResult, playlistId: string) => createSelector<StoreState, PlayingTrack | null, boolean>(
     [getPlayingTrack],
     (playingTrack) => {
-        if (!playingTrack) return false;
+        if (!playingTrack) { return false; }
 
-        if (result.schema === 'playlists') {
+        if (result.schema === "playlists") {
             return playingTrack.playlistId === result.id.toString();
         }
 

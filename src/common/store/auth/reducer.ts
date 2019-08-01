@@ -1,8 +1,8 @@
-import { Reducer } from 'redux';
-import { onSuccess, isLoading, onError } from '../../utils/reduxUtils';
-import { AppActionTypes } from '../app';
-import { ConfigActionTypes } from '../config';
-import { AuthActionTypes, AuthState } from './types';
+import { Reducer } from "redux";
+import { isLoading, onError, onSuccess } from "../../utils/reduxUtils";
+import { AppActionTypes } from "../app";
+import { ConfigActionTypes } from "../config";
+import { AuthActionTypes, AuthState } from "./types";
 
 const initialState = {
     me: null,
@@ -26,6 +26,7 @@ const initialState = {
     }
 };
 
+// tslint:disable-next-line: max-func-body-length cyclomatic-complexity
 export const authReducer: Reducer<AuthState> = (state = initialState, action) => {
     const { payload, type } = action;
 
@@ -113,6 +114,7 @@ export const authReducer: Reducer<AuthState> = (state = initialState, action) =>
                     }
                 };
             }
+
             return {
                 ...state,
                 likes: {

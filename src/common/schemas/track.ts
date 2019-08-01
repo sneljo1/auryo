@@ -1,7 +1,7 @@
-import { schema } from 'normalizr';
-import userSchema from './user';
+import { schema } from "normalizr";
+import userSchema from "./user";
 
-const trackSchema = new schema.Entity('trackEntities', {
+const trackSchema = new schema.Entity("trackEntities", {
     user: userSchema
 }, {
     processStrategy: (entity) => ({

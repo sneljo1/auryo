@@ -1,8 +1,8 @@
-import { Reducer } from 'redux';
-import { CONFIG } from '../../../config';
-import { PlayerActionTypes } from '../player';
-import { ConfigActionTypes, ConfigState } from './types';
-import { clone, setWith, curry } from 'lodash/fp';
+import { clone, curry, setWith } from "lodash/fp";
+import { Reducer } from "redux";
+import { CONFIG } from "../../../config";
+import { PlayerActionTypes } from "../player";
+import { ConfigActionTypes, ConfigState } from "./types";
 
 export const setIn = curry((path: string, value: string, obj: object) =>
     setWith(clone, path, value, clone(obj)),

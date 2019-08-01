@@ -1,36 +1,36 @@
-import { Intent, IResizeEntry, IToastOptions, ResizeSensor, Position } from '@blueprintjs/core';
-import cn from 'classnames';
-import * as is from 'electron-is';
-import { debounce } from 'lodash';
-import * as React from 'react';
-import { connect, MapDispatchToProps } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import { StoreState } from '@common/store';
-import { AppState, initApp, setDimensions, stopWatchers, toggleOffline } from '@common/store/app';
-import { getUserPlaylists } from '@common/store/auth/selectors';
-import { PlayingTrack } from '@common/store/player';
-import { addToast, clearToasts, removeToast } from '@common/store/ui';
-import { NormalizedResult } from '../../types';
-import ErrorBoundary from '../_shared/ErrorBoundary';
-import Spinner from '../_shared/Spinner/Spinner';
-import AppError from './components/AppError/AppError';
-import ChangelogModal from './components/modals/ChangeLogModal/ChangelogModal';
-import Player from './components/player/Player';
-import Queue from './components/Queue/Queue';
-import SideBar from './components/Sidebar/Sidebar';
-import Toastr from './components/Toastr';
-import AboutModal from './components/modals/AboutModal/AboutModal';
-import { ipcRenderer } from 'electron';
-import { EVENTS } from '@common/constants/events';
-import Theme from 'react-custom-properties';
-import { Themes } from './components/Theme/themes';
+import { Intent, IResizeEntry, IToastOptions, Position, ResizeSensor } from "@blueprintjs/core";
+import { EVENTS } from "@common/constants/events";
+import { StoreState } from "@common/store";
+import { AppState, initApp, setDimensions, stopWatchers, toggleOffline } from "@common/store/app";
+import { getUserPlaylists } from "@common/store/auth/selectors";
+import { PlayingTrack } from "@common/store/player";
+import { addToast, clearToasts, removeToast } from "@common/store/ui";
+import cn from "classnames";
+import { ipcRenderer } from "electron";
+import * as is from "electron-is";
+import { debounce } from "lodash";
+import * as React from "react";
+import Theme from "react-custom-properties";
+import { connect, MapDispatchToProps } from "react-redux";
+import { bindActionCreators } from "redux";
+import { NormalizedResult } from "../../types";
+import ErrorBoundary from "../_shared/ErrorBoundary";
+import Spinner from "../_shared/Spinner/Spinner";
+import AppError from "./components/AppError/AppError";
+import AboutModal from "./components/modals/AboutModal/AboutModal";
+import ChangelogModal from "./components/modals/ChangeLogModal/ChangelogModal";
+import Player from "./components/player/Player";
+import Queue from "./components/Queue/Queue";
+import SideBar from "./components/Sidebar/Sidebar";
+import { Themes } from "./components/Theme/themes";
+import Toastr from "./components/Toastr";
 
 interface PropsFromState {
-    toasts: Array<IToastOptions>;
+    toasts: IToastOptions[];
     playingTrack: PlayingTrack | null;
     app: AppState;
     theme: string;
-    userPlayerlists: Array<NormalizedResult>;
+    userPlayerlists: NormalizedResult[];
 }
 
 interface PropsFromDispatch {
@@ -46,7 +46,7 @@ type AllProps = PropsFromState & PropsFromDispatch;
 
 class Layout extends React.Component<AllProps> {
 
-    private debouncedHandleResize: any;
+    private readonly debouncedHandleResize: any;
 
     constructor(props: AllProps) {
         super(props);
@@ -54,45 +54,45 @@ class Layout extends React.Component<AllProps> {
         this.debouncedHandleResize = debounce(this.handleResize, 500, { leading: true });
     }
 
-    componentDidMount() {
+    public componentDidMount() {
         const { initApp } = this.props;
 
         initApp();
 
-        window.addEventListener('online', this.setOnlineStatus);
-        window.addEventListener('offline', this.setOnlineStatus);
+        window.addEventListener("online", this.setOnlineStatus);
+        window.addEventListener("offline", this.setOnlineStatus);
 
     }
 
-    componentDidUpdate(prevProps: AllProps) {
+    public componentDidUpdate(prevProps: AllProps) {
         const { app, addToast, removeToast } = this.props;
 
         if (app.offline !== prevProps.app.offline && app.offline === true) {
             addToast({
-                key: 'offline',
+                key: "offline",
                 intent: Intent.PRIMARY,
-                message: 'You are currently offline.'
+                message: "You are currently offline."
             });
         } else if (app.offline !== prevProps.app.offline && app.offline === false) {
-            removeToast('offline');
+            removeToast("offline");
         }
     }
 
-    componentWillUnmount() {
+    public componentWillUnmount() {
 
         stopWatchers();
 
-        window.removeEventListener('online', this.setOnlineStatus);
-        window.removeEventListener('offline', this.setOnlineStatus);
+        window.removeEventListener("online", this.setOnlineStatus);
+        window.removeEventListener("offline", this.setOnlineStatus);
     }
 
-    setOnlineStatus = () => {
+    public setOnlineStatus = () => {
         const { toggleOffline } = this.props;
 
         toggleOffline(!navigator.onLine);
     }
 
-    handleResize = ([{ contentRect: { width, height } }]: Array<IResizeEntry>) => {
+    public handleResize = ([{ contentRect: { width, height } }]: IResizeEntry[]) => {
 
         const { setDimensions } = this.props;
 
@@ -102,7 +102,7 @@ class Layout extends React.Component<AllProps> {
         });
     }
 
-    render() {
+    public render() {
         const {
             // Vars
             app,
@@ -124,8 +124,8 @@ class Layout extends React.Component<AllProps> {
                     properties={Themes[theme]}
                 >
                     <div
-                        className={cn('body auryo', {
-                            development: !(process.env.NODE_ENV === 'production'),
+                        className={cn("body auryo", {
+                            development: !(process.env.NODE_ENV === "production"),
                             mac: is.osx(),
                             playing: !!playingTrack
                         })}
@@ -140,13 +140,15 @@ class Layout extends React.Component<AllProps> {
                             app.loading_error ? (
                                 <AppError
                                     error={app.loading_error}
-                                    reload={() => ipcRenderer.send(EVENTS.APP.RELOAD)}
+                                    reload={() => {
+                                        ipcRenderer.send(EVENTS.APP.RELOAD)
+                                    }}
                                 />
                             ) : null
                         }
 
                         <main
-                            className={cn('d-flex flex-nowrap', {
+                            className={cn("d-flex flex-nowrap", {
                                 playing: playingTrack
                             })}
                         >
@@ -154,14 +156,14 @@ class Layout extends React.Component<AllProps> {
 
                             <Queue />
 
-                            <section className='content'>
+                            <section className="content">
                                 <Toastr
                                     position={Position.TOP_RIGHT}
                                     toasts={toasts}
                                     clearToasts={clearToasts}
                                 />
 
-                                <div className='f-height'>
+                                <div className="f-height">
                                     <ErrorBoundary>
                                         {children}
                                     </ErrorBoundary>
@@ -169,7 +171,7 @@ class Layout extends React.Component<AllProps> {
                             </section>
                         </main>
 
-                        <footer className='fixed-bottom player-container'>
+                        <footer className="fixed-bottom player-container">
                             <Player />
                         </footer>
 

@@ -1,6 +1,6 @@
-import * as React from 'react';
-import { SoundCloud } from '../../../../../types';
-import './ArtistProfiles.scss';
+import * as React from "react";
+import { SoundCloud } from "../../../../../types";
+import "./ArtistProfiles.scss";
 
 interface Props {
     profiles?: SoundCloud.UserProfiles;
@@ -9,7 +9,7 @@ interface Props {
 
 class ArtistProfiles extends React.Component<Props> {
 
-    static defaultProps: Props = {
+    public static defaultProps: Props = {
         profiles: { items: [], loading: false }
     };
 
@@ -29,48 +29,49 @@ class ArtistProfiles extends React.Component<Props> {
         BEATPORT = 'beatport'
 
     */
-    getIcon(service: string) {
+    public getIcon(service: string) {
 
         switch (service) {
             case SoundCloud.ProfileService.SOUNDCLOUD:
-            return '-cloud';
+            return "-cloud";
             case SoundCloud.ProfileService.SPOTIFY:
-            return '-album';
+            return "-album";
             case SoundCloud.ProfileService.PERSONAL:
             case SoundCloud.ProfileService.SNAPCHAT:
-                return '-globe';
+                return "-globe";
             default:
                 if (SoundCloud.ProfileService[service.toUpperCase()] != null) {
                     return `l-${service}`;
                 }
-                return '-globe';
+
+                return "-globe";
         }
 
     }
 
-    getTitle(title: string) {
-        if (!title) return;
+    public getTitle(title: string) {
+        if (!title) { return; }
         switch (title.toLowerCase()) {
-            case 'spotify':
-                return 'spotify';
-            case 'youtube':
-                return 'youtube';
-            case 'pinterest':
-                return 'pinterest';
-            case 'snapchat':
-                return 'snapchat';
+            case "spotify":
+                return "spotify";
+            case "youtube":
+                return "youtube";
+            case "pinterest":
+                return "pinterest";
+            case "snapchat":
+                return "snapchat";
             default:
                 return null;
         }
     }
 
-    render() {
+    public render() {
         const { profiles, className } = this.props;
 
-        if (!profiles || !profiles.items.length) return null;
+        if (!profiles || !profiles.items.length) { return null; }
 
         return (
-            <div id='web-profiles' className={className}>
+            <div id="web-profiles" className={className}>
                 {
                     profiles.items.map((profile) => {
 
@@ -87,7 +88,7 @@ class ArtistProfiles extends React.Component<Props> {
                         return (
                             <a
                                 href={profile.url}
-                                className={`profile ${profile.service && profile.service != null ? profile.service.toLowerCase() : ''}`}
+                                className={`profile ${profile.service && profile.service != null ? profile.service.toLowerCase() : ""}`}
                                 key={profile.id}
                             >
                                 <i className={icon} />

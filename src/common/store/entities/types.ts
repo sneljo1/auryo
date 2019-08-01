@@ -1,4 +1,4 @@
-import { Normalized, SoundCloud } from '../../../types';
+import { Normalized, SoundCloud } from "../../../types";
 
 export interface EntitiesState extends Readonly<{
     playlistEntities: {

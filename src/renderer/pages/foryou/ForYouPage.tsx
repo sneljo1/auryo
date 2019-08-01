@@ -1,30 +1,30 @@
-import * as cn from 'classnames';
-import * as React from 'react';
-import { connect, MapDispatchToProps } from 'react-redux';
-import { RouteComponentProps } from 'react-router-dom';
-import { bindActionCreators } from 'redux';
-import { StoreState } from '@common/store';
-import { fetchPersonalizedPlaylistsIfNeeded } from '@common/store/auth';
-import { EntitiesState } from '@common/store/entities';
-import { setScrollPosition } from '@common/store/ui';
-import { getPreviousScrollTop } from '@common/store/ui/selectors';
-import { NormalizedPersonalizedItem, SoundCloud } from '../../../types';
-import Header from '../../app/components/Header/Header';
-import CustomScroll from '../../_shared/CustomScroll';
-import Spinner from '../../_shared/Spinner/Spinner';
-import TrackGridItem from '../../_shared/TracksGrid/TrackgridItem/TrackGridItem';
-import WithHeaderComponent from '../../_shared/WithHeaderComponent';
-import { PersonalizedPlaylistCard } from './components/PersonalizedPlaylistCard/PersonalizedPlaylistCard';
-import * as styles from './ForYouPage.module.scss';
-import * as moment from 'moment';
-interface OwnProps extends RouteComponentProps<{}> {
+import { StoreState } from "@common/store";
+import { fetchPersonalizedPlaylistsIfNeeded } from "@common/store/auth";
+import { EntitiesState } from "@common/store/entities";
+import { setScrollPosition } from "@common/store/ui";
+import { getPreviousScrollTop } from "@common/store/ui/selectors";
+import * as cn from "classnames";
+import * as React from "react";
+import { connect, MapDispatchToProps } from "react-redux";
+import { RouteComponentProps } from "react-router-dom";
+import { bindActionCreators } from "redux";
+import { NormalizedPersonalizedItem, SoundCloud } from "../../../types";
+import CustomScroll from "../../_shared/CustomScroll";
+import Spinner from "../../_shared/Spinner/Spinner";
+import TrackGridItem from "../../_shared/TracksGrid/TrackgridItem/TrackGridItem";
+import WithHeaderComponent from "../../_shared/WithHeaderComponent";
+import Header from "../../app/components/Header/Header";
+import { PersonalizedPlaylistCard } from "./components/PersonalizedPlaylistCard/PersonalizedPlaylistCard";
+import * as styles from "./ForYouPage.module.scss";
+
+interface OwnProps extends RouteComponentProps {
 }
 
 interface PropsFromState {
     previousScrollTop?: number;
     loading: boolean;
-    items: Array<NormalizedPersonalizedItem> | null;
-    playlistEntities: EntitiesState['playlistEntities'];
+    items: NormalizedPersonalizedItem[] | null;
+    playlistEntities: EntitiesState["playlistEntities"];
 
 }
 
@@ -44,23 +44,23 @@ type AllProps = OwnProps & PropsFromState & PropsFromDispatch;
 
 class ForYou extends WithHeaderComponent<AllProps, State> {
 
-    readonly state = {
+    public readonly state: State = {
         scrollTop: 0,
         itemsOpen: {}
     };
 
-    componentDidMount() {
+    public componentDidMount() {
         super.componentDidMount();
 
         this.props.fetchPersonalizedPlaylistsIfNeeded();
 
     }
 
-    componentDidUpdate() {
+    public componentDidUpdate() {
         this.props.fetchPersonalizedPlaylistsIfNeeded();
     }
 
-    render() {
+    public render() {
         const { loading, items } = this.props;
 
         if (loading && !items) {
@@ -69,15 +69,15 @@ class ForYou extends WithHeaderComponent<AllProps, State> {
 
         const rest = items ? [...items] : [];
 
-        const weeklyIndex = rest.findIndex((i) => i.query_urn.indexOf('weekly') !== -1);
+        const weeklyIndex = rest.findIndex((i) => i.query_urn.indexOf("weekly") !== -1);
         const weekly = rest.splice(weeklyIndex, 1)[0];
 
-        const uploadIndex = rest.findIndex((i) => i.query_urn.indexOf('newforyou') !== -1);
+        const uploadIndex = rest.findIndex((i) => i.query_urn.indexOf("newforyou") !== -1);
         const upload = rest.splice(uploadIndex, 1)[0];
 
         return (
             <CustomScroll
-                heightRelativeToParent='100%'
+                heightRelativeToParent="100%"
                 allowOuterScroll={true}
                 ref={(r) => this.scroll = r}
                 onScroll={this.debouncedOnScroll}
@@ -91,8 +91,8 @@ class ForYou extends WithHeaderComponent<AllProps, State> {
 
                     {
                         weekly && this.renderPlaylist(
-                            'Made for you',
-                            'Playlists created by SoundCloud just for you',
+                            "Made for you",
+                            "Playlists created by SoundCloud just for you",
                             [...weekly.system_playlists || [], ...upload.system_playlists || []]
                         )
                     }
@@ -112,11 +112,11 @@ class ForYou extends WithHeaderComponent<AllProps, State> {
         );
     }
 
-    renderPlaylist = (
+    public renderPlaylist = (
         title: string,
         description: string,
-        systemPlaylistIds: Array<string> = [],
-        playlistIds: Array<string> = []
+        systemPlaylistIds: string[] = [],
+        playlistIds: string[] = []
     ) => {
 
         const ids = systemPlaylistIds.length ? systemPlaylistIds : playlistIds;
@@ -128,7 +128,7 @@ class ForYou extends WithHeaderComponent<AllProps, State> {
                 <h3 className={styles.header}>{title}</h3>
                 <div className={styles.subtitle}>{description}</div>
 
-                <div className={cn(styles.playlists, 'row')}>
+                <div className={cn(styles.playlists, "row")}>
 
                     {
                         systemPlaylistIds
@@ -136,12 +136,12 @@ class ForYou extends WithHeaderComponent<AllProps, State> {
                             .map((id) => {
                                 const playlist: SoundCloud.SystemPlaylist = this.props.playlistEntities[id];
 
-                                if (!playlist) return null;
+                                if (!playlist) { return null; }
 
                                 return (
                                     <div
                                         key={id}
-                                        className='col-12 col-xs-6 col-md-4'
+                                        className="col-12 col-xs-6 col-md-4"
                                     >
                                         <PersonalizedPlaylistCard playlist={playlist} system={true} />
                                     </div>
@@ -155,20 +155,21 @@ class ForYou extends WithHeaderComponent<AllProps, State> {
                             .map((id) => {
                                 const playlist: SoundCloud.Playlist = this.props.playlistEntities[id];
 
-                                if (!playlist) return null;
+                                if (!playlist) { return null; }
 
                                 return (
                                     <TrackGridItem
                                         skipFetch={true}
                                         key={id}
-                                        idResult={{ id: +id, schema: 'playlists' }}
+                                        idResult={{ id: +id, schema: "playlists" }}
                                         currentPlaylistId={id}
                                     />
                                 );
                             })
                     }
-                    <div className='col-12 text-right'>
+                    <div className="col-12 text-right">
                         <a
+                            role="button"
                             className={styles.showMore}
                             onClick={() => {
 
@@ -190,7 +191,7 @@ class ForYou extends WithHeaderComponent<AllProps, State> {
                                 });
                             }}
                         >
-                            <i className={`bx bx-${!showMore ? 'chevron-up' : 'chevron-down'}`} />
+                            <i className={`bx bx-${!showMore ? "chevron-up" : "chevron-down"}`} />
                         </a>
                     </div>
                 </div>
@@ -199,7 +200,7 @@ class ForYou extends WithHeaderComponent<AllProps, State> {
     }
 }
 
-const mapStateToProps = (state: StoreState, props: OwnProps): PropsFromState => {
+const mapStateToProps = (state: StoreState): PropsFromState => {
     const { auth: { personalizedPlaylists }, entities: { playlistEntities } } = state;
 
     return {

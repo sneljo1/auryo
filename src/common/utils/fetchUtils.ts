@@ -1,9 +1,10 @@
-import * as _ from 'lodash';
+import * as _ from "lodash";
 
 export function asJson(response: Response | void): any {
     if (!response) {
         return response;
     }
+
     return response.json();
 }
 
@@ -14,12 +15,6 @@ function handleError(response: Response) {
     throw err;
 }
 
-/**
- * Handles non-200 statuses
- * @param  {Object} response
- * @return {Object} response
- * @throws {Error} on non-200 status
- */
 export function status(response: Response): Response | void {
     if (response.ok) {
         return response;
@@ -29,6 +24,6 @@ export function status(response: Response): Response | void {
 }
 
 
-export function toObject(collection: Array<string>): { [key: string]: boolean } {
+export function toObject(collection: string[]): { [key: string]: boolean } {
     return _.reduce(collection, (obj, t) => ({ ...obj, [t]: true }), {});
 }

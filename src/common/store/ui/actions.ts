@@ -1,7 +1,7 @@
-import { action } from 'typesafe-actions';
-import { ThunkResult } from '../../../types';
-import { UIActionTypes } from './types';
-import { IToastOptions } from '@blueprintjs/core';
+import { IToastOptions } from "@blueprintjs/core";
+import { action } from "typesafe-actions";
+import { ThunkResult } from "../../../types";
+import { UIActionTypes } from "./types";
 
 export function toggleQueue(newState?: boolean): ThunkResult<void> {
     return (dispatch, getState) => {

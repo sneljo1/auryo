@@ -1,19 +1,18 @@
-import classNames from 'classnames';
-import * as React from 'react';
-import { connect } from 'react-redux';
-import { NavLink } from 'react-router-dom';
-import { NormalizedResult, SoundCloud } from '../../../../../types';
-import TextShortener from '../../../../_shared/TextShortener';
-import { StoreState } from '@common/store';
-import { getDenormalizedEntities } from '@common/store/entities/selectors';
-import { getCurrentPlaylistId } from '@common/store/player/selectors';
-import { PlayerStatus } from '@common/store/player';
-import * as styles from '../Sidebar.module.scss';
+import { StoreState } from "@common/store";
+import { getDenormalizedEntities } from "@common/store/entities/selectors";
+import { PlayerStatus } from "@common/store/player";
+import { getCurrentPlaylistId } from "@common/store/player/selectors";
+import classNames from "classnames";
+import * as React from "react";
+import { connect } from "react-redux";
+import { NavLink } from "react-router-dom";
+import { NormalizedResult, SoundCloud } from "../../../../../types";
+import TextShortener from "../../../../_shared/TextShortener";
+import * as styles from "../Sidebar.module.scss";
 
 interface OwnProps {
-    items: Array<NormalizedResult>;
+    items: NormalizedResult[];
 }
-
 
 type PropsFromState = ReturnType<typeof mapStateToProps>;
 
@@ -37,7 +36,7 @@ const SideBarPlaylist = React.memo<AllProps>(({ playlists, currentPlaylistId, is
                         <NavLink
                             to={`/playlist/${playlist.id}`}
                             className={styles.navLink}
-                            activeClassName='active'
+                            activeClassName="active"
                         >
                             <TextShortener text={playlist.title} />
                         </NavLink>

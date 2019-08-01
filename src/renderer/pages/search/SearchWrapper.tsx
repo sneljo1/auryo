@@ -1,21 +1,21 @@
-import { Location } from 'history';
-import * as React from 'react';
-import { NavLink } from 'react-router-dom';
-import { Nav } from 'reactstrap';
-import { setScrollPosition } from '@common/store/ui';
-import WithHeaderComponent from '../../_shared/WithHeaderComponent';
-import CustomScroll from '../../_shared/CustomScroll';
-import Header from '../../app/components/Header/Header';
-import Spinner from '../../_shared/Spinner/Spinner';
+import { setScrollPosition } from "@common/store/ui";
+import { Location } from "history";
+import * as React from "react";
+import { NavLink } from "react-router-dom";
+import { Nav } from "reactstrap";
+import CustomScroll from "../../_shared/CustomScroll";
+import Spinner from "../../_shared/Spinner/Spinner";
+import WithHeaderComponent from "../../_shared/WithHeaderComponent";
+import Header from "../../app/components/Header/Header";
 
 interface OwnProps {
     children: React.ReactNode;
     query: string;
-    loadMore: () => void;
-    hasMore: () => boolean;
     previousScrollTop?: number;
     setScrollPosition: typeof setScrollPosition;
     location: Location;
+    loadMore(): void;
+    hasMore(): boolean;
 }
 
 interface State {
@@ -24,57 +24,53 @@ interface State {
 
 class SearchWrapper extends WithHeaderComponent<OwnProps, State> {
 
-    componentDidMount() {
-        super.componentDidMount();
-    }
-
-    render() {
+    public render() {
         const { query, loadMore } = this.props;
 
         return (
             <CustomScroll
-                heightRelativeToParent='100%'
+                heightRelativeToParent="100%"
                 loader={<Spinner />}
                 ref={(r) => this.scroll = r}
                 onScroll={this.debouncedOnScroll}
                 loadMore={loadMore}
             >
-                <div id='search-page' className='h-100'>
+                <div id="search-page" className="h-100">
                     <Header
                         focus={true}
                         query={query}
                         scrollTop={this.state.scrollTop}
                     />
 
-                    <div className='search-content p-2'>
-                        <Nav className='tabs px-4' tabs={true}>
+                    <div className="search-content p-2">
+                        <Nav className="tabs px-4" tabs={true}>
                             <NavLink
                                 exact={true}
-                                className='nav-link'
+                                className="nav-link"
                                 to={{ pathname: `/search`, search: query }}
-                                activeClassName='active'
+                                activeClassName="active"
                             >
                                 All
                             </NavLink>
 
                             <NavLink
-                                className='nav-link'
+                                className="nav-link"
                                 to={{ pathname: `/search/user`, search: query }}
-                                activeClassName='active'
+                                activeClassName="active"
                             >
                                 Users
                             </NavLink>
                             <NavLink
-                                className='nav-link'
+                                className="nav-link"
                                 to={{ pathname: `/search/track`, search: query }}
-                                activeClassName='active'
+                                activeClassName="active"
                             >
                                 Tracks
                             </NavLink>
                             <NavLink
-                                className='nav-link'
+                                className="nav-link"
                                 to={{ pathname: `/search/playlist`, search: query }}
-                                activeClassName='active'
+                                activeClassName="active"
                             >
                                 Playlist
                             </NavLink>

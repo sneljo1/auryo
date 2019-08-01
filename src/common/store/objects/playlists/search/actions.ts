@@ -1,10 +1,10 @@
-import { canFetchMoreOf, fetchMore, ObjectTypes } from '../..';
-import { Utils } from '@common/utils/utils';
-import { ThunkResult } from '../../../../../types';
-import fetchSearch from '../../../../api/fetchSearch';
-import { SC } from '../../../../utils';
-import { getPlaylistObjectSelector, getPlaylistType } from '../../selectors';
-import { ObjectsActionTypes, PlaylistTypes } from '../../types';
+import { Utils } from "@common/utils/utils";
+import { canFetchMoreOf, fetchMore, ObjectTypes } from "../..";
+import { ThunkResult } from "../../../../../types";
+import fetchSearch from "../../../../api/fetchSearch";
+import { SC } from "../../../../utils";
+import { getPlaylistObjectSelector, getPlaylistType } from "../../selectors";
+import { ObjectsActionTypes, PlaylistTypes } from "../../types";
 
 export function isSoundCloudUrl(query: string) {
     return /https?:\/\/(www.)?soundcloud\.com\//g.exec(query) !== null;

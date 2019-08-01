@@ -1,24 +1,24 @@
-import cn from 'classnames';
-import { debounce } from 'lodash';
-import * as React from 'react';
-import * as ReactList from 'react-list';
-import { MapDispatchToProps, connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import { StoreState } from '@common/store';
-import { clearUpNext, PlayingTrack, updateQueue, UpNextState } from '@common/store/player';
-import { getQueue } from '@common/store/player/selectors';
-import { toggleQueue } from '@common/store/ui';
-import CustomScroll from '../../../_shared/CustomScroll';
-import Spinner from '../../../_shared/Spinner/Spinner';
-import './Queue.scss';
-import QueueItem from './QueueItem';
+import { StoreState } from "@common/store";
+import { clearUpNext, PlayingTrack, updateQueue, UpNextState } from "@common/store/player";
+import { getQueue } from "@common/store/player/selectors";
+import { toggleQueue } from "@common/store/ui";
+import cn from "classnames";
+import { debounce } from "lodash";
+import * as React from "react";
+import * as ReactList from "react-list";
+import { connect, MapDispatchToProps } from "react-redux";
+import { bindActionCreators } from "redux";
+import CustomScroll from "../../../_shared/CustomScroll";
+import Spinner from "../../../_shared/Spinner/Spinner";
+import "./Queue.scss";
+import QueueItem from "./QueueItem";
 
 interface PropsFromState {
     playingTrack: PlayingTrack | null;
     currentIndex: number;
     showQueue: boolean;
     upNext: UpNextState;
-    items: Array<PlayingTrack>;
+    items: PlayingTrack[];
 }
 
 interface PropsFromDispatch {
@@ -31,7 +31,7 @@ type AllProps = PropsFromDispatch & PropsFromState;
 
 class Queue extends React.PureComponent<AllProps> {
 
-    private updateQueueDebounced: () => void;
+    private readonly updateQueueDebounced: () => void;
     private list: ReactList | null = null;
 
     constructor(props: AllProps) {
@@ -40,7 +40,7 @@ class Queue extends React.PureComponent<AllProps> {
         this.updateQueueDebounced = debounce(this.onScroll, 200);
     }
 
-    componentDidMount() {
+    public componentDidMount() {
         const { currentIndex, playingTrack } = this.props;
 
         if (playingTrack && playingTrack.id && this.list) {
@@ -48,7 +48,7 @@ class Queue extends React.PureComponent<AllProps> {
         }
     }
 
-    componentDidUpdate(prevProps: AllProps) {
+    public componentDidUpdate(prevProps: AllProps) {
         const { showQueue, currentIndex, playingTrack } = this.props;
 
         if (showQueue !== prevProps.showQueue && showQueue === true) {
@@ -59,7 +59,7 @@ class Queue extends React.PureComponent<AllProps> {
         }
     }
 
-    handleClickOutside = () => {
+    public handleClickOutside = () => {
         const { showQueue, toggleQueue } = this.props;
 
         if (showQueue) {
@@ -67,7 +67,7 @@ class Queue extends React.PureComponent<AllProps> {
         }
     }
 
-    onScroll = () => {
+    public onScroll = () => {
         const { updateQueue } = this.props;
 
         if (this.list) {
@@ -75,7 +75,7 @@ class Queue extends React.PureComponent<AllProps> {
         }
     }
 
-    renderTrack = (index: number, key: number | string) => {
+    public renderTrack = (index: number, key: number | string) => {
         const {
             items,
             currentIndex
@@ -94,24 +94,24 @@ class Queue extends React.PureComponent<AllProps> {
         );
     }
 
-    render() {
+    public render() {
         const { toggleQueue, items, currentIndex, showQueue, upNext, clearUpNext } = this.props;
 
         return (
             <aside
-                className={cn('playQueue', {
+                className={cn("playQueue", {
                     show: showQueue,
                     hide: !showQueue
                 })}
             >
-                <div className='playqueue-title d-flex align-items-center justify-content-between'>
+                <div className="playqueue-title d-flex align-items-center justify-content-between">
                     <div>Play Queue</div>
                     <div>
                         {
                             upNext.length > 0 && (
                                 <a
-                                    href='javascript:void(0)'
-                                    className='clearQueue'
+                                    href="javascript:void(0)"
+                                    className="clearQueue"
                                     onClick={() => {
                                         clearUpNext();
                                     }}
@@ -121,20 +121,20 @@ class Queue extends React.PureComponent<AllProps> {
                             )
                         }
                         <a
-                            href='javascript:void(0)'
+                            href="javascript:void(0)"
                             onClick={() => {
                                 toggleQueue(false);
                             }}
                         >
-                            <i className='bx bx-x' />
+                            <i className="bx bx-x" />
                         </a>
                     </div>
                 </div>
-                <div className='tracks'>
+                <div className="tracks">
                     {
                         showQueue && (
                             <CustomScroll
-                                heightRelativeToParent='100%'
+                                heightRelativeToParent="100%"
                                 allowOuterScroll={true}
                                 onScroll={this.updateQueueDebounced}
                                 loader={<Spinner />}
@@ -142,7 +142,7 @@ class Queue extends React.PureComponent<AllProps> {
                                 <ReactList
                                     ref={(r) => this.list = r}
                                     pageSize={8}
-                                    type='uniform'
+                                    type="uniform"
                                     initialIndex={currentIndex}
                                     length={items.length}
                                     useTranslate3d={true}

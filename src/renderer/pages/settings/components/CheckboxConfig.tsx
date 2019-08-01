@@ -1,20 +1,20 @@
-import { Switch } from '@blueprintjs/core';
-import * as React from 'react';
-import { ConfigState, setConfigKey } from '@common/store/config';
+import { Switch } from "@blueprintjs/core";
+import { ConfigState, setConfigKey } from "@common/store/config";
+import * as React from "react";
 
 interface Props {
     config: ConfigState;
     setConfigKey: typeof setConfigKey;
     configKey: string;
     name?: string;
-    alignIndicator?: 'right' | 'left' | 'center';
+    alignIndicator?: "right" | "left" | "center";
     className?: string;
-    onChange?: (value: boolean, setKey: () => void) => void;
+    onChange?(value: boolean, setKey: () => void): void;
 }
 
 class CheckboxConfig extends React.Component<Props> {
 
-    handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    public handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { configKey, setConfigKey, onChange } = this.props;
 
         if (onChange) {
@@ -26,15 +26,15 @@ class CheckboxConfig extends React.Component<Props> {
         }
     }
 
-    render() {
+    public render() {
         const { configKey, name, config, alignIndicator } = this.props;
 
-        const value = configKey.split('.').reduce((o, i) => o[i], config);
+        const value = configKey.split(".").reduce((o, i) => o[i], config);
 
         return (
-            <div className='setting'>
+            <div className="setting">
                 <Switch
-                    alignIndicator={alignIndicator || 'right'}
+                    alignIndicator={alignIndicator || "right"}
                     large={true}
                     label={name}
                     checked={value}

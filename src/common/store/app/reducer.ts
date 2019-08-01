@@ -1,6 +1,6 @@
-import { Reducer } from 'redux';
-import { onError, onSuccess } from '../../utils/reduxUtils';
-import { AppActionTypes, AppState } from './types';
+import { Reducer } from "redux";
+import { onError, onSuccess } from "../../utils/reduxUtils";
+import { AppActionTypes, AppState } from "./types";
 
 const initialState: AppState = {
     history: {

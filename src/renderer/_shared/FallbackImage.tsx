@@ -1,8 +1,8 @@
-import cn from 'classnames';
-import * as React from 'react';
-import { LazyImage } from 'react-lazy-images';
+import cn from "classnames";
+import * as React from "react";
+import { LazyImage } from "react-lazy-images";
 
-const defaultFallbackImage = require('@assets/img/placeholder.jpg');
+const defaultFallbackImage = require("@assets/img/placeholder.jpg");
 
 interface Props {
     src: string;
@@ -19,7 +19,7 @@ const FallbackImage = React.memo<Props>(({ overflow, src, className, width, heig
         <LazyImage
             className={className}
             src={src}
-            observerProps={{ rootMargin: '80px 0px' }}
+            observerProps={{ rootMargin: "80px 0px" }}
             placeholder={({ ref }: any) => {
                 if (!noPlaceholder) {
                     return (
@@ -29,6 +29,7 @@ const FallbackImage = React.memo<Props>(({ overflow, src, className, width, heig
                             height={height}
                             width={width}
                             src={fallbackImage || defaultFallbackImage}
+                            alt="image"
                         />
                     );
                 }
@@ -41,6 +42,7 @@ const FallbackImage = React.memo<Props>(({ overflow, src, className, width, heig
                     height={height}
                     width={width}
                     src={fallbackImage || defaultFallbackImage}
+                    alt="image fallback"
                 />
             )}
             actual={({ imageProps }: any) => (

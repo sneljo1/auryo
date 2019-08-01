@@ -1,15 +1,15 @@
-import * as React from 'react';
-import * as ReactList from 'react-list';
-import { NormalizedResult } from '../../../types';
-import CommentListItem from './CommentListItem/CommentListitem';
+import * as React from "react";
+import * as ReactList from "react-list";
+import { NormalizedResult } from "../../../types";
+import CommentListItem from "./CommentListItem/CommentListitem";
 
 interface Props {
-    comments: Array<NormalizedResult>;
+    comments: NormalizedResult[];
 }
 
 class CommentList extends React.PureComponent<Props> {
 
-    renderItem = (index: number) => {
+    public renderItem = (index: number) => {
         const { comments } = this.props;
 
         const item = comments[index];
@@ -22,16 +22,16 @@ class CommentList extends React.PureComponent<Props> {
         );
     }
 
-    render() {
+    public render() {
         const { comments } = this.props;
 
         const items = comments || [];
 
         return (
-            <div className='comments'>
+            <div className="comments">
                 <ReactList
                     pageSize={8}
-                    type='simple'
+                    type="simple"
                     length={items.length}
                     itemRenderer={this.renderItem}
                     useTranslate3d={true}

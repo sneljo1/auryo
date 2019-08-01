@@ -1,20 +1,20 @@
-import cn from 'classnames';
-import * as React from 'react';
-import * as ReactList from 'react-list';
-import { NormalizedResult } from '../../../types';
-import TrackGridItem from './TrackgridItem/TrackGridItem';
-import TrackGridUser from './TrackgridUser/TrackGridUser';
-import { PlaylistTypes } from '@common/store/objects';
+import { PlaylistTypes } from "@common/store/objects";
+import cn from "classnames";
+import * as React from "react";
+import * as ReactList from "react-list";
+import { NormalizedResult } from "../../../types";
+import TrackGridItem from "./TrackgridItem/TrackGridItem";
+import TrackGridUser from "./TrackgridUser/TrackGridUser";
 
 interface Props {
     showInfo?: boolean;
-    items: Array<NormalizedResult>;
+    items: NormalizedResult[];
     objectId: string;
 }
 
 class TracksGrid extends React.PureComponent<Props> {
 
-    renderItem = (index: number) => {
+    public renderItem = (index: number) => {
         const {
             showInfo,
             objectId,
@@ -24,11 +24,11 @@ class TracksGrid extends React.PureComponent<Props> {
 
         const item = items[index];
 
-        if (item.schema === 'users') {
+        if (item.schema === "users") {
             return (
                 <div
                     key={`grid-item-${item.schema}-${item.id}`}
-                    className='userWrapper col-12 col-sm-6 col-lg-4'
+                    className="userWrapper col-12 col-sm-6 col-lg-4"
                 >
                     <TrackGridUser
                         withStats={true}
@@ -38,9 +38,11 @@ class TracksGrid extends React.PureComponent<Props> {
             );
         }
 
+        const showReposts = objectId === PlaylistTypes.STREAM;
+
         return (
             <TrackGridItem
-                showReposts={objectId === PlaylistTypes.STREAM}
+                showReposts={showReposts}
                 key={`grid-item-${item.schema}-${item.id}`}
                 showInfo={showInfo}
                 idResult={item}
@@ -49,18 +51,18 @@ class TracksGrid extends React.PureComponent<Props> {
         );
     }
 
-    renderWrapper = (items: Array<JSX.Element>, ref: string) => (
-        <div className='row' ref={ref}>{items}</div>
+    public renderWrapper = (items: JSX.Element[], ref: string) => (
+        <div className="row" ref={ref}>{items}</div>
     )
 
-    render() {
+    public render() {
         const { items } = this.props;
 
         return (
-            <div className={cn('songs container-fluid')}>
+            <div className={cn("songs container-fluid")}>
                 <ReactList
                     pageSize={15}
-                    type='uniform'
+                    type="uniform"
                     length={items.length}
                     itemsRenderer={this.renderWrapper}
                     itemRenderer={this.renderItem}

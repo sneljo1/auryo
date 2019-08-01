@@ -1,5 +1,5 @@
-import * as React from 'react';
-import cn from 'classnames';
+import cn from "classnames";
+import * as React from "react";
 
 interface Props {
     height: number;
@@ -17,7 +17,7 @@ interface State {
 
 class ToggleMore extends React.PureComponent<Props, State> {
     public static defaultProps: Partial<Props> = {
-        className: '',
+        className: "",
         height: 200
     };
 
@@ -35,7 +35,7 @@ class ToggleMore extends React.PureComponent<Props, State> {
         };
     }
 
-    componentDidMount() {
+    public componentDidMount() {
         if (this.overflow) {
             const height = this.overflow.clientHeight;
             const { overflow, check_height } = this.state;
@@ -49,7 +49,7 @@ class ToggleMore extends React.PureComponent<Props, State> {
         }
     }
 
-    toggleOpen = () => {
+    public toggleOpen = () => {
         const { open, current_height, max, check_height } = this.state;
 
         this.setState({
@@ -58,7 +58,7 @@ class ToggleMore extends React.PureComponent<Props, State> {
         });
     }
 
-    render() {
+    public render() {
         const { overflow, open, current_height } = this.state;
         const { className, children } = this.props;
 
@@ -74,9 +74,9 @@ class ToggleMore extends React.PureComponent<Props, State> {
         }
 
         return (
-            <div className={cn('overflow-container', className, { open })}>
+            <div className={cn("overflow-container", className, { open })}>
                 <div
-                    className='overflow-div'
+                    className="overflow-div"
                     ref={(r) => this.overflow = r}
                     style={{
                         height: current_height
@@ -84,9 +84,9 @@ class ToggleMore extends React.PureComponent<Props, State> {
                 >
                     {children}
                 </div>
-                <div className='overflow-bottom'>
-                    <a className='overflow-button' href='javascript:void(0)' onClick={this.toggleOpen}>
-                        <i className={`bx bx-${open ? 'chevron-up' : 'chevron-down'}`} />
+                <div className="overflow-bottom">
+                    <a className="overflow-button" href="javascript:void(0)" onClick={this.toggleOpen}>
+                        <i className={`bx bx-${open ? "chevron-up" : "chevron-down"}`} />
                     </a>
                 </div>
             </div>
