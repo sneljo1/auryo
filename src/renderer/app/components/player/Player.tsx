@@ -330,6 +330,8 @@ class Player extends React.Component<AllProps, State>{
             volume_icon = "volume-low";
         }
 
+        const decVolume = Math.round(volume * 1e2) / 1e2;
+
         return (
             <div className={styles.player}>
                 <div className={styles.player_bg}>
@@ -391,9 +393,10 @@ class Player extends React.Component<AllProps, State>{
 
                         <div className={styles.progressWrapper}>
                             <Slider
+                                key="volume"
                                 min={0}
                                 max={1}
-                                value={volume}
+                                value={decVolume}
                                 stepSize={0.1}
                                 vertical={true}
                                 onChange={this.volumeChange}

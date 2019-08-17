@@ -1,5 +1,5 @@
 import { EVENTS } from "@common/constants/events";
-import { ChangeTypes, PlayerStatus } from "@common/store/player";
+import { changeTrack, ChangeTypes, PlayerStatus, toggleStatus } from "@common/store/player";
 import * as SC from "@common/utils/soundcloudUtils";
 import { nativeImage, TouchBar } from "electron";
 import * as path from "path";
@@ -51,19 +51,19 @@ export default class TouchBarManager extends MacFeature {
 		icon: nativeImage.createFromPath(path.join(iconsDirectory, "previous.png")).resize({
 			width: 20
 		}),
-		click: () => this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, ChangeTypes.PREV)
+		click: () => this.store.dispatch(changeTrack(ChangeTypes.PREV) as any)
 	});
 
 	public playpause_btn: Electron.TouchBarButton = new TouchBarButton({
 		icon: this.playstates.PAUSED,
-		click: () => this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS)
+		click: () => this.store.dispatch(toggleStatus() as any)
 	});
 
 	public next_btn: Electron.TouchBarButton = new TouchBarButton({
 		icon: nativeImage.createFromPath(path.join(iconsDirectory, "next.png")).resize({
 			width: 20
 		}),
-		click: () => this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, ChangeTypes.NEXT)
+		click: () => this.store.dispatch(changeTrack(ChangeTypes.NEXT) as any)
 	});
 
 	public like_btn: Electron.TouchBarButton = new TouchBarButton({

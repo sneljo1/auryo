@@ -3,6 +3,8 @@ import { EVENTS } from "@common/constants/events";
 import { StoreState } from "@common/store";
 import { initApp, setDimensions, stopWatchers, toggleOffline } from "@common/store/app";
 import { getUserPlaylists } from "@common/store/auth/selectors";
+import { PlayerStatus } from "@common/store/player";
+import { getCurrentPlaylistId } from "@common/store/player/selectors";
 import { addToast, clearToasts, removeToast, setScrollPosition } from "@common/store/ui";
 import { getPreviousScrollTop } from "@common/store/ui/selectors";
 import { ContentContext, LayoutSettings } from "@renderer/_shared/context/contentContext";
@@ -100,10 +102,13 @@ class Layout extends React.Component<AllProps, State> {
             playingTrack,
             children,
             theme,
+            currentPlaylistId,
+            isActuallyPlaying,
             // Functions
             toasts,
             clearToasts,
-            userPlayerlists
+            userPlayerlists,
+
         } = this.props;
 
         return (
@@ -145,7 +150,11 @@ class Layout extends React.Component<AllProps, State> {
                                 playing: playingTrack
                             })}
                         >
-                            <SideBar items={userPlayerlists} />
+                            <SideBar
+                                items={userPlayerlists}
+                                isActuallyPlaying={isActuallyPlaying}
+                                currentPlaylistId={currentPlaylistId}
+                            />
 
                             <ContentContext.Provider
                                 value={{
@@ -254,13 +263,16 @@ class Layout extends React.Component<AllProps, State> {
 const mapStateToProps = (state: StoreState) => {
     const { app, config, player, ui } = state;
 
+
     return {
         userPlayerlists: getUserPlaylists(state),
         playingTrack: player.playingTrack,
         app,
         theme: config.app.theme,
         toasts: ui.toasts,
-        previousScrollTop: getPreviousScrollTop(state) || 0
+        previousScrollTop: getPreviousScrollTop(state) || 0,
+        currentPlaylistId: getCurrentPlaylistId(state),
+        isActuallyPlaying: status === PlayerStatus.PLAYING,
     };
 };
 

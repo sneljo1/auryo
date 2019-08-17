@@ -1,7 +1,7 @@
 import { EVENTS } from "@common/constants/events";
 import { IMAGE_SIZES } from "@common/constants/Soundcloud";
 import { getTrackEntity } from "@common/store/entities/selectors";
-import { ChangeTypes, PlayerStatus, PlayingTrack } from "@common/store/player";
+import { changeTrack, ChangeTypes, PlayerStatus, PlayingTrack, toggleStatus } from "@common/store/player";
 import * as SC from "@common/utils/soundcloudUtils";
 import { WatchState } from "../feature";
 import { MediaService, MediaStates, MetaData, milliseconds } from "./interfaces/electron-media-service.interfaces";
@@ -30,30 +30,30 @@ export default class MediaServiceManager extends MacFeature {
 
 		myService.on("play", () => {
 			if (this.meta.state !== MediaStates.PLAYING) {
-				this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PlayerStatus.PLAYING);
+				this.store.dispatch(toggleStatus(PlayerStatus.PLAYING) as any)
 			}
 		});
 
 		myService.on("pause", () => {
 			if (this.meta.state !== MediaStates.PAUSED) {
-				this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PlayerStatus.PAUSED);
+				this.store.dispatch(toggleStatus(PlayerStatus.PAUSED) as any)
 			}
 		});
 
 		myService.on("stop", () => {
-			this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PlayerStatus.STOPPED);
+			this.store.dispatch(toggleStatus(PlayerStatus.STOPPED) as any)
 		});
 
 		myService.on("playPause", () => {
-			this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS);
+			this.store.dispatch(toggleStatus() as any)
 		});
 
 		myService.on("next", () => {
-			this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, ChangeTypes.NEXT);
+			this.store.dispatch(changeTrack(ChangeTypes.NEXT) as any)
 		});
 
 		myService.on("previous", () => {
-			this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, ChangeTypes.PREV);
+			this.store.dispatch(changeTrack(ChangeTypes.PREV) as any)
 		});
 
 		myService.on("seek", (to: milliseconds) => {

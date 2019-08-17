@@ -2,7 +2,7 @@
 import { EVENTS } from "@common/constants/events";
 import { IMAGE_SIZES } from "@common/constants/Soundcloud";
 import { getTrackEntity } from "@common/store/entities/selectors";
-import { ChangeTypes, PlayerStatus } from "@common/store/player";
+import { changeTrack, ChangeTypes, PlayerStatus, PlayingTrack, toggleStatus } from "@common/store/player";
 import * as SC from "@common/utils/soundcloudUtils";
 import { Logger, LoggerInstance } from "../../../utils/logger";
 import { WindowsFeature } from "../windowsFeature";
@@ -63,11 +63,8 @@ export default class Win10MediaService extends WindowsFeature {
       });
 
       this.on(EVENTS.APP.READY, () => {
-        this.on(EVENTS.PLAYER.STATUS_CHANGED, () => {
-          const {
-            player: { status }
-          } = this.store.getState();
-
+        // Status changed
+        this.subscribe<PlayerStatus>(["player", "status"], ({ currentValue: status }: any) => {
           const mapping = {
             [PlayerStatus.STOPPED]: MediaPlaybackStatus.stopped,
             [PlayerStatus.PAUSED]: MediaPlaybackStatus.paused,
@@ -77,10 +74,11 @@ export default class Win10MediaService extends WindowsFeature {
           Controls.playbackStatus = mapping[status];
         });
 
-        this.on(EVENTS.PLAYER.TRACK_CHANGED, () => {
+        // Track changed
+        this.subscribe<PlayingTrack>(["player", "playingTrack"], ({ currentState }) => {
           const {
             player: { playingTrack }
-          } = this.store.getState();
+          } = currentState;
 
           if (playingTrack) {
             const trackId = playingTrack.id;
@@ -111,17 +109,17 @@ export default class Win10MediaService extends WindowsFeature {
     }
   }
 
-  public togglePlay = (new_status: PlayerStatus) => {
+  public togglePlay = (newStatus: PlayerStatus) => {
     const {
       player: { status }
     } = this.store.getState();
 
-    if (status !== new_status) {
-      this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, new_status);
+    if (status !== newStatus) {
+      this.store.dispatch(toggleStatus(newStatus) as any);
     }
   }
 
-  public changeTrack = (change_type: ChangeTypes) => {
-    this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, change_type);
+  public changeTrack = (changeType: ChangeTypes) => {
+    this.store.dispatch(changeTrack(changeType) as any)
   }
 }

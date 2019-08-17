@@ -5,17 +5,7 @@ import { action } from "typesafe-actions";
 import { ThunkResult } from "../../../types";
 import { EVENTS } from "../../constants/events";
 import { SC } from "../../utils";
-import {
-	getAuth,
-	getAuthFeed,
-	getAuthFollowings,
-	getAuthLikeIds,
-	getAuthLikesIfNeeded,
-	getAuthPlaylists,
-	getAuthReposts
-} from "../auth/actions";
-import { setConfigKey } from "../config";
-import { changeTrack, ChangeTypes, PlayerStatus, toggleStatus, VolumeChangeTypes } from "../player";
+import { getAuth, getAuthFeed, getAuthFollowings, getAuthLikeIds, getAuthLikesIfNeeded, getAuthPlaylists, getAuthReposts } from "../auth/actions";
 import { toggleLike, toggleRepost } from "../track/actions";
 import { AppActionTypes, CanGoHistory, Dimensions } from "./types";
 
@@ -107,60 +97,6 @@ export function initWatchers(): ThunkResult<any> {
 							search: url
 						})
 					);
-				}
-			});
-
-			listeners.push({
-				event: EVENTS.PLAYER.CHANGE_TRACK,
-				handler: (_e: any, data: ChangeTypes) => {
-					dispatch(changeTrack(data));
-				}
-			});
-
-			listeners.push({
-				event: EVENTS.PLAYER.CHANGE_VOLUME,
-				handler: (_e: any, data: VolumeChangeTypes) => {
-					const {
-						config: {
-							audio: { volume }
-						}
-					} = getState();
-
-					let new_volume = volume + 0.05;
-
-					if (data === VolumeChangeTypes.DOWN) {
-						new_volume = volume - 0.05;
-					}
-
-					if (new_volume > 1) {
-						new_volume = 1;
-					} else if (new_volume < 0) {
-						new_volume = 0;
-					}
-
-					if (volume !== new_volume) {
-						dispatch(setConfigKey("audio.volume", new_volume));
-					}
-				}
-			});
-
-			listeners.push({
-				event: EVENTS.PLAYER.TOGGLE_STATUS,
-				handler: (_e: any, changedStatus: PlayerStatus) => {
-
-					const {
-						player: { status }
-					} = getState();
-
-					let newStatus = changedStatus;
-
-					if (!newStatus || typeof newStatus !== "string") {
-						newStatus =
-							status !== PlayerStatus.PLAYING
-								? PlayerStatus.PLAYING
-								: PlayerStatus.PAUSED;
-					}
-					dispatch(toggleStatus(newStatus));
 				}
 			});
 

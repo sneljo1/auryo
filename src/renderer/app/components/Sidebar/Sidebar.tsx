@@ -2,16 +2,18 @@ import * as React from "react";
 import { NavLink, RouteComponentProps, withRouter } from "react-router-dom";
 import { NormalizedResult } from "../../../../types";
 import CustomScroll from "../../../_shared/CustomScroll";
-import SideBarPlaylist from "./playlist/SideBarPlaylist";
+import SideBarPlaylistItem from "./playlist/SideBarPlaylistItem";
 import * as styles from "./Sidebar.module.scss";
 
 interface Props {
     items: NormalizedResult[];
+    isActuallyPlaying: boolean;
+    currentPlaylistId: string | null;
 }
 
 type AllProps = Props & RouteComponentProps;
 
-const SideBar = React.memo<AllProps>(({ items }) => (
+const SideBar = React.memo<AllProps>(({ items, isActuallyPlaying, currentPlaylistId }) => (
     <aside
         id="sidebar"
         role="navigation"
@@ -64,9 +66,20 @@ const SideBar = React.memo<AllProps>(({ items }) => (
 
                 <h2>Playlists</h2>
                 <div id="playlists" className={styles.nav}>
-                    <SideBarPlaylist
-                        items={items}
-                    />
+                    {
+                        items.map((normalizedResult) => {
+
+                            const isPlaying = !!currentPlaylistId && normalizedResult.id.toString() === currentPlaylistId;
+
+                            return (
+                                <SideBarPlaylistItem
+                                    key={`sidebar-item-${normalizedResult.id}`}
+                                    playlistId={normalizedResult.id}
+                                    isPlaying={isPlaying}
+                                />
+                            );
+                        })
+                    }
                 </div>
             </div>
         </CustomScroll>

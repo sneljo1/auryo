@@ -34,7 +34,7 @@ interface State {
 
 type AllProps = OwnProps & PropsFromState & PropsFromDispatch;
 
-class PlaylistContainer extends React.Component<AllProps, State> {
+class PlaylistPage extends React.Component<AllProps, State> {
 
     public componentDidMount() {
         const { fetchPlaylistIfNeeded, playlistIdParam } = this.props;
@@ -116,6 +116,8 @@ class PlaylistContainer extends React.Component<AllProps, State> {
         if (!playlistObject || !playlist || (playlistObject && playlistObject.items.length === 0 && playlistObject.isFetching)) {
             return <Spinner contained={true} />;
         }
+
+        console.log(playlist.tracks);
 
         const first_item = playlist.tracks[0];
         const hasImage = playlist.artwork_url || (first_item && first_item.artwork_url);
@@ -293,4 +295,4 @@ const mapDispatchToProps = (dispatch: Dispatch) => bindActionCreators({
     toggleStatus,
 }, dispatch);
 
-export default connect(mapStateToProps, mapDispatchToProps)(PlaylistContainer);
+export default connect(mapStateToProps, mapDispatchToProps)(PlaylistPage);

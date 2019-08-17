@@ -81,7 +81,7 @@ export function getPlaylistObject(playlistId: string, position: number): ThunkRe
     };
 }
 
-export function toggleStatus(toggleStatus?: PlayerStatus): ThunkResult<void> {
+export function toggleStatus(toggleStatus?: PlayerStatus): ThunkResult<any> {
     return (dispatch, getState) => {
         const state = getState();
         const {
@@ -111,6 +111,7 @@ export function toggleStatus(toggleStatus?: PlayerStatus): ThunkResult<void> {
             newStatus = PlayerStatus.PLAYING === status ? PlayerStatus.PAUSED : PlayerStatus.PLAYING;
         }
 
+
         dispatch({
             type: PlayerActionTypes.TOGGLE_PLAYING,
             payload: {
@@ -118,7 +119,6 @@ export function toggleStatus(toggleStatus?: PlayerStatus): ThunkResult<void> {
             }
         });
 
-        ipcRenderer.send(EVENTS.PLAYER.STATUS_CHANGED);
     };
 }
 
@@ -281,8 +281,6 @@ export function setPlayingTrack(nextTrack: PlayingTrack, position: number, chang
                 repeat: repeat === RepeatTypes.ONE
             }
         });
-
-        return ipcRenderer.send(EVENTS.PLAYER.TRACK_CHANGED);
 
     };
 }
@@ -582,10 +580,6 @@ export function playTrack(playlistId: string, next?: Next, force_set_playlist: b
             }
 
         }
-
-        ipcRenderer.send(EVENTS.PLAYER.STATUS_CHANGED);
-
-
     };
 }
 
@@ -667,7 +661,7 @@ export function registerPlay(): ThunkResult<void> {
             const params: any = {
                 track_urn: `soundcloud:tracks:${id}`
             };
-            
+
             await import("@common/utils/universalAnalytics")
                 .then(({ ua }) => {
                     ua.event("SoundCloud", "Play", "", id).send();

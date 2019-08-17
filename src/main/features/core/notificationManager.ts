@@ -1,6 +1,7 @@
 import { IMAGE_SIZES } from "@common/constants";
 import { EVENTS } from "@common/constants/events";
 import { getTrackEntity } from "@common/store/entities/selectors";
+import { PlayingTrack } from "@common/store/player";
 import { SC } from "@common/utils";
 import { Auryo } from "@main/app";
 import { Feature } from "../feature";
@@ -12,22 +13,21 @@ export default class NotificationManager extends Feature {
 
   public register() {
 
-    this.on(EVENTS.PLAYER.TRACK_CHANGED, () => {
+    // Track changed
+    this.subscribe<PlayingTrack>(["player", "playingTrack"], ({ currentState }) => {
 
       if (!this.win || (this.win && this.win.isFocused())) {
         return;
       }
 
-      const state = this.store.getState();
-
       const {
         player: { playingTrack },
         config: { app: { showTrackChangeNotification } }
-      } = state;
+      } = currentState;
 
       if (playingTrack && showTrackChangeNotification) {
         const trackId = playingTrack.id;
-        const track = getTrackEntity(trackId)(state);
+        const track = getTrackEntity(trackId)(currentState);
 
         if (track) {
 
@@ -39,7 +39,9 @@ export default class NotificationManager extends Feature {
 
         }
       }
+
     });
+
   }
 
 }

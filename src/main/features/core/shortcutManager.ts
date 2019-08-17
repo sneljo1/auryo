@@ -1,5 +1,4 @@
-import { EVENTS } from "@common/constants/events";
-import { ChangeTypes, PlayerStatus } from "@common/store/player";
+import { changeTrack, ChangeTypes, PlayerStatus, toggleStatus } from "@common/store/player";
 import { globalShortcut } from "electron";
 import * as is from "electron-is";
 import { Auryo } from "../../app";
@@ -14,30 +13,26 @@ export default class Shortcut extends Feature {
     super(auryo, "ready-to-show");
   }
 
-  public shouldRun(){
+  public shouldRun() {
     return !is.osx(); // It seems like shortcuts are caught in MediaServiceManager
   }
 
   public register() {
     globalShortcut.register("MediaPlayPause", () => {
-      this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS);
+      this.store.dispatch(toggleStatus() as any);
     });
     globalShortcut.register("MediaPreviousTrack", () => {
-      this.changeTrack(ChangeTypes.PREV);
+      this.store.dispatch(changeTrack(ChangeTypes.PREV) as any)
     });
     globalShortcut.register("MediaNextTrack", () => {
-      this.changeTrack(ChangeTypes.NEXT);
+      this.store.dispatch(changeTrack(ChangeTypes.NEXT) as any)
     });
     globalShortcut.register("MediaStop", () => {
-      this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PlayerStatus.STOPPED);
+      this.store.dispatch(toggleStatus(PlayerStatus.STOPPED) as any);
     });
   }
 
   public unregister() {
     globalShortcut.unregisterAll();
-  }
-
-  public changeTrack = (changeType: ChangeTypes) => {
-    this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, changeType);
   }
 }

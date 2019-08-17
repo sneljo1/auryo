@@ -1,7 +1,7 @@
 import { EVENTS } from "@common/constants/events";
 import { IMAGE_SIZES } from "@common/constants/Soundcloud";
 import { getTrackEntity } from "@common/store/entities/selectors";
-import { ChangeTypes, PlayerStatus } from "@common/store/player";
+import { changeTrack, ChangeTypes, PlayerStatus, toggleStatus } from "@common/store/player";
 import { getCurrentPosition } from "@common/utils";
 import * as SC from "@common/utils/soundcloudUtils";
 import * as _ from "lodash";
@@ -70,27 +70,27 @@ export default class MprisService extends LinuxFeature {
 			});
 
 			this.player.on("play", () => {
-				this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PlayerStatus.PLAYING);
+				this.store.dispatch(toggleStatus(PlayerStatus.PLAYING) as any);
 			});
 
 			this.player.on("pause", () => {
-				this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PlayerStatus.PAUSED);
+				this.store.dispatch(toggleStatus(PlayerStatus.PAUSED) as any);
 			});
 
 			this.player.on("playpause", () => {
-				this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS);
+				this.store.dispatch(toggleStatus() as any);
 			});
 
 			this.player.on("stop", () => {
-				this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PlayerStatus.STOPPED);
+				this.store.dispatch(toggleStatus(PlayerStatus.STOPPED) as any);
 			});
 
 			this.player.on("next", () => {
-				this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, ChangeTypes.NEXT);
+				this.store.dispatch(changeTrack(ChangeTypes.NEXT) as any);
 			});
 
 			this.player.on("previous", () => {
-				this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, ChangeTypes.PREV);
+				this.store.dispatch(changeTrack(ChangeTypes.PREV) as any);
 			});
 
 			//

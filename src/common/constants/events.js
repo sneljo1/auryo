@@ -1,12 +1,6 @@
 export const EVENTS = {
     PLAYER: {
-        TRACK_CHANGED: "player/track_changed",
-        STATUS_CHANGED: "player/status_changed",
-
-        CHANGE_TRACK: "player/action/change_track",
         SEEK: "player/action/seek",
-        TOGGLE_STATUS: "player/action/toggle_status",
-        CHANGE_VOLUME: "player/action/change_volume",
     },
     TRACK: {
         LIKED: "track/liked",

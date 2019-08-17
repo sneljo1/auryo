@@ -1,9 +1,11 @@
 import { EVENTS } from "@common/constants/events";
-import { ChangeTypes, PlayerState, PlayerStatus, VolumeChangeTypes } from "@common/store/player";
+import { setConfigKey } from "@common/store/config";
+import { changeTrack, ChangeTypes, PlayerState, PlayerStatus, toggleStatus, VolumeChangeTypes } from "@common/store/player";
 import * as SC from "@common/utils/soundcloudUtils";
 import { app, Menu, MenuItemConstructorOptions, shell } from "electron";
 import * as is from "electron-is";
 import { Feature } from "../feature";
+
 
 export default class ApplicationMenu extends Feature {
 	public shouldRun() {
@@ -91,7 +93,7 @@ export default class ApplicationMenu extends Feature {
 					{
 						label: !player || player.status !== PlayerStatus.PLAYING ? "Play" : "Pause",
 						accelerator: "CmdOrCtrl+Shift+Space",
-						click: () => this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS)
+						click: () => this.store.dispatch(toggleStatus() as any)
 					},
 					{
 						type: "separator"
@@ -99,12 +101,12 @@ export default class ApplicationMenu extends Feature {
 					{
 						label: "Next",
 						accelerator: "CmdOrCtrl+Right",
-						click: () => this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, ChangeTypes.NEXT)
+						click: () => this.store.dispatch(changeTrack(ChangeTypes.NEXT) as any)
 					},
 					{
 						label: "Previous",
 						accelerator: "CmdOrCtrl+Left",
-						click: () => this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, ChangeTypes.PREV)
+						click: () => this.store.dispatch(changeTrack(ChangeTypes.PREV) as any)
 					},
 					{
 						type: "separator"
@@ -112,12 +114,12 @@ export default class ApplicationMenu extends Feature {
 					{
 						label: "Volume up",
 						accelerator: "CmdOrCtrl+Up",
-						click: () => this.sendToWebContents(EVENTS.PLAYER.CHANGE_VOLUME, VolumeChangeTypes.UP)
+						click: () => this.changeVolume(VolumeChangeTypes.UP)
 					},
 					{
 						label: "Volume down",
 						accelerator: "CmdOrCtrl+Down",
-						click: () => this.sendToWebContents(EVENTS.PLAYER.CHANGE_VOLUME, VolumeChangeTypes.DOWN)
+						click: () => this.changeVolume(VolumeChangeTypes.DOWN)
 					}
 				]
 			},
@@ -272,4 +274,28 @@ export default class ApplicationMenu extends Feature {
 
 		Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 	};
+
+	private changeVolume(volumeChangeType: VolumeChangeTypes) {
+		const {
+			config: {
+				audio: { volume }
+			}
+		} = this.store.getState();
+
+		let new_volume = volume + 0.05;
+
+		if (volumeChangeType === VolumeChangeTypes.DOWN) {
+			new_volume = volume - 0.05;
+		}
+
+		if (new_volume > 1) {
+			new_volume = 1;
+		} else if (new_volume < 0) {
+			new_volume = 0;
+		}
+
+		if (volume !== new_volume) {
+			this.store.dispatch(setConfigKey("audio.volume", new_volume));
+		}
+	}
 }

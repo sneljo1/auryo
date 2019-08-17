@@ -1,5 +1,4 @@
-import { EVENTS } from "@common/constants/events";
-import { ChangeTypes, PlayerStatus } from "@common/store/player";
+import { changeTrack, ChangeTypes, PlayerStatus, toggleStatus } from "@common/store/player";
 import * as dbus from "dbus-next";
 import { Logger, LoggerInstance } from "../../utils/logger";
 import LinuxFeature from "./linuxFeature";
@@ -41,19 +40,19 @@ export default class DbusService extends LinuxFeature {
 			player.on("MediaPlayerKeyPressed", (_: number, keyName: string) => {
 				switch (keyName) {
 					case "Next":
-						this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, ChangeTypes.NEXT);
+						this.store.dispatch(changeTrack(ChangeTypes.NEXT) as any);
 
 						return;
 					case "Previous":
-						this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, ChangeTypes.PREV);
+						this.store.dispatch(changeTrack(ChangeTypes.PREV) as any);
 
 						return;
 					case "Play":
-						this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS);
+						this.store.dispatch(toggleStatus() as any);
 
 						return;
 					case "Stop":
-						this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PlayerStatus.STOPPED);
+						this.store.dispatch(toggleStatus(PlayerStatus.STOPPED) as any);
 
 						return;
 					default:

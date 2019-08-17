@@ -1,6 +1,5 @@
-import { EVENTS } from "@common/constants/events";
 import { StoreState } from "@common/store";
-import { ChangeTypes, PlayerStatus } from "@common/store/player";
+import { changeTrack, ChangeTypes, PlayerStatus, toggleStatus } from "@common/store/player";
 import { nativeImage } from "electron";
 import * as is from "electron-is";
 import * as path from "path";
@@ -139,11 +138,11 @@ export default class Thumbar extends Feature {
     } = this.store.getState();
 
     if (status !== newStatus) {
-      this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, newStatus);
+      this.store.dispatch(toggleStatus(newStatus) as any);
     }
   }
 
   public changeTrack = (changeType: ChangeTypes) => {
-    this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, changeType);
+    this.store.dispatch(changeTrack(changeType) as any)
   }
 }
