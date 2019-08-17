@@ -4,8 +4,6 @@ import { canFetchMoreOf, fetchMore, ObjectState, ObjectTypes, PlaylistTypes } fr
 import { search } from "@common/store/objects/playlists/search/actions";
 import { getPlaylistName, getPlaylistObjectSelector } from "@common/store/objects/selectors";
 import { playTrack } from "@common/store/player";
-import { setScrollPosition } from "@common/store/ui";
-import { getPreviousScrollTop } from "@common/store/ui/selectors";
 import * as React from "react";
 import { connect, MapDispatchToProps, MapStateToPropsParam } from "react-redux";
 import { RouteComponentProps } from "react-router";
@@ -23,14 +21,12 @@ interface PropsFromState {
     playlist: ObjectState<NormalizedResult> | null;
     objectId: string;
     query: string;
-    previousScrollTop?: number;
 }
 
 interface PropsFromDispatch {
     search: typeof search;
     canFetchMoreOf: typeof canFetchMoreOf;
     fetchMore: typeof fetchMore;
-    setScrollPosition: typeof setScrollPosition;
 }
 
 type AllProps = OwnProps & PropsFromState & PropsFromDispatch;
@@ -96,6 +92,10 @@ class Search extends React.Component<AllProps> {
                 <TracksGrid
                     items={playlist.items}
                     objectId={objectId}
+
+                    isItemLoaded={(index) => !!playlist.items[index]}
+                    loadMore={this.loadMore as any}
+                    hasMore={this.hasMore()}
                 />
 
                 {
@@ -106,15 +106,11 @@ class Search extends React.Component<AllProps> {
     }
 
     public render() {
-        const { query, location, setScrollPosition, previousScrollTop } = this.props;
+        const { query, location } = this.props;
 
         return (
             <SearchWrapper
-                loadMore={this.loadMore}
-                hasMore={this.hasMore}
                 location={location}
-                setScrollPosition={setScrollPosition}
-                previousScrollTop={previousScrollTop}
                 query={query}
             >
                 {this.renderContent()}
@@ -134,7 +130,6 @@ const mapStateToProps: MapStateToPropsParam<PropsFromState, OwnProps, StoreState
         query,
         playlist: getPlaylistObjectSelector(objectId)(state),
         objectId,
-        previousScrollTop: getPreviousScrollTop(state)
     };
 };
 
@@ -144,7 +139,6 @@ const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, OwnProps> = (dis
     fetchMore,
     toggleFollowing,
     playTrack,
-    setScrollPosition
 }, dispatch);
 
 export default connect<PropsFromState, PropsFromDispatch, OwnProps, StoreState>(mapStateToProps, mapDispatchToProps)(Search);

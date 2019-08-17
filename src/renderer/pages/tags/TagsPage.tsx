@@ -12,7 +12,6 @@ import { bindActionCreators, Dispatch } from "redux";
 import PageHeader from "../../_shared/PageHeader/PageHeader";
 import Spinner from "../../_shared/Spinner/Spinner";
 import TracksGrid from "../../_shared/TracksGrid/TracksGrid";
-import Header from "../../app/components/Header/Header";
 
 interface OwnProps extends RouteComponentProps<{ tag: string, type: string }> {
 }
@@ -22,7 +21,6 @@ type PropsFromState = ReturnType<typeof mapStateToProps>;
 type PropsFromDispatch = ReturnType<typeof mapDispatchToProps>;
 
 interface State {
-    scrollTop: number;
 }
 
 enum TabTypes {
@@ -82,8 +80,6 @@ class TagsPage extends React.Component<AllProps, State> {
 
         return (
             <>
-
-                <Header scrollTop={this.state.scrollTop} />
 
                 <PageHeader
                     title={tag}

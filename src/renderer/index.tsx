@@ -9,7 +9,6 @@ import { remote } from "electron";
 import * as is from "electron-is";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { AppContainer } from "react-hot-loader";
 import { configureStore, history } from "./configureStore";
 import "./css/app.scss";
 import Main from "./Main";
@@ -61,29 +60,12 @@ if (token) {
 }
 
 ReactDOM.render(
-    <AppContainer>
-        <Main
-            store={store}
-            history={history}
-        />
-    </AppContainer>,
+    <Main
+        store={store}
+        history={history}
+    />,
     document.getElementById("root")
 );
 
 serviceWorker.register();
 
-if (module.hot) {
-    module.hot.accept("./Main", () => {
-        const NextApp = require("./Main").default;
-
-        ReactDOM.render(
-            <AppContainer>
-                <NextApp
-                    store={store}
-                    history={history}
-                />
-            </AppContainer>,
-            document.getElementById("root")
-        );
-    });
-}

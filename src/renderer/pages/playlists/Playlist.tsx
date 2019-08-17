@@ -3,6 +3,7 @@ import { getAuthAllPlaylistsIfNeeded, getAuthLikesIfNeeded, getAuthTracksIfNeede
 import { canFetchMoreOf, fetchChartsIfNeeded, fetchMore, ObjectTypes, PlaylistTypes } from "@common/store/objects";
 import { getPlaylistObjectSelector } from "@common/store/objects/selectors";
 import { SortTypes } from "@common/store/playlist/types";
+import { SetLayoutSettings } from "@renderer/_shared/context/contentContext";
 import debounce = require("lodash/debounce");
 import * as React from "react";
 import * as isDeepEqual from "react-fast-compare";
@@ -141,6 +142,7 @@ class Playlist extends React.Component<AllProps> {
 
         return (
             <>
+                <SetLayoutSettings hasImage={!!backgroundImage} />
                 <PageHeader
                     image={backgroundImage}
                     gradient={gradient}

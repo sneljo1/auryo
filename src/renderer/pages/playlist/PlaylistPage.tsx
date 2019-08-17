@@ -8,6 +8,7 @@ import { addUpNext, PlayerStatus, playTrack, toggleStatus } from "@common/store/
 import { toggleLike, toggleRepost } from "@common/store/track/actions";
 import { getReadableTimeFull, SC } from "@common/utils";
 import { IPC } from "@common/utils/ipc";
+import { SetLayoutSettings } from "@renderer/_shared/context/contentContext";
 import cn from "classnames";
 import * as React from "react";
 import { connect } from "react-redux";
@@ -128,13 +129,16 @@ class PlaylistContainer extends React.Component<AllProps, State> {
         const likedIcon = liked ? "bx bxs-heart" : "bx bx-heart";
         const image = hasImage ? SC.getImageUrl(playlist.artwork_url || first_item.artwork_url, IMAGE_SIZES.XLARGE) : null;
 
-        const hasMore = playlistObject.items.length !== playlistObject.fetchedItems;
+        const hasMore = playlistObject.items.length > playlistObject.fetchedItems;
 
         return (
             <>
+                <SetLayoutSettings hasImage={hasImage} />
+
                 <PageHeader
                     image={image}
                 >
+
 
                     <h2>{playlist.title}</h2>
                     <div>

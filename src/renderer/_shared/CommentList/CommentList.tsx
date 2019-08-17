@@ -1,18 +1,23 @@
 import * as React from "react";
 import * as ReactList from "react-list";
 import { NormalizedResult } from "../../../types";
+import { useInfiniteScroll } from "../hooks/useInfiniteScroll";
 import CommentListItem from "./CommentListItem/CommentListitem";
 
 interface Props {
-    comments: NormalizedResult[];
+    items: NormalizedResult[];
+
+    // Infinite loading
+    hasMore?: boolean;
+    isLoading?: boolean;
+    loadMore?(): Promise<void>
 }
 
-class CommentList extends React.PureComponent<Props> {
+export const CommentList: React.SFC<Props> = ({ isLoading, loadMore, items = [], hasMore }) => {
+    useInfiniteScroll(isLoading, hasMore ? loadMore : undefined);
 
-    public renderItem = (index: number) => {
-        const { comments } = this.props;
-
-        const item = comments[index];
+    function renderItem(index: number) {
+        const item = items[index];
 
         return (
             <CommentListItem
@@ -22,23 +27,16 @@ class CommentList extends React.PureComponent<Props> {
         );
     }
 
-    public render() {
-        const { comments } = this.props;
+    return (
 
-        const items = comments || [];
-
-        return (
-            <div className="comments">
-                <ReactList
-                    pageSize={8}
-                    type="simple"
-                    length={items.length}
-                    itemRenderer={this.renderItem}
-                    useTranslate3d={true}
-                />
-            </div>
-        );
-    }
-}
-
-export default CommentList;
+        <div className="comments">
+            <ReactList
+                pageSize={8}
+                type="simple"
+                length={items.length}
+                itemRenderer={renderItem}
+                useTranslate3d={true}
+            />
+        </div>
+    );
+};

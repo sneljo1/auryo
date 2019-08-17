@@ -1,17 +1,17 @@
 import { Icon, Menu, MenuDivider, MenuItem, Popover, Position } from "@blueprintjs/core";
 import { EVENTS } from "@common/constants/events";
 import { StoreState } from "@common/store";
-import { CanGoHistory, UpdateInfo } from "@common/store/app";
-import { AuthUser, logout } from "@common/store/auth";
+import { logout } from "@common/store/auth";
+import { InjectedContentContextProps, withContentContext } from "@renderer/_shared/context/contentContext";
 import cn from "classnames";
 import { push, replace } from "connected-react-router";
 import { ipcRenderer } from "electron";
 import { isEqual } from "lodash";
 import * as React from "react";
-import { connect, MapDispatchToProps } from "react-redux";
+import { connect } from "react-redux";
 import { RouteComponentProps, withRouter } from "react-router";
 import * as Sticky from "react-stickynode";
-import { bindActionCreators } from "redux";
+import { bindActionCreators, compose, Dispatch } from "redux";
 import { show } from "redux-modal";
 import "./Header.scss";
 import SearchBox from "./Search/SearchBox";
@@ -25,24 +25,15 @@ interface OwnProps {
     focus?: boolean;
 }
 
-interface PropsFromState {
-    me: AuthUser | null;
-    locHistory: CanGoHistory;
-    update: UpdateInfo;
-}
+type PropsFromState = ReturnType<typeof mapStateToProps>;
 
-interface PropsFromDispatch {
-    logout: typeof logout;
-    show: typeof show;
-    push: typeof push;
-    replace: typeof replace;
-}
+type PropsFromDispatch = ReturnType<typeof mapDispatchToProps>;
 
 interface State {
     height: number;
 }
 
-type AllProps = OwnProps & PropsFromState & PropsFromDispatch & RouteComponentProps;
+type AllProps = OwnProps & PropsFromState & PropsFromDispatch & RouteComponentProps & InjectedContentContextProps;
 
 class Header extends React.Component<AllProps, State> {
 
@@ -75,10 +66,11 @@ class Header extends React.Component<AllProps, State> {
     }
 
     public shouldComponentUpdate(nextProps: AllProps, nextState: State) {
-        const { scrollTop, locHistory, me, update, location } = this.props;
+        const { scrollTop, locHistory, me, update, location, settings } = this.props;
 
         return !isEqual(locHistory, nextProps.locHistory) ||
             !isEqual(location.pathname, nextProps.location.pathname) ||
+            !isEqual(settings, nextProps.settings) ||
             me !== nextProps.me ||
             (this.navBarWrapper && nextState.height !== this.navBarWrapper.clientHeight) ||
             nextProps.update !== update ||
@@ -158,14 +150,14 @@ class Header extends React.Component<AllProps, State> {
 
     // tslint:disable-next-line: max-func-body-length
     public render() {
-        const { locHistory: { next, back }, me, logout, scrollTop, className, query, children, update, push } = this.props;
+        const { locHistory: { next, back }, me, logout, scrollTop, settings, query, children, update, push } = this.props;
 
         const { height } = this.state;
 
         const isSticky = scrollTop - 52 > 0;
 
         return (
-            <div className={`header-wrapper ${className}`} style={{ minHeight: height }}>
+            <div className={cn("header-wrapper", { withImage: settings.hasImage })} style={{ minHeight: height }}>
                 <Sticky
                     activeClass="sticky sticky-3"
                     enabled={isSticky}
@@ -272,17 +264,21 @@ class Header extends React.Component<AllProps, State> {
     }
 }
 
-const mapStateToProps = ({ app, auth }: StoreState): PropsFromState => ({
+const mapStateToProps = ({ app, auth }: StoreState) => ({
     update: app.update,
     me: auth.me,
     locHistory: app.history,
 });
 
-const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, OwnProps> = (dispatch) => bindActionCreators({
+const mapDispatchToProps = (dispatch: Dispatch) => bindActionCreators({
     logout,
     show,
     push,
     replace,
 }, dispatch);
 
-export default connect<PropsFromState, PropsFromDispatch, OwnProps, StoreState>(mapStateToProps, mapDispatchToProps)(withRouter(Header));
+export default compose(
+    connect<PropsFromState, PropsFromDispatch, OwnProps, StoreState>(mapStateToProps, mapDispatchToProps),
+    withRouter,
+    withContentContext,
+)(Header);

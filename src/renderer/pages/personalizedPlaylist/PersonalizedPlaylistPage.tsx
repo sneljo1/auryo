@@ -15,7 +15,6 @@ import { bindActionCreators, Dispatch } from "redux";
 import PageHeader from "../../_shared/PageHeader/PageHeader";
 import Spinner from "../../_shared/Spinner/Spinner";
 import TracksGrid from "../../_shared/TracksGrid/TracksGrid";
-import Header from "../../app/components/Header/Header";
 import "./PlaylistPage.scss";
 
 interface OwnProps extends RouteComponentProps<{ playlistId: string }> {

@@ -79,8 +79,6 @@ class App extends React.PureComponent<AllProps, State> {
             <Layout>
                 <Header
                     scrollTop={scrollTop}
-                // className={cn({ withImage: backgroundImage })}
-                // scrollTop={this.state.scrollTop}
                 />
                 <Switch>
                     <Route exact={true} path="/" component={FeedPlaylistPage} />

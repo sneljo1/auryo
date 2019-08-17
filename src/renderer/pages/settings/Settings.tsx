@@ -3,10 +3,8 @@ import { EVENTS } from "@common/constants/events";
 import { StoreState } from "@common/store";
 import { logout } from "@common/store/auth";
 import { setConfig, setConfigKey } from "@common/store/config";
-import CustomScroll from "@renderer/_shared/CustomScroll";
 import PageHeader from "@renderer/_shared/PageHeader/PageHeader";
-import Header from "@renderer/app/components/Header/Header";
-import { IpcMessageEvent, ipcRenderer } from "electron";
+import { ipcRenderer } from "electron";
 import * as React from "react";
 import { connect } from "react-redux";
 import { bindActionCreators, Dispatch } from "redux";
@@ -66,22 +64,14 @@ class Settings extends React.PureComponent<AllProps, State> {
 
     public isValidDirectory = () => {
         ipcRenderer.send(EVENTS.APP.VALID_DIR);
-        ipcRenderer.once(EVENTS.APP.VALID_DIR_RESPONSE, (_event: IpcMessageEvent, dir: string) => {
+        ipcRenderer.once(EVENTS.APP.VALID_DIR_RESPONSE, (_event, dir: string) => {
             this.props.setConfigKey("app.downloadPath", dir);
         });
     }
 
     public render() {
         return (
-            <CustomScroll
-                heightRelativeToParent="100%"
-            >
-                {
-                    !this.props.noHeader && (
-                        <Header scrollTop={0} />
-                    )
-                }
-
+            <>
                 <PageHeader
                     title="Settings"
                 />
@@ -107,7 +97,7 @@ class Settings extends React.PureComponent<AllProps, State> {
 
                     {this.renderSettings()}
                 </div>
-            </CustomScroll>
+            </>
         );
     }
 

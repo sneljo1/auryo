@@ -63,6 +63,7 @@
     "@types/react-click-outside": "^3.0.2",
     "@types/react-custom-scrollbars": "^4.0.5",
     "@types/react-dom": "^16.0.9",
+    "@types/react-infinite-scroll-component": "^4.2.4",
     "@types/react-input-autosize": "^2.0.0",
     "@types/react-list": "^0.8.4",
     "@types/react-onclickoutside": "^6.0.4",
@@ -154,7 +155,7 @@
     "why-did-you-update": "^1.0.6"
   },
   "dependencies": {
-    "@blueprintjs/core": "^3.14.1",
+    "@blueprintjs/core": "^3.18.0",
     "@blueprintjs/icons": "^3.6.0",
     "@sentry/browser": "^5.5.0",
     "@sentry/electron": "^0.17.3",
@@ -193,7 +194,8 @@
     "react-dom": "^16.8.5",
     "react-dotdotdot": "^1.2.3",
     "react-fast-compare": "^2.0.2",
-    "react-hot-loader": "^4.3.11",
+    "react-hot-loader": "^4.12.11",
+    "react-infinite-scroll-component": "^4.5.3",
     "react-lazy-images": "^1.1.0",
     "react-list": "^0.8.10",
     "react-markdown": "^4.0.3",

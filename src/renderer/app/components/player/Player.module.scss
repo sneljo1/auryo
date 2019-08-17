@@ -12,10 +12,10 @@
         }
       }
       &.bp3-vertical {
-        height: 130px;
+        // height: 130px;
         min-width: 16px;
         width: 16px;
-        min-height: 130px;
+        // min-height: 130px;
       }
       .bp3-slider-track {
         background: rgba($brand-grey-lighter, .3);
@@ -118,7 +118,7 @@
   .progressWrapper:hover,
   &.hover .progressWrapper {
     display: block;
-    max-height: 160px;
+    max-height: 180px;
     :global {
       .bp3-slider {
         bp3-slider-progress.bp3-intent-primary {
@@ -133,13 +133,14 @@
   .progressWrapper {
     position: absolute;
     top: 0;
-    margin-top: -170px;
+    margin-top: -195px;
     margin-left: -8px;
     background: var(--clr-progress-wrapper-bg);
     padding: 14px 8px;
     display: none;
     max-height: 0;
     height: 200px;
+    z-index: 9;
     &:after {
       content: " ";
       top: 100%;

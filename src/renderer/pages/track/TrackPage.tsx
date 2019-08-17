@@ -1,70 +1,43 @@
 import { Menu, MenuDivider, MenuItem, Popover, Position } from "@blueprintjs/core";
 import { IMAGE_SIZES } from "@common/constants";
 import { StoreState } from "@common/store";
-import { AuthState, toggleFollowing } from "@common/store/auth";
-import { CombinedUserPlaylistState, getUserPlaylistsCombined } from "@common/store/auth/selectors";
+import { toggleFollowing } from "@common/store/auth";
+import { getUserPlaylistsCombined } from "@common/store/auth/selectors";
 import { getTrackEntity } from "@common/store/entities/selectors";
-import { canFetchMoreOf, fetchMore, ObjectState, ObjectTypes, PlaylistTypes } from "@common/store/objects";
+import { canFetchMoreOf, fetchMore, ObjectTypes, PlaylistTypes } from "@common/store/objects";
 import { getCommentObject, getPlaylistName, getRelatedTracksPlaylistObject } from "@common/store/objects/selectors";
-import { addUpNext, PlayerStatus, PlayingTrack, playTrack } from "@common/store/player";
+import { addUpNext, PlayerStatus, playTrack } from "@common/store/player";
 import { togglePlaylistTrack } from "@common/store/playlist/playlist";
 import { fetchTrackIfNeeded, toggleLike, toggleRepost } from "@common/store/track/actions";
-import { setScrollPosition } from "@common/store/ui";
-import { getPreviousScrollTop } from "@common/store/ui/selectors";
 import { SC } from "@common/utils";
 import { IPC } from "@common/utils/ipc";
+import { SetLayoutSettings } from "@renderer/_shared/context/contentContext";
 import cn from "classnames";
+import { autobind } from "core-decorators";
 import * as _ from "lodash";
 import * as React from "react";
-import { connect, MapDispatchToProps } from "react-redux";
+import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router-dom";
 import { Col, Row, TabContent, TabPane } from "reactstrap";
-import { bindActionCreators } from "redux";
-import { NormalizedResult, SoundCloud } from "../../../types";
-import CustomScroll from "../../_shared/CustomScroll";
+import { bindActionCreators, Dispatch } from "redux";
 import FallbackImage from "../../_shared/FallbackImage";
 import PageHeader from "../../_shared/PageHeader/PageHeader";
 import ShareMenuItem from "../../_shared/ShareMenuItem";
 import Spinner from "../../_shared/Spinner/Spinner";
 import TogglePlayButton from "../../_shared/TogglePlayButton";
-import TrackList from "../../_shared/TrackList/TrackList";
-import WithHeaderComponent from "../../_shared/WithHeaderComponent";
-import Header from "../../app/components/Header/Header";
+import { TrackList } from "../../_shared/TrackList/TrackList";
 import { TrackOverview } from "./components/TrackOverview";
 import "./TrackPage.scss";
 
 interface OwnProps extends RouteComponentProps<{ songId: string }> {
 }
 
-interface PropsFromState {
-    playingTrack: PlayingTrack | null;
-    isRelatedPlaylistsPlaying: boolean;
-    relatedPlaylistId: string;
-    auth: AuthState;
-    relatedTracks: ObjectState<NormalizedResult> | null;
-    comments: ObjectState<NormalizedResult> | null;
-    previousScrollTop?: number;
-    track: SoundCloud.Track | null;
-    songIdParam: number;
-    userPlaylists: CombinedUserPlaylistState[];
-}
+type PropsFromState = ReturnType<typeof mapStateToProps>;
+type PropsFromDispatch = ReturnType<typeof mapDispatchToProps>;
 
-interface PropsFromDispatch {
-    setScrollPosition: typeof setScrollPosition;
-    fetchTrackIfNeeded: typeof fetchTrackIfNeeded;
-    toggleRepost: typeof toggleRepost;
-    fetchMore: typeof fetchMore;
-    canFetchMoreOf: typeof canFetchMoreOf;
-    playTrack: typeof playTrack;
-    toggleFollowing: typeof toggleFollowing;
-    addUpNext: typeof addUpNext;
-    toggleLike: typeof toggleLike;
-    togglePlaylistTrack: typeof togglePlaylistTrack;
-}
 
 interface State {
     activeTab: TabTypes;
-    scrollTop: number;
 }
 
 enum TabTypes {
@@ -74,16 +47,14 @@ enum TabTypes {
 
 type AllProps = OwnProps & PropsFromState & PropsFromDispatch;
 
-class TrackPage extends WithHeaderComponent<AllProps, State> {
+@autobind
+class TrackPage extends React.PureComponent<AllProps, State> {
 
     public readonly state: State = {
         activeTab: TabTypes.OVERVIEW,
-        scrollTop: 0
     };
 
     public componentDidMount() {
-        super.componentDidMount();
-
         const { fetchTrackIfNeeded, songIdParam } = this.props;
 
         fetchTrackIfNeeded(songIdParam);
@@ -97,7 +68,7 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
 
     }
 
-    public toggle = (tab: TabTypes) => {
+    public toggle(tab: TabTypes) {
         if (this.state.activeTab !== tab) {
             this.setState({
                 activeTab: tab
@@ -105,25 +76,7 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
         }
     }
 
-    public fetchMore = () => {
-        const { match: { params: { songId } }, fetchMore } = this.props;
-
-        if (this.state.activeTab === TabTypes.OVERVIEW) {
-            fetchMore(songId, ObjectTypes.COMMENTS);
-        }
-    }
-
-    public canFetchMore = () => {
-        const { match: { params: { songId } }, canFetchMoreOf } = this.props;
-
-        if (this.state.activeTab === TabTypes.OVERVIEW) {
-            canFetchMoreOf(songId, ObjectTypes.COMMENTS);
-        }
-
-        return false;
-    }
-
-    public renderToggleButton = () => {
+    public renderToggleButton() {
         const { songIdParam, playTrack, relatedPlaylistId, playingTrack } = this.props;
 
         // TODO redundant?
@@ -151,7 +104,9 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
     public render() {
         const {
             // Vars
+            match: { params: { songId } },
             auth: { likes, reposts },
+            songIdParam,
             relatedPlaylistId,
             comments,
             isRelatedPlaylistsPlaying,
@@ -162,6 +117,8 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
             toggleLike,
             toggleRepost,
             addUpNext,
+            canFetchMoreOf,
+            fetchMore,
         } = this.props;
 
         if (!track || (track && track.loading)) {
@@ -178,21 +135,8 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
         const likedIcon = liked ? "bx bxs-heart" : "bx bx-heart";
 
         return (
-            <CustomScroll
-                className="column withHeader"
-                heightRelativeToParent="100%"
-                allowOuterScroll={true}
-                threshold={300}
-                ref={(r) => this.scroll = r}
-                onScroll={this.debouncedOnScroll}
-                loadMore={this.fetchMore}
-                hasMore={this.canFetchMore}
-            >
-
-                <Header
-                    className="withImage"
-                    scrollTop={this.state.scrollTop}
-                />
+            <>
+                <SetLayoutSettings hasImage={!!image} />
 
                 <PageHeader image={image}>
                     <Row className="trackHeader">
@@ -366,6 +310,8 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
                             <TrackOverview
                                 track={track}
                                 comments={comments}
+                                hasMore={canFetchMoreOf(songId, ObjectTypes.COMMENTS) as any}
+                                loadMore={() => fetchMore(songId, ObjectTypes.COMMENTS) as any}
                             />
                         </TabPane>
 
@@ -385,12 +331,12 @@ class TrackPage extends WithHeaderComponent<AllProps, State> {
                     </TabContent>
 
                 </div>
-            </CustomScroll>
+            </>
         );
     }
 }
 
-const mapStateToProps = (state: StoreState, props: OwnProps): PropsFromState => {
+const mapStateToProps = (state: StoreState, props: OwnProps) => {
     const { songId } = props.match.params;
     const { player: { playingTrack, currentPlaylistId, status }, auth } = state;
 
@@ -406,12 +352,10 @@ const mapStateToProps = (state: StoreState, props: OwnProps): PropsFromState => 
         songIdParam: +songId,
         relatedTracks: getRelatedTracksPlaylistObject(songId)(state),
         comments: getCommentObject(songId)(state),
-        previousScrollTop: getPreviousScrollTop(state)
     };
 };
 
-const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, OwnProps> = (dispatch) => bindActionCreators({
-    setScrollPosition,
+const mapDispatchToProps = (dispatch: Dispatch) => bindActionCreators({
     fetchTrackIfNeeded,
     toggleRepost,
     fetchMore,

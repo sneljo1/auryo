@@ -4,6 +4,7 @@ import { ConnectedRouter } from "connected-react-router";
 import { ipcRenderer } from "electron";
 import { History } from "history";
 import * as React from "react";
+import { hot } from "react-hot-loader";
 import { connect, Provider } from "react-redux";
 import { Route, Switch } from "react-router";
 import { Store } from "redux";
@@ -44,4 +45,4 @@ class Main extends React.PureComponent<OwnProps> {
     }
 }
 
-export default connect<{}, {}, OwnProps, StoreState>(null)(Main);
+export default hot(module)(connect<{}, {}, OwnProps, StoreState>(null)(Main));

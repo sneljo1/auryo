@@ -5,7 +5,7 @@ import { initApp, setDimensions, stopWatchers, toggleOffline } from "@common/sto
 import { getUserPlaylists } from "@common/store/auth/selectors";
 import { addToast, clearToasts, removeToast, setScrollPosition } from "@common/store/ui";
 import { getPreviousScrollTop } from "@common/store/ui/selectors";
-import { ContentContext } from "@renderer/_shared/context/contentContext";
+import { ContentContext, LayoutSettings } from "@renderer/_shared/context/contentContext";
 import cn from "classnames";
 import { autobind } from "core-decorators";
 import { ipcRenderer } from "electron";
@@ -30,6 +30,7 @@ import Toastr from "./components/Toastr";
 
 interface State {
     isScrolling: boolean;
+    settings: LayoutSettings;
     getList?(): FixedSizeList | null;
 }
 
@@ -39,10 +40,15 @@ type PropsFromDispatch = ReturnType<typeof mapDispatchToProps>;
 
 type AllProps = PropsFromState & PropsFromDispatch & RouteComponentProps;
 
+export const INITIAL_LAYOUT_SETTINGS: LayoutSettings = {
+    hasImage: false,
+}
+
 @autobind
 class Layout extends React.Component<AllProps, State> {
 
     public state: State = {
+        settings: INITIAL_LAYOUT_SETTINGS,
         isScrolling: false
     }
 
@@ -54,7 +60,7 @@ class Layout extends React.Component<AllProps, State> {
         super(props);
 
         this.debouncedHandleResize = debounce(this.handleResize, 500, { leading: true });
-        this.debouncedSetScrollPosition = debounce(props.setScrollPosition, 250);
+        this.debouncedSetScrollPosition = debounce(props.setScrollPosition, 100);
     }
 
     public componentDidMount() {
@@ -141,7 +147,14 @@ class Layout extends React.Component<AllProps, State> {
                         >
                             <SideBar items={userPlayerlists} />
 
-                            <ContentContext.Provider value={{ list: this.state.getList, setList: (getList) => this.setState({ getList }) }}>
+                            <ContentContext.Provider
+                                value={{
+                                    settings: this.state.settings,
+                                    list: this.state.getList,
+                                    setList: (getList) => this.setState({ getList }),
+                                    applySettings: (newSettings) => this.setState(({ settings }) => ({ settings: { ...settings, ...newSettings } }))
+                                }}
+                            >
                                 <section className="content" ref={this.contentRef}>
                                     <Toastr
                                         position={Position.TOP_RIGHT}
@@ -189,20 +202,23 @@ class Layout extends React.Component<AllProps, State> {
     private handlePreviousScrollPositionOnBack() {
         if (this.contentRef.current) {
             this.contentRef.current.addEventListener("scroll", (e) => {
+                const scrollTop = (e.target as any).scrollTop;
+
                 if (this.state.getList) {
                     const list = this.state.getList();
 
                     if (list) {
-                        list.scrollTo((e.target as any).scrollTop)
+                        list.scrollTo(scrollTop)
                     }
                 }
 
-                this.debouncedSetScrollPosition((e.target as any).scrollTop, this.props.location.pathname)
+                this.debouncedSetScrollPosition(scrollTop, this.props.location.pathname);
 
             })
         }
 
         this.props.history.listen((_location, action) => {
+
             if (!this.state.isScrolling) {
 
                 const scrollTo = action === "POP" ? this.props.previousScrollTop : 0;

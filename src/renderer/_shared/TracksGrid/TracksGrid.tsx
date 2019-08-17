@@ -1,7 +1,6 @@
 import cn from "classnames";
 import { autobind } from "core-decorators";
 import * as React from "react";
-import { RouteComponentProps } from "react-router";
 import AutoSizer from "react-virtualized-auto-sizer";
 import { FixedSizeList as List } from "react-window";
 import InfiniteLoader from "react-window-infinite-loader";
@@ -25,7 +24,7 @@ interface OwnProps {
     loadMore?(startIndex: number, stopIndex: number): Promise<void>
 }
 
-type AllProps = OwnProps & RouteComponentProps & InjectedContentContextProps;
+type AllProps = OwnProps & InjectedContentContextProps;
 
 @autobind
 class TracksGrid extends React.PureComponent<AllProps> {
