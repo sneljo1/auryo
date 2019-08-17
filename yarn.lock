@@ -762,20 +762,20 @@
     "@sentry/utils" "5.5.0"
     tslib "^1.9.3"
 
-"@sentry/minimal@4.6.5", "@sentry/minimal@^4.5.0":
-  version "4.6.5"
-  resolved "https://registry.yarnpkg.com/@sentry/minimal/-/minimal-4.6.5.tgz#64433d2c9fda69eedbb61855a7ff8905f7b19218"
-  dependencies:
-    "@sentry/hub" "4.6.5"
-    "@sentry/types" "4.5.3"
-    tslib "^1.9.3"
-
 "@sentry/minimal@5.5.0":
   version "5.5.0"
   resolved "https://registry.yarnpkg.com/@sentry/minimal/-/minimal-5.5.0.tgz#ea7939b8efe307d25775b23227a3f85dfb46b274"
   dependencies:
     "@sentry/hub" "5.5.0"
     "@sentry/types" "5.5.0"
+    tslib "^1.9.3"
+
+"@sentry/minimal@^4.5.0":
+  version "4.6.5"
+  resolved "https://registry.yarnpkg.com/@sentry/minimal/-/minimal-4.6.5.tgz#64433d2c9fda69eedbb61855a7ff8905f7b19218"
+  dependencies:
+    "@sentry/hub" "4.6.5"
+    "@sentry/types" "4.5.3"
     tslib "^1.9.3"
 
 "@sentry/node@4.6.2 || ~4.6.4":
@@ -7213,10 +7213,6 @@ lru_map@0.3.3:
   version "0.3.3"
   resolved "https://registry.yarnpkg.com/lru_map/-/lru_map-0.3.3.tgz#b5c8351b9464cbd750335a79650a0ec0e56118dd"
 
-lsmod@1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/lsmod/-/lsmod-1.0.0.tgz#9a00f76dca36eb23fa05350afe1b585d4299e64b"
-
 make-dir@^1.0.0:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/make-dir/-/make-dir-1.3.0.tgz#79c1033b80515bd6d24ec9933e860ca75ee27f0c"
@@ -10536,10 +10532,6 @@ ssri@^6.0.0, ssri@^6.0.1:
   resolved "https://registry.yarnpkg.com/ssri/-/ssri-6.0.1.tgz#2a3c41b28dd45b62b63676ecb74001265ae9edd8"
   dependencies:
     figgy-pudding "^3.5.1"
-
-stack-trace@0.0.10:
-  version "0.0.10"
-  resolved "https://registry.yarnpkg.com/stack-trace/-/stack-trace-0.0.10.tgz#547c70b347e8d32b4e108ea1a2a159e5fdde19c0"
 
 stack-utils@^1.0.1:
   version "1.0.1"
