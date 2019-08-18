@@ -2,7 +2,7 @@ matrix:
   include:
   - os: linux
     language: node_js
-    node_js: '8'
+    node_js: '12'
     sudo: required
     dist: xenial
     addons:
@@ -29,7 +29,7 @@ matrix:
   - os: osx
     language: node_js
     osx_image: xcode9
-    node_js: '8'
+    node_js: '12'
     sudo: required
     env:
     - HOMEBREW_CASK_OPTS='--appdir=/Applications'
@@ -39,8 +39,7 @@ matrix:
 before_install:
 - |
   if [ "$TRAVIS_OS_NAME" = "osx" ]; then
-    brew update > /dev/null
-    brew cask install google-chrome
+    HOMEBREW_NO_AUTO_UPDATE=1 brew cask install google-chrome
   fi
 cache:
   yarn: true
@@ -77,6 +76,10 @@ after_success:
       # fi
       yarn run release:linux
     else
+      if [[ $TRAVIS_PULL_REQUEST == "false" ]]; then
+        chmod +x add-osx-cert.sh; 
+        ./config/build/add-osx-cert.sh;
+      fi
       yarn run release:mac
     fi
   fi
