@@ -21,12 +21,18 @@ const mdns = new Mdns();
 
 @autobind
 export default class ChromeCast extends Feature {
+
+
   private readonly logger: LoggerInstance = Logger.createLogger(ChromeCast.name);
 
   private player?: AuryoReceiver;
   private client?: PlatformSender;
   private devices: ChromeCastDevice[] = [];
   private isSearching: boolean = false;
+
+  public shouldRun() {
+    return super.shouldRun() && !process.env.TOKEN
+  }
 
   // tslint:disable-next-line: max-func-body-length
   public register() {
