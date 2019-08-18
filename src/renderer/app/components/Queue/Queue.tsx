@@ -1,34 +1,24 @@
+import { Classes } from "@blueprintjs/core";
 import { StoreState } from "@common/store";
-import { clearUpNext, PlayingTrack, updateQueue, UpNextState } from "@common/store/player";
+import { clearUpNext, updateQueue } from "@common/store/player";
 import { getQueue } from "@common/store/player/selectors";
-import { toggleQueue } from "@common/store/ui";
-import cn from "classnames";
+import { autobind } from "core-decorators";
 import { debounce } from "lodash";
 import * as React from "react";
 import * as ReactList from "react-list";
-import { connect, MapDispatchToProps } from "react-redux";
-import { bindActionCreators } from "redux";
+import { connect } from "react-redux";
+import { bindActionCreators, Dispatch } from "redux";
 import CustomScroll from "../../../_shared/CustomScroll";
 import Spinner from "../../../_shared/Spinner/Spinner";
 import "./Queue.scss";
 import QueueItem from "./QueueItem";
 
-interface PropsFromState {
-    playingTrack: PlayingTrack | null;
-    currentIndex: number;
-    showQueue: boolean;
-    upNext: UpNextState;
-    items: PlayingTrack[];
-}
-
-interface PropsFromDispatch {
-    toggleQueue: typeof toggleQueue;
-    updateQueue: typeof updateQueue;
-    clearUpNext: typeof clearUpNext;
-}
+type PropsFromState = ReturnType<typeof mapStateToProps>;
+type PropsFromDispatch = ReturnType<typeof mapDispatchToProps>;
 
 type AllProps = PropsFromDispatch & PropsFromState;
 
+@autobind
 class Queue extends React.PureComponent<AllProps> {
 
     private readonly updateQueueDebounced: () => void;
@@ -48,26 +38,18 @@ class Queue extends React.PureComponent<AllProps> {
         }
     }
 
-    public componentDidUpdate(prevProps: AllProps) {
-        const { showQueue, currentIndex, playingTrack } = this.props;
+    // public componentDidUpdate(prevProps: AllProps) {
+    //     const { showQueue, currentIndex, playingTrack } = this.props;
 
-        if (showQueue !== prevProps.showQueue && showQueue === true) {
+    //     if (showQueue !== prevProps.showQueue && showQueue === true) {
 
-            if (playingTrack && playingTrack.id && this.list) {
-                this.list.scrollTo(currentIndex);
-            }
-        }
-    }
+    //         if (playingTrack && playingTrack.id && this.list) {
+    //             this.list.scrollTo(currentIndex);
+    //         }
+    //     }
+    // }
 
-    public handleClickOutside = () => {
-        const { showQueue, toggleQueue } = this.props;
-
-        if (showQueue) {
-            toggleQueue(false);
-        }
-    }
-
-    public onScroll = () => {
+    public onScroll() {
         const { updateQueue } = this.props;
 
         if (this.list) {
@@ -75,7 +57,7 @@ class Queue extends React.PureComponent<AllProps> {
         }
     }
 
-    public renderTrack = (index: number, key: number | string) => {
+    public renderTrack(index: number, key: number | string) {
         const {
             items,
             currentIndex
@@ -95,14 +77,11 @@ class Queue extends React.PureComponent<AllProps> {
     }
 
     public render() {
-        const { toggleQueue, items, currentIndex, showQueue, upNext, clearUpNext } = this.props;
+        const { items, currentIndex, upNext, clearUpNext } = this.props;
 
         return (
             <aside
-                className={cn("playQueue", {
-                    show: showQueue,
-                    hide: !showQueue
-                })}
+                className="playQueue"
             >
                 <div className="playqueue-title d-flex align-items-center justify-content-between">
                     <div>Play Queue</div>
@@ -121,36 +100,29 @@ class Queue extends React.PureComponent<AllProps> {
                             )
                         }
                         <a
-                            href="javascript:void(0)"
-                            onClick={() => {
-                                toggleQueue(false);
-                            }}
+                            className={Classes.POPOVER_DISMISS}
                         >
                             <i className="bx bx-x" />
                         </a>
                     </div>
                 </div>
                 <div className="tracks">
-                    {
-                        showQueue && (
-                            <CustomScroll
-                                heightRelativeToParent="100%"
-                                allowOuterScroll={true}
-                                onScroll={this.updateQueueDebounced}
-                                loader={<Spinner />}
-                            >
-                                <ReactList
-                                    ref={(r) => this.list = r}
-                                    pageSize={8}
-                                    type="uniform"
-                                    initialIndex={currentIndex}
-                                    length={items.length}
-                                    useTranslate3d={true}
-                                    itemRenderer={this.renderTrack}
-                                />
-                            </CustomScroll>
-                        )
-                    }
+                    <CustomScroll
+                        heightRelativeToParent="100%"
+                        allowOuterScroll={true}
+                        onScroll={this.updateQueueDebounced}
+                        loader={<Spinner />}
+                    >
+                        <ReactList
+                            ref={(r) => this.list = r}
+                            pageSize={8}
+                            type="uniform"
+                            initialIndex={currentIndex}
+                            length={items.length}
+                            useTranslate3d={true}
+                            itemRenderer={this.renderTrack}
+                        />
+                    </CustomScroll>
                 </div>
             </aside>
         );
@@ -158,21 +130,18 @@ class Queue extends React.PureComponent<AllProps> {
 
 }
 
-const mapStateToProps = (state: StoreState): PropsFromState => {
-    const { player, ui } = state;
+const mapStateToProps = (state: StoreState) => {
+    const { player } = state;
 
     return {
         playingTrack: player.playingTrack,
         currentIndex: player.currentIndex,
-        showQueue: ui.showQueue,
         upNext: player.upNext,
         items: getQueue(state),
     };
 };
 
-const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, {}> = (dispatch) => bindActionCreators({
-
-    toggleQueue,
+const mapDispatchToProps = (dispatch: Dispatch) => bindActionCreators({
     updateQueue,
     clearUpNext,
 }, dispatch);

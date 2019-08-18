@@ -1,61 +1,70 @@
-import { Intent, Slider, Tag } from "@blueprintjs/core";
+import { Intent, Popover, PopoverInteractionKind, Slider, Tag } from "@blueprintjs/core";
 import { IMAGE_SIZES } from "@common/constants";
 import { EVENTS } from "@common/constants/events";
 import { StoreState } from "@common/store";
+import { useChromeCast } from "@common/store/app";
 import { hasLiked } from "@common/store/auth/selectors";
 import { setConfigKey } from "@common/store/config";
 import { getTrackEntity } from "@common/store/entities/selectors";
 import { changeTrack, ChangeTypes, PlayerStatus, registerPlay, RepeatTypes, setCurrentTime, setDuration, toggleShuffle, toggleStatus } from "@common/store/player";
 import { toggleLike } from "@common/store/track/actions";
-import { addToast, toggleQueue } from "@common/store/ui";
+import { addToast } from "@common/store/ui";
 import { getReadableTime, SC } from "@common/utils";
 import cn from "classnames";
+import { autobind } from "core-decorators";
 import { ipcRenderer } from "electron";
+import debounce = require("lodash/debounce");
 import * as moment from "moment";
 import * as React from "react";
 import * as isDeepEqual from "react-fast-compare";
 import { connect } from "react-redux";
 import { bindActionCreators, Dispatch } from "redux";
 import FallbackImage from "../../../_shared/FallbackImage";
+import Queue from "../Queue/Queue";
 import Audio from "./components/Audio";
 import PlayerControls from "./components/PlayerControls/PlayerControls";
 import TrackInfo from "./components/TrackInfo/TrackInfo";
 import * as styles from "./Player.module.scss";
 
 type PropsFromState = ReturnType<typeof mapStateToProps>;
-
 type PropsFromDispatch = ReturnType<typeof mapDispatchToProps>;
 
 interface State {
     nextTime: number;
     isSeeking: boolean;
     isVolumeSeeking: boolean;
-    muted: boolean;
     offline: boolean;
     volume: number;
 }
 
 type AllProps = PropsFromState & PropsFromDispatch;
 
+@autobind
 class Player extends React.Component<AllProps, State>{
 
     public state: State = {
         nextTime: 0,
         isSeeking: false,
         isVolumeSeeking: false,
-        muted: false,
         offline: false,
         volume: 0,
     };
 
+    private readonly debounceDiscover: () => void;
     private audio: Audio | null = null;
+
+    constructor(props: AllProps) {
+        super(props);
+        this.debounceDiscover = debounce(() => {
+            // Get Chromecast devices
+            ipcRenderer.send(EVENTS.CHROMECAST.DISCOVER);
+        }, 2000);
+    }
 
     public async componentDidMount() {
         try {
             const { isSeeking } = this.state;
-            const { setCurrentTime,
-                // playbackDeviceId
-            } = this.props;
+            const { setCurrentTime } = this.props;
 
             let stopSeeking: any;
 
@@ -80,10 +89,14 @@ class Player extends React.Component<AllProps, State>{
                     }
 
                     setCurrentTime(to);
+                    ipcRenderer.send(EVENTS.PLAYER.SEEK_END, to);
                 }, 100);
             });
 
             await this.setAudioPlaybackDevice();
+
+            // Get Chromecast devices
+            this.debounceDiscover();
         } catch (err) {
             throw err;
         }
@@ -166,8 +179,8 @@ class Player extends React.Component<AllProps, State>{
         setConfigKey("repeat", newRepeatType);
     }
 
-    public toggleMute = () => {
-        const { muted } = this.state;
+    public toggleMute() {
+        const { muted, setConfigKey } = this.props;
 
         if (muted) {
             this.volumeChange(.5);
@@ -175,9 +188,7 @@ class Player extends React.Component<AllProps, State>{
             this.volumeChange(0);
         }
 
-        this.setState({
-            muted: !muted
-        });
+        setConfigKey("audio.muted", !muted);
     }
 
     // RENDER
@@ -215,6 +226,7 @@ class Player extends React.Component<AllProps, State>{
                     }
 
                     setCurrentTime(val);
+                    ipcRenderer.send(EVENTS.PLAYER.SEEK_END, val);
                 }}
             />
         );
@@ -228,10 +240,12 @@ class Player extends React.Component<AllProps, State>{
         });
     }
 
-    public volumeChange = (volume: number) => {
+    public volumeChange(volume: number) {
+        if (this.props.muted) {
+            this.props.setConfigKey("audio.muted", false);
+        }
         this.setState({
             volume,
-            muted: false,
             isVolumeSeeking: true
         });
     }
@@ -291,17 +305,19 @@ class Player extends React.Component<AllProps, State>{
 
         const {
             player,
-            toggleQueue,
             volume: configVolume,
             repeat,
             liked,
             shuffle,
             toggleStatus,
             track,
-            toggleLike
+            toggleLike,
+            chromecast,
+            useChromeCast,
+            muted
         } = this.props;
 
-        const { muted, isVolumeSeeking, nextTime, isSeeking } = this.state;
+        const { nextTime, isSeeking } = this.state;
 
         const {
             status,
@@ -382,7 +398,32 @@ class Player extends React.Component<AllProps, State>{
                         <div className={styles.time}>{getReadableTime(duration, false, true)}</div>
                     </div>
 
-                    <div className={cn("pr-2", styles.playerVolume, { hover: isVolumeSeeking })}>
+                    <Popover
+                        className="mr-2"
+                        popoverClassName={styles.playerPopover}
+                        interactionKind={PopoverInteractionKind.HOVER}
+                        hoverOpenDelay={50}
+                        content={(
+                            <div className={styles.playerVolume}>
+                                <Slider
+                                    min={0}
+                                    max={1}
+                                    value={volume}
+                                    stepSize={0.1}
+                                    vertical={true}
+                                    onChange={this.volumeChange}
+                                    labelRenderer={false}
+                                    onRelease={(value) => {
+                                        this.setState({
+                                            isVolumeSeeking: false
+                                        });
+
+                                        this.props.setConfigKey("audio.volume", value);
+                                    }}
+                                />
+                            </div>
+                        )}
+                    >
                         <a
                             className={styles.control}
                             href="javascript:void(0)"
@@ -390,39 +431,72 @@ class Player extends React.Component<AllProps, State>{
                         >
                             <i className={`bx bx-${volume_icon}`} />
                         </a>
+                    </Popover>
 
-                        <div className={styles.progressWrapper}>
-                            <Slider
-                                key="volume"
-                                min={0}
-                                max={1}
-                                value={decVolume}
-                                stepSize={0.1}
-                                vertical={true}
-                                onChange={this.volumeChange}
-                                labelRenderer={false}
-                                onRelease={(value) => {
-                                    this.setState({
-                                        isVolumeSeeking: false
-                                    });
+                    {
+                        !!chromecast.devices.length && (
+                            <Popover
+                                className="mr-2"
+                                popoverClassName={styles.playerPopover}
+                                onOpened={this.debounceDiscover}
+                                content={(
+                                    <div style={{ minWidth: 200 }}>
+                                        <div className={styles.popoverTitle}>Nearby devices</div>
+                                        {
+                                            chromecast.devices.map((d) => {
+                                                return (
+                                                    <div
+                                                        role="button"
+                                                        key={d.id}
+                                                        className={styles.castDevice}
+                                                        onClick={() => {
+                                                            useChromeCast(chromecast.selectedDeviceId === d.id ? undefined : d.id);
+                                                        }}
+                                                    >
+                                                        {chromecast.selectedDeviceId === d.id && <i className="bx bx-stop" />}
+                                                        <div>
+                                                            {d.name}
+                                                            <div className={styles.castSub}>
+                                                                {chromecast.selectedDeviceId === d.id && !chromecast.castApp && "Connecting..."}
+                                                                {chromecast.selectedDeviceId === d.id && chromecast.castApp ? "Casting" : null}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })
+                                        }
+                                    </div>
+                                )}
+                            >
+                                <a
+                                    className={cn(styles.control, {
+                                        [styles.active]: !!chromecast.castApp
+                                    })}
+                                    href="javascript:void(0)"
+                                >
+                                    <i className="bx bx-cast" />
+                                </a>
+                            </Popover>
+                        )
+                    }
 
-                                    this.props.setConfigKey("audio.volume", value);
-                                }}
-                            />
-                        </div>
-
-                    </div>
-
-                    <a
-                        className={styles.control}
-                        href="javascript:void(0)"
-                        onClick={() => {
-                            toggleQueue();
-                        }}
+                    <Popover
+                        popoverClassName={styles.playerPopover}
+                        content={(
+                            <Queue />
+                        )}
+                        position={"bottom-right"}
                     >
-                        <i className="bx bxs-playlist" />
-                    </a>
+                        <a
+                            className={styles.control}
+                            href="javascript:void(0)"
+                        >
+                            <i className="bx bxs-playlist" />
+                        </a>
+                    </Popover>
+
                 </div>
+
             </div>
         );
     }
@@ -434,10 +508,10 @@ class Player extends React.Component<AllProps, State>{
             volume: configVolume,
             track,
             remainingPlays,
-            overrideClientId
+            overrideClientId,
+            chromecast,
+            muted
         } = this.props;
-
-        const { muted } = this.state;
 
         const {
             status,
@@ -464,6 +538,7 @@ class Player extends React.Component<AllProps, State>{
         }
 
         const autoplay = status === PlayerStatus.PLAYING;
+        const playingOnChromecast = !!chromecast.castApp;
 
         return (
             <Audio
@@ -471,7 +546,7 @@ class Player extends React.Component<AllProps, State>{
                 src={url}
                 autoPlay={autoplay}
                 volume={volume}
-                muted={muted}
+                muted={muted || playingOnChromecast}
                 id={`${playingTrack.id}`}
                 onLoadedMetadata={this.onLoad}
                 onListen={this.onPlaying}
@@ -507,12 +582,14 @@ const mapStateToProps = (state: StoreState) => {
         track,
         player,
         volume: config.audio.volume,
+        muted: config.audio.muted,
         shuffle: config.shuffle,
         repeat: config.repeat,
         playbackDeviceId: config.audio.playbackDeviceId,
         overrideClientId: config.app.overrideClientId,
         remainingPlays: app.remainingPlays,
-        liked
+        liked,
+        chromecast: app.chromecast,
     };
 };
 
@@ -523,10 +600,10 @@ const mapDispatchToProps = (dispatch: Dispatch) => bindActionCreators({
     setCurrentTime,
     addToast,
     setDuration,
-    toggleQueue,
     registerPlay,
     toggleShuffle,
-    toggleLike
+    toggleLike,
+    useChromeCast,
 }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(Player);

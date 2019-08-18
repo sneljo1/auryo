@@ -1,13 +1,14 @@
 import { Auryo } from "../app";
 import ApplicationMenu from "./core/applicationMenu";
 import AppUpdater from "./core/appUpdater";
+import ChromeCast from "./core/chromeCast/chromeCast";
 import ConfigManager from "./core/configManager";
 import IPCManager from "./core/ipcManager";
 import LastFm from "./core/lastFm";
 import NotificationManager from "./core/notificationManager";
 import PowerMonitor from "./core/powerMonitor";
 import ShortcutManager from "./core/shortcutManager";
-import Feature from "./feature";
+import { Feature } from "./feature";
 import DbusService from "./linux/dbusService";
 import MprisService from "./linux/mprisService";
 import MediaServiceManager from "./mac/mediaServiceManager";
@@ -24,6 +25,7 @@ export const tools: typeof Feature[] = [
   ShortcutManager,
   ApplicationMenu,
   NotificationManager,
+  ChromeCast,
 
   // Mac
   TouchBarManager,

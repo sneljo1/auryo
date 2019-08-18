@@ -6,7 +6,9 @@ export function isCurrentPlaylistPlaying(player: PlayerState, playlistId: string
 }
 
 export function getCurrentPosition(player: { playingTrack: PlayingTrack | null, queue: PlayingTrack[] }): number {
-    if (!player || !player.queue || !player.playingTrack) { return -1; }
+    if (!player || !player.queue || !player.playingTrack) {
+        return -1;
+    }
 
     return findIndex(player.queue, player.playingTrack);
 }

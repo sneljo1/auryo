@@ -1,30 +1,35 @@
 @import "../../../css/bootstrap.imports.scss";
-.player {
-  grid-area: now-playing-bar;
-  
+
+.player,
+.playerVolume {
   :global {
     .bp3-slider {
       &:not(.bp3-vertical) {
         height: 14px;
+
         .bp3-slider-track,
         .bp3-slider-progress {
           height: 4px;
         }
       }
+
       &.bp3-vertical {
         // height: 130px;
         min-width: 16px;
         width: 16px;
         // min-height: 130px;
       }
+
       .bp3-slider-track {
         background: rgba($brand-grey-lighter, .3);
       }
+
       .bp3-slider-progress.bp3-intent-primary {
         background: $white;
         opacity: .7;
         transition: .5s opacity;
       }
+
       .bp3-slider-handle {
         background: $white;
         border: none;
@@ -38,10 +43,22 @@
       }
     }
   }
+}
+
+.player {
+  grid-area: now-playing-bar;
+
   background: rgba($black, .45);
   padding: 8px 16px 8px 10px;
   color: $white;
   position: relative;
+
+  :global {
+    .bp3-popover-wrapper {
+      display: flex;
+      align-items: center;
+    }
+  }
 }
 
 .player_bg {
@@ -53,6 +70,7 @@
   top: 0;
   z-index: -1;
   background: $black;
+
   :global img {
     width: 100%;
     position: absolute;
@@ -63,6 +81,7 @@
     margin-left: -10px;
     margin-top: -10px;
   }
+
   &:before {
     content: '';
     position: absolute;
@@ -83,20 +102,24 @@
   flex-wrap: nowrap;
   align-items: center;
   padding: 0 1rem;
+
   .time {
     font-size: .8rem;
     display: block;
     padding: 0 15px;
   }
+
   .progressInner {
     width: 100%;
     padding: 8px 0;
+
     &:hover {
       :global {
         .bp3-slider {
           .bp3-slider-progress.bp3-intent-primary {
             opacity: 1;
           }
+
           .bp3-slider-handle {
             opacity: 1
           }
@@ -106,30 +129,67 @@
   }
 }
 
+.castDevice {
+  font-size: .9rem;
+  color: #f1f1f1;
+  padding: .5rem .8rem;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+
+  i {
+    font-size: 2rem;
+  }
+}
+
+.castSub {
+  color: grey;
+  font-size: .7rem;
+}
+
+.playerPopover {
+
+  :global(.bp3-popover-arrow-fill),
+  :global(.bp3-popover-content) {
+    fill: #222326;
+    background: #222326;
+    color: #fff;
+  }
+
+  .popoverTitle {
+    padding: 10px 10px;
+    border-bottom: 1px solid grey;
+    font-size: .9rem;
+    height: 44px;
+  }
+}
+
 .playerVolume {
   align-items: center;
   position: relative;
+  background: #222326;
+  padding: 14px 8px;
+
   &:hover {
     .control {
       color: $white;
     }
   }
-  &:hover .progressWrapper,
-  .progressWrapper:hover,
-  &.hover .progressWrapper {
-    display: block;
-    max-height: 180px;
+
+  &:hover {
     :global {
       .bp3-slider {
         bp3-slider-progress.bp3-intent-primary {
           opacity: 1;
         }
+
         .bp3-slider-handle {
           opacity: 1
         }
       }
     }
   }
+
   .progressWrapper {
     position: absolute;
     top: 0;
@@ -141,6 +201,7 @@
     max-height: 0;
     height: 200px;
     z-index: 9;
+
     &:after {
       content: " ";
       top: 100%;
@@ -177,6 +238,7 @@
   vertical-align: middle;
   display: flex;
   text-decoration: none !important;
+
   &:hover {
     opacity: 1;
     color: $white;
@@ -185,4 +247,8 @@
 
 .control {
   @extend %playerControl;
+
+  &.active {
+    color: $brand-primary !important;
+  }
 }

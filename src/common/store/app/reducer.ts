@@ -20,7 +20,14 @@ const initialState: AppState = {
         height: 0
     },
     remainingPlays: null,
-    lastfmLoading: false
+    lastfmLoading: false,
+    chromecast: {
+        hasDevices: false,
+        devices: [],
+        selectedDeviceId: null,
+        devicePlayerStatus: null,
+        castApp: null
+    }
 };
 
 export const appReducer: Reducer<AppState> = (state = initialState, action) => {
@@ -79,6 +86,39 @@ export const appReducer: Reducer<AppState> = (state = initialState, action) => {
                     ...state.update,
                     available: true,
                     version: payload.version
+                }
+            };
+        case AppActionTypes.SET_AVAILABLE_CHROMECAST_DEVICES:
+            return {
+                ...state,
+                chromecast: {
+                    ...state.chromecast,
+                    devices: payload.devices,
+                    hasDevices: payload.devices.length
+                }
+            };
+        case AppActionTypes.SET_CHROMECAST_APP_STATE:
+            return {
+                ...state,
+                chromecast: {
+                    ...state.chromecast,
+                    castApp: payload
+                }
+            };
+        case AppActionTypes.SET_CHROMECAST_DEVICE:
+            return {
+                ...state,
+                chromecast: {
+                    ...state.chromecast,
+                    selectedDeviceId: payload
+                }
+            };
+        case AppActionTypes.SET_CHROMECAST_PLAYER_STATUS:
+            return {
+                ...state,
+                chromecast: {
+                    ...state.chromecast,
+                    devicePlayerStatus: payload
                 }
             };
         case AppActionTypes.RESET_STORE:

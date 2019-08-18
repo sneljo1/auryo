@@ -27,5 +27,6 @@ module.exports = merge(baseConfig, {
     new webpack.HotModuleReplacementPlugin(),
     new webpack.WatchIgnorePlugin([/\.d\.ts$/])
   ],
-  target: 'electron-renderer'
+  target: 'electron-renderer',
+  resolve:{}
 })

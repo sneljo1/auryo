@@ -669,7 +669,8 @@ export function registerPlay(): ThunkResult<void> {
 
             const type = getPlaylistType(playlistId);
 
-            if (!type || !(type in PlaylistTypes)) {
+
+            if ((!type || !(type in PlaylistTypes)) && typeof playlistId !== "string") {
                 params.context_urn = `soundcloud:playlists:${playlistId}`;
             }
 

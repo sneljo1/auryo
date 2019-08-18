@@ -117,8 +117,6 @@ class PlaylistPage extends React.Component<AllProps, State> {
             return <Spinner contained={true} />;
         }
 
-        console.log(playlist.tracks);
-
         const first_item = playlist.tracks[0];
         const hasImage = playlist.artwork_url || (first_item && first_item.artwork_url);
 

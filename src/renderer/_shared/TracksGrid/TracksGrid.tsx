@@ -75,7 +75,7 @@ class TracksGrid extends React.PureComponent<AllProps> {
                                     threshold={5}
                                     itemCount={itemCount}
                                     loadMoreItems={(start, end) => {
-                                        if (loadMoreItems && items.length - (end * itemsPerRow) < 15) {
+                                        if (loadMoreItems && items.length - (end * itemsPerRow) < 5) {
                                             loadMoreItems(start, end);
                                         }
                                     }}
@@ -83,7 +83,7 @@ class TracksGrid extends React.PureComponent<AllProps> {
                                     {({ onItemsRendered, ref }: any) => (
                                         <>
                                             <List
-                                                style={{ height: "100%" }}
+                                                style={{ height: "100%", overflow: "initial" }}
                                                 ref={ref}
                                                 height={window.innerHeight}
                                                 itemCount={itemCount}
@@ -91,7 +91,7 @@ class TracksGrid extends React.PureComponent<AllProps> {
                                                 itemData={{
                                                     itemsPerRow,
                                                     items,
-                                                    objectId, 
+                                                    objectId,
                                                     showInfo
                                                 }}
                                                 itemSize={350}

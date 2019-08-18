@@ -95,7 +95,7 @@
       vertical-align: text-bottom;
     }
     select,
-    input {
+    input:not([type="checkbox"]) {
       width: 270px;
     }
   }

@@ -62,6 +62,7 @@ module.exports = {
               camelcase: true,
               modules: true,
               namedExport: true,
+              localIdentName: process.env.NODE_ENV !== 'production' ? "[local]_[hash:base64]" : undefined,
             }
           },
           {
@@ -70,7 +71,9 @@ module.exports = {
               sourceMap: true
             }
           },
-          'sass-loader'
+          {
+            loader: 'sass-loader'
+          }
         ]
       },
 
@@ -157,11 +160,11 @@ module.exports = {
   resolve: {
     extensions: ['.tsx', '.ts', '.js', '.jsx', '.json', '.scss'],
     alias: {
-      '@': path.resolve(__dirname, '../src')
+      // '@': path.resolve(__dirname, '../src')
     },
     plugins: [
       new TsconfigPathsPlugin({
-        extensions: [".ts", ".tsx", ".js", ".jsx"]
+        extensions: [".ts", ".tsx", ".js", ".jsx"],
       })
     ]
   },

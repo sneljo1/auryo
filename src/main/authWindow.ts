@@ -23,7 +23,7 @@ export const hasAuthWindow = () => !!authWindow;
 
 export const createAuthWindow = () => {
     try {
-        const sess = session.fromPartition(`authWindow-soundcloud`);
+        // const sess = session.fromPartition(`authWindow-soundcloud`);
 
         authWindow = new BrowserWindow({
             show: false,
@@ -31,7 +31,7 @@ export const createAuthWindow = () => {
             width: 600,
             height: 800,
             webPreferences: {
-                session: sess,
+                // session: sess,
                 nodeIntegration: false, // We recommend disabling nodeIntegration for security.
                 contextIsolation: true, // We recommend enabling contextIsolation for security.
                 // see https://github.com/electron/electron/blob/master/docs/tutorial/security.md

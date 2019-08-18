@@ -12,9 +12,11 @@ import cn from "classnames";
 import { autobind } from "core-decorators";
 import { ipcRenderer } from "electron";
 import * as is from "electron-is";
+import { UnregisterCallback } from "history";
 import { debounce } from "lodash";
 import * as React from "react";
 import Theme from "react-custom-properties";
+import Scrollbars from "react-custom-scrollbars";
 import { connect } from "react-redux";
 import { RouteComponentProps, withRouter } from "react-router";
 import { FixedSizeList } from "react-window";
@@ -25,7 +27,6 @@ import AppError from "./components/AppError/AppError";
 import AboutModal from "./components/modals/AboutModal/AboutModal";
 import ChangelogModal from "./components/modals/ChangeLogModal/ChangelogModal";
 import Player from "./components/player/Player";
-import Queue from "./components/Queue/Queue";
 import SideBar from "./components/Sidebar/Sidebar";
 import { Themes } from "./components/Theme/themes";
 import Toastr from "./components/Toastr";
@@ -51,12 +52,14 @@ class Layout extends React.Component<AllProps, State> {
 
     public state: State = {
         settings: INITIAL_LAYOUT_SETTINGS,
-        isScrolling: false
+        isScrolling: false,
     }
 
-    private readonly contentRef: React.RefObject<HTMLDivElement> = React.createRef();
+    private readonly contentRef: React.RefObject<Scrollbars> = React.createRef();
     private readonly debouncedHandleResize: (entries: IResizeEntry[]) => void;
     private readonly debouncedSetScrollPosition: (scrollTop: number, pathname: string) => any;
+    private unregister?: UnregisterCallback;
+    private unmounted: boolean = false;
 
     constructor(props: AllProps) {
         super(props);
@@ -93,8 +96,15 @@ class Layout extends React.Component<AllProps, State> {
 
         window.removeEventListener("online", this.setOnlineStatus);
         window.removeEventListener("offline", this.setOnlineStatus);
+
+        this.unmounted = true;
+
+        if (this.unregister) {
+            this.unregister();
+        }
     }
 
+    // tslint:disable-next-line: max-func-body-length
     public render() {
         const {
             // Vars
@@ -143,8 +153,6 @@ class Layout extends React.Component<AllProps, State> {
                             ) : null
                         }
 
-                        <Queue />
-
                         <main
                             className={cn({
                                 playing: playingTrack
@@ -164,7 +172,16 @@ class Layout extends React.Component<AllProps, State> {
                                     applySettings: (newSettings) => this.setState(({ settings }) => ({ settings: { ...settings, ...newSettings } }))
                                 }}
                             >
-                                <section className="content" ref={this.contentRef}>
+
+                                <Scrollbars
+                                    className="content"
+                                    ref={this.contentRef}
+                                    onScroll={this.handleScroll as any}
+                                    renderTrackHorizontal={props => <div></div>}
+                                    renderTrackVertical={props => <div {...props} className="track-vertical" />}
+                                    renderThumbHorizontal={props => <div></div>}
+                                    renderThumbVertical={props => <div {...props} className="thumb-vertical" />}
+                                >
                                     <Toastr
                                         position={Position.TOP_RIGHT}
                                         toasts={toasts}
@@ -174,7 +191,7 @@ class Layout extends React.Component<AllProps, State> {
                                     <ErrorBoundary>
                                         {children}
                                     </ErrorBoundary>
-                                </section>
+                                </Scrollbars>
                             </ContentContext.Provider>
 
 
@@ -208,25 +225,23 @@ class Layout extends React.Component<AllProps, State> {
         });
     }
 
-    private handlePreviousScrollPositionOnBack() {
-        if (this.contentRef.current) {
-            this.contentRef.current.addEventListener("scroll", (e) => {
-                const scrollTop = (e.target as any).scrollTop;
+    private handleScroll(e: React.ChangeEvent<HTMLDivElement>) {
+        const scrollTop = e.target.scrollTop;
 
-                if (this.state.getList) {
-                    const list = this.state.getList();
+        if (this.state.getList) {
+            const list = this.state.getList();
 
-                    if (list) {
-                        list.scrollTo(scrollTop)
-                    }
-                }
-
-                this.debouncedSetScrollPosition(scrollTop, this.props.location.pathname);
-
-            })
+            if (list) {
+                list.scrollTo(scrollTop)
+            }
         }
 
-        this.props.history.listen((_location, action) => {
+        this.debouncedSetScrollPosition(scrollTop, this.props.location.pathname);
+    }
+
+    private handlePreviousScrollPositionOnBack() {
+
+        this.unregister = this.props.history.listen((_location, action) => {
 
             if (!this.state.isScrolling) {
 
@@ -238,16 +253,8 @@ class Layout extends React.Component<AllProps, State> {
                     requestAnimationFrame(() => {
                         // Scroll content to correct place
                         if (this.contentRef.current) {
-                            this.contentRef.current.scrollTo({ top: scrollTo });
+                            this.contentRef.current.scrollTop(scrollTo);
                         }
-
-                        // if (this.state.getList) {
-                        //     const list = this.state.getList();
-
-                        //     if (list) {
-                        //         list.scrollTo(scrollTo)
-                        //     }
-                        // }
 
                         this.setState({
                             isScrolling: false

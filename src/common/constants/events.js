@@ -1,6 +1,10 @@
 export const EVENTS = {
+    CHROMECAST: {
+        DISCOVER: "chromecast/discover"
+    },
     PLAYER: {
         SEEK: "player/action/seek",
+        SEEK_END: "player/action/seek_end",
     },
     TRACK: {
         LIKED: "track/liked",

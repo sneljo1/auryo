@@ -106,7 +106,6 @@ class TrackPage extends React.PureComponent<AllProps, State> {
             // Vars
             match: { params: { songId } },
             auth: { likes, reposts },
-            songIdParam,
             relatedPlaylistId,
             comments,
             isRelatedPlaylistsPlaying,

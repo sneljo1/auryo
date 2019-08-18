@@ -40,7 +40,7 @@ export class Auryo {
 	constructor(store: Store<StoreState>) {
 		this.store = store;
 
-    app.setAppUserModelId("com.auryo.core");
+		app.setAppUserModelId("com.auryo.core");
 
 		app.requestSingleInstanceLock();
 

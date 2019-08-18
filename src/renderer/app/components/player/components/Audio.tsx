@@ -1,6 +1,7 @@
 // tslint:disable:no-empty
 
 import { PlayerStatus } from "@common/store/player";
+import { autobind } from "core-decorators";
 import * as React from "react";
 
 interface Props {
@@ -66,6 +67,7 @@ type DefaultProps = typeof defaultProps;
 
 type AllProps = DefaultProps & Props;
 
+@autobind
 class ReactAudioPlayer extends React.PureComponent<AllProps, State> {
 
     public static readonly defaultProps: DefaultProps = defaultProps;
@@ -282,17 +284,20 @@ class ReactAudioPlayer extends React.PureComponent<AllProps, State> {
         );
     }
 
-    private readonly handleError = (e: any) => {
+    private retry(){
+        if (this.audioEl) {
+            const fromTime = this.audioEl.currentTime;
+            this.audioEl.load();
+            this.audioEl.currentTime = fromTime;
+            this.play();
+        }
+    }
+
+    private handleError(e: any) {
         switch (e.target.error.code) {
             case e.target.error.MEDIA_ERR_NETWORK:
-                setTimeout(() => {
-                    if (this.audioEl) {
-                        const fromTime = this.audioEl.currentTime;
-                        this.audioEl.load();
-                        this.audioEl.currentTime = fromTime;
-                        this.play();
-                    }
-                }, 500);
+                this.retry();
+                setTimeout(this.retry, 500);
                 break;
             case e.target.error.MEDIA_ERR_DECODE:
             case e.target.error.MEDIA_ERR_SRC_NOT_SUPPORTED:

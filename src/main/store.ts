@@ -9,8 +9,9 @@ const enhancer = compose(
 	electronEnhancer()
 );
 
+const store: Store<StoreState> = createStore<any, Action, any, any>(rootReducer, enhancer as any);
+
 const configureStore = (): Store<StoreState> => {
-	const store: Store<StoreState> = createStore<any, Action, any, any>(rootReducer, enhancer as any);
 
 	ipcMain.on("renderer-reload", (event) => {
 		// tslint:disable-next-line: no-dynamic-delete
