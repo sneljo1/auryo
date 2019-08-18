@@ -59,7 +59,6 @@ class Layout extends React.Component<AllProps, State> {
     private readonly debouncedHandleResize: (entries: IResizeEntry[]) => void;
     private readonly debouncedSetScrollPosition: (scrollTop: number, pathname: string) => any;
     private unregister?: UnregisterCallback;
-    private unmounted: boolean = false;
 
     constructor(props: AllProps) {
         super(props);
@@ -77,15 +76,15 @@ class Layout extends React.Component<AllProps, State> {
     }
 
     public componentDidUpdate(prevProps: AllProps) {
-        const { app, addToast, removeToast } = this.props;
+        const { offline, addToast, removeToast } = this.props;
 
-        if (app.offline !== prevProps.app.offline && app.offline === true) {
+        if (offline !== prevProps.offline && offline === true) {
             addToast({
                 key: "offline",
                 intent: Intent.PRIMARY,
                 message: "You are currently offline."
             });
-        } else if (app.offline !== prevProps.app.offline && app.offline === false) {
+        } else if (offline !== prevProps.offline && offline === false) {
             removeToast("offline");
         }
     }
@@ -97,8 +96,6 @@ class Layout extends React.Component<AllProps, State> {
         window.removeEventListener("online", this.setOnlineStatus);
         window.removeEventListener("offline", this.setOnlineStatus);
 
-        this.unmounted = true;
-
         if (this.unregister) {
             this.unregister();
         }
@@ -108,7 +105,9 @@ class Layout extends React.Component<AllProps, State> {
     public render() {
         const {
             // Vars
-            app,
+            offline,
+            loaded,
+            loading_error,
             playingTrack,
             children,
             theme,
@@ -137,15 +136,15 @@ class Layout extends React.Component<AllProps, State> {
                         })}
                     >
                         {
-                            !app.loaded && !app.offline && !app.loading_error ? (
+                            !loaded && !offline && !loading_error ? (
                                 <Spinner full={true} />
                             ) : null
                         }
 
                         {
-                            app.loading_error ? (
+                            loading_error ? (
                                 <AppError
-                                    error={app.loading_error}
+                                    error={loading_error}
                                     reload={() => {
                                         ipcRenderer.send(EVENTS.APP.RELOAD)
                                     }}
@@ -268,18 +267,19 @@ class Layout extends React.Component<AllProps, State> {
 }
 
 const mapStateToProps = (state: StoreState) => {
-    const { app, config, player, ui } = state;
+    const { app: { offline, loaded, loading_error }, config, player, ui } = state;
 
 
     return {
         userPlayerlists: getUserPlaylists(state),
         playingTrack: player.playingTrack,
-        app,
         theme: config.app.theme,
         toasts: ui.toasts,
         previousScrollTop: getPreviousScrollTop(state) || 0,
         currentPlaylistId: getCurrentPlaylistId(state),
         isActuallyPlaying: status === PlayerStatus.PLAYING,
+
+        offline, loaded, loading_error
     };
 };
 

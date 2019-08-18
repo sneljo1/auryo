@@ -1,14 +1,12 @@
 import { StoreState } from "@common/store";
-import { canFetchMoreOf, fetchMore, ObjectState, ObjectTypes, PlaylistTypes } from "@common/store/objects";
+import { canFetchMoreOf, fetchMore, ObjectTypes, PlaylistTypes } from "@common/store/objects";
 import { search } from "@common/store/objects/playlists/search/actions";
 import { getPlaylistName, getPlaylistObjectSelector } from "@common/store/objects/selectors";
-import { setScrollPosition } from "@common/store/ui";
 import { getPreviousScrollTop } from "@common/store/ui/selectors";
 import * as React from "react";
-import { connect, MapDispatchToProps } from "react-redux";
+import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router";
-import { bindActionCreators } from "redux";
-import { NormalizedResult } from "../../../../types";
+import { bindActionCreators, Dispatch } from "redux";
 import Spinner from "../../../_shared/Spinner/Spinner";
 import TracksGrid from "../../../_shared/TracksGrid/TracksGrid";
 import SearchWrapper from "../SearchWrapper";
@@ -19,19 +17,10 @@ interface OwnProps extends RouteComponentProps<{
 
 }
 
-interface PropsFromState {
-    playlist: ObjectState<NormalizedResult> | null;
-    objectId: string;
-    query: string;
-    previousScrollTop?: number;
-}
 
-interface PropsFromDispatch {
-    search: typeof search;
-    canFetchMoreOf: typeof canFetchMoreOf;
-    fetchMore: typeof fetchMore;
-    setScrollPosition: typeof setScrollPosition;
-}
+type PropsFromState = ReturnType<typeof mapStateToProps>;
+
+type PropsFromDispatch = ReturnType<typeof mapDispatchToProps>;
 
 type AllProps = OwnProps & PropsFromState & PropsFromDispatch;
 
@@ -53,26 +42,11 @@ class SearchCategory extends React.Component<AllProps> {
         }
     }
 
-    public hasMore = (): boolean => {
-        const { objectId, canFetchMoreOf } = this.props;
-
-        return canFetchMoreOf(objectId, ObjectTypes.PLAYLISTS) as any;
-    }
-
-    public loadMore = () => {
-        const { objectId, fetchMore, canFetchMoreOf } = this.props;
-
-        if (canFetchMoreOf(objectId, ObjectTypes.PLAYLISTS)) {
-            fetchMore(objectId, ObjectTypes.PLAYLISTS);
-        }
-    }
-
     public render() {
         const {
             objectId,
             playlist,
             location,
-            previousScrollTop,
             query,
         } = this.props;
 
@@ -84,27 +58,24 @@ class SearchCategory extends React.Component<AllProps> {
 
         return (
             <SearchWrapper
-                loadMore={this.loadMore}
-                hasMore={this.hasMore}
                 location={location}
-                setScrollPosition={setScrollPosition}
-                previousScrollTop={previousScrollTop}
                 query={query}
             >
                 <TracksGrid
                     items={playlist.items}
                     objectId={objectId}
+                    isLoading={playlist.isFetching}
+                    hasMore={canFetchMoreOf(objectId, ObjectTypes.PLAYLISTS) as any}
+                    loadMore={() => {
+                        return fetchMore(objectId, ObjectTypes.PLAYLISTS) as any;
+                    }}
                 />
-
-                {
-                    playlist && playlist.isFetching && <Spinner />
-                }
             </SearchWrapper>
         );
     }
 }
 
-const mapStateToProps = (state: StoreState, props: OwnProps): PropsFromState => {
+const mapStateToProps = (state: StoreState, props: OwnProps) => {
     const { match: { params: { category } }, location: { search: rawSearch } } = props;
 
     const query: string = decodeURI(rawSearch.replace("?", ""));
@@ -132,11 +103,10 @@ const mapStateToProps = (state: StoreState, props: OwnProps): PropsFromState => 
     };
 };
 
-const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, OwnProps> = (dispatch) => bindActionCreators({
+const mapDispatchToProps = (dispatch: Dispatch) => bindActionCreators({
     search,
     canFetchMoreOf,
     fetchMore,
-    setScrollPosition
 }, dispatch);
 
 export default connect<PropsFromState, PropsFromDispatch, OwnProps, StoreState>(mapStateToProps, mapDispatchToProps)(SearchCategory);

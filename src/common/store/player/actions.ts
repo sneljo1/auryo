@@ -1,9 +1,7 @@
 import { Intent } from "@blueprintjs/core";
-import { ipcRenderer } from "electron";
 import * as _ from "lodash";
 import { action } from "typesafe-actions";
-import { NormalizedResult, SoundCloud, ThunkResult } from "../../../types";
-import { EVENTS } from "../../constants/events";
+import { Normalized, NormalizedResult, SoundCloud, ThunkResult } from "../../../types";
 import { SC } from "../../utils";
 import { getCurrentPosition } from "../../utils/playerUtils";
 import { EntitiesState } from "../entities";
@@ -288,7 +286,7 @@ export function setPlayingTrack(nextTrack: PlayingTrack, position: number, chang
 /**
  * Add up next feature
  */
-export function addUpNext(track: SoundCloud.Track | SoundCloud.Playlist, remove?: number): ThunkResult<void> {
+export function addUpNext(track: SoundCloud.Track | SoundCloud.Playlist | Normalized.Playlist | Normalized.Track, remove?: number): ThunkResult<void> {
     return (dispatch, getState) => {
         const {
             player: {

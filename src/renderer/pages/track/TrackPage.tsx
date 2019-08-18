@@ -3,7 +3,7 @@ import { IMAGE_SIZES } from "@common/constants";
 import { StoreState } from "@common/store";
 import { toggleFollowing } from "@common/store/auth";
 import { getUserPlaylistsCombined } from "@common/store/auth/selectors";
-import { getTrackEntity } from "@common/store/entities/selectors";
+import { getNormalizedTrack, getNormalizedUser } from "@common/store/entities/selectors";
 import { canFetchMoreOf, fetchMore, ObjectTypes, PlaylistTypes } from "@common/store/objects";
 import { getCommentObject, getPlaylistName, getRelatedTracksPlaylistObject } from "@common/store/objects/selectors";
 import { addUpNext, PlayerStatus, playTrack } from "@common/store/player";
@@ -111,6 +111,7 @@ class TrackPage extends React.PureComponent<AllProps, State> {
             isRelatedPlaylistsPlaying,
             relatedTracks,
             track,
+            trackUser,
 
             // Functions
             toggleLike,
@@ -308,6 +309,7 @@ class TrackPage extends React.PureComponent<AllProps, State> {
                         <TabPane tabId={TabTypes.OVERVIEW} className="overview">
                             <TrackOverview
                                 track={track}
+                                trackUser={trackUser}
                                 comments={comments}
                                 hasMore={canFetchMoreOf(songId, ObjectTypes.COMMENTS) as any}
                                 loadMore={() => fetchMore(songId, ObjectTypes.COMMENTS) as any}
@@ -341,12 +343,15 @@ const mapStateToProps = (state: StoreState, props: OwnProps) => {
 
     const relatedPlaylistId = getPlaylistName(songId, PlaylistTypes.RELATED);
 
+    const track = getNormalizedTrack(+songId)(state);
+
     return {
         playingTrack,
         isRelatedPlaylistsPlaying: currentPlaylistId === relatedPlaylistId && (status === PlayerStatus.PLAYING),
         relatedPlaylistId,
         auth,
-        track: getTrackEntity(+songId)(state),
+        track,
+        trackUser: getNormalizedUser(track.user)(state),
         userPlaylists: getUserPlaylistsCombined(state),
         songIdParam: +songId,
         relatedTracks: getRelatedTracksPlaylistObject(songId)(state),

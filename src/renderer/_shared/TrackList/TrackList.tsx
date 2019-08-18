@@ -2,6 +2,7 @@ import * as React from "react";
 import * as ReactList from "react-list";
 import { NormalizedResult } from "../../../types";
 import { useInfiniteScroll } from "../hooks/useInfiniteScroll";
+import Spinner from "../Spinner/Spinner";
 import TrackListItem from "./TrackListItem/TrackListItem";
 
 interface Props {
@@ -83,6 +84,10 @@ export const TrackList: React.SFC<Props> = ({
                 useTranslate3d={true}
                 threshold={400}
             />
+
+            {
+                isLoading && <Spinner />
+            }
         </div>
     );
 }

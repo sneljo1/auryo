@@ -21,6 +21,11 @@ export const getCommentEntities = () => createSelector<StoreState, ReturnType<ty
     (entities) => entities.commentEntities
 );
 
+export const getTrackEntities = () => createSelector<StoreState, ReturnType<typeof getEntities>, EntitiesState["trackEntities"]>(
+    getEntities,
+    (entities) => entities.trackEntities
+);
+
 export const normalizeSchema = new schema.Array({
     tracks: trackSchema,
     playlists: playlistSchema,
@@ -43,9 +48,21 @@ export const getUserEntity = (id: number) => getDenormalizedEntity<SoundCloud.Us
 export const getTrackEntity = (id: number) => getDenormalizedEntity<SoundCloud.Track | null>({ id, schema: "tracks" });
 export const getPlaylistEntity = (id: number) => getDenormalizedEntity<SoundCloud.Playlist | null>({ id, schema: "playlists" });
 
+export const getCommentEntity = (id: number) => getDenormalizedEntity<SoundCloud.Comment | null>({ id, schema: "comments" });
+
+
+
 export const getNormalizedPlaylist = (id: number) => createSelector<StoreState, EntitiesState["playlistEntities"], Normalized.Playlist>(
     getPlaylistEntities(),
     (entities) => entities[id]
 );
 
-export const getCommentEntity = (id: number) => getDenormalizedEntity<SoundCloud.Comment | null>({ id, schema: "comments" });
+export const getNormalizedUser = (id: number) => createSelector<StoreState, EntitiesState["userEntities"], SoundCloud.User>(
+    getUserEntities(),
+    (entities) => entities[id]
+);
+
+export const getNormalizedTrack = (id: number) => createSelector<StoreState, EntitiesState["trackEntities"], Normalized.Track>(
+    getTrackEntities(),
+    (entities) => entities[id]
+);

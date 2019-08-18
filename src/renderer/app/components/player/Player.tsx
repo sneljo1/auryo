@@ -5,7 +5,7 @@ import { StoreState } from "@common/store";
 import { useChromeCast } from "@common/store/app";
 import { hasLiked } from "@common/store/auth/selectors";
 import { setConfigKey } from "@common/store/config";
-import { getTrackEntity } from "@common/store/entities/selectors";
+import { getNormalizedTrack, getNormalizedUser } from "@common/store/entities/selectors";
 import { changeTrack, ChangeTypes, PlayerStatus, registerPlay, RepeatTypes, setCurrentTime, setDuration, toggleShuffle, toggleStatus } from "@common/store/player";
 import { toggleLike } from "@common/store/track/actions";
 import { addToast } from "@common/store/ui";
@@ -314,7 +314,8 @@ class Player extends React.Component<AllProps, State>{
             toggleLike,
             chromecast,
             useChromeCast,
-            muted
+            muted,
+            trackUser
         } = this.props;
 
         const { nextTime, isSeeking } = this.state;
@@ -330,7 +331,7 @@ class Player extends React.Component<AllProps, State>{
          * If Track ID is empty, just exit here
          */
 
-        if (!track || !playingTrack) { return null; }
+        if (!track || !playingTrack || !trackUser) { return null; }
 
         if (!track.title || !track.user) { return <div>Loading</div>; }
 
@@ -345,8 +346,6 @@ class Player extends React.Component<AllProps, State>{
         } else if (volume !== 1) {
             volume_icon = "volume-low";
         }
-
-        const decVolume = Math.round(volume * 1e2) / 1e2;
 
         return (
             <div className={styles.player}>
@@ -364,8 +363,8 @@ class Player extends React.Component<AllProps, State>{
                     <TrackInfo
                         title={track.title}
                         id={track.id.toString()}
-                        userId={track.user.id.toString()}
-                        username={track.user.username}
+                        userId={trackUser.id.toString()}
+                        username={trackUser.username}
                         img={overlay_image}
                         liked={liked}
                         toggleLike={() => {
@@ -567,10 +566,16 @@ const mapStateToProps = (state: StoreState) => {
     const { player, app, config } = state;
 
     let track = null;
+    let trackUser = null;
     let liked = false;
 
     if (player.playingTrack && player.playingTrack.id) {
-        track = getTrackEntity(player.playingTrack.id)(state);
+        track = getNormalizedTrack(player.playingTrack.id)(state);
+
+        if (track) {
+            trackUser = getNormalizedUser(track.user)(state);
+        }
+
         liked = hasLiked(player.playingTrack.id)(state);
 
         if (!track || (track && !track.title && track.loading)) {
@@ -580,6 +585,7 @@ const mapStateToProps = (state: StoreState) => {
 
     return {
         track,
+        trackUser,
         player,
         volume: config.audio.volume,
         muted: config.audio.muted,

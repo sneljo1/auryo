@@ -1,7 +1,7 @@
 import { Menu, MenuDivider, MenuItem, Popover, Position } from "@blueprintjs/core";
 import { IMAGE_SIZES } from "@common/constants";
 import { StoreState } from "@common/store";
-import { getPlaylistEntity } from "@common/store/entities/selectors";
+import { getNormalizedPlaylist, getNormalizedTrack, getNormalizedUser } from "@common/store/entities/selectors";
 import { fetchPlaylistIfNeeded, fetchPlaylistTracks } from "@common/store/objects";
 import { getPlaylistObjectSelector } from "@common/store/objects/selectors";
 import { addUpNext, PlayerStatus, playTrack, toggleStatus } from "@common/store/player";
@@ -19,6 +19,7 @@ import ShareMenuItem from "../../_shared/ShareMenuItem";
 import Spinner from "../../_shared/Spinner/Spinner";
 import TracksGrid from "../../_shared/TracksGrid/TracksGrid";
 import "./PlaylistPage.scss";
+
 
 interface OwnProps extends RouteComponentProps<{ playlistId: string }> {
 }
@@ -104,6 +105,8 @@ class PlaylistPage extends React.Component<AllProps, State> {
             playlist,
             auth,
             playlistIdParam,
+            firstItem,
+            playlistUser,
             // Functions
             toggleLike,
             toggleRepost,
@@ -117,8 +120,7 @@ class PlaylistPage extends React.Component<AllProps, State> {
             return <Spinner contained={true} />;
         }
 
-        const first_item = playlist.tracks[0];
-        const hasImage = playlist.artwork_url || (first_item && first_item.artwork_url);
+        const hasImage = playlist.artwork_url || (firstItem && firstItem.artwork_url);
 
         const liked = SC.hasID(playlistIdParam, likes.playlist);
         const reposted = SC.hasID(playlistIdParam, reposts.playlist);
@@ -127,7 +129,7 @@ class PlaylistPage extends React.Component<AllProps, State> {
         const isEmpty = !playlistObject.isFetching && (playlist.tracks.length === 0 && playlist.duration === 0 || playlist.track_count === 0);
 
         const likedIcon = liked ? "bx bxs-heart" : "bx bx-heart";
-        const image = hasImage ? SC.getImageUrl(playlist.artwork_url || first_item.artwork_url, IMAGE_SIZES.XLARGE) : null;
+        const image = hasImage ? SC.getImageUrl(playlist.artwork_url || (firstItem && firstItem.artwork_url), IMAGE_SIZES.XLARGE) : null;
 
         const hasMore = playlistObject.items.length > playlistObject.fetchedItems;
 
@@ -148,7 +150,7 @@ class PlaylistPage extends React.Component<AllProps, State> {
 
                         <div className="button-group">
                             {
-                                first_item && !isEmpty ? (
+                                firstItem && !isEmpty ? (
                                     this.renderPlayButton()
                                 ) : null
                             }
@@ -213,11 +215,11 @@ class PlaylistPage extends React.Component<AllProps, State> {
                                                     }}
                                                 />
                                                 {
-                                                    playlist.user && (
+                                                    playlistUser && (
                                                         <ShareMenuItem
                                                             title={playlist.title}
                                                             permalink={playlist.permalink_url}
-                                                            username={playlist.user.username}
+                                                            username={playlistUser.username}
                                                         />
                                                     )
                                                 }
@@ -273,13 +275,18 @@ const mapStateToProps = (state: StoreState, props: OwnProps) => {
     const isPlayerPlaylist = currentPlaylistId === playlistId;
     const isPlaylistPlaying = isPlayerPlaylist && status === PlayerStatus.PLAYING;
 
+    const playlist = getNormalizedPlaylist(playlistId as any)(state);
+
     return {
         auth,
         isPlayerPlaylist,
         isPlaylistPlaying,
-        playlist: getPlaylistEntity(playlistId as any)(state),
         playlistObject: getPlaylistObjectSelector(playlistId)(state),
         playlistIdParam: playlistId as any,
+
+        playlist,
+        playlistUser: getNormalizedUser(playlist.user)(state),
+        firstItem: playlist.tracks.length > 1 ? getNormalizedTrack(playlist.tracks[0].id)(state) : undefined
     };
 };
 

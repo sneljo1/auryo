@@ -2,30 +2,25 @@ import { IMAGE_SIZES } from "@common/constants";
 import { StoreState } from "@common/store";
 import { toggleFollowing } from "@common/store/auth";
 import { isFollowing } from "@common/store/auth/selectors";
-import { getUserEntity } from "@common/store/entities/selectors";
 import { abbreviate_number, SC } from "@common/utils";
 import cn from "classnames";
 import * as React from "react";
-import { connect, MapDispatchToProps } from "react-redux";
+import { connect } from "react-redux";
 import { Link } from "react-router-dom";
-import { bindActionCreators } from "redux";
-import { NormalizedResult, SoundCloud } from "../../../../types";
+import { bindActionCreators, Dispatch } from "redux";
+import { SoundCloud } from "../../../../types";
 import FallbackImage from "../../FallbackImage";
 import "./TrackGridUser.scss";
 
 interface OwnProps {
-    idResult: NormalizedResult;
+    trackUser: SoundCloud.User | null;
     withStats?: boolean;
 }
 
-interface PropsFromState {
-    user: SoundCloud.User | null;
-    isFollowing: boolean;
-}
 
-interface PropsFromDispatch {
-    toggleFollowing: typeof toggleFollowing;
-}
+type PropsFromState = ReturnType<typeof mapStateToProps>;
+type PropsFromDispatch = ReturnType<typeof mapDispatchToProps>;
+
 
 type AllProps = OwnProps & PropsFromState & PropsFromDispatch;
 
@@ -38,15 +33,15 @@ class TrackGridUser extends React.PureComponent<AllProps> {
     public render() {
 
         const {
-            user,
+            trackUser,
             isFollowing,
             toggleFollowing,
             withStats
         } = this.props;
 
-        if (!user) { return null; }
+        if (!trackUser) { return null; }
 
-        const { id, username, avatar_url, followers_count, track_count } = user;
+        const { id, username, avatar_url, followers_count, track_count } = trackUser;
 
         const img_url = SC.getImageUrl(avatar_url, IMAGE_SIZES.SMALL);
 
@@ -89,16 +84,15 @@ class TrackGridUser extends React.PureComponent<AllProps> {
     }
 }
 
-const mapStateToProps = (state: StoreState, props: OwnProps): PropsFromState => {
-    const { idResult } = props;
+const mapStateToProps = (state: StoreState, props: OwnProps) => {
+    const { trackUser } = props;
 
     return {
-        isFollowing: isFollowing(idResult.id)(state),
-        user: getUserEntity(idResult.id)(state)
+        isFollowing: trackUser ? isFollowing(trackUser.id)(state) : null,
     };
 };
 
-const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, OwnProps> = (dispatch) => bindActionCreators({
+const mapDispatchToProps = (dispatch: Dispatch) => bindActionCreators({
     toggleFollowing,
 }, dispatch);
 

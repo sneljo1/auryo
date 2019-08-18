@@ -2,6 +2,7 @@ import * as React from "react";
 import * as ReactList from "react-list";
 import { NormalizedResult } from "../../../types";
 import { useInfiniteScroll } from "../hooks/useInfiniteScroll";
+import Spinner from "../Spinner/Spinner";
 import CommentListItem from "./CommentListItem/CommentListitem";
 
 interface Props {
@@ -28,7 +29,6 @@ export const CommentList: React.SFC<Props> = ({ isLoading, loadMore, items = [],
     }
 
     return (
-
         <div className="comments">
             <ReactList
                 pageSize={8}
@@ -37,6 +37,9 @@ export const CommentList: React.SFC<Props> = ({ isLoading, loadMore, items = [],
                 itemRenderer={renderItem}
                 useTranslate3d={true}
             />
+            {
+                isLoading && <Spinner />
+            }
         </div>
     );
 };

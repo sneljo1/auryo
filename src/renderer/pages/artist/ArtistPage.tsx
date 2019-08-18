@@ -2,7 +2,7 @@ import { Menu, MenuItem, Popover, Position } from "@blueprintjs/core";
 import { IMAGE_SIZES } from "@common/constants";
 import { StoreState } from "@common/store";
 import { toggleFollowing } from "@common/store/auth";
-import { getUserEntity } from "@common/store/entities/selectors";
+import { getNormalizedUser } from "@common/store/entities/selectors";
 import { canFetchMoreOf, fetchMore, ObjectTypes, PlaylistTypes } from "@common/store/objects";
 import { getArtistLikesPlaylistObject, getArtistTracksPlaylistObject, getPlaylistName } from "@common/store/objects/selectors";
 import { PlayerStatus, playTrack, toggleStatus } from "@common/store/player";
@@ -23,9 +23,10 @@ import PageHeader from "../../_shared/PageHeader/PageHeader";
 import ShareMenuItem from "../../_shared/ShareMenuItem";
 import Spinner from "../../_shared/Spinner/Spinner";
 import ToggleMore from "../../_shared/ToggleMore";
-import { TrackList} from "../../_shared/TrackList/TrackList";
+import { TrackList } from "../../_shared/TrackList/TrackList";
 import "./ArtistPage.scss";
 import ArtistProfiles from "./components/ArtistProfiles/ArtistProfiles";
+
 
 interface OwnProps extends RouteComponentProps<{ artistId: string }> {
 }
@@ -70,7 +71,6 @@ class ArtistPage extends React.Component<AllProps, State> {
             fetchArtistIfNeeded(artistIdParam);
         }
 
-
         if (this.state.small !== dimensions.width < 990) {
             this.setState({
                 small: dimensions.width < 990
@@ -101,46 +101,15 @@ class ArtistPage extends React.Component<AllProps, State> {
         toggleFollowing(artistIdParam);
     }
 
-    public fetchMore() {
-        const { match: { params: { artistId } }, fetchMore } = this.props;
-        const { activeTab } = this.state;
-        let playlist_name = null;
-
-        if (activeTab === TabTypes.TRACKS) {
-            playlist_name = getPlaylistName(artistId, PlaylistTypes.ARTIST_TRACKS);
-        } else if (activeTab === TabTypes.LIKES) {
-            playlist_name = getPlaylistName(artistId, PlaylistTypes.ARTIST_TRACKS);
-        }
-
-        if (playlist_name) {
-            fetchMore(playlist_name, ObjectTypes.PLAYLISTS);
-        }
-    }
-
-    public canFetchMore() {
-        const { activeTab } = this.state;
-        const { match: { params: { artistId } }, canFetchMoreOf } = this.props;
-        let playlist_name = null;
-
-        if (activeTab === TabTypes.TRACKS) {
-            playlist_name = getPlaylistName(artistId, PlaylistTypes.ARTIST_TRACKS);
-        } else if (activeTab === TabTypes.LIKES) {
-            playlist_name = getPlaylistName(artistId, PlaylistTypes.ARTIST_TRACKS);
-        }
-
-        if (playlist_name) {
-            return canFetchMoreOf(playlist_name, ObjectTypes.PLAYLISTS);
-        }
-    }
-
     public renderPlaylist = (type: PlaylistTypes) => {
         const {
             match: { params: { artistId } },
-            playlists
+            canFetchMoreOf,
+            fetchMore
         } = this.props;
 
         const objectId = getPlaylistName(artistId, type);
-        const playlist = playlists[type];
+        const playlist = this.props[type];
 
         if (!playlist) { return <Spinner contained={true} />; }
 
@@ -149,6 +118,12 @@ class ArtistPage extends React.Component<AllProps, State> {
                 <TrackList
                     items={playlist.items}
                     objectId={objectId}
+
+                    isLoading={playlist.isFetching}
+                    hasMore={canFetchMoreOf(objectId, ObjectTypes.PLAYLISTS) as any}
+                    loadMore={() => {
+                        return fetchMore(objectId, ObjectTypes.PLAYLISTS) as any;
+                    }}
                 />
                 {playlist.isFetching ? <Spinner /> : null}
             </React.Fragment>
@@ -163,11 +138,10 @@ class ArtistPage extends React.Component<AllProps, State> {
             isPlayerPlaylist,
             toggleStatus,
             match: { params: { artistId } },
-            playlists
         } = this.props;
 
         const playlistId = getPlaylistName(artistId, PlaylistTypes.ARTIST_TRACKS);
-        const tracksPlaylists = playlists[PlaylistTypes.ARTIST_TRACKS];
+        const tracksPlaylists = this.props[PlaylistTypes.ARTIST_TRACKS];
 
         if (!tracksPlaylists || !tracksPlaylists.items.length) { return null; }
 
@@ -414,11 +388,9 @@ const mapStateToProps = (state: StoreState, props: OwnProps) => {
         auth,
         isPlayerPlaylist,
         isPlaylistPlaying,
-        user: getUserEntity(+artistId)(state),
-        playlists: {
-            [PlaylistTypes.ARTIST_TRACKS]: getArtistTracksPlaylistObject(artistId)(state),
-            [PlaylistTypes.ARTIST_LIKES]: getArtistLikesPlaylistObject(artistId)(state),
-        },
+        user: getNormalizedUser(+artistId)(state),
+        [PlaylistTypes.ARTIST_TRACKS]: getArtistTracksPlaylistObject(artistId)(state),
+        [PlaylistTypes.ARTIST_LIKES]: getArtistLikesPlaylistObject(artistId)(state),
         artistIdParam: +artistId
     };
 };

@@ -3,21 +3,22 @@ import { abbreviate_number } from "@common/utils";
 import * as moment from "moment";
 import * as React from "react";
 import { Link } from "react-router-dom";
-import { NormalizedResult, SoundCloud } from "../../../../types";
+import { Normalized, NormalizedResult, SoundCloud } from "../../../../types";
 import { CommentList } from "../../../_shared/CommentList/CommentList";
 import Linkify from "../../../_shared/Linkify";
 import ToggleMore from "../../../_shared/ToggleMore";
 import TrackGridUser from "../../../_shared/TracksGrid/TrackgridUser/TrackGridUser";
 
 interface Props {
-    track: SoundCloud.Track;
+    track: Normalized.Track;
+    trackUser: SoundCloud.User;
     comments: ObjectState<NormalizedResult> | null;
 
     hasMore: boolean;
     loadMore(): Promise<void>;
 }
 
-const getTags = (track: SoundCloud.Track) => {
+const getTags = (track: SoundCloud.Track | Normalized.Track) => {
 
     if (!track.tag_list) {
         return [];
@@ -35,13 +36,13 @@ const getTags = (track: SoundCloud.Track) => {
 
 };
 
-export const TrackOverview = React.memo<Props>(({ track, comments, hasMore, loadMore }) => (
+export const TrackOverview = React.memo<Props>(({ track, comments, hasMore, loadMore, trackUser }) => (
     <div className="row">
         <div className="col-12 col-lg-3">
             <div className="row">
                 <div className="col-6 col-lg-12">
                     <TrackGridUser
-                        idResult={{ id: track.user_id, schema: "users" }}
+                        trackUser={trackUser}
                     />
                 </div>
 
@@ -102,7 +103,6 @@ export const TrackOverview = React.memo<Props>(({ track, comments, hasMore, load
                 )
             }
 
-            {/* TODO ADD Spinner */}
             {
                 comments && (
                     <CommentList

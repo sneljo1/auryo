@@ -49,33 +49,14 @@ class TagsPage extends React.Component<AllProps, State> {
         }
     }
 
-    public hasMore(): boolean {
-        const { objectId, canFetchMoreOf } = this.props;
-
-        return canFetchMoreOf(objectId, ObjectTypes.PLAYLISTS) as any;
-    }
-
-    public async loadMore() {
-        const { objectId, fetchMore, canFetchMoreOf } = this.props;
-
-        try {
-            if (canFetchMoreOf(objectId, ObjectTypes.PLAYLISTS)) {
-                return fetchMore(objectId, ObjectTypes.PLAYLISTS);
-            }
-
-            return null;
-
-        } catch (err) {
-            throw err;
-        }
-    }
-
     public render() {
         const {
             objectId,
             playlist,
             showType,
             tag,
+            fetchMore,
+            canFetchMoreOf
         } = this.props;
 
         return (
@@ -113,8 +94,8 @@ class TagsPage extends React.Component<AllProps, State> {
                             <TracksGrid
                                 items={playlist.items}
                                 objectId={objectId}
-                                hasMore={this.hasMore()}
-                                loadMore={() => this.loadMore() as any}
+                                hasMore={canFetchMoreOf(objectId, ObjectTypes.PLAYLISTS) as any}
+                                loadMore={() => fetchMore(objectId, ObjectTypes.PLAYLISTS) as any}
                                 isLoading={playlist.isFetching}
                                 isItemLoaded={index => !!playlist.items[index]}
                             />
