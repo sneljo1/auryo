@@ -68,8 +68,11 @@ export function initApp(): ThunkResult<void> {
 export const setDimensions = (dimensions: Dimensions) => action(AppActionTypes.SET_DIMENSIONS, dimensions);
 export const canGoInHistory = (canGoHistory: CanGoHistory) => action(AppActionTypes.SET_CAN_GO, canGoHistory);
 export const setLastfmLoading = (loading: boolean) => action(AppActionTypes.SET_LASTFM_LOADING, loading);
-export const addChromeCastDevices = (devices: ChromeCastDevice[]) => action(AppActionTypes.SET_AVAILABLE_CHROMECAST_DEVICES, {
-	devices: [...devices]
+export const addChromeCastDevice = (device: ChromeCastDevice) => action(AppActionTypes.ADD_CHROMECAST_DEVICE, {
+	device
+});
+export const removeChromeCastDevice = (deviceId: string) => action(AppActionTypes.REMOVE_CHROMECAST_DEVICE, {
+	deviceId
 });
 export const useChromeCast = (deviceId?: string) => action(AppActionTypes.SET_CHROMECAST_DEVICE, deviceId);
 export const setChromeCastPlayerStatus = (playerStatus: DevicePlayerStatus) => action(AppActionTypes.SET_CHROMECAST_PLAYER_STATUS, playerStatus);

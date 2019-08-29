@@ -1,6 +1,6 @@
 import { Reducer } from "redux";
 import { onError, onSuccess } from "../../utils/reduxUtils";
-import { AppActionTypes, AppState } from "./types";
+import { AppActionTypes, AppState, ChromeCastDevice } from "./types";
 
 const initialState: AppState = {
     history: {
@@ -30,6 +30,7 @@ const initialState: AppState = {
     }
 };
 
+// tslint:disable-next-line: max-func-body-length
 export const appReducer: Reducer<AppState> = (state = initialState, action) => {
     const { payload, type } = action;
 
@@ -88,13 +89,44 @@ export const appReducer: Reducer<AppState> = (state = initialState, action) => {
                     version: payload.version
                 }
             };
-        case AppActionTypes.SET_AVAILABLE_CHROMECAST_DEVICES:
+        case AppActionTypes.ADD_CHROMECAST_DEVICE:
+
+            const hasDevice = state.chromecast.devices.find(d => d.id === payload.device.id)
+
+            const newDevicesAfterAdd: ChromeCastDevice[] = [
+                ...state.chromecast.devices.map((device) => {
+                    if (device.id === payload.device.id) {
+                        return payload.device;
+                    }
+
+                    return device;
+                })
+            ];
+
+            if (!hasDevice) {
+                newDevicesAfterAdd.push(payload.device);
+            }
+
             return {
                 ...state,
                 chromecast: {
                     ...state.chromecast,
-                    devices: payload.devices,
-                    hasDevices: payload.devices.length
+                    devices: newDevicesAfterAdd,
+                    hasDevices: !!newDevicesAfterAdd.length
+                }
+            };
+        case AppActionTypes.REMOVE_CHROMECAST_DEVICE:
+
+            const newDevicesAfterRemove: ChromeCastDevice[] = [
+                ...state.chromecast.devices.filter(d => d.id !== payload.deviceId)
+            ];
+
+            return {
+                ...state,
+                chromecast: {
+                    ...state.chromecast,
+                    devices: newDevicesAfterRemove,
+                    hasDevices: !!newDevicesAfterRemove.length
                 }
             };
         case AppActionTypes.SET_CHROMECAST_APP_STATE:

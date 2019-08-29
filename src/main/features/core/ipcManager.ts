@@ -111,9 +111,11 @@ export default class IPCManager extends Feature {
 
 				if (tokenResponse) {
 					this.logger.debug("Auth successfull");
+					console.log(tokenResponse.access_token);
 
 					this.store.dispatch(setToken(tokenResponse.access_token));
 					this.sendToWebContents("login-success");
+					await awsIotWrapper.disconnect();
 				}
 
 				return tokenResponse;

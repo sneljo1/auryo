@@ -13,15 +13,28 @@ export interface AppState extends Readonly<{
     chromecast: ChromeCastState;
 }> { }
 
-export interface MDNSAddress {
-    port: number;
-    host: string;
-}
+export const DEVICE_MODELS = {
+    Group: "Google Cast Group" as "Google Cast Group",
+    Home: "Google Home" as "Google Home",
+    HomeMini: "Google Home Mini" as "Google Home Mini",
+    MagniFiMini: "MagniFi Mini" as "MagniFi Mini",
+    Chromecast: "Chromecast" as "Chromecast",
+};
+
+// TODO: add more valid models as they're found
+export type GoogleDeviceModel =
+    | "Google Cast Group"
+    | "Google Home"
+    | "Google Home Mini"
+    | "MagniFi Mini"
 
 export interface ChromeCastDevice {
     id: string;
     name: string;
-    address: MDNSAddress;
+    model: GoogleDeviceModel;
+    address: string;
+    port: number;
+    status: "offline" | "searching" | "online"
 }
 
 export interface ChromeCastState {
@@ -77,7 +90,8 @@ export const enum AppActionTypes {
     RESET_STORE = "@@app/RESET_STORE",
     SET_REMAINING_PLAYS = "@@app/SET_REMAINING_PLAYS",
     SET_LASTFM_LOADING = "@@app/SET_LASTFM_LOADING",
-    SET_AVAILABLE_CHROMECAST_DEVICES = "@@app/SET_AVAILABLE_CHROMECAST_DEVICES",
+    ADD_CHROMECAST_DEVICE = "@@app/ADD_CHROMECAST_DEVICE",
+    REMOVE_CHROMECAST_DEVICE = "@@app/REMOVE_CHROMECAST_DEVICE",
     SET_CHROMECAST_DEVICE = "@@app/SET_CHROMECAST_DEVICE",
     SET_CHROMECAST_PLAYER_STATUS = "@@app/SET_CHROMECAST_PLAYER_STATUS",
     SET_CHROMECAST_APP_STATE = "@@app/SET_CHROMECAST_APP_STATE",

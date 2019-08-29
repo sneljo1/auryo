@@ -1,7 +1,7 @@
 import { Auryo } from "../app";
 import ApplicationMenu from "./core/applicationMenu";
 import AppUpdater from "./core/appUpdater";
-import ChromeCast from "./core/chromeCast/chromeCast";
+import ChromecastManager from "./core/chromeCast/chromecastManager";
 import ConfigManager from "./core/configManager";
 import IPCManager from "./core/ipcManager";
 import LastFm from "./core/lastFm";
@@ -25,7 +25,7 @@ export const tools: typeof Feature[] = [
   ShortcutManager,
   ApplicationMenu,
   NotificationManager,
-  ChromeCast,
+  ChromecastManager,
 
   // Mac
   TouchBarManager,

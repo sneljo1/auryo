@@ -3,32 +3,25 @@ import { Intent } from "@blueprintjs/core";
 import { IMAGE_SIZES } from "@common/constants";
 import { EVENTS } from "@common/constants/events";
 import { StoreState } from "@common/store";
-import {
-  addChromeCastDevices, ChromeCastDevice, DevicePlayerStatus,
-  setChromecastAppState, setChromeCastPlayerStatus, useChromeCast
-} from "@common/store/app";
+import { DevicePlayerStatus, setChromecastAppState, setChromeCastPlayerStatus, useChromeCast } from "@common/store/app";
 import { getTrackEntity } from "@common/store/entities/selectors";
 import { PlayerStatus } from "@common/store/player";
 import { addToast } from "@common/store/ui";
 import { SC } from "@common/utils";
 import { Logger, LoggerInstance } from "@main/utils/logger";
 import { autobind } from "core-decorators";
-import Mdns from "node-mdns-easy";
 import { Feature, WatchState } from "../../feature";
-import AuryoReceiver from "./AuryoReceiver";
+import AuryoReceiver from "./auryoReceiver";
+import { startScanning } from "./deviceScanner";
 
-const mdns = new Mdns();
 
 @autobind
-export default class ChromeCast extends Feature {
+export default class ChromecastManager extends Feature {
 
-
-  private readonly logger: LoggerInstance = Logger.createLogger(ChromeCast.name);
+  private readonly logger: LoggerInstance = Logger.createLogger(ChromecastManager.name);
 
   private player?: AuryoReceiver;
   private client?: PlatformSender;
-  private devices: ChromeCastDevice[] = [];
-  private isSearching: boolean = false;
 
   public shouldRun() {
     return super.shouldRun() && !process.env.TOKEN
@@ -36,10 +29,6 @@ export default class ChromeCast extends Feature {
 
   // tslint:disable-next-line: max-func-body-length
   public register() {
-    this.getDevices();
-    setInterval(() => {
-      this.getDevices();
-    }, 50000);
 
     this.subscribe(["app", "chromecast", "selectedDeviceId"], async ({ currentValue, currentState }: WatchState<string>) => {
 
@@ -93,8 +82,8 @@ export default class ChromeCast extends Feature {
           }
 
           await this.client.connect({
-            host: device.address.host,
-            port: device.address.port,
+            host: device.address,
+            port: device.port,
           });
 
           this.player = await this.client.launch(AuryoReceiver);
@@ -205,8 +194,8 @@ export default class ChromeCast extends Feature {
 
     });
 
-    this.on(EVENTS.CHROMECAST.DISCOVER, () => {
-      this.getDevices(3000);
+    this.on(EVENTS.APP.READY, async () => {
+      await startScanning(this.store);
     });
 
   }
@@ -236,62 +225,62 @@ export default class ChromeCast extends Feature {
     }
   }
 
-  private getDevices(timeout: number = 2500) {
-    if (!this.isSearching) {
+  // private getDevices(timeout: number = 2500) {
+  //   if (!this.isSearching) {
 
-      this.logger.debug("Starting search...");
+  //     this.logger.debug("Starting search...");
 
-      const browser = mdns.createBrowser(mdns.getLibrary().tcp("googlecast"));
+  //     const browser = mdns.createBrowser(mdns.getLibrary().tcp("googlecast"));
 
-      const withTimeout = () => {
-        this.logger.debug("Browser ready, waiting", timeout);
-        setTimeout(() => {
-          browser.removeAllListeners();
+  //     const withTimeout = () => {
+  //       this.logger.debug("Browser ready, waiting", timeout);
+  //       setTimeout(() => {
+  //         browser.removeAllListeners();
 
-          this.logger.debug("Browser timeout finished, found ", this.devices.length)
+  //         this.logger.debug("Browser timeout finished, found ", this.devices.length)
 
-          this.devices = [];
-          this.isSearching = false;
-        }, timeout);
-      }
+  //         this.devices = [];
+  //         this.isSearching = false;
+  //       }, timeout);
+  //     }
 
-      this.isSearching = true;
+  //     this.isSearching = true;
 
-      if (browser.ready) {
-        browser.browse();
-        withTimeout();
-      } else {
-        browser.once("ready", () => {
-          browser.browse();
-          withTimeout();
-        });
-      }
+  //     if (browser.ready) {
+  //       browser.browse();
+  //       withTimeout();
+  //     } else {
+  //       browser.once("ready", () => {
+  //         browser.browse();
+  //         withTimeout();
+  //       });
+  //     }
 
-      browser.on("serviceUp", (data: any) => {
-        if (!this.devices.some((d) => d.id === data.fullname) && data.txtRecord.fn) {
-          this.logger.debug("Found new device", data.fullname);
-          this.devices.push({
-            id: data.fullname,
-            name: data.txtRecord.fn,
-            address: {
-              host: data.addresses[0],
-              port: data.port
-            }
-          });
-          this.store.dispatch(addChromeCastDevices(this.devices));
-        }
-      });
+  //     browser.on("serviceUp", (data: any) => {
+  //       if (!this.devices.some((d) => d.id === data.fullname) && data.txtRecord.fn) {
+  //         this.logger.debug("Found new device", data.fullname);
+  //         this.devices.push({
+  //           id: data.fullname,
+  //           name: data.txtRecord.fn,
+  //           address: {
+  //             host: data.addresses[0],
+  //             port: data.port
+  //           }
+  //         });
+  //         this.store.dispatch(addChromeCastDevices(this.devices));
+  //       }
+  //     });
 
-      browser.on("serviceDown", (data: any) => {
-        const index = this.devices.findIndex((d) => d.id === data.fullname);
-        if (index !== -1) {
-          this.devices.splice(index, 1);
-          this.store.dispatch(addChromeCastDevices(this.devices));
-        }
-      });
+  //     browser.on("serviceDown", (data: any) => {
+  //       const index = this.devices.findIndex((d) => d.id === data.fullname);
+  //       if (index !== -1) {
+  //         this.devices.splice(index, 1);
+  //         this.store.dispatch(addChromeCastDevices(this.devices));
+  //       }
+  //     });
 
-    }
-  }
+  //   }
+  // }
 
   private async startTrack(state: StoreState, fromCurrentTime: boolean = false) {
     try {

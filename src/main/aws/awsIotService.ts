@@ -59,7 +59,7 @@ export class AWSIotService {
 
 	public async disconnect() {
 		return new Promise(resolve => {
-			this.device.end(undefined, () => {
+			this.device.end(true, () => {
 				resolve();
 			});
 		});
