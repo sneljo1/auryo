@@ -1,7 +1,7 @@
 import { Auryo } from "../app";
 import ApplicationMenu from "./core/applicationMenu";
 import AppUpdater from "./core/appUpdater";
-import ChromecastManager from "./core/chromeCast/chromecastManager";
+import ChromecastManager from "./core/chromecast/chromecastManager";
 import ConfigManager from "./core/configManager";
 import IPCManager from "./core/ipcManager";
 import LastFm from "./core/lastFm";

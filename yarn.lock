@@ -14,13 +14,14 @@
   version "0.0.6"
   resolved "https://registry.yarnpkg.com/7zip/-/7zip-0.0.6.tgz#9cafb171af82329490353b4816f03347aa150a30"
 
-"@amilajack/castv2-client@auryo/castv2-client":
-  version "0.0.1"
-  resolved "https://codeload.github.com/auryo/castv2-client/tar.gz/94ed9dfc6d1619701ef9ecb05e604a24a5681390"
+"@amilajack/castv2-client@^0.0.2-2":
+  version "0.0.2-2"
+  resolved "https://registry.yarnpkg.com/@amilajack/castv2-client/-/castv2-client-0.0.2-2.tgz#9c0739a0bf7a6901ff9ed281ad5d62cea8d6f581"
+  integrity sha512-kslQPmyeddCFlOFQYEZt3GIfc0+t3WgJVJE96G15/PcDMLJPze9NjmdKcpTowsdlfOnTP4ETs6OWHhPuGZjTgw==
   dependencies:
     castv2 "~0.1.9"
     chromecast-scanner "^0.5.0"
-    debug "^3.1.0"
+    debug "^4.1.1"
 
 "@babel/code-frame@^7.0.0":
   version "7.0.0"

@@ -4,8 +4,11 @@ const merge = require('webpack-merge')
 const UglyfyJsPlugin = require('uglifyjs-webpack-plugin')
 const baseConfig = require('./webpack.base')
 const TerserPlugin = require("terser-webpack-plugin")
+const packageJson = require("../package.json");
+
 
 const config = merge(baseConfig, {
+  externals: [...baseConfig.externals, "@amilajack/castv2-client"],
   devtool: "source-map",
   mode: process.env.NODE_ENV === 'development' ? 'development' : 'production',
   entry: {
