@@ -1,7 +1,7 @@
 import * as React from "react";
+import Scrollbars from "react-custom-scrollbars";
 import { NavLink, RouteComponentProps, withRouter } from "react-router-dom";
 import { NormalizedResult } from "../../../../types";
-import CustomScroll from "../../../_shared/CustomScroll";
 import SideBarPlaylistItem from "./playlist/SideBarPlaylistItem";
 import * as styles from "./Sidebar.module.scss";
 
@@ -21,9 +21,11 @@ const SideBar = React.memo<AllProps>(({ items, isActuallyPlaying, currentPlaylis
     >
         <div className={styles.dragStrip} />
 
-        <CustomScroll
-            heightRelativeToParent="100%"
-            allowOuterScroll={true}
+        <Scrollbars
+            renderTrackHorizontal={props => <div></div>}
+            renderTrackVertical={props => <div {...props} className="track-vertical" />}
+            renderThumbHorizontal={props => <div></div>}
+            renderThumbVertical={props => <div {...props} className="thumb-vertical" />}
         >
             <div id="sidebar-menu" className={styles.sidebarMenu}>
                 <h2>Discover</h2>
@@ -82,7 +84,7 @@ const SideBar = React.memo<AllProps>(({ items, isActuallyPlaying, currentPlaylis
                     }
                 </div>
             </div>
-        </CustomScroll>
+        </Scrollbars>
     </aside>
 ));
 

@@ -5,11 +5,10 @@ import { getQueue } from "@common/store/player/selectors";
 import { autobind } from "core-decorators";
 import { debounce } from "lodash";
 import * as React from "react";
+import Scrollbars from "react-custom-scrollbars";
 import * as ReactList from "react-list";
 import { connect } from "react-redux";
 import { bindActionCreators, Dispatch } from "redux";
-import CustomScroll from "../../../_shared/CustomScroll";
-import Spinner from "../../../_shared/Spinner/Spinner";
 import "./Queue.scss";
 import QueueItem from "./QueueItem";
 
@@ -37,17 +36,6 @@ class Queue extends React.PureComponent<AllProps> {
             this.list.scrollTo(currentIndex);
         }
     }
-
-    // public componentDidUpdate(prevProps: AllProps) {
-    //     const { showQueue, currentIndex, playingTrack } = this.props;
-
-    //     if (showQueue !== prevProps.showQueue && showQueue === true) {
-
-    //         if (playingTrack && playingTrack.id && this.list) {
-    //             this.list.scrollTo(currentIndex);
-    //         }
-    //     }
-    // }
 
     public onScroll() {
         const { updateQueue } = this.props;
@@ -107,11 +95,12 @@ class Queue extends React.PureComponent<AllProps> {
                     </div>
                 </div>
                 <div className="tracks">
-                    <CustomScroll
-                        heightRelativeToParent="100%"
-                        allowOuterScroll={true}
+                    <Scrollbars
                         onScroll={this.updateQueueDebounced}
-                        loader={<Spinner />}
+                        renderTrackHorizontal={props => <div></div>}
+                        renderTrackVertical={props => <div {...props} className="track-vertical" />}
+                        renderThumbHorizontal={props => <div></div>}
+                        renderThumbVertical={props => <div {...props} className="thumb-vertical" />}
                     >
                         <ReactList
                             ref={(r) => this.list = r}
@@ -122,7 +111,7 @@ class Queue extends React.PureComponent<AllProps> {
                             useTranslate3d={true}
                             itemRenderer={this.renderTrack}
                         />
-                    </CustomScroll>
+                    </Scrollbars>
                 </div>
             </aside>
         );
