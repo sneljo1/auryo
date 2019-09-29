@@ -50,71 +50,69 @@ class TracksGrid extends React.PureComponent<AllProps> {
         const { items, objectId, showInfo, isItemLoaded, loadMore, hasMore, isLoading } = this.props;
 
         return (
-            <>
-                <div className={cn("songs container-fluid")} style={{ height: "100%" }}>
-                    <AutoSizer disableHeight>
-                        {({ width }: { width: number }) => {
-                            const itemsPerRow = this.getRowsForWidth(width);
-                            const rowCount = Math.ceil(items.length / itemsPerRow);
+            <div className={cn("songs container-fluid")} style={{ height: "100%" }}>
+                <AutoSizer disableHeight>
+                    {({ width }: { width: number }) => {
+                        const itemsPerRow = this.getRowsForWidth(width);
+                        const rowCount = Math.ceil(items.length / itemsPerRow);
 
-                            // If there are more items to be loaded then add an extra row to hold a loading indicator.
-                            const itemCount = hasMore ? rowCount + 1 : rowCount;
+                        // If there are more items to be loaded then add an extra row to hold a loading indicator.
+                        const itemCount = hasMore ? rowCount + 1 : rowCount;
 
-                            // Only load 1 page of items at a time.
-                            // Pass an empty callback to InfiniteLoader in case it asks us to load more than once.
-                            const loadMoreItems = isLoading || !hasMore ? () => { } : loadMore;
+                        // Only load 1 page of items at a time.
+                        // Pass an empty callback to InfiniteLoader in case it asks us to load more than once.
+                        const loadMoreItems = isLoading || !hasMore ? () => { } : loadMore;
 
-                            return (
-                                <InfiniteLoader
-                                    ref={this.loader}
-                                    isItemLoaded={(index: number) => {
-                                        if (isItemLoaded) {
-                                            isItemLoaded(index * itemsPerRow);
+                        return (
+                            <InfiniteLoader
+                                ref={this.loader}
+                                isItemLoaded={(index: number) => {
+                                    if (isItemLoaded) {
+                                        isItemLoaded(index * itemsPerRow);
+                                    }
+                                }}
+                                threshold={5}
+                                itemCount={itemCount}
+                                loadMoreItems={(start, end) => {
+                                    if (loadMoreItems && items.length - (end * itemsPerRow) < 5) {
+                                        loadMoreItems(start, end);
+                                    }
+                                }}
+                            >
+                                {({ onItemsRendered, ref }: any) => (
+                                    <>
+                                        <List
+                                            style={{ height: "100%", overflow: "initial" }}
+                                            ref={ref}
+                                            height={window.innerHeight}
+                                            itemCount={itemCount}
+                                            onItemsRendered={onItemsRendered}
+                                            itemData={{
+                                                itemsPerRow,
+                                                items,
+                                                objectId,
+                                                showInfo
+                                            }}
+                                            itemSize={350}
+                                            width={width}
+                                        >
+                                            {TrackGridRow}
+                                        </List>
+
+                                        {
+                                            isLoading && (
+                                                <div className={styles.loadingWrapper} style={{ width: `${width}px` }}>
+                                                    <Spinner />
+                                                </div>
+                                            )
                                         }
-                                    }}
-                                    threshold={5}
-                                    itemCount={itemCount}
-                                    loadMoreItems={(start, end) => {
-                                        if (loadMoreItems && items.length - (end * itemsPerRow) < 5) {
-                                            loadMoreItems(start, end);
-                                        }
-                                    }}
-                                >
-                                    {({ onItemsRendered, ref }: any) => (
-                                        <>
-                                            <List
-                                                style={{ height: "100%", overflow: "initial" }}
-                                                ref={ref}
-                                                height={window.innerHeight}
-                                                itemCount={itemCount}
-                                                onItemsRendered={onItemsRendered}
-                                                itemData={{
-                                                    itemsPerRow,
-                                                    items,
-                                                    objectId,
-                                                    showInfo
-                                                }}
-                                                itemSize={350}
-                                                width={width}
-                                            >
-                                                {TrackGridRow}
-                                            </List>
-
-                                            {
-                                                isLoading && (
-                                                    <div className={styles.loadingWrapper} style={{ width: `${width}px` }}>
-                                                        <Spinner />
-                                                    </div>
-                                                )
-                                            }
-                                        </>
-                                    )}
-                                </InfiniteLoader>
-                            );
-                        }}
-                    </AutoSizer>
-                </div>
-            </>
+                                    </>
+                                )}
+                            </InfiniteLoader>
+                        );
+                    }}
+                </AutoSizer>
+            </div>
         );
     }
 

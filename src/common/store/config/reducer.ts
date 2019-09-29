@@ -17,15 +17,28 @@ export const configReducer: Reducer<ConfigState> = (state = initialState, action
         case ConfigActionTypes.SET_TOKEN:
             return {
                 ...state,
-                token: payload
+                auth: {
+                    ...state.auth,
+                    token: payload
+                }
             };
         case ConfigActionTypes.SET_ALL:
             return {
                 ...state,
                 ...payload
             };
+        case ConfigActionTypes.SET_LOGIN:
+            return {
+                ...state,
+                auth: {
+                    expiresAt: payload.expires_at,
+                    refreshToken: payload.refresh_token,
+                    token: payload.access_token,
+                }
+            };
         case ConfigActionTypes.SET_KEY:
             return {
+                ...state,
                 ...setIn(payload.key, payload.value, state)
             };
 

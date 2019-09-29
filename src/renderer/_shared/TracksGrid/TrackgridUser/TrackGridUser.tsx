@@ -2,18 +2,19 @@ import { IMAGE_SIZES } from "@common/constants";
 import { StoreState } from "@common/store";
 import { toggleFollowing } from "@common/store/auth";
 import { isFollowing } from "@common/store/auth/selectors";
+import { getUserEntity } from "@common/store/entities/selectors";
 import { abbreviate_number, SC } from "@common/utils";
 import cn from "classnames";
 import * as React from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import { bindActionCreators, Dispatch } from "redux";
-import { SoundCloud } from "../../../../types";
+import { NormalizedResult } from "../../../../types";
 import FallbackImage from "../../FallbackImage";
 import "./TrackGridUser.scss";
 
 interface OwnProps {
-    trackUser: SoundCloud.User | null;
+    idResult: NormalizedResult;
     withStats?: boolean;
 }
 
@@ -46,7 +47,6 @@ class TrackGridUser extends React.PureComponent<AllProps> {
         const img_url = SC.getImageUrl(avatar_url, IMAGE_SIZES.SMALL);
 
         return (
-
             <div className="track-grid-user">
                 <div className="track-grid-user-inner">
                     <div className="track-grid-user-content">
@@ -85,10 +85,11 @@ class TrackGridUser extends React.PureComponent<AllProps> {
 }
 
 const mapStateToProps = (state: StoreState, props: OwnProps) => {
-    const { trackUser } = props;
+    const { idResult } = props;
 
     return {
-        isFollowing: trackUser ? isFollowing(trackUser.id)(state) : null,
+        isFollowing: idResult ? isFollowing(idResult.id)(state) : null,
+        trackUser: getUserEntity(idResult.id)(state)
     };
 };
 

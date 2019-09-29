@@ -53,7 +53,7 @@ if (!process.env.TOKEN && process.env.NODE_ENV === "production") {
 
 }
 
-const { config: { token } } = store.getState();
+const { config: { auth: { token } } } = store.getState();
 
 if (token) {
     SC.initialize(token);

@@ -18,7 +18,9 @@ export interface PersonalisedCollectionItem {
     last_updated: string;
     style: string;
     social_proof: SoundCloud.CompactUser;
-    system_playlists: SoundCloud.SystemPlaylist[];
+    items: {
+        collection: SoundCloud.SystemPlaylist[];
+    };
 }
 
 
@@ -36,8 +38,9 @@ export default async function fetchPersonalised(url: string): Promise<{
 
         return ({
             normalized: normalize(collection, new schema.Array(new schema.Object({
-                system_playlists: new schema.Array(playlistSchema),
-                playlists: new schema.Array(playlistSchema)
+                items: {
+                    collection: new schema.Array(playlistSchema),
+                }
             }))),
             json
         });

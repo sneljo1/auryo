@@ -34,8 +34,7 @@ export default class LastFm extends Feature {
 				useragent: "auryo"
 			});
 		} catch (err) {
-			// tslint:disable-next-line: no-console
-			console.error(err);
+			this.logger.error(err);
 		}
 
 		// tslint:disable-next-line: max-func-body-length
@@ -46,7 +45,6 @@ export default class LastFm extends Feature {
 					await this.getLastFMSession(true);
 				} catch (err) {
 					this.logger.error(err);
-					throw err;
 				}
 			});
 

@@ -24,7 +24,7 @@ export default class ChromecastManager extends Feature {
   private client?: PlatformSender;
 
   public shouldRun() {
-    return super.shouldRun() && !process.env.TOKEN
+    return false;
   }
 
   // tslint:disable-next-line: max-func-body-length

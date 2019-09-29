@@ -4,6 +4,7 @@ import { StoreState } from "@common/store";
 import { logout } from "@common/store/auth";
 import { setConfig, setConfigKey } from "@common/store/config";
 import PageHeader from "@renderer/_shared/PageHeader/PageHeader";
+import { ThemeKeys } from "@renderer/app/components/Theme/themes";
 import { ipcRenderer } from "electron";
 import * as React from "react";
 import { connect } from "react-redux";
@@ -281,11 +282,7 @@ class Settings extends React.PureComponent<AllProps, State> {
                             configKey="app.theme"
                             setConfigKey={setConfigKey}
                             config={config}
-                            data={[
-                                { k: "Light", v: "light" },
-                                { k: "Dark", v: "dark" },
-                                { k: "Blue", v: "blue" },
-                            ]}
+                            data={Object.keys(ThemeKeys).map(theme => ({ k: theme, v: theme }))}
                         />
 
                         <div className="setting d-flex justify-content-between align-items-center">
@@ -396,7 +393,7 @@ class Settings extends React.PureComponent<AllProps, State> {
 
 const mapStateToProps = ({ config, auth, app }: StoreState) => ({
     config,
-    authenticated: !!config.token && !auth.authentication.loading,
+    authenticated: !!config.auth.token && !auth.authentication.loading,
     lastfmLoading: app.lastfmLoading
 });
 

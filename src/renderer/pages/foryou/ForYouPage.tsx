@@ -7,7 +7,6 @@ import { RouteComponentProps } from "react-router-dom";
 import { bindActionCreators, Dispatch } from "redux";
 import { SoundCloud } from "../../../types";
 import Spinner from "../../_shared/Spinner/Spinner";
-import TrackGridItem from "../../_shared/TracksGrid/TrackgridItem/TrackGridItem";
 import { PersonalizedPlaylistCard } from "./components/PersonalizedPlaylistCard/PersonalizedPlaylistCard";
 import * as styles from "./ForYouPage.module.scss";
 
@@ -63,14 +62,14 @@ class ForYou extends React.Component<AllProps, State> {
                     weekly && this.renderPlaylist(
                         "Made for you",
                         "Playlists created by SoundCloud just for you",
-                        [...weekly.system_playlists || [], ...upload.system_playlists || []]
+                        [...weekly.items.collection || [], ...upload.items.collection || []]
                     )
                 }
                 {
                     rest && rest.map((i) => {
                         return (
                             <div key={i.urn}>
-                                {this.renderPlaylist(i.title, i.description, i.system_playlists, i.playlists)}
+                                {this.renderPlaylist(i.title, i.description, i.items.collection)}
                             </div>
                         );
                     })
@@ -82,11 +81,10 @@ class ForYou extends React.Component<AllProps, State> {
     public renderPlaylist = (
         title: string,
         description: string,
-        systemPlaylistIds: string[] = [],
-        playlistIds: string[] = []
+        collection: string[] = []
     ) => {
 
-        const ids = systemPlaylistIds.length ? systemPlaylistIds : playlistIds;
+        const ids = collection;
         const shown = this.state.itemsOpen[title] || 6;
         const showMore = shown < ids.length;
 
@@ -98,7 +96,7 @@ class ForYou extends React.Component<AllProps, State> {
                 <div className={cn(styles.playlists, "row")}>
 
                     {
-                        systemPlaylistIds
+                        collection
                             .slice(0, shown || 6)
                             .map((id) => {
                                 const playlist: SoundCloud.SystemPlaylist = this.props.playlistEntities[id];
@@ -115,52 +113,37 @@ class ForYou extends React.Component<AllProps, State> {
                                 );
                             })
                     }
-
                     {
-                        playlistIds
-                            .slice(0, shown || 6)
-                            .map((id) => {
-                                const playlist: SoundCloud.Playlist = this.props.playlistEntities[id];
+                        collection.length > 6 && (
+                            <div className="col-12 text-right">
+                                <a
+                                    role="button"
+                                    className={styles.showMore}
+                                    onClick={() => {
 
-                                if (!playlist) { return null; }
+                                        let nextPos = shown + 6;
 
-                                return (
-                                    <TrackGridItem
-                                        skipFetch={true}
-                                        key={id}
-                                        idResult={{ id: +id, schema: "playlists" }}
-                                        currentPlaylistId={id}
-                                    />
-                                );
-                            })
+                                        if (showMore) {
+                                            if (nextPos > ids.length) {
+                                                nextPos = ids.length;
+                                            }
+                                        } else {
+                                            nextPos = 6;
+                                        }
+
+                                        this.setState({
+                                            itemsOpen: {
+                                                ...this.state.itemsOpen,
+                                                [title]: nextPos
+                                            }
+                                        });
+                                    }}
+                                >
+                                    <i className={`bx bx-${!showMore ? "chevron-up" : "chevron-down"}`} />
+                                </a>
+                            </div>
+                        )
                     }
-                    <div className="col-12 text-right">
-                        <a
-                            role="button"
-                            className={styles.showMore}
-                            onClick={() => {
-
-                                let nextPos = shown + 6;
-
-                                if (showMore) {
-                                    if (nextPos > ids.length) {
-                                        nextPos = ids.length;
-                                    }
-                                } else {
-                                    nextPos = 6;
-                                }
-
-                                this.setState({
-                                    itemsOpen: {
-                                        ...this.state.itemsOpen,
-                                        [title]: nextPos
-                                    }
-                                });
-                            }}
-                        >
-                            <i className={`bx bx-${!showMore ? "chevron-up" : "chevron-down"}`} />
-                        </a>
-                    </div>
                 </div>
             </>
         );

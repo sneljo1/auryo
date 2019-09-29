@@ -1,3 +1,4 @@
+import { ThemeKeys } from "@renderer/app/components/Theme/themes";
 
 const app = require("electron").app || require("electron").remote.app; // eslint-disable-line
 
@@ -35,7 +36,11 @@ export const CONFIG = {
     DEFAULT_CONFIG: {
         updatedAt: 0,
         lastLogin: null,
-        token: process.env.TOKEN ? process.env.TOKEN : null,
+        auth: {
+            refreshToken: null,
+            expiresAt: null,
+            token: process.env.TOKEN ? process.env.TOKEN : null,
+        },
         audio: {
             volume: .5,
             playbackDeviceId: null,
@@ -55,7 +60,7 @@ export const CONFIG = {
         app: {
             analytics: false,
             crashReports: true,
-            theme: "light",
+            theme: ThemeKeys.darkBlue,
             downloadPath,
             showTrackChangeNotification: true,
             overrideClientId: null

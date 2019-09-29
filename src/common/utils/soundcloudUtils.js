@@ -73,7 +73,7 @@ export function getUserTracksUrl(artistID, limit = 50) {
     });
 }
 export function getPersonalizedurl() {
-    return makeUrl(`selections`, {
+    return makeUrl(`mixed-selections`, {
         oauth_token: true,
     }, true);
 }

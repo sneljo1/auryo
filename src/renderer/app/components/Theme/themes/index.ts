@@ -1,10 +1,15 @@
-import BlueTheme from "./BlueTheme";
+import DarkBlueTheme from "./DarkBlueTheme";
 import DarkTheme from "./DarkTheme";
 import LightTheme from "./LightTheme";
 
+export enum ThemeKeys {
+    darkBlue = "darkBlue",
+    light = "light",
+    dark = "dark",
+};
 
 export const Themes = {
-    light: LightTheme,
-    dark: DarkTheme,
-    blue: BlueTheme
+    [ThemeKeys.light]: LightTheme,
+    [ThemeKeys.dark]: DarkTheme,
+    [ThemeKeys.darkBlue]: DarkBlueTheme
 };

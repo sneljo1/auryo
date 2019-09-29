@@ -1,14 +1,14 @@
-import { app } from "electron";
 import * as pino from "pino";
 import rfs from "rotating-file-stream";
+import { Utils } from "./utils";
 
-const isProd = process.env.NODE_ENV === "production";
+const isProd = false// process.env.NODE_ENV === "production";
 
 let stream: pino.DestinationStream;
 
 if (isProd) {
     stream = rfs("main.log", {
-        path: app.getPath("logs"),
+        path: Utils.getLogDir(),
         maxFiles: 1,
         size: "10M",
         interval: "7d"

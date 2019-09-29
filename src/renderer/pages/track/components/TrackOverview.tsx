@@ -11,7 +11,6 @@ import TrackGridUser from "../../../_shared/TracksGrid/TrackgridUser/TrackGridUs
 
 interface Props {
     track: Normalized.Track;
-    trackUser: SoundCloud.User;
     comments: ObjectState<NormalizedResult> | null;
 
     hasMore: boolean;
@@ -36,13 +35,13 @@ const getTags = (track: SoundCloud.Track | Normalized.Track) => {
 
 };
 
-export const TrackOverview = React.memo<Props>(({ track, comments, hasMore, loadMore, trackUser }) => (
+export const TrackOverview = React.memo<Props>(({ track, comments, hasMore, loadMore }) => (
     <div className="row">
         <div className="col-12 col-lg-3">
             <div className="row">
                 <div className="col-6 col-lg-12">
                     <TrackGridUser
-                        trackUser={trackUser}
+                        idResult={{ id: track.user, schema: "users" }}
                     />
                 </div>
 

@@ -1,4 +1,5 @@
 import { Intent } from "@blueprintjs/core";
+import { EVENTS } from "@common/constants/events";
 import { rootReducer, StoreState } from "@common/store";
 import { logout } from "@common/store/auth";
 import { PlayerActionTypes } from "@common/store/player";
@@ -17,7 +18,7 @@ const history = createHashHistory();
 
 const router = routerMiddleware(history);
 
-const test: Middleware = (store) => (next) => (action) => {
+const test: Middleware = (store: Store<StoreState>) => (next) => (action) => {
 
     if (action.type && action.type.endsWith("_ERROR")) {
         const { payload: { message, response } } = action;
@@ -27,7 +28,15 @@ const test: Middleware = (store) => (next) => (action) => {
 
 
         } else if (response && response.status === 401) {
-            store.dispatch<any>(logout());
+            const { config: { auth: { expiresAt, refreshToken } } } = store.getState();
+
+            if(!refreshToken){
+                store.dispatch<any>(logout());
+            } else {
+                if(expiresAt && expiresAt < Date.now()){
+                    ipcRenderer.send(EVENTS.APP.AUTH.REFRESH);
+                }
+            }
         } else if (message) {
             store.dispatch(addToast({
                 message: "Something went wrong",

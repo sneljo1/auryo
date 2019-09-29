@@ -43,6 +43,7 @@ class SelectConfig extends React.PureComponent<Props> {
                 <select
                     className="form-control form-control-sm"
                     onBlur={this.handleChange}
+                    onChange={this.handleChange}
                     defaultValue={value || ""}
                 >
                     {

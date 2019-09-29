@@ -20,8 +20,8 @@ const options: ElectronSentry.ElectronOptions = {
 	environment: process.env.NODE_ENV
 };
 ElectronSentry.init(options);
-ElectronSentry.configureScope(scope => {
-	scope.setUser({
-		id: (settings.get("token") as string) || ""
-	});
-});
+// ElectronSentry.configureScope(scope => {
+// 	scope.setUser({
+// 		id: (settings.get("token") as string) || ""
+// 	});
+// });

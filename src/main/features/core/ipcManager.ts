@@ -1,9 +1,10 @@
 import { EVENTS } from "@common/constants/events";
 import { setLoginError, setLoginLoading } from "@common/store/auth/actions";
-import { setToken } from "@common/store/config/actions";
+import { setLogin } from "@common/store/config/actions";
 import { createAuthWindow } from "@main/authWindow";
 import { AWSApiGatewayService } from "@main/aws/awsApiGatewayService";
 import { AWSIotService } from "@main/aws/awsIotService";
+import { autobind } from "core-decorators";
 import { app, clipboard, dialog, ipcMain, shell } from "electron";
 import { download } from "electron-dl";
 import * as _ from "lodash";
@@ -11,6 +12,8 @@ import { CONFIG } from "../../../config";
 import { Logger, LoggerInstance } from "../../utils/logger";
 import { Feature } from "../feature";
 
+
+@autobind
 export default class IPCManager extends Feature {
 	private readonly logger: LoggerInstance = Logger.createLogger(IPCManager.name);
 
@@ -70,70 +73,110 @@ export default class IPCManager extends Feature {
 			}
 		});
 
-		ipcMain.on(EVENTS.APP.AUTH.LOGIN, async () => {
-			let authWindow: Electron.BrowserWindow | null = null;
-			let awsIotWrapper: AWSIotService | undefined;
+		ipcMain.on(EVENTS.APP.AUTH.LOGIN, this.showAuthWindow);
 
-			try {
-				this.store.dispatch(setLoginLoading());
+		ipcMain.on(EVENTS.APP.AUTH.REFRESH, this.refreshToken);
 
-				this.logger.debug("Starting login");
 
-        authWindow = createAuthWindow();
-        
-				authWindow.on("close", () => {
-					this.store.dispatch(setLoginLoading(false));
-				});
+	}
 
-				const getKeysResponse = await this.awsApiGateway.getKeys();
+	private async showAuthWindow() {
+		let authWindow: Electron.BrowserWindow | null = null;
+		let awsIotWrapper: AWSIotService | undefined;
 
-				awsIotWrapper = new AWSIotService(getKeysResponse);
+		try {
+			this.store.dispatch(setLoginLoading());
 
-				await awsIotWrapper.connect();
+			this.logger.debug("Starting login");
 
-				await awsIotWrapper.subscribe("/oauth/token");
+			authWindow = createAuthWindow();
 
-				const path = `/auth/signin/soundcloud`;
-				const signedRequest = this.awsApiGateway.prepareRequest(path);
+			authWindow.on("close", () => {
+				this.store.dispatch(setLoginLoading(false));
+			});
 
-				await authWindow.loadURL(`${CONFIG.AWS_API_URL}${path}`, {
-					extraHeaders: Object.keys(signedRequest.headers).reduce(
-						(prevString, headerName) =>
-							`${prevString}${headerName}: ${signedRequest.headers[headerName]}\n`,
-						""
-					)
-				});
+			const getKeysResponse = await this.awsApiGateway.getKeys();
 
-				// tslint:disable-next-line: no-unnecessary-local-variable
-				const tokenResponse = await awsIotWrapper.waitForMessageOrTimeOut();
+			awsIotWrapper = new AWSIotService(getKeysResponse);
 
-				authWindow.close();
+			await awsIotWrapper.connect();
 
-				if (tokenResponse) {
-					this.logger.debug("Auth successfull");
-					console.log(tokenResponse.access_token);
+			await awsIotWrapper.subscribe("/oauth/token");
 
-					this.store.dispatch(setToken(tokenResponse.access_token));
-					this.sendToWebContents("login-success");
-					await awsIotWrapper.disconnect();
-				}
+			const path = `/auth/signin/soundcloud`;
+			const signedRequest = this.awsApiGateway.prepareRequest(path);
 
-				return tokenResponse;
-			} catch (err) {
-				if (authWindow) {
-					authWindow.close();
-				}
-				if (awsIotWrapper) {
-					try {
-						await awsIotWrapper.disconnect();
-					} catch (err) {}
-				}
+			await authWindow.loadURL(`${CONFIG.AWS_API_URL}${path}`, {
+				extraHeaders: Object.keys(signedRequest.headers).reduce(
+					(prevString, headerName) =>
+						`${prevString}${headerName}: ${signedRequest.headers[headerName]}\n`,
+					""
+				)
+			});
 
-				this.store.dispatch(setLoginError("Something went wrong during login"));
-				this.logger.error(err);
+			// tslint:disable-next-line: no-unnecessary-local-variable
+			const tokenResponse = await awsIotWrapper.waitForMessageOrTimeOut();
 
-				throw err;
+			authWindow.close();
+
+			if (tokenResponse) {
+				this.logger.debug("Auth successfull");
+
+				this.store.dispatch(setLogin(tokenResponse));
+				this.sendToWebContents("login-success");
+				await awsIotWrapper.disconnect();
 			}
-		});
+
+			return tokenResponse;
+		} catch (err) {
+			if (authWindow) {
+				authWindow.close();
+			}
+			if (awsIotWrapper) {
+				try {
+					await awsIotWrapper.disconnect();
+				} catch (err) { }
+			}
+
+			this.store.dispatch(setLoginError("Something went wrong during login"));
+			this.logger.error(err);
+
+			throw err;
+		}
+	}
+
+	private async refreshToken() {
+		const { config: { auth: { refreshToken } } } = this.store.getState();
+
+		if (!refreshToken) {
+			this.logger.debug("Refreshtoken not found");
+			this.showAuthWindow()
+				.catch(this.logger.error);
+
+			return;
+		}
+
+		try {
+			this.store.dispatch(setLoginLoading());
+
+			this.logger.debug("Starting refresh");
+
+			const tokenResponse = await this.awsApiGateway.refresh(refreshToken, "soundcloud")
+
+			if (tokenResponse) {
+				this.logger.debug("Auth successfull");
+
+				this.store.dispatch(setLogin(tokenResponse));
+				this.sendToWebContents("login-success");
+			}
+
+		} catch (err) {
+
+			this.store.dispatch(setLoginError("Something went wrong during refresh"));
+			this.logger.error(err);
+
+			this.showAuthWindow()
+				.catch(this.logger.error);
+		}
 	}
 }

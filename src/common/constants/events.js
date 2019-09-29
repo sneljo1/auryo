@@ -28,6 +28,7 @@ export const EVENTS = {
         RAISE: "app/raise",
         AUTH: {
             LOGIN: "app/auth/login",
+            REFRESH: "app/auth/refresh",
         },
         LASTFM: {
             AUTH: "app/lastfm/auth",

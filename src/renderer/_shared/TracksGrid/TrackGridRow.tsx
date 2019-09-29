@@ -48,7 +48,6 @@ export class TrackGridRow extends React.PureComponent<Props> {
             },
         } = this.props;
 
-
         const item = items[index];
 
         if (item.schema === "users") {

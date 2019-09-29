@@ -19,8 +19,11 @@ export interface NormalizedPersonalizedItem {
     last_updated: string;
     style: string;
     social_proof: SoundCloud.CompactUser;
-    system_playlists?: string[];
-    playlists?: string[];
+    items: {
+        collection: string[];
+        next_href: string | null;
+        query_urn: string | null;
+    };
 }
 
 export interface NormalizedResponse {

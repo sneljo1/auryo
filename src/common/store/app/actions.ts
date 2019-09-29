@@ -27,7 +27,7 @@ export function getRemainingPlays(): ThunkResult<void> {
 export function initApp(): ThunkResult<void> {
 	return (dispatch, getState) => {
 		const {
-			config: { token }
+			config: { auth: { token } }
 		} = getState();
 
 		if (!token) {

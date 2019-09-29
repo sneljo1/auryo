@@ -111,7 +111,6 @@ class TrackPage extends React.PureComponent<AllProps, State> {
             isRelatedPlaylistsPlaying,
             relatedTracks,
             track,
-            trackUser,
 
             // Functions
             toggleLike,
@@ -309,7 +308,6 @@ class TrackPage extends React.PureComponent<AllProps, State> {
                         <TabPane tabId={TabTypes.OVERVIEW} className="overview">
                             <TrackOverview
                                 track={track}
-                                trackUser={trackUser}
                                 comments={comments}
                                 hasMore={canFetchMoreOf(songId, ObjectTypes.COMMENTS) as any}
                                 loadMore={() => fetchMore(songId, ObjectTypes.COMMENTS) as any}
@@ -351,7 +349,6 @@ const mapStateToProps = (state: StoreState, props: OwnProps) => {
         relatedPlaylistId,
         auth,
         track,
-        trackUser: getNormalizedUser(track.user)(state),
         userPlaylists: getUserPlaylistsCombined(state),
         songIdParam: +songId,
         relatedTracks: getRelatedTracksPlaylistObject(songId)(state),

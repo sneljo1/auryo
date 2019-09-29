@@ -4,7 +4,11 @@ import { RepeatTypes } from "../player";
 
 export interface Config extends Object {
     updatedAt: number;
-    token: string | null;
+    auth: {
+        token: string | null;
+        refreshToken: string | null;
+        expiresAt: number | null;
+    };
     audio: AudioConfig;
     repeat: RepeatTypes | null;
     shuffle: boolean;
@@ -51,4 +55,5 @@ export const enum ConfigActionTypes {
     SET_TOKEN = "@@config/SET_TOKEN",
     SET_ALL = "@@config/SET_ALL",
     SET_KEY = "@@config/SET_KEY",
+    SET_LOGIN = "@@config/SET_LOGIN",
 }

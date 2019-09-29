@@ -19,7 +19,6 @@ import FeedPlaylistPage from "../pages/playlists/FeedPlaylistPage";
 import LikesPlaylistPage from "../pages/playlists/LikesPlaylistPage";
 import MyPlaylistsPage from "../pages/playlists/MyPlaylistsPage";
 import MyTracksPage from "../pages/playlists/MyTracksPage";
-import SearchCategoryPage from "../pages/search/Category/SearchCategoryPage";
 import SearchPage from "../pages/search/SearchPage";
 import TagsPage from "../pages/tags/TagsPage";
 import TrackPage from "../pages/track/TrackPage";
@@ -93,8 +92,7 @@ class App extends React.PureComponent<AllProps, State> {
                     <Route path="/user/:artistId" component={ArtistPage} />
                     <Route path="/playlist/:playlistId" component={PlaylistPage} />
                     <Route path="/personalized/:playlistId" component={PersonalizedPlaylistPage} />
-                    <Route exact={true} path="/search" component={SearchPage} />
-                    <Route path="/search/:category" component={SearchCategoryPage} />
+                    <Route exact={true} path="/search/:category?" component={SearchPage} />
                     <Route path="/tags/:tag/:type?" component={TagsPage} />
                     <Route path="/resolve" render={this.handleResolve} />
                 </Switch>

@@ -30,7 +30,9 @@ export default class ConfigManager extends Feature {
 			if (!isDeepEqual(settings.store, config)) {
 				settings.set(config);
 			}
-		}, 250);
+		}, 250, {
+			leading: true,
+		});
 	}
 
 	public register() {
