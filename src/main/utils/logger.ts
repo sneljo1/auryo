@@ -2,7 +2,7 @@ import * as pino from "pino";
 import rfs from "rotating-file-stream";
 import { Utils } from "./utils";
 
-const isProd = false// process.env.NODE_ENV === "production";
+const isProd = true;//process.env.NODE_ENV === "production";
 
 let stream: pino.DestinationStream;
 
@@ -28,10 +28,13 @@ export type LoggerInstance = pino.Logger;
 
 export namespace Logger {
     export function createLogger(name: string): LoggerInstance {
+        if (!isProd) {
+            config.name = name;
+        }
+        
         return pino({
             ...config,
-            name: name,
-            base: { name },
+            base: isProd ? {} : { name },
         }, stream)
     }
 

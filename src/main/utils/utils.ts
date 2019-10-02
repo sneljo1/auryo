@@ -65,7 +65,7 @@ export namespace Utils {
 				return;
 			}
 
-			const fullPath: string = path.join.apply(path, args);
+			const fullPath: string = path.join(dirPath, ...args);
 
 			// tslint:disable-next-line: non-literal-fs-path
 			fs.mkdirSync(fullPath, { recursive: true });

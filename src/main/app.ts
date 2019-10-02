@@ -265,13 +265,11 @@ export class Auryo {
 	private readonly registerListeners = () => {
 		if (this.mainWindow) {
 			this.mainWindow.webContents.on("crashed", (event: any) => {
-				this.logger.error("APP CRASHED:");
-				this.logger.error(event);
+				this.logger.fatal(event, "App Crashed");
 			});
 
 			this.mainWindow.on("unresponsive", (event: any) => {
-				this.logger.error("APP UNRESPONSIVE:");
-				this.logger.error(event);
+				this.logger.fatal(event, "App unresponsive");
 			});
 
 			this.mainWindow.on("closed", () => {
