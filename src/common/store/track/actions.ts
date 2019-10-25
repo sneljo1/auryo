@@ -1,18 +1,24 @@
 import { Intent } from "@blueprintjs/core";
-import * as moment from "moment";
-import { ThunkResult } from "../../../types";
+import moment from "moment";
+// eslint-disable-next-line import/no-cycle
+import { ThunkResult } from "..";
+// eslint-disable-next-line import/no-cycle
 import fetchTrack from "../../api/fetchTrack";
 import fetchToJson from "../../api/helpers/fetchToJson";
-import { SC } from "../../utils";
 import { IPC } from "../../utils/ipc";
-import { AuthActionTypes } from "../auth";
+import * as SC from "../../utils/soundcloudUtils";
+import { AuthActionTypes } from "../auth/types";
+// eslint-disable-next-line import/no-cycle
 import { getTrackEntity } from "../entities/selectors";
-import { getComments, getPlaylist, PlaylistTypes } from "../objects";
+// eslint-disable-next-line import/no-cycle
+import { getComments, getPlaylist } from "../objects/actions";
+// eslint-disable-next-line import/no-cycle
 import { getCommentObject, getPlaylistName, getRelatedTracksPlaylistObject } from "../objects/selectors";
-import { addToast } from "../ui";
+import { PlaylistTypes } from "../objects/types";
+import { addToast } from "../ui/actions";
 import { TrackActionTypes } from "./types";
 
-export function toggleLike(trackId: number, playlist: boolean = false): ThunkResult<any> {
+export function toggleLike(trackId: number, playlist = false): ThunkResult<any> {
 	return (dispatch, getState) => {
 		const {
 			auth: { likes, me }
@@ -65,6 +71,8 @@ export function toggleLike(trackId: number, playlist: boolean = false): ThunkRes
 						}
 					});
 				}
+
+				return null;
 			});
 	};
 }
@@ -73,7 +81,7 @@ export function toggleLike(trackId: number, playlist: boolean = false): ThunkRes
  * Toggle repost of a specific track
  */
 
-export function toggleRepost(trackId: number, playlist: boolean = false): ThunkResult<Promise<any>> {
+export function toggleRepost(trackId: number, playlist = false): ThunkResult<Promise<any>> {
 	return async (dispatch, getState) => {
 		const {
 			auth: { reposts }
@@ -81,32 +89,67 @@ export function toggleRepost(trackId: number, playlist: boolean = false): ThunkR
 
 		const reposted = !SC.hasID(trackId, playlist ? reposts.playlist : reposts.track);
 
-		try {
-			await dispatch<Promise<any>>({
-				type: AuthActionTypes.SET_REPOST,
-				payload: fetch(SC.updateRepostUrl(trackId, playlist), {
-					method: reposted ? "PUT" : "DELETE"
-				}).then(() => {
-					if (reposted) {
-						dispatch(
-							addToast({
-								message: `Reposted track`,
-								intent: Intent.SUCCESS
-							})
-						);
+		await dispatch<Promise<any>>({
+			type: AuthActionTypes.SET_REPOST,
+			payload: fetch(SC.updateRepostUrl(trackId, !!playlist), {
+				method: reposted ? "PUT" : "DELETE"
+			}).then(() => {
+				if (reposted) {
+					dispatch(
+						addToast({
+							message: `Reposted track`,
+							intent: Intent.SUCCESS
+						})
+					);
+				}
+
+				return {
+					trackId,
+					reposted,
+					playlist
+				};
+			})
+		} as any);
+
+		IPC.notifyTrackReposted();
+	};
+}
+
+function getTrack(trackId: number) {
+	return {
+		type: TrackActionTypes.ADD,
+		payload: {
+			promise: fetchTrack(trackId)
+				.then(({ normalized: { entities } }) => {
+					const updatedEntities = entities;
+
+					if (updatedEntities && updatedEntities.trackEntities && updatedEntities.trackEntities[trackId]) {
+						updatedEntities.trackEntities[trackId].loading = false;
 					}
 
 					return {
-						trackId,
-						reposted,
-						playlist
+						entities: updatedEntities
 					};
 				})
-			} as any);
-
-			IPC.notifyTrackReposted();
-		} catch (err) {
-			throw err;
+				.catch(() => ({
+					entities: {
+						trackEntities: {
+							[trackId]: {
+								loading: false
+							}
+						}
+					}
+				})),
+			data: {
+				entities: {
+					trackEntities: {
+						[trackId]: {
+							loading: true,
+							error: true
+						}
+					}
+				}
+			}
 		}
 	};
 }
@@ -129,43 +172,6 @@ export function fetchTrackIfNeeded(trackId: number): ThunkResult<any> {
 
 		if (!getCommentObject(trackId.toString())(state)) {
 			dispatch(getComments(trackId));
-		}
-	};
-}
-
-function getTrack(trackId: number) {
-	return {
-		type: TrackActionTypes.ADD,
-		payload: {
-			promise: fetchTrack(trackId)
-				.then(({ normalized: { entities } }) => {
-					if (entities.trackEntities && entities.trackEntities[trackId]) {
-						entities.trackEntities[trackId].loading = false;
-					}
-
-					return {
-						entities
-					};
-				})
-				.catch(() => ({
-					entities: {
-						trackEntities: {
-							[trackId]: {
-								loading: false
-							}
-						}
-					}
-				})),
-			data: {
-				entities: {
-					trackEntities: {
-						[trackId]: {
-							loading: true,
-							error: true
-						}
-					}
-				}
-			}
 		}
 	};
 }

@@ -1,5 +1,6 @@
+/* eslint-disable camelcase */
 import { normalize, schema } from "normalizr";
-import { NormalizedResponse, SoundCloud } from "../../types";
+import { Normalized, SoundCloud } from "../../types";
 import { playlistSchema, trackSchema, userSchema } from "../schemas";
 import fetchToJson from "./helpers/fetchToJson";
 
@@ -17,26 +18,22 @@ export default async function fetchSearch(
 	url: string
 ): Promise<{
 	json: JsonResponse;
-	normalized: NormalizedResponse;
+	normalized: Normalized.NormalizedResponse;
 }> {
-	try {
-		const json = await fetchToJson<JsonResponse>(url);
+	const json = await fetchToJson<JsonResponse>(url);
 
-		return {
-			normalized: normalize(
-				json.collection,
-				new schema.Array(
-					{
-						playlists: playlistSchema,
-						tracks: trackSchema,
-						users: userSchema
-					},
-					input => `${input.kind}s`
-				)
-			),
-			json
-		};
-	} catch (err) {
-		throw err;
-	}
+	return {
+		normalized: normalize(
+			json.collection,
+			new schema.Array(
+				{
+					playlists: playlistSchema,
+					tracks: trackSchema,
+					users: userSchema
+				},
+				input => `${input.kind}s`
+			)
+		),
+		json
+	};
 }

@@ -1,6 +1,7 @@
 import { normalize } from "normalizr";
-import { NormalizedResponse, SoundCloud } from "../../types";
+import { Normalized, SoundCloud } from "../../types";
 import { trackSchema } from "../schemas";
+// eslint-disable-next-line import/no-cycle
 import { SC } from "../utils";
 import fetchToJson from "./helpers/fetchToJson";
 
@@ -10,18 +11,14 @@ export default async function fetchTrack(
 	trackId: number
 ): Promise<{
 	json: JsonResponse;
-	normalized: NormalizedResponse;
+	normalized: Normalized.NormalizedResponse;
 }> {
-	try {
-		const json = await fetchToJson<JsonResponse>(SC.getTrackUrl(trackId));
+	const json = await fetchToJson<JsonResponse>(SC.getTrackUrl(trackId));
 
-		const normalized = normalize(json, trackSchema);
+	const normalized = normalize(json, trackSchema);
 
-		return {
-			normalized,
-			json
-		};
-	} catch (err) {
-		throw err;
-	}
+	return {
+		normalized,
+		json
+	};
 }

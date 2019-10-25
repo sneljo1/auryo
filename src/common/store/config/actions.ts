@@ -7,11 +7,11 @@ export const setToken = (token: string | null) => action(ConfigActionTypes.SET_T
 export const setConfig = (config: ConfigState) => action(ConfigActionTypes.SET_ALL, config);
 
 export const setConfigKey = (key: string, value: ConfigValue) => ({
-    type: ConfigActionTypes.SET_KEY,
-    payload: {
-        key,
-        value
-    }
+	type: ConfigActionTypes.SET_KEY,
+	payload: {
+		key,
+		value
+	}
 });
 
 export type ConfigValue = string | number | boolean | object | null | (string | number | object)[];

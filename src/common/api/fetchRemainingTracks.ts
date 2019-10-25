@@ -1,4 +1,7 @@
+/* eslint-disable camelcase */
+// eslint-disable-next-line import/no-cycle
 import { RemainingPlays } from "../store/app";
+// eslint-disable-next-line import/no-cycle
 import { SC } from "../utils";
 import fetchToJson from "./helpers/fetchToJson";
 
@@ -17,9 +20,7 @@ interface Status {
 	reset_time: string;
 }
 
-export async function fetchRemainingTracks(
-	overrideClientId?: string | null
-): Promise<RemainingPlays | null> {
+export async function fetchRemainingTracks(overrideClientId?: string): Promise<RemainingPlays | null> {
 	try {
 		const json = await fetchToJson<JsonResponse>(SC.getRemainingTracks(overrideClientId));
 		if (json.statuses.length) {

@@ -1,11 +1,19 @@
-import { history } from "@renderer/configureStore";
+// eslint-disable-next-line import/no-cycle
+import { SoundCloud } from "@types";
 import { SC } from ".";
-import { SoundCloud } from "../../types";
 import fetchToJson from "../api/helpers/fetchToJson";
 import { IPC } from "./ipc";
+import is from "electron-is";
 
-export namespace Utils {
-	export function resolveUrl(url: string) {
+let history: any = {};
+
+if (is.renderer()) {
+	// eslint-disable-next-line
+	history = require("@renderer/history");
+}
+
+export class Utils {
+	static resolveUrl(url: string) {
 		fetchToJson<SoundCloud.Asset<any>>(SC.resolveUrl(url))
 			.then(json => {
 				switch (json.kind) {
@@ -16,12 +24,11 @@ export namespace Utils {
 					case "user":
 						return history.replace(`/user/${json.id}`);
 					default:
-						// tslint:disable-next-line: no-console
 						console.error("Resolve not implemented for", json.kind);
+						return null;
 				}
 			})
 			.catch(err => {
-				// tslint:disable-next-line: no-console
 				console.error(err);
 				history.goBack();
 				IPC.openExternal(unescape(url));

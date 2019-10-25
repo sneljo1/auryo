@@ -1,130 +1,130 @@
+import { autobind } from "core-decorators";
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { ipcRenderer } from "electron";
 import { debounce } from "lodash";
 import * as React from "react";
 import "./SearchBox.scss";
 
 interface Props {
-    className?: string;
-    initialValue?: string;
-    value?: string;
-    handleSearch?(previousQuery: string, currentValue?: string): void;
+	className?: string;
+	initialValue?: string;
+	value?: string;
+	handleSearch?(previousQuery: string, currentValue?: string): void;
 }
 
 interface State {
-    query: string;
+	query: string;
 }
 
+@autobind
 class SearchBox extends React.Component<Props, State> {
+	private readonly handleSearchDebounced: (oldValue: string, currentValue?: string) => void;
+	private searchInput = React.createRef<HTMLInputElement>();
+	public static readonly defaultProps: Partial<Props> = {
+		value: "",
+		className: "globalSearch",
+		initialValue: ""
+	};
 
-    public static readonly defaultProps: Partial<Props> = {
-        value: "",
-        className: "globalSearch",
-        initialValue: ""
-    };
+	constructor(props: Props) {
+		super(props);
 
-    private readonly handleSearchDebounced: (oldValue: string, currentValue?: string) => void;
-    private search: HTMLInputElement | null = null;
+		this.state = {
+			query: props.initialValue || props.value || ""
+		};
 
-    constructor(props: Props) {
-        super(props);
+		this.handleSearchDebounced = debounce(this.handleSearch, 250);
+	}
 
-        this.state = {
-            query: props.initialValue || props.value || ""
-        };
+	public componentDidMount() {
+		ipcRenderer.on("keydown:search", this.focus);
+	}
 
-        this.handleSearchDebounced = debounce(this.handleSearch, 250);
-    }
+	public shouldComponentUpdate(_nextProps: Props, nextState: State) {
+		const { query } = this.state;
 
-    public componentDidMount() {
-        ipcRenderer.on("keydown:search", this.focus);
-    }
+		return nextState.query !== query;
+	}
 
-    public shouldComponentUpdate(_nextProps: Props, nextState: State) {
-        const { query } = this.state;
+	public componentWillUnmount() {
+		ipcRenderer.removeListener("keydown:search", this.focus);
+	}
 
-        return nextState.query !== query;
-    }
+	public onChange(event: React.FormEvent<HTMLInputElement>) {
+		const { query } = this.state;
 
-    public componentWillUnmount() {
-        ipcRenderer.removeListener("keydown:search", this.focus);
-    }
+		if (this.searchInput.current) {
+			this.handleSearchDebounced(query, event.currentTarget.value);
+		}
 
-    public handleSearch(oldValue: string, currentValue?: string) {
-        const { handleSearch } = this.props;
+		this.setState({ query: event.currentTarget.value });
+	}
 
-        if (handleSearch) {
-            handleSearch(oldValue, currentValue);
-        }
-    }
+	public onKeyPress(event: React.KeyboardEvent<HTMLInputElement>) {
+		const { query } = this.state;
 
-    public setValue = (query: string) => {
-        this.setState({ query });
-    }
+		if (event.key === "Enter") {
+			this.handleSearchDebounced(query, event.currentTarget.value);
+		}
+	}
 
-    public focus = () => {
-        if (this.search) {
-            this.search.focus();
-        }
-    }
+	public setValue(query: string) {
+		this.setState({ query });
+	}
 
-    public onChange = (event: React.FormEvent<HTMLInputElement>) => {
+	public handleSearch(oldValue: string, currentValue?: string) {
+		const { handleSearch } = this.props;
 
-        if (this.search) {
-            this.handleSearchDebounced(this.state.query, event.currentTarget.value);
-        }
+		if (handleSearch) {
+			handleSearch(oldValue, currentValue);
+		}
+	}
 
-        this.setState({ query: event.currentTarget.value });
-    }
+	public focus() {
+		if (this.searchInput.current) {
+			this.searchInput.current.focus();
+		}
+	}
 
-    public onKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
-        if (event.key === "Enter") {
-            this.handleSearchDebounced(this.state.query, event.currentTarget.value);
-        }
-    }
+	public render() {
+		const { className } = this.props;
+		const { query } = this.state;
 
-    public render() {
-        const { className } = this.props;
-        const { query } = this.state;
+		return (
+			<div
+				id={className}
+				className={`input-group search-box d-flex justify-content-center align-items-center ${className}`}>
+				<div className="input-group-prepend">
+					<span className="input-group-text">
+						<i className="bx bx-search" />
+					</span>
+				</div>
+				<input
+					ref={this.searchInput}
+					type="text"
+					className="form-control"
+					placeholder="Search people, tracks and albums"
+					value={query}
+					onKeyPress={this.onKeyPress}
+					onChange={this.onChange}
+				/>
 
-        return (
-            <div
-                id={className}
-                className={`input-group search-box d-flex justify-content-center align-items-center ${className}`}
-            >
-                <div className="input-group-prepend">
-                    <span className="input-group-text">
-                        <i className="bx bx-search" />
-                    </span>
-                </div>
-                <input
-                    ref={(ref) => this.search = ref}
-                    type="text"
-                    className="form-control"
-                    placeholder="Search people, tracks and albums"
-                    value={query}
-                    onKeyPress={this.onKeyPress}
-                    onChange={this.onChange}
-                />
-
-                <div className="input-group-append">
-                    <span className="input-group-text">
-                        <a
-                            id="clear"
-                            href="javascript:void(0)"
-                            onClick={() => {
-                                this.setState({ query: "" });
-                                this.handleSearchDebounced(this.state.query);
-                            }}
-                        >
-                            <i id="clear" className="input-group-addon bx bx-x" />
-                        </a>
-
-                    </span>
-                </div>
-
-            </div>
-        );
-    }
+				<div className="input-group-append">
+					<span className="input-group-text">
+						<a
+							id="clear"
+							href="javascript:void(0)"
+							onClick={() => {
+								this.setState({ query: "" });
+								this.handleSearchDebounced(query);
+							}}>
+							<i id="clear" className="input-group-addon bx bx-x" />
+						</a>
+					</span>
+				</div>
+			</div>
+		);
+	}
 }
 
 export default SearchBox;

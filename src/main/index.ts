@@ -1,5 +1,8 @@
 import "@common/sentryReporter";
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { app } from "electron";
+import { Auryo } from "./app";
+import { configureStore } from "./store";
 import { Logger } from "./utils/logger";
 
 if (process.env.NODE_ENV !== "production") {
@@ -11,8 +14,6 @@ if (process.env.NODE_ENV !== "production") {
 		Logger.defaultLogger().error(err);
 	});
 }
-import { Auryo } from "./app";
-import { configureStore } from "./store";
 
 if (process.env.TOKEN) {
 	process.env.ENV = "test";
@@ -45,22 +46,23 @@ app.on("activate", () => {
 // This method will be called when Electron has done everything
 // initialization and ready for creating browser windows.
 app.on("ready", async () => {
-    
-  app.accessibilitySupportEnabled = true;
-  
+	app.accessibilitySupportEnabled = true;
+
 	try {
 		if (process.env.NODE_ENV === "development") {
 			const {
 				default: installExtension,
 				REACT_DEVELOPER_TOOLS,
 				REDUX_DEVTOOLS
-      } = require("electron-devtools-installer");
-      
-      require("devtron").install()
+				// eslint-disable-next-line
+			} = require("electron-devtools-installer");
+
+			// eslint-disable-next-line
+			require("devtron").install();
 
 			await installExtension([REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS], true);
 		}
-
+		console.warn("start");
 		await auryo.start();
 	} catch (err) {
 		Logger.defaultLogger().error(err);

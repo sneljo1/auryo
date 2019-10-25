@@ -17,29 +17,27 @@ import Thumbar from "./win32/thumbar";
 import Win10MediaService from "./win32/win10/win10MediaService";
 
 export const tools: typeof Feature[] = [
-  LastFm,
-  ConfigManager,
-  AppUpdater,
-  IPCManager,
-  PowerMonitor,
-  ShortcutManager,
-  ApplicationMenu,
-  NotificationManager,
-  ChromecastManager,
+	LastFm,
+	ConfigManager,
+	AppUpdater,
+	IPCManager,
+	PowerMonitor,
+	ShortcutManager,
+	ApplicationMenu,
+	NotificationManager,
+	ChromecastManager,
 
-  // Mac
-  TouchBarManager,
-  MediaServiceManager,
+	// Mac
+	TouchBarManager,
+	MediaServiceManager,
 
-  // Windows
-  Win10MediaService,
-  Thumbar,
+	// Windows
+	Win10MediaService,
+	Thumbar,
 
-  // Linux
-  MprisService,
-  DbusService
+	// Linux
+	MprisService,
+	DbusService
 ];
 
-export const getTools = (app: Auryo) => tools
-  .map((Feature) => new Feature(app))
-  .filter((o) => o.shouldRun());
+export const getTools = (app: Auryo) => tools.map(FeatureClass => new FeatureClass(app)).filter(o => o.shouldRun());

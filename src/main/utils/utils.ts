@@ -1,68 +1,44 @@
-import { ProxyConfig } from "@common/store/config";
-import { app, screen } from "electron";
+// eslint-disable-next-line import/no-cycle
+import { ProxyConfig } from "@common/store/config/types";
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { app, screen, BrowserWindowConstructorOptions } from "electron";
 import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
 
-export namespace Utils {
-	export function getProxyUrlFromConfig(proxy: ProxyConfig) {
+export class Utils {
+	static getProxyUrlFromConfig(proxy: ProxyConfig) {
 		const port = proxy.port || 443;
 
 		return `https://${proxy.username ? `${proxy.username}:${proxy.password}@` : ""}${proxy.host}:${port}`;
 	}
 
-	export function posCenter(options: { width?: number; height?: number; x?: number; y?: number }) {
+	static posCenter(options: BrowserWindowConstructorOptions) {
 		const displays = screen.getAllDisplays();
+
+		const browserWindowOptions = options;
 
 		if (displays.length > 1 && options.width && options.height) {
 			const x = (displays[0].workArea.width - options.width) / 2;
 			const y = (displays[0].workArea.height - options.height) / 2;
-			options.x = x + displays[0].workArea.x;
-			options.y = y + displays[0].workArea.y;
+			browserWindowOptions.x = x + displays[0].workArea.x;
+			browserWindowOptions.y = y + displays[0].workArea.y;
 		}
 
-		return options;
+		return browserWindowOptions;
 	}
 
-	export function getLogDir() {
+	static getLogDir(): string {
 		const userData = app.getPath("userData");
 		const appName = app.getName();
 
 		const homeDir: string = os.homedir ? os.homedir() : process.env.HOME || "";
 
-		let dir;
-		switch (process.platform) {
-			case "darwin": {
-				dir = prepareDir(homeDir, "Library", "Logs", appName) ||
-					prepareDir(userData) ||
-					prepareDir(homeDir, "Library", "Application Support", appName);
-				break;
-			}
-
-			case "win32": {
-				dir = prepareDir(userData) ||
-					prepareDir(process.env.APPDATA || "", appName) ||
-					prepareDir(homeDir, "AppData", "Roaming", appName)
-				break;
-			}
-
-			default: {
-				dir = prepareDir(userData) ||
-					prepareDir(process.env.XDG_CONFIG_HOME || "", appName) ||
-					prepareDir(homeDir, ".config", appName) ||
-					prepareDir(process.env.XDG_DATA_HOME || "", appName) ||
-					prepareDir(homeDir, ".local", "share", appName);
-			}
-		}
-
-		return dir;
-
-
 		function prepareDir(dirPath: string, ...args: string[]) {
 			// tslint:disable-next-line: no-invalid-this
 
 			if (!dirPath) {
-				return;
+				return null;
 			}
 
 			const fullPath: string = path.join(dirPath, ...args);
@@ -73,10 +49,40 @@ export namespace Utils {
 			try {
 				fs.accessSync(fullPath, 2);
 			} catch (e) {
-				return;
+				return null;
 			}
 
 			return fullPath;
 		}
+
+		let dir;
+		switch (process.platform) {
+			case "darwin": {
+				dir =
+					prepareDir(homeDir, "Library", "Logs", appName) ||
+					prepareDir(userData) ||
+					prepareDir(homeDir, "Library", "Application Support", appName);
+				break;
+			}
+
+			case "win32": {
+				dir =
+					prepareDir(userData) ||
+					prepareDir(process.env.APPDATA || "", appName) ||
+					prepareDir(homeDir, "AppData", "Roaming", appName);
+				break;
+			}
+
+			default: {
+				dir =
+					prepareDir(userData) ||
+					prepareDir(process.env.XDG_CONFIG_HOME || "", appName) ||
+					prepareDir(homeDir, ".config", appName) ||
+					prepareDir(process.env.XDG_DATA_HOME || "", appName) ||
+					prepareDir(homeDir, ".local", "share", appName);
+			}
+		}
+
+		return dir as string;
 	}
 }

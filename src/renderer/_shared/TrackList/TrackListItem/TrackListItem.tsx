@@ -1,144 +1,129 @@
 import { IMAGE_SIZES } from "@common/constants";
 import { StoreState } from "@common/store";
+import * as actions from "@common/store/actions";
 import { getTrackEntity } from "@common/store/entities/selectors";
-import { playTrack } from "@common/store/player";
 import { isPlaying } from "@common/store/player/selectors";
-import { abbreviate_number, getReadableTime, SC } from "@common/utils";
+import { abbreviateNumber, getReadableTime, SC } from "@common/utils";
 import cn from "classnames";
 import * as React from "react";
-import { connect, MapDispatchToProps } from "react-redux";
+import { connect } from "react-redux";
 import { Link } from "react-router-dom";
-import { bindActionCreators } from "redux";
-import { NormalizedResult, SoundCloud } from "../../../../types";
+import { bindActionCreators, Dispatch } from "redux";
+import { Normalized } from "../../../../types";
 import ActionsDropdown from "../../ActionsDropdown";
 import FallbackImage from "../../FallbackImage";
-import TextShortener from "../../TextShortener";
+import { TextShortener } from "../../TextShortener";
 import TogglePlayButton from "../../TogglePlayButton";
 import "./TrackListItem.scss";
 
 interface OwnProps {
-    idResult: NormalizedResult;
-    currentPlaylistId: string;
+	idResult: Normalized.NormalizedResult;
+	currentPlaylistId: string;
 }
 
-interface PropsFromState {
-    track: SoundCloud.Track | null;
-    isPlaying: boolean;
-}
+const mapStateToProps = (state: StoreState, props: OwnProps) => {
+	const { idResult, currentPlaylistId } = props;
 
-interface PropsFromDispatch {
-    playTrack: typeof playTrack;
-}
+	return {
+		isTrackPlaying: isPlaying(idResult, currentPlaylistId)(state),
+		track: getTrackEntity(idResult.id)(state)
+	};
+};
+
+const mapDispatchToProps = (dispatch: Dispatch) =>
+	bindActionCreators(
+		{
+			playTrack: actions.playTrack
+		},
+		dispatch
+	);
+
+type PropsFromState = ReturnType<typeof mapStateToProps>;
+type PropsFromDispatch = ReturnType<typeof mapDispatchToProps>;
 
 type AllProps = OwnProps & PropsFromState & PropsFromDispatch;
 
 class TrackListItem extends React.PureComponent<AllProps> {
+	public playTrack(doubleClick: boolean, e: React.MouseEvent<any>) {
+		const { playTrack, currentPlaylistId, idResult } = this.props;
 
-    public playTrack(doubleClick: boolean, e: React.MouseEvent<any>) {
-        const { playTrack, currentPlaylistId, idResult } = this.props;
+		if (doubleClick) {
+			e.preventDefault();
+		}
 
-        if (doubleClick) {
-            e.preventDefault();
-        }
+		playTrack(currentPlaylistId, { id: idResult.id }, true);
+	}
 
-        playTrack(currentPlaylistId, { id: idResult.id }, true);
+	public renderToggleButton = () => {
+		const { isTrackPlaying } = this.props;
 
-    }
+		if (isTrackPlaying) {
+			return <TogglePlayButton className="toggleButton" />;
+		}
 
-    public renderToggleButton = () => {
-        const { isPlaying } = this.props;
+		const icon = isPlaying ? "pause" : "play";
 
-        if (isPlaying) {
-            return <TogglePlayButton className="toggleButton" />;
-        }
+		return (
+			<a
+				href="javascript:void(0)"
+				className="toggleButton"
+				onClick={e => {
+					this.playTrack(true, e);
+				}}>
+				<i className={`bx bx-${icon}`} />
+			</a>
+		);
+	};
 
-        const icon = isPlaying ? "pause" : "play";
+	public render() {
+		const { track, isTrackPlaying } = this.props;
 
-        return (
+		if (!track || !track.title) {
+			return null;
+		}
 
-            <a
-                href="javascript:void(0)"
-                className="toggleButton"
-                onClick={(e) => {
-                    this.playTrack(true, e);
-                }}
-            >
-                <i className={`bx bx-${icon}`} />
-            </a>
-        );
-    }
+		return (
+			<tr
+				className={cn("trackItem", { isTrackPlaying })}
+				onDoubleClick={e => {
+					this.playTrack(false, e);
+				}}>
+				<td>
+					<div className="img-with-shadow">
+						<FallbackImage src={SC.getImageUrl(track, IMAGE_SIZES.XSMALL)} />
+						<FallbackImage overflow className="shadow" src={SC.getImageUrl(track, IMAGE_SIZES.XSMALL)} />
+						{SC.isStreamable(track) ? this.renderToggleButton() : null}
+					</div>
+				</td>
+				<td>
+					<div className="trackTitle">
+						<Link to={`/track/${track.id}`}>
+							<TextShortener text={track.title} clamp={1} />
+						</Link>
+					</div>
+					<div className="stats d-flex align-items-center">
+						<i className="bx bxs-heart" />
 
-    public render() {
-        const {
-            track,
-            isPlaying,
-        } = this.props;
+						<span>{abbreviateNumber(track.likes_count)}</span>
 
-        if (!track || !track.title) { return null; }
+						<i className="bx bx-repost" />
+						<span>{abbreviateNumber(track.reposts_count)}</span>
+					</div>
+				</td>
 
-        return (
-            <tr
-                className={cn("trackItem", { isPlaying })}
-                onDoubleClick={(e) => {
-                    this.playTrack(false, e);
-                }}
-            >
-                <td>
-                    <div className="img-with-shadow">
-                        <FallbackImage src={SC.getImageUrl(track, IMAGE_SIZES.XSMALL)} />
-                        <FallbackImage overflow={true} className="shadow" src={SC.getImageUrl(track, IMAGE_SIZES.XSMALL)} />
-                        {
-                            SC.isStreamable(track) ? this.renderToggleButton() : null
-                        }
-                    </div>
-                </td>
-                <td>
-                    <div className="trackTitle">
-                        <Link to={`/track/${track.id}`}>
-                            <TextShortener text={track.title} clamp={1} />
-                        </Link>
-                    </div>
-                    <div className="stats d-flex align-items-center">
-                        <i className="bx bxs-heart" />
-
-                        <span>{abbreviate_number(track.likes_count)}</span>
-
-                        <i className="bx bx-repost" />
-                        <span>{abbreviate_number(track.reposts_count)}</span>
-
-                    </div>
-                </td>
-
-                <td className="trackArtist">
-                    <Link to={`/user/${track.user_id}`}>
-                        {track.user.username}
-                    </Link>
-                </td>
-                <td className="time">
-                    {getReadableTime(track.duration, true, true)}
-                </td>
-                <td className="trackitemActions">
-                    <ActionsDropdown
-                        track={track}
-                    />
-                </td>
-            </tr>
-        );
-    }
+				<td className="trackArtist">
+					<Link to={`/user/${track.user_id}`}>{track.user.username}</Link>
+				</td>
+				<td className="time">{getReadableTime(track.duration, true, true)}</td>
+				<td className="trackitemActions">
+					<ActionsDropdown track={track} />
+				</td>
+			</tr>
+		);
+	}
 }
 
-
-const mapStateToProps = (state: StoreState, props: OwnProps): PropsFromState => {
-    const { idResult, currentPlaylistId } = props;
-
-    return {
-        isPlaying: isPlaying(idResult, currentPlaylistId)(state),
-        track: getTrackEntity(idResult.id)(state)
-    };
-};
-
-const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, OwnProps> = (dispatch) => bindActionCreators({
-    playTrack
-}, dispatch);
-
-export default connect<PropsFromState, PropsFromDispatch, OwnProps, StoreState>(mapStateToProps, mapDispatchToProps)(TrackListItem);
+export default connect<PropsFromState, PropsFromDispatch, OwnProps, StoreState>(
+	mapStateToProps,
+	mapDispatchToProps
+)(TrackListItem);

@@ -1,11 +1,11 @@
 import { Intent } from "@blueprintjs/core";
 import { EVENTS } from "@common/constants/events";
-import { setUpdateAvailable } from "@common/store/app";
-import { addToast } from "@common/store/ui";
+import { addToast, setUpdateAvailable } from "@common/store/actions";
+import axios from "axios";
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { app, shell } from "electron";
 import * as is from "electron-is";
 import { autoUpdater } from "electron-updater";
-import * as request from "request";
 import { gt as isVersionGreaterThan, valid as parseVersion } from "semver";
 import { CONFIG } from "../../../config";
 import { Logger, LoggerInstance } from "../../utils/logger";
@@ -14,7 +14,7 @@ import { Feature } from "../feature";
 export default class AppUpdater extends Feature {
 	private readonly logger: LoggerInstance = Logger.createLogger(AppUpdater.name);
 
-	private hasUpdate: boolean = false;
+	private hasUpdate = false;
 	private readonly currentVersion: string | null = parseVersion(app.getVersion());
 
 	public shouldRun() {
@@ -72,11 +72,7 @@ export default class AppUpdater extends Feature {
 				this.logger.info("No update found");
 
 				setTimeout(async () => {
-					try {
-						await autoUpdater.checkForUpdates();
-					} catch (err) {
-						throw err;
-					}
+					await autoUpdater.checkForUpdates();
 				}, 300000);
 			});
 
@@ -104,33 +100,24 @@ export default class AppUpdater extends Feature {
 	};
 
 	public updateLinux = () => {
-		request(
-			{
-				url: CONFIG.UPDATE_SERVER_HOST,
-				headers: {
-					"User-Agent": "request"
+		axios
+			.get(CONFIG.UPDATE_SERVER_HOST)
+			.then(res => res.data)
+			.then(body => {
+				if (!body || body.draft || !body.tag_name) {
+					return;
 				}
-			},
-			(error, response, body) => {
-				if (!error && response.statusCode === 200) {
-					const obj = JSON.parse(body);
-					if (!obj || obj.draft || !obj.tag_name) {
-						return;
-					}
-					const latest = parseVersion(obj.tag_name);
+				const latest = parseVersion(body.tag_name);
 
-					if (latest && this.currentVersion && isVersionGreaterThan(latest, this.currentVersion)) {
-						this.logger.info("New update available");
-						this.hasUpdate = true;
+				if (latest && this.currentVersion && isVersionGreaterThan(latest, this.currentVersion)) {
+					this.logger.info("New update available");
+					this.hasUpdate = true;
 
-						this.notify(latest);
+					this.notify(latest);
 
-						this.listenUpdate();
-					}
-				} else {
-					this.logger.error(error);
+					this.listenUpdate();
 				}
-			}
-		);
+			})
+			.catch(this.logger.error);
 	};
 }

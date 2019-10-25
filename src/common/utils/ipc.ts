@@ -1,24 +1,25 @@
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { ipcRenderer } from "electron";
 import { EVENTS } from "../constants/events";
 
-export namespace IPC {
-	export function openExternal(url: string) {
+export class IPC {
+	static openExternal(url: string) {
 		ipcRenderer.send(EVENTS.APP.OPEN_EXTERNAL, url);
 	}
 
-	export function writeToClipboard(content: string) {
+	static writeToClipboard(content: string) {
 		ipcRenderer.send(EVENTS.APP.WRITE_CLIPBOARD, content);
 	}
 
-	export function downloadFile(url: string) {
+	static downloadFile(url: string) {
 		ipcRenderer.send(EVENTS.APP.DOWNLOAD_FILE, url);
 	}
 
-	export function notifyTrackReposted() {
+	static notifyTrackReposted() {
 		ipcRenderer.send(EVENTS.TRACK.REPOSTED);
 	}
 
-	export function notifyTrackLiked(trackId: number) {
+	static notifyTrackLiked(trackId: number) {
 		ipcRenderer.send(EVENTS.TRACK.LIKED, trackId);
 	}
 }

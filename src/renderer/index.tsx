@@ -1,71 +1,86 @@
-// tslint:disable-next-line:no-submodule-imports
 import "@blueprintjs/core/lib/css/blueprint.css";
 import "@blueprintjs/icons/lib/css/blueprint-icons.css";
 import "@common/sentryReporter";
 import { SC } from "@common/utils";
-// tslint:disable-next-line:no-submodule-imports
 import "boxicons/css/boxicons.min.css";
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { remote } from "electron";
-import * as is from "electron-is";
+import is from "electron-is";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { configureStore, history } from "./configureStore";
+import { AppContainer } from "react-hot-loader";
+import { App } from "./App";
+import { configureStore } from "./configureStore";
 import "./css/app.scss";
-import Main from "./Main";
-import * as serviceWorker from "./serviceWorker";
+import { history } from "./history";
 
-const app = remote.app;
+const { app } = remote;
 
 let osClass = "";
 
 if (is.macOS()) {
-    osClass = "macOS";;
+	osClass = "macOS";
 } else if (is.windows()) {
-    osClass = "win";
+	osClass = "win";
 } else if (is.linux()) {
-    osClass = "linux";
+	osClass = "linux";
 }
 
 document.getElementsByTagName("html")[0].classList.add(osClass);
 
 if (process.env.NODE_ENV === "development") {
-    // const { whyDidYouUpdate } = require('why-did-you-update');
-    // whyDidYouUpdate(React);
+	// const { whyDidYouUpdate } = require('why-did-you-update');
+	// whyDidYouUpdate(React);
 }
 
-const store = configureStore();
+const store = configureStore(history);
 
 if (!process.env.TOKEN && process.env.NODE_ENV === "production") {
+	const {
+		config: {
+			app: { analytics }
+		}
+	} = store.getState();
 
-    const { config: { app: { analytics } } } = store.getState();
+	// eslint-disable-next-line
+	const { ua } = require("@common/utils/universalAnalytics");
 
-    const { ua } = require("@common/utils/universalAnalytics");
+	ua.set("version", app.getVersion());
+	ua.set("anonymizeIp", true);
+	if (analytics) {
+		ua.pv("/").send();
 
-    ua.set("version", app.getVersion());
-    ua.set("anonymizeIp", true);
-    if (analytics) {
-        ua.pv("/").send();
-
-        history.listen((location) => {
-            ua.pv(location.pathname).send();
-        });
-    }
-
+		history.listen(location => {
+			ua.pv(location.pathname).send();
+		});
+	}
 }
 
-const { config: { auth: { token } } } = store.getState();
+const {
+	config: {
+		auth: { token }
+	}
+} = store.getState();
 
 if (token) {
-    SC.initialize(token);
+	SC.initialize(token);
 }
 
-ReactDOM.render(
-    <Main
-        store={store}
-        history={history}
-    />,
-    document.getElementById("root")
-);
+const render = () => {
+	ReactDOM.render(
+		<AppContainer>
+			<App history={history} store={store} />
+		</AppContainer>,
+		document.getElementById("root")
+	);
+};
 
-serviceWorker.register();
+render();
 
+// Hot reloading
+if (module.hot) {
+	// Reload components
+	module.hot.accept("./App", () => {
+		render();
+	});
+}

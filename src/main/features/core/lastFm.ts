@@ -1,22 +1,23 @@
 import { Intent } from "@blueprintjs/core";
 import { EVENTS } from "@common/constants/events";
-import { setLastfmLoading } from "@common/store/app";
-import { setConfigKey } from "@common/store/config";
 import { getTrackEntity } from "@common/store/entities/selectors";
-import { addToast } from "@common/store/ui";
+import { addToast, setConfigKey, setLastfmLoading } from "@common/store/actions";
 import { SC } from "@common/utils";
 import { Auryo } from "@main/app";
 import { Logger, LoggerInstance } from "@main/utils/logger";
+import { autobind } from "core-decorators";
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { shell } from "electron";
-import * as lastfm from "lastfm";
-import debounce = require("lodash/debounce");
+import * as Lastfm from "lastfm";
+import { debounce } from "lodash";
 import { CONFIG } from "../../../config";
 import { SoundCloud } from "../../../types";
 import { Feature, WatchState } from "../feature";
 
+@autobind
 export default class LastFm extends Feature {
 	private readonly logger: LoggerInstance = Logger.createLogger(LastFm.name);
-	private lastfm: lastfm.LastFmNode;
+	private lastfm: Lastfm.LastFmNode;
 	private readonly scrobbleDebounced: (title: string, artist: string, timestamp: number) => Promise<void>;
 
 	constructor(auryo: Auryo) {
@@ -28,7 +29,7 @@ export default class LastFm extends Feature {
 	// tslint:disable-next-line: max-func-body-length
 	public register() {
 		try {
-			this.lastfm = new lastfm.LastFmNode({
+			this.lastfm = new Lastfm.LastFmNode({
 				api_key: CONFIG.LASTFM_API_KEY,
 				secret: CONFIG.LASTFM_API_SECRET,
 				useragent: "auryo"
@@ -134,7 +135,7 @@ export default class LastFm extends Feature {
 		});
 	}
 
-	public updateNowPlaying = async (title: string, artist: string) => {
+	public async updateNowPlaying(title: string, artist: string) {
 		try {
 			const session = await this.getLastFMSession();
 
@@ -154,9 +155,9 @@ export default class LastFm extends Feature {
 			this.logger.error("Error updating nowPlaying");
 			throw err;
 		}
-	};
+	}
 
-	public updateLiked = async (liked: boolean, title: string, artist: string) => {
+	public async updateLiked(liked: boolean, title: string, artist: string) {
 		try {
 			const session = await this.getLastFMSession();
 
@@ -176,9 +177,9 @@ export default class LastFm extends Feature {
 			this.logger.error("Error updating updateLiked");
 			throw err;
 		}
-	};
+	}
 
-	public updateScrobble = async (title: string, artist: string, timestamp: number) => {
+	public async updateScrobble(title: string, artist: string, timestamp: number) {
 		try {
 			const session = await this.getLastFMSession();
 
@@ -199,80 +200,76 @@ export default class LastFm extends Feature {
 			this.logger.error("Error updating updateScrobble");
 			throw err;
 		}
-	};
+	}
 
-	public newSession = async () => {
-		try {
-			const token = await this.getLastFMToken();
+	public async newSession() {
+		const token = await this.getLastFMToken();
 
-			this.store.dispatch(setLastfmLoading(true));
+		this.store.dispatch(setLastfmLoading(true));
 
-			// tslint:disable-next-line: no-http-string
-			await shell.openExternal(`http://www.last.fm/api/auth/?api_key=${CONFIG.LASTFM_API_KEY}&token=${token}`);
+		// tslint:disable-next-line: no-http-string
+		await shell.openExternal(`http://www.last.fm/api/auth/?api_key=${CONFIG.LASTFM_API_KEY}&token=${token}`);
 
-			return new Promise((resolve, reject) => {
-				const newSession = this.lastfm
-					.session(
-						{
-							token
-						} as any,
-						undefined
-					)
-					.on("success", (session: any) => {
-						this.store.dispatch(setConfigKey("lastfm.key", session.key));
-						this.store.dispatch(setConfigKey("lastfm.user", session.user));
+		return new Promise((resolve, reject) => {
+			const newSession = this.lastfm
+				.session(
+					{
+						token
+					} as any,
+					undefined
+				)
+				.on("success", (session: any) => {
+					this.store.dispatch(setConfigKey("lastfm.key", session.key));
+					this.store.dispatch(setConfigKey("lastfm.user", session.user));
 
-						this.store.dispatch(setLastfmLoading(false));
+					this.store.dispatch(setLastfmLoading(false));
 
-						this.store.dispatch(
-							addToast({
-								message: "Lastfm connected successfully",
-								intent: Intent.SUCCESS
-							})
-						);
+					this.store.dispatch(
+						addToast({
+							message: "Lastfm connected successfully",
+							intent: Intent.SUCCESS
+						})
+					);
 
-						resolve(session);
-					})
-					.on("error", (_: any, err: any) => {
-						this.store.dispatch(
-							addToast({
-								message: "Something went wrong during authentication",
-								intent: Intent.DANGER
-							})
-						);
+					resolve(session);
+				})
+				.on("error", (_: any, err: any) => {
+					this.store.dispatch(
+						addToast({
+							message: "Something went wrong during authentication",
+							intent: Intent.DANGER
+						})
+					);
 
-						this.store.dispatch(setLastfmLoading(false));
+					this.store.dispatch(setLastfmLoading(false));
 
-						reject(err);
-					});
+					reject(err);
+				});
 
-				setTimeout(() => {
-					if (!newSession.isAuthorised()) {
-						newSession.cancel();
-						this.store.dispatch(setLastfmLoading(false));
-					}
-				}, 30000);
-			});
-		} catch (err) {
-			throw err;
+			setTimeout(() => {
+				if (!newSession.isAuthorised()) {
+					newSession.cancel();
+					this.store.dispatch(setLastfmLoading(false));
+				}
+			}, 30000);
+		});
+	}
+
+	public async getLastFMSession(newSession = false) {
+		const {
+			config: { lastfm: lastfmConfig }
+		} = this.store.getState();
+
+		if (lastfmConfig && lastfmConfig.user && lastfmConfig.key) {
+			return this.lastfm.session(lastfmConfig.user, lastfmConfig.key);
 		}
-	};
 
-	public getLastFMSession = async (newSession: boolean = false) => {
-		try {
-			const {
-				config: { lastfm: lastfmConfig }
-			} = this.store.getState();
-
-			if (lastfmConfig && lastfmConfig.user && lastfmConfig.key) {
-				return this.lastfm.session(lastfmConfig.user, lastfmConfig.key);
-			} else if (newSession) {
-				return this.newSession();
-			}
-		} catch (err) {
-			throw err;
+		if (newSession) {
+			return this.newSession();
 		}
-	};
+
+		return null;
+	}
 
 	public async getLastFMToken() {
 		return new Promise((resolve, reject) => {
@@ -289,7 +286,7 @@ export default class LastFm extends Feature {
 
 	private cleanInfo(track: SoundCloud.Track): [string, string] {
 		let artist = track.user && track.user.username ? track.user.username : "Unknown artist";
-		let title = track.title;
+		let { title } = track;
 
 		if (track.title.match(/\s-\s|\s—\s|\s–\s/)) {
 			const parts = track.title.split(/\s-\s|\s—\s|\s–\s/);

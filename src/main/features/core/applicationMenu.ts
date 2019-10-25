@@ -1,12 +1,14 @@
 import { EVENTS } from "@common/constants/events";
-import { setConfigKey } from "@common/store/config";
-import { changeTrack, ChangeTypes, PlayerState, PlayerStatus, toggleStatus, VolumeChangeTypes } from "@common/store/player";
+import { ChangeTypes, PlayerStatus, VolumeChangeTypes } from "@common/store/player";
+import { setConfigKey, changeTrack, toggleStatus } from "@common/store/actions";
 import * as SC from "@common/utils/soundcloudUtils";
+import { autobind } from "core-decorators";
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { app, Menu, MenuItemConstructorOptions, shell } from "electron";
 import * as is from "electron-is";
 import { Feature } from "../feature";
 
-
+@autobind
 export default class ApplicationMenu extends Feature {
 	public shouldRun() {
 		return is.osx();
@@ -14,33 +16,29 @@ export default class ApplicationMenu extends Feature {
 
 	public register() {
 		this.on(EVENTS.APP.READY, () => {
-			const { player } = this.store.getState();
-			this.buildMenu(player);
+			this.buildMenu();
 
 			this.subscribe(["player", "playingTrack"], () => {
-				const { player } = this.store.getState();
-				this.buildMenu(player);
+				this.buildMenu();
 			});
 
 			this.subscribe(["player", "status"], () => {
-				const { player } = this.store.getState();
-				this.buildMenu(player);
+				this.buildMenu();
 			});
 
 			this.on(EVENTS.TRACK.LIKED, () => {
-				const { player } = this.store.getState();
-				this.buildMenu(player);
+				this.buildMenu();
 			});
 
 			this.on(EVENTS.TRACK.REPOSTED, () => {
-				const { player } = this.store.getState();
-				this.buildMenu(player);
+				this.buildMenu();
 			});
 		});
 	}
 
-	// tslint:disable-next-line: max-func-body-length
-	public buildMenu = (player: PlayerState) => {
+	public buildMenu() {
+		const { player } = this.store.getState();
+
 		const template: MenuItemConstructorOptions[] = [
 			{
 				label: "View",
@@ -273,7 +271,7 @@ export default class ApplicationMenu extends Feature {
 		}
 
 		Menu.setApplicationMenu(Menu.buildFromTemplate(template));
-	};
+	}
 
 	private changeVolume(volumeChangeType: VolumeChangeTypes) {
 		const {
@@ -282,20 +280,20 @@ export default class ApplicationMenu extends Feature {
 			}
 		} = this.store.getState();
 
-		let new_volume = volume + 0.05;
+		let newVolume = volume + 0.05;
 
 		if (volumeChangeType === VolumeChangeTypes.DOWN) {
-			new_volume = volume - 0.05;
+			newVolume = volume - 0.05;
 		}
 
-		if (new_volume > 1) {
-			new_volume = 1;
-		} else if (new_volume < 0) {
-			new_volume = 0;
+		if (newVolume > 1) {
+			newVolume = 1;
+		} else if (newVolume < 0) {
+			newVolume = 0;
 		}
 
-		if (volume !== new_volume) {
-			this.store.dispatch(setConfigKey("audio.volume", new_volume));
+		if (volume !== newVolume) {
+			this.store.dispatch(setConfigKey("audio.volume", newVolume));
 		}
 	}
 }

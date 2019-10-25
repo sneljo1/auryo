@@ -7,41 +7,36 @@ import { Auryo } from "@main/app";
 import { Feature } from "../feature";
 
 export default class NotificationManager extends Feature {
-  constructor(auryo: Auryo) {
-    super(auryo, "ready-to-show");
-  }
+	constructor(auryo: Auryo) {
+		super(auryo, "ready-to-show");
+	}
 
-  public register() {
+	public register() {
+		// Track changed
+		this.subscribe<PlayingTrack>(["player", "playingTrack"], ({ currentState }) => {
+			if (!this.win || (this.win && this.win.isFocused())) {
+				return;
+			}
 
-    // Track changed
-    this.subscribe<PlayingTrack>(["player", "playingTrack"], ({ currentState }) => {
+			const {
+				player: { playingTrack },
+				config: {
+					app: { showTrackChangeNotification }
+				}
+			} = currentState;
 
-      if (!this.win || (this.win && this.win.isFocused())) {
-        return;
-      }
+			if (playingTrack && showTrackChangeNotification) {
+				const trackId = playingTrack.id;
+				const track = getTrackEntity(trackId)(currentState);
 
-      const {
-        player: { playingTrack },
-        config: { app: { showTrackChangeNotification } }
-      } = currentState;
-
-      if (playingTrack && showTrackChangeNotification) {
-        const trackId = playingTrack.id;
-        const track = getTrackEntity(trackId)(currentState);
-
-        if (track) {
-
-          this.sendToWebContents(EVENTS.APP.SEND_NOTIFICATION, {
-            title: track.title,
-            message: `${track.user && track.user.username ? track.user.username : ""}`,
-            image: SC.getImageUrl(track, IMAGE_SIZES.SMALL)
-          });
-
-        }
-      }
-
-    });
-
-  }
-
+				if (track) {
+					this.sendToWebContents(EVENTS.APP.SEND_NOTIFICATION, {
+						title: track.title,
+						message: `${track.user && track.user.username ? track.user.username : ""}`,
+						image: SC.getImageUrl(track, IMAGE_SIZES.SMALL)
+					});
+				}
+			}
+		});
+	}
 }

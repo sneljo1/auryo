@@ -5,23 +5,23 @@ import { createAuthWindow } from "@main/authWindow";
 import { AWSApiGatewayService } from "@main/aws/awsApiGatewayService";
 import { AWSIotService } from "@main/aws/awsIotService";
 import { autobind } from "core-decorators";
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { app, clipboard, dialog, ipcMain, shell } from "electron";
 import { download } from "electron-dl";
-import * as _ from "lodash";
+import _ from "lodash";
 import { CONFIG } from "../../../config";
 import { Logger, LoggerInstance } from "../../utils/logger";
 import { Feature } from "../feature";
 
-
 @autobind
 export default class IPCManager extends Feature {
-	private readonly logger: LoggerInstance = Logger.createLogger(IPCManager.name);
+	private readonly logger: LoggerInstance = Logger.createLogger("IPCManager");
 
 	private readonly awsApiGateway: AWSApiGatewayService = new AWSApiGatewayService();
 
 	// tslint:disable-next-line: max-func-body-length
 	public register() {
-		ipcMain.on(EVENTS.APP.VALID_DIR, async (_e) => {
+		ipcMain.on(EVENTS.APP.VALID_DIR, async () => {
 			const res = await dialog.showOpenDialog({ properties: ["openDirectory"] });
 
 			if (res && res.filePaths && res.filePaths.length) {
@@ -76,13 +76,21 @@ export default class IPCManager extends Feature {
 		ipcMain.on(EVENTS.APP.AUTH.LOGIN, this.showAuthWindow);
 
 		ipcMain.on(EVENTS.APP.AUTH.REFRESH, this.refreshToken);
-
-
 	}
 
 	private async showAuthWindow() {
+		const {
+			auth: {
+				authentication: { loading }
+			}
+		} = this.store.getState();
 		let authWindow: Electron.BrowserWindow | null = null;
 		let awsIotWrapper: AWSIotService | undefined;
+
+		if (loading) {
+			this.logger.debug("Already loading");
+			return;
+		}
 
 		try {
 			this.store.dispatch(setLoginLoading());
@@ -108,8 +116,7 @@ export default class IPCManager extends Feature {
 
 			await authWindow.loadURL(`${CONFIG.AWS_API_URL}${path}`, {
 				extraHeaders: Object.keys(signedRequest.headers).reduce(
-					(prevString, headerName) =>
-						`${prevString}${headerName}: ${signedRequest.headers[headerName]}\n`,
+					(prevString, headerName) => `${prevString}${headerName}: ${signedRequest.headers[headerName]}\n`,
 					""
 				)
 			});
@@ -126,8 +133,6 @@ export default class IPCManager extends Feature {
 				this.sendToWebContents("login-success");
 				await awsIotWrapper.disconnect();
 			}
-
-			return tokenResponse;
 		} catch (err) {
 			if (authWindow) {
 				authWindow.close();
@@ -135,7 +140,9 @@ export default class IPCManager extends Feature {
 			if (awsIotWrapper) {
 				try {
 					await awsIotWrapper.disconnect();
-				} catch (err) { }
+				} catch (_e) {
+					// don't handle
+				}
 			}
 
 			this.store.dispatch(setLoginError("Something went wrong during login"));
@@ -146,12 +153,24 @@ export default class IPCManager extends Feature {
 	}
 
 	private async refreshToken() {
-		const { config: { auth: { refreshToken } } } = this.store.getState();
+		const {
+			config: {
+				auth: { refreshToken }
+			},
+			auth: {
+				authentication: { loading }
+			}
+		} = this.store.getState();
 
 		if (!refreshToken) {
 			this.logger.debug("Refreshtoken not found");
-			this.showAuthWindow()
-				.catch(this.logger.error);
+			this.showAuthWindow().catch(this.logger.error);
+
+			return;
+		}
+
+		if (loading) {
+			this.logger.debug("Already loading");
 
 			return;
 		}
@@ -161,7 +180,7 @@ export default class IPCManager extends Feature {
 
 			this.logger.debug("Starting refresh");
 
-			const tokenResponse = await this.awsApiGateway.refresh(refreshToken, "soundcloud")
+			const tokenResponse = await this.awsApiGateway.refresh(refreshToken, "soundcloud");
 
 			if (tokenResponse) {
 				this.logger.debug("Auth successfull");
@@ -169,14 +188,11 @@ export default class IPCManager extends Feature {
 				this.store.dispatch(setLogin(tokenResponse));
 				this.sendToWebContents("login-success");
 			}
-
 		} catch (err) {
-
 			this.store.dispatch(setLoginError("Something went wrong during refresh"));
 			this.logger.error(err);
 
-			this.showAuthWindow()
-				.catch(this.logger.error);
+			this.showAuthWindow().catch(this.logger.error);
 		}
 	}
 }

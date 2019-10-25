@@ -1,5 +1,6 @@
+/* eslint-disable camelcase */
+import { Normalized, SoundCloud } from "@types";
 import { normalize, schema } from "normalizr";
-import { NormalizedResponse, SoundCloud } from "../../types";
 import { commentSchema } from "../schemas";
 import fetchToJson from "./helpers/fetchToJson";
 
@@ -13,28 +14,24 @@ export default async function fetchComments(
 	url: string
 ): Promise<{
 	json: JsonResponse;
-	normalized: NormalizedResponse;
+	normalized: Normalized.NormalizedResponse;
 }> {
-	try {
-		const json = await fetchToJson<JsonResponse>(url)
+	const json = await fetchToJson<JsonResponse>(url);
 
-		const { collection } = json;
+	const { collection } = json;
 
-		const n = normalize(
-			collection,
-			new schema.Array(
-				{
-					comments: commentSchema
-				},
-				input => `${input.kind}s`
-			)
-		);
+	const n = normalize(
+		collection,
+		new schema.Array(
+			{
+				comments: commentSchema
+			},
+			input => `${input.kind}s`
+		)
+	);
 
-		return {
-			normalized: n,
-			json
-		};
-	} catch (err) {
-		throw err;
-	}
+	return {
+		normalized: n,
+		json
+	};
 }

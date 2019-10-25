@@ -1,8 +1,8 @@
-import * as _ from "lodash";
+import _ from "lodash";
 import { Reducer } from "redux";
 import { onSuccess } from "../../utils/reduxUtils";
-import { AppActionTypes } from "../app";
-import { ObjectsActionTypes } from "../objects";
+import { AppActionTypes } from "../app/types";
+import { ObjectsActionTypes } from "../objects/types";
 import { PlayerActionTypes, PlayerState, PlayerStatus } from "./types";
 
 const initialState = {
@@ -27,9 +27,11 @@ export const playerReducer: Reducer<PlayerState> = (state = initialState, action
 
 	switch (type) {
 		case PlayerActionTypes.SET_TRACK:
+			// eslint-disable-next-line no-case-declarations
 			const position = _.findIndex(state.queue, payload.nextTrack);
 
-			const new_state = {
+			// eslint-disable-next-line no-case-declarations
+			const newState = {
 				...state,
 				playingTrack: payload.nextTrack,
 				status: payload.status,
@@ -38,17 +40,17 @@ export const playerReducer: Reducer<PlayerState> = (state = initialState, action
 			};
 
 			if (!payload.repeat) {
-				new_state.duration = 0;
+				newState.duration = 0;
 			}
 
 			if (position === state.upNext.start) {
-				new_state.upNext = {
+				newState.upNext = {
 					start: state.upNext.length >= 1 ? state.upNext.start + 1 : 0,
 					length: state.upNext.length >= 1 ? state.upNext.length - 1 : 0
 				};
 			}
 
-			return new_state;
+			return newState;
 		case PlayerActionTypes.SET_TIME:
 			return {
 				...state,
@@ -82,6 +84,7 @@ export const playerReducer: Reducer<PlayerState> = (state = initialState, action
 			};
 		case onSuccess(PlayerActionTypes.SET_PLAYLIST):
 		case PlayerActionTypes.SET_PLAYLIST:
+			// eslint-disable-next-line no-case-declarations
 			const nextTrackPosition = _.findIndex(payload.items, payload.nextTrack);
 
 			if (nextTrackPosition !== -1 && state.upNext.length > 0) {
@@ -124,6 +127,7 @@ export const playerReducer: Reducer<PlayerState> = (state = initialState, action
 				const removeInUpNext =
 					payload.remove > state.upNext.start && payload.remove < state.upNext.start + state.upNext.length;
 
+				// eslint-disable-next-line no-shadow
 				const newState = {
 					...state,
 					queue: [
@@ -183,6 +187,8 @@ export const playerReducer: Reducer<PlayerState> = (state = initialState, action
 					queue: [...before, ...items]
 				};
 			}
+
+			// eslint-disable-next-line no-case-declarations
 			const after = state.originalQueue.slice(state.currentIndex + 1);
 
 			return {

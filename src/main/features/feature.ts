@@ -1,41 +1,21 @@
-// tslint:disable: no-any
-
 import { StoreState } from "@common/store";
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { BrowserWindow, ipcMain } from "electron";
 import { isEqual } from "lodash";
 import { Store } from "redux";
-import * as ReduxWatcher from "redux-watcher";
+import ReduxWatcher from "redux-watcher";
+// eslint-disable-next-line import/no-cycle
 import { Auryo } from "../app";
 
-interface IFeature {
-	// tslint:disable-next-line:ban-types
-	subscribe(path: string[], handler: Function): void;
+export type Handler<T> = (t: {
+	store: Store<StoreState>;
+	selector: string | string[];
+	prevState: StoreState;
+	currentState: StoreState;
+	prevValue: T;
+	currentValue: T;
+}) => void;
 
-	sendToWebContents(channel: string, params: object): void;
-
-	register(): void;
-
-	// tslint:disable-next-line:ban-types
-	on(path: string, handler: Function): void;
-
-	unregister(path?: string[] | string): void;
-
-	shouldRun(): boolean;
-}
-
-// tslint:disable-next-line:max-line-length
-export type Handler<T> = (
-	t: {
-		store: Store<StoreState>;
-		selector: string | string[];
-		prevState: StoreState;
-		currentState: StoreState;
-		prevValue: T;
-		currentValue: T;
-	}
-) => void;
-
-// tslint:disable-next-line:max-line-length
 export interface WatchState<T> {
 	store: Store<StoreState>;
 	selector: string | string[];
@@ -45,7 +25,7 @@ export interface WatchState<T> {
 	currentValue: T;
 }
 
-export class Feature implements IFeature {
+export class Feature {
 	public timers: any[] = [];
 	public win: BrowserWindow | null = null;
 	public store: Store<StoreState>;
@@ -88,7 +68,7 @@ export class Feature implements IFeature {
 		});
 	}
 
-	// tslint:disable-next-line:no-empty
+	// eslint-disable-next-line class-methods-use-this
 	public register() {}
 
 	public unregister(path?: string[] | string) {

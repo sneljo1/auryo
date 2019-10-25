@@ -1,297 +1,273 @@
-
 import { IMAGE_SIZES } from "@common/constants";
 import { StoreState } from "@common/store";
+import * as actions from "@common/store/actions";
 import { getMusicEntity } from "@common/store/entities/selectors";
-import { fetchPlaylistIfNeeded } from "@common/store/objects";
-import { PlayingTrack, playTrack } from "@common/store/player";
 import { isPlaying } from "@common/store/player/selectors";
-import { abbreviate_number, SC } from "@common/utils";
+import { abbreviateNumber, SC } from "@common/utils";
 import { getReadableTime } from "@common/utils/appUtils";
 import cn from "classnames";
-import * as _ from "lodash";
+import { autobind } from "core-decorators";
 import * as React from "react";
-import * as isDeepEqual from "react-fast-compare";
-import { connect, MapDispatchToProps } from "react-redux";
+import isDeepEqual from "react-fast-compare";
+import { connect } from "react-redux";
 import { Link } from "react-router-dom";
-import { bindActionCreators } from "redux";
-import { NormalizedResult, SoundCloud } from "../../../../types";
+import { bindActionCreators, Dispatch } from "redux";
+import { Normalized, SoundCloud } from "../../../../types";
 import ActionsDropdown from "../../ActionsDropdown";
 import FallbackImage from "../../FallbackImage";
-import TextShortener from "../../TextShortener";
+import { TextShortener } from "../../TextShortener";
 import TogglePlayButton from "../../TogglePlayButton";
 import "./TrackGridItem.scss";
+import { PlayingTrack } from "@common/store/player";
+
+const mapStateToProps = (state: StoreState, props: OwnProps) => {
+	const { idResult, currentPlaylistId } = props;
+
+	return {
+		isTrackPlaying: isPlaying(idResult, currentPlaylistId)(state),
+		track: getMusicEntity<SoundCloud.Playlist | SoundCloud.Track>(idResult)(state)
+	};
+};
+
+const mapDispatchToProps = (dispatch: Dispatch) =>
+	bindActionCreators(
+		{
+			playTrack: actions.playTrack,
+			fetchPlaylistIfNeeded: actions.fetchPlaylistIfNeeded
+		},
+		dispatch
+	);
 
 interface OwnProps {
-    idResult: NormalizedResult;
-    isPlaying: boolean;
-    currentPlaylistId: string;
-    showInfo?: boolean;
-    showReposts: boolean;
-    skipFetch?: boolean;
+	idResult: Normalized.NormalizedResult;
+	currentPlaylistId: string;
+	showInfo?: boolean;
+	showReposts: boolean;
+	skipFetch?: boolean;
 }
 
-interface PropsFromState {
-    isPlaying: boolean;
-    track: SoundCloud.Music | null;
-}
+type PropsFromState = ReturnType<typeof mapStateToProps>;
 
-interface PropsFromDispatch {
-    playTrack: typeof playTrack;
-    fetchPlaylistIfNeeded: typeof fetchPlaylistIfNeeded;
-}
+type PropsFromDispatch = ReturnType<typeof mapDispatchToProps>;
 
 type AllProps = OwnProps & PropsFromState & PropsFromDispatch;
 
+@autobind
 class TrackGridItem extends React.Component<AllProps> {
+	public static defaultProps: Partial<AllProps> = {
+		showInfo: false
+	};
 
-    public static defaultProps: Partial<AllProps> = {
-        showInfo: false
-    };
+	public componentDidMount() {
+		const { track, fetchPlaylistIfNeeded, skipFetch } = this.props;
 
-    public componentDidMount() {
-        const { track, fetchPlaylistIfNeeded, skipFetch } = this.props;
+		if (track && track.kind === "playlist" && track.track_count && !track.tracks && !skipFetch) {
+			fetchPlaylistIfNeeded(track.id);
+		}
+	}
 
-        if (track && track.kind === "playlist" && track.track_count && !track.tracks && !skipFetch) {
-            fetchPlaylistIfNeeded(track.id);
-        }
-    }
+	public shouldComponentUpdate(nextProps: AllProps) {
+		if (!isDeepEqual(nextProps, this.props)) {
+			return true;
+		}
 
-    public shouldComponentUpdate(nextProps: AllProps) {
+		return false;
+	}
 
-        if (!isDeepEqual(nextProps, this.props)) {
-            return true;
-        }
+	public componentDidUpdate(prevProps: AllProps) {
+		const { track, fetchPlaylistIfNeeded, skipFetch } = this.props;
 
-        return false;
-    }
+		if (
+			(prevProps.track === null && track != null) ||
+			(prevProps.track && track && prevProps.track.id !== track.id && !skipFetch)
+		) {
+			if (track.kind === "playlist" && track.track_count && !track.tracks) {
+				fetchPlaylistIfNeeded(track.id);
+			}
+		}
+	}
 
-    public componentDidUpdate(prevProps: AllProps) {
-        const { track, fetchPlaylistIfNeeded, skipFetch } = this.props;
+	public renderArtist() {
+		const { track, showReposts } = this.props;
 
-        if ((prevProps.track === null && track != null) || (prevProps.track && track && prevProps.track.id !== track.id) && !skipFetch) {
-            if (track.kind === "playlist" && track.track_count && !track.tracks) {
-                fetchPlaylistIfNeeded(track.id);
-            }
-        }
-    }
+		if (!track || !track.user) {
+			return null;
+		}
 
-    public renderArtist = () => {
-        const { track, showReposts } = this.props;
+		if (track.from_user && showReposts && track.type.indexOf("repost") !== -1) {
+			return (
+				<div className="trackArtist">
+					<Link to={`/user/${track.user.id}`}>{track.user.username}</Link>
+					<i className="bx bx-repost" />
 
-        if (!track || !track.user) { return null; }
+					<Link to={`/user/${track.from_user.id}`} className="repost">
+						{track.from_user.username}
+					</Link>
+				</div>
+			);
+		}
 
-        if (track.from_user && showReposts && track.type.indexOf("repost") !== -1) {
-            return (
-                <div className="trackArtist">
-                    <Link to={`/user/${track.user.id}`}>
-                        {
-                            track.user.username
-                        }
-                    </Link>
-                    <i className="bx bx-repost" />
+		return (
+			<div className="trackArtist">
+				<Link to={`/user/${track.user.id}`}>{track.user.username}</Link>
+			</div>
+		);
+	}
 
-                    <Link to={`/user/${track.from_user.id}`} className="repost">
-                        {track.from_user.username}
-                    </Link>
-                </div>
-            );
-        }
+	public renderToggleButton() {
+		const { isTrackPlaying, playTrack, currentPlaylistId, track } = this.props;
 
-        return (
-            <div className="trackArtist">
-                <Link to={`/user/${track.user.id}`}>
-                    {track.user.username}
-                </Link>
-            </div>
-        );
-    }
+		if (!track) {
+			return null;
+		}
 
-    public renderToggleButton = () => {
-        const { isPlaying, playTrack, currentPlaylistId, track } = this.props;
+		if (isTrackPlaying) {
+			return <TogglePlayButton className="toggleButton minimal" />;
+		}
 
-        if (!track) { return null; }
+		const icon = isTrackPlaying ? "pause" : "play";
 
-        if (isPlaying) {
-            return <TogglePlayButton className="toggleButton minimal" />;
-        }
+		console.log("test");
 
-        const icon = isPlaying ? "pause" : "play";
+		let next: Partial<PlayingTrack> = { id: track.id };
 
-        let next: Partial<PlayingTrack> = { id: track.id };
+		if (track.kind === "playlist") {
+			next = { playlistId: track.id.toString() };
+		}
 
-        if (track.kind === "playlist") {
-            next = { playlistId: track.id.toString() };
-        }
+		return (
+			<a
+				href="javascript:void(0)"
+				className="toggleButton minimal"
+				onClick={() => {
+					playTrack(currentPlaylistId, next as PlayingTrack, true);
+				}}>
+				<i className={`bx bx-${icon}`} />
+			</a>
+		);
+	}
 
-        return (
-            <a
-                href="javascript:void(0)"
-                className="toggleButton minimal"
-                onClick={() => {
-                    playTrack(currentPlaylistId, next as PlayingTrack, true);
-                }}
-            >
-                <i className={`bx bx-${icon}`} />
-            </a>
-        );
-    }
+	public renderStats() {
+		const { track, showInfo, currentPlaylistId } = this.props;
 
-    public renderStats() {
-        const { track, showInfo, currentPlaylistId } = this.props;
+		if (!track || !track.user) {
+			return null;
+		}
 
-        if (!track || !track.user) { return null; }
+		const isLiked = track.type && track.type.indexOf("like") !== -1;
 
-        const isLiked = track.type && track.type.indexOf("like") !== -1;
+		return (
+			<div className="trackFooter d-flex justify-content-between align-items-center">
+				<div className="trackStats">
+					{showInfo ? (
+						<>
+							<div className="stat">
+								<i className="bx bxs-heart" />
+								<span>{abbreviateNumber(track.likes_count)}</span>
+							</div>
+							<div className="stat">
+								<i className="bx bx-repost" />
+								<span>{abbreviateNumber(track.reposts_count)}</span>
+							</div>
+						</>
+					) : null}
+					{isLiked && (
+						<>
+							<span className="stat">
+								<i className="bx bxs-heart text-danger" /> Liked
+							</span>
+						</>
+					)}
 
-        return (
-            <div className="trackFooter d-flex justify-content-between align-items-center">
-                <div className="trackStats">
-                    {
-                        showInfo ? (
-                            <>
-                                <div className="stat">
-                                    <i className="bx bxs-heart" />
-                                    <span>{abbreviate_number(track.likes_count)}</span>
-                                </div>
-                                <div className="stat">
-                                    <i className="bx bx-repost" />
-                                    <span>{abbreviate_number(track.reposts_count)}</span>
-                                </div>
-                            </>
-                        ) : null
-                    }
-                    {
-                        isLiked && (
-                            <><span className="stat"><i className="bx bxs-heart text-danger" /> Liked</span></>
-                        )
-                    }
+					{
+						// !showInfo && !isLiked && track.kind === 'playlist' && (
+						//     <><span className='stat'>
+						//         <i className={`bx bx-${track.sharing === 'public' ? 'lock-open' : 'lock'}`} />
+						//         {track.sharing === 'public' ? 'Public' : 'Private'}</span>
+						//     </>
+						// )
+					}
+				</div>
 
-                    {
-                        // !showInfo && !isLiked && track.kind === 'playlist' && (
-                        //     <><span className='stat'>
-                        //         <i className={`bx bx-${track.sharing === 'public' ? 'lock-open' : 'lock'}`} />
-                        //         {track.sharing === 'public' ? 'Public' : 'Private'}</span>
-                        //     </>
+				<div>
+					<ActionsDropdown track={track} currentPlaylistId={currentPlaylistId} />
 
-                        // )
-                    }
+					<div className="trackTime">
+						<i className="bx bx-alarm" />
+						<span>{getReadableTime(track.duration, true, true)}</span>
+					</div>
+				</div>
+			</div>
+		);
+	}
 
-                </div>
+	public renderInfo() {
+		const { track } = this.props;
 
-                <div>
-                    <ActionsDropdown
-                        track={track}
-                        currentPlaylistId={currentPlaylistId}
-                    />
+		if (!track) {
+			return null;
+		}
 
-                    <div className="trackTime">
-                        <i className="bx bx-alarm" />
-                        <span>{getReadableTime(track.duration, true, true)}</span>
-                    </div>
-                </div>
+		const objectUrl = `${track.kind === "playlist" ? "/playlist" : "/track"}/${track.id}`;
 
+		return (
+			<div className="trackInfo">
+				<div className="trackTitle">
+					<Link to={objectUrl}>
+						<TextShortener text={track.title} />
+					</Link>
+				</div>
+				{this.renderArtist()}
+			</div>
+		);
+	}
 
-            </div>
-        );
-    }
+	public render() {
+		const { isTrackPlaying, track } = this.props;
 
-    public renderInfo() {
-        const { track } = this.props;
+		const image = SC.getImageUrl(track, IMAGE_SIZES.LARGE);
 
-        if (!track) { return null; }
+		if (!track || !track.user) {
+			return null;
+		}
 
-        const objectUrl = `${(track.kind === "playlist" ? "/playlist" : "/track")}/${track.id}`;
+		return (
+			<div
+				className={cn("trackWrapper", {
+					playlist: track.kind === "playlist"
+				})}>
+				<div
+					className={cn("track-grid-item", track.id, {
+						isPlaying: isTrackPlaying,
+						playlist: track.kind === "playlist"
+					})}>
+					<div className="trackImage">
+						<div className="imageWrapper">
+							{track.kind === "playlist" ? (
+								<div className="trackCount d-flex align-items-center justify-content-center flex-column">
+									<span>{track.track_count}</span> <span>tracks</span>
+								</div>
+							) : null}
+							<FallbackImage src={image} />
+							{SC.isStreamable(track) || track.kind === "playlist" ? this.renderToggleButton() : null}
+						</div>
 
-        return (
-            <div className="trackInfo">
-                <div className="trackTitle">
-                    <Link to={objectUrl}>
-                        <TextShortener text={track.title} />
-                    </Link>
-                </div>
-                {
-                    this.renderArtist()
-                }
-            </div>
-        );
-    }
+						{this.renderStats()}
+						{track.genre && track.genre !== "" ? (
+							<Link to={`/tags/${track.genre}`} className="trackGenre">
+								{track.genre}
+							</Link>
+						) : null}
+					</div>
 
-
-    public render() {
-
-        const {
-            isPlaying,
-            track
-        } = this.props;
-
-        const image = SC.getImageUrl(track, IMAGE_SIZES.LARGE);
-
-        if (!track || !track.user) { return null; }
-
-        return (
-            <div
-                className={cn("trackWrapper", {
-                    playlist: track.kind === "playlist"
-                })}
-            >
-                <div
-                    className={cn(
-                        "track-grid-item", track.id,
-                        {
-                            isPlaying,
-                            playlist: track.kind === "playlist"
-                        }
-                    )}
-                >
-
-                    <div className="trackImage">
-                        <div className="imageWrapper">
-                            {
-                                track.kind === "playlist" ? (
-                                    <div
-                                        className="trackCount d-flex align-items-center justify-content-center flex-column"
-                                    >
-                                        <span>{track.track_count}</span> <span>tracks</span>
-                                    </div>
-                                ) : null
-                            }
-                            <FallbackImage
-                                src={image}
-                            />
-                            {
-                                SC.isStreamable(track) || track.kind === "playlist" ? this.renderToggleButton() : null
-                            }
-                        </div>
-
-                        {
-                            this.renderStats()
-                        }
-                        {
-                            track.genre && track.genre !== "" ? <Link to={`/tags/${track.genre}`} className="trackGenre">{track.genre}</Link> : null}
-
-                    </div>
-
-                    {
-                        this.renderInfo()
-                    }
-                </div>
-            </div>
-        );
-    }
+					{this.renderInfo()}
+				</div>
+			</div>
+		);
+	}
 }
 
-const mapStateToProps = (state: StoreState, props: OwnProps): PropsFromState => {
-    const { idResult, currentPlaylistId } = props;
-
-    return {
-        isPlaying: isPlaying(idResult, currentPlaylistId)(state),
-        track: getMusicEntity<SoundCloud.Playlist | SoundCloud.Track>(idResult)(state)
-    };
-};
-
-const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, OwnProps> = (dispatch) => bindActionCreators({
-    playTrack,
-    fetchPlaylistIfNeeded
-}, dispatch);
-
-export default connect<PropsFromState, PropsFromDispatch, OwnProps, StoreState>(mapStateToProps, mapDispatchToProps)(TrackGridItem);
+export default connect<PropsFromState, PropsFromDispatch, OwnProps, StoreState>(
+	mapStateToProps,
+	mapDispatchToProps
+)(TrackGridItem);

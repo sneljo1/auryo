@@ -2,9 +2,10 @@ import { EVENTS } from "@common/constants/events";
 import { canGoInHistory } from "@common/store/app/actions";
 import { Config } from "@common/store/config";
 import { setConfig } from "@common/store/config/actions";
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { app, session } from "electron";
-import * as _ from "lodash";
-import * as isDeepEqual from "react-fast-compare";
+import _ from "lodash";
+import isDeepEqual from "react-fast-compare";
 import { show } from "redux-modal";
 import * as semver from "semver";
 import { CONFIG } from "../../../config";
@@ -14,11 +15,10 @@ import { Logger, LoggerInstance } from "../../utils/logger";
 import { Utils } from "../../utils/utils";
 import { Feature, WatchState } from "../feature";
 
-
 export default class ConfigManager extends Feature {
 	private readonly logger: LoggerInstance = Logger.createLogger(ConfigManager.name);
-	private isNewVersion: boolean = false;
-	private isNewUser: boolean = false;
+	private isNewVersion = false;
+	private isNewUser = false;
 
 	private readonly writetoConfig: (config: Config) => void;
 	private config: Config = CONFIG.DEFAULT_CONFIG;
@@ -26,13 +26,17 @@ export default class ConfigManager extends Feature {
 	constructor(auryo: Auryo) {
 		super(auryo);
 
-		this.writetoConfig = _.debounce(config => {
-			if (!isDeepEqual(settings.store, config)) {
-				settings.set(config);
+		this.writetoConfig = _.debounce(
+			(config: Config) => {
+				if (!isDeepEqual(settings.store, config)) {
+					settings.set(config as any);
+				}
+			},
+			250,
+			{
+				leading: true
 			}
-		}, 250, {
-			leading: true,
-		});
+		);
 	}
 
 	public register() {

@@ -1,7 +1,8 @@
 import { EVENTS } from "@common/constants/events";
 import { IMAGE_SIZES } from "@common/constants/Soundcloud";
 import { getTrackEntity } from "@common/store/entities/selectors";
-import { changeTrack, ChangeTypes, PlayerStatus, toggleStatus } from "@common/store/player";
+import { ChangeTypes, PlayerStatus } from "@common/store/player";
+import { changeTrack, toggleStatus } from "@common/store/actions";
 import { getCurrentPosition } from "@common/utils";
 import * as SC from "@common/utils/soundcloudUtils";
 import * as _ from "lodash";
@@ -26,11 +27,11 @@ export default class MprisService extends LinuxFeature {
 		return super.shouldRun() && !process.env.TOKEN;
 	}
 
-	// tslint:disable-next-line: max-func-body-length
 	public register() {
 		let mpris;
 
 		try {
+			// eslint-disable-next-line
 			mpris = require("mpris-service");
 
 			this.player = mpris({
@@ -155,8 +156,6 @@ export default class MprisService extends LinuxFeature {
 		} catch (e) {
 			this.logger.warn("Mpris not supported");
 			this.logger.warn(e);
-
-			return;
 		}
 	}
 

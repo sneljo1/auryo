@@ -1,6 +1,8 @@
+/* eslint-disable camelcase */
 import * as awsIot from "aws-iot-device-sdk";
-import { IClientSubscribeOptions } from "mqtt/types/lib/client-options";
+// eslint-disable-next-line import/no-cycle
 import { Logger, LoggerInstance } from "../utils/logger";
+// eslint-disable-next-line import/no-cycle
 import { GetKeysResponse } from "./awsApiGatewayService";
 
 export interface AuthMessage {
@@ -24,6 +26,7 @@ export class AWSIotService {
 	private readonly identityId: string = "";
 
 	constructor(getKeysResponse: GetKeysResponse) {
+		// eslint-disable-next-line new-cap
 		this.device = new awsIot.device({
 			region: getKeysResponse.region,
 			protocol: "wss",
@@ -65,7 +68,7 @@ export class AWSIotService {
 		});
 	}
 
-	public async subscribe(topic: string, options?: IClientSubscribeOptions | undefined) {
+	public async subscribe(topic: string, options?: any) {
 		return new Promise((resolve, reject) => {
 			this.device.subscribe(this.identityId + topic, options, (err, granted) => {
 				if (err) {
@@ -84,7 +87,7 @@ export class AWSIotService {
 		});
 	}
 
-	public async waitForMessageOrTimeOut(timeoutMs: number = 300000) {
+	public async waitForMessageOrTimeOut(timeoutMs = 300000) {
 		return new Promise<TokenResponse | null>((resolve, reject) => {
 			const timeout = setTimeout(() => {
 				reject(new Error("Login timeout"));

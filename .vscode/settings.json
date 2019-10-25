@@ -1,11 +1,21 @@
 {
-    "tslint.enable": true,
-    "tslint.configFile": "tslint.json",
     "files.exclude": {
         ".cache-loader": true,
         ".vscode": true,
         "node_modules": true,
     },
-    "typescriptHero.imports.stringQuoteStyle": "\"",
-    "npm-intellisense.importQuotes": "\""
+    "npm-intellisense.importQuotes": "\"",
+    "eslint.validate": [
+        "javascript",
+        "javascriptreact",
+        {
+          "language": "typescript",
+          "autoFix": true
+        },
+        {
+          "language": "typescriptreact",
+          "autoFix": true
+        }
+      ],
+      "emmet.showAbbreviationSuggestions": false,
 }

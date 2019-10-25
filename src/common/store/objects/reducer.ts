@@ -1,9 +1,9 @@
-import * as _ from "lodash";
+import { Normalized } from "@types";
+import _ from "lodash";
 import { Reducer } from "redux";
-import { NormalizedResult } from "../../../types";
 import { isLoading, onError, onSuccess } from "../../utils/reduxUtils";
-import { AppActionTypes } from "../app";
-import { AuthActionTypes } from "../auth";
+import { AppActionTypes } from "../app/types";
+import { AuthActionTypes } from "../auth/types";
 import { ObjectGroup, ObjectsActionTypes, ObjectsState, ObjectState, ObjectTypes, PlaylistTypes } from "./types";
 
 const initialObjectsState = {
@@ -19,7 +19,7 @@ const initialObjectsState = {
 const objectState: Reducer<ObjectState<any>> = (state = initialObjectsState, action) => {
 	const { type, payload } = action;
 
-	let new_items;
+	let newItems;
 	let result;
 	let items;
 
@@ -46,13 +46,13 @@ const objectState: Reducer<ObjectState<any>> = (state = initialObjectsState, act
 			result = payload.result || [];
 			items = state.items || [];
 
-			new_items = _.uniqWith([...(payload.refresh ? [] : items), ...result], _.isEqual);
+			newItems = _.uniqWith([...(payload.refresh ? [] : items), ...result], _.isEqual);
 
 			return {
 				...state,
 				isFetching: false,
 				meta: payload.meta || {},
-				items: new_items,
+				items: newItems,
 				futureUrl: payload.futureUrl,
 				nextUrl: payload.nextUrl,
 				fetchedItems: payload.fetchedItems
@@ -63,11 +63,15 @@ const objectState: Reducer<ObjectState<any>> = (state = initialObjectsState, act
 				items: [...payload.items]
 			};
 		case onSuccess(ObjectsActionTypes.SET_TRACKS):
+			console.log(payload);
+
+			// eslint-disable-next-line no-case-declarations
 			const unableToFetch = _.difference(
-				payload.shouldFetchedIds.map((t: NormalizedResult) => t.id),
-				payload.fetchedIds.map((t: NormalizedResult) => t.id)
+				payload.shouldFetchedIds.map((t: Normalized.NormalizedResult) => t.id),
+				payload.fetchedIds.map((t: Normalized.NormalizedResult) => t.id)
 			);
 
+			// eslint-disable-next-line no-case-declarations
 			const filtered = state.items.filter(t => unableToFetch.indexOf(t.id) === -1);
 
 			return {

@@ -1,16 +1,17 @@
 import { Intent } from "@blueprintjs/core";
 import { EVENTS } from "@common/constants/events";
 import { StoreState } from "@common/store";
-import { setConfigKey } from "@common/store/config";
-import { addToast } from "@common/store/ui";
+import { addToast, setConfigKey } from "@common/store/actions";
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { app, BrowserWindow, BrowserWindowConstructorOptions, Menu, nativeImage, shell } from "electron";
 import * as is from "electron-is";
-import * as windowStateKeeper from "electron-window-state";
-import * as _ from "lodash";
+import windowStateKeeper from "electron-window-state";
+import _ from "lodash";
 import * as os from "os";
 import * as path from "path";
 import * as querystring from "querystring";
 import { Store } from "redux";
+// eslint-disable-next-line import/no-cycle
 import { Feature } from "./features/feature";
 import { Logger, LoggerInstance } from "./utils/logger";
 import { Utils } from "./utils/utils";
@@ -34,7 +35,7 @@ const icons = {
 export class Auryo {
 	public mainWindow: Electron.BrowserWindow | undefined;
 	public store: Store<StoreState>;
-	public quitting: boolean = false;
+	public quitting = false;
 	private readonly logger: LoggerInstance = Logger.createLogger(Auryo.name);
 
 	constructor(store: Store<StoreState>) {
@@ -104,11 +105,7 @@ export class Auryo {
 
 		this.mainWindow.setMenu(null);
 
-		try {
-			await this.loadMain();
-		} catch (err) {
-			throw err;
-		}
+		await this.loadMain();
 
 		this.registerListeners();
 
@@ -148,20 +145,22 @@ export class Auryo {
 
 		if (action && url.split("?").length) {
 			switch (action[0]) {
-				case "launch": {
-					const result = querystring.parse(url.split("?")[1]);
+				case "launch":
+					{
+						const result = querystring.parse(url.split("?")[1]);
 
-					if (result.client_id && result.client_id.length) {
-						this.store.dispatch(setConfigKey("app.overrideClientId", result.client_id));
+						if (result.client_id && result.client_id.length) {
+							this.store.dispatch(setConfigKey("app.overrideClientId", result.client_id));
 
-						this.store.dispatch(
-							addToast({
-								message: `New clientId added`,
-								intent: Intent.SUCCESS
-							})
-						);
+							this.store.dispatch(
+								addToast({
+									message: `New clientId added`,
+									intent: Intent.SUCCESS
+								})
+							);
+						}
 					}
-				}
+					break;
 				default:
 			}
 		}
@@ -177,8 +176,7 @@ export class Auryo {
 			try {
 				feature.register();
 			} catch (error) {
-				this.logger.error(`Error starting feature: ${feature.constructor.name}`);
-				this.logger.error(error);
+				this.logger.error(error, `Error starting feature: ${feature.constructor.name}`);
 			}
 		};
 
@@ -188,84 +186,73 @@ export class Auryo {
 			features.forEach((feature: Feature) => {
 				if (event === "default") {
 					registerFeature(feature);
-				} else {
-					if (this.mainWindow) {
-						this.mainWindow.on(event, registerFeature.bind(this, feature));
-					}
+				} else if (this.mainWindow) {
+					this.mainWindow.on(event, registerFeature.bind(this, feature));
 				}
 			});
 		});
 	}
 
 	private async loadMain() {
-		try {
-			if (this.mainWindow) {
-				const url =
-					process.env.NODE_ENV === "development"
-						? `http://localhost:${process.env.DEV_PORT || 8080}`
-						: `file://${__dirname}/index.html`;
+		if (this.mainWindow) {
+			await this.mainWindow.loadURL(`file://${__dirname}/index.html`);
 
-				await this.mainWindow.loadURL(url);
+			this.mainWindow.webContents.on("will-navigate", async (e, u) => {
+				e.preventDefault();
 
-				this.mainWindow.webContents.on("will-navigate", async (e, u) => {
-					e.preventDefault();
-
-					try {
-						if (/^(https?:\/\/)/g.exec(u) !== null) {
-							if (/https?:\/\/(www.)?soundcloud\.com\//g.exec(u) !== null) {
-								if (this.mainWindow) {
-									this.mainWindow.webContents.send(EVENTS.APP.PUSH_NAVIGATION, "/resolve", u);
-								}
-							} else {
-								await shell.openExternal(u);
+				try {
+					if (/^(https?:\/\/)/g.exec(u) !== null) {
+						if (/https?:\/\/(www.)?soundcloud\.com\//g.exec(u) !== null) {
+							if (this.mainWindow) {
+								this.mainWindow.webContents.send(EVENTS.APP.PUSH_NAVIGATION, "/resolve", u);
 							}
-						} else if (/^mailto:/g.exec(u) !== null) {
+						} else {
 							await shell.openExternal(u);
 						}
-					} catch (err) {
-						this.logger.error(err);
+					} else if (/^mailto:/g.exec(u) !== null) {
+						await shell.openExternal(u);
 					}
-				});
+				} catch (err) {
+					this.logger.error(err);
+				}
+			});
 
-				this.mainWindow.webContents.on("new-window", async (e, u) => {
-					e.preventDefault();
-					try {
-						if (/^(https?:\/\/)/g.exec(u) !== null) {
-							await shell.openExternal(u);
-						}
-					} catch (err) {
-						this.logger.error(err);
+			this.mainWindow.webContents.on("new-window", async (e, u) => {
+				e.preventDefault();
+				try {
+					if (/^(https?:\/\/)/g.exec(u) !== null) {
+						await shell.openExternal(u);
 					}
-				});
+				} catch (err) {
+					this.logger.error(err);
+				}
+			});
 
-				this.mainWindow.webContents.session.webRequest.onCompleted(details => {
-					if (
-						this.mainWindow &&
-						(details.url.indexOf("/stream?client_id=") !== -1 ||
-							details.url.indexOf("cf-media.sndcdn.com") !== -1)
-					) {
-						if (details.statusCode < 200 && details.statusCode > 300) {
-							if (details.statusCode === 404) {
-								this.store.dispatch(
-									addToast({
-										message: "This resource might not exists anymore",
-										intent: Intent.DANGER
-									})
-								);
-							}
+			this.mainWindow.webContents.session.webRequest.onCompleted(details => {
+				if (
+					this.mainWindow &&
+					(details.url.indexOf("/stream?client_id=") !== -1 ||
+						details.url.indexOf("cf-media.sndcdn.com") !== -1)
+				) {
+					if (details.statusCode < 200 && details.statusCode > 300) {
+						if (details.statusCode === 404) {
+							this.store.dispatch(
+								addToast({
+									message: "This resource might not exists anymore",
+									intent: Intent.DANGER
+								})
+							);
 						}
 					}
-				});
-			}
-		} catch (err) {
-			throw err;
+				}
+			});
 		}
 	}
 
 	private readonly registerListeners = () => {
 		if (this.mainWindow) {
 			this.mainWindow.webContents.on("crashed", (event: any) => {
-				this.logger.fatal(event, "App Crashed");
+				this.logger.fatal(JSON.stringify(event), "App Crashed");
 			});
 
 			this.mainWindow.on("unresponsive", (event: any) => {

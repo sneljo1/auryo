@@ -1,11 +1,10 @@
 import { Menu, MenuDivider, MenuItem, Popover, Position } from "@blueprintjs/core";
 import { IMAGE_SIZES } from "@common/constants";
 import { StoreState } from "@common/store";
+import * as actions from "@common/store/actions";
 import { getNormalizedPlaylist, getNormalizedTrack, getNormalizedUser } from "@common/store/entities/selectors";
-import { fetchPlaylistIfNeeded, fetchPlaylistTracks } from "@common/store/objects";
 import { getPlaylistObjectSelector } from "@common/store/objects/selectors";
-import { addUpNext, PlayerStatus, playTrack, toggleStatus } from "@common/store/player";
-import { toggleLike, toggleRepost } from "@common/store/track/actions";
+import { PlayerStatus } from "@common/store/player";
 import { getReadableTimeFull, SC } from "@common/utils";
 import { IPC } from "@common/utils/ipc";
 import { SetLayoutSettings } from "@renderer/_shared/context/contentContext";
@@ -19,285 +18,270 @@ import ShareMenuItem from "../../_shared/ShareMenuItem";
 import Spinner from "../../_shared/Spinner/Spinner";
 import TracksGrid from "../../_shared/TracksGrid/TracksGrid";
 import "./PlaylistPage.scss";
+import { autobind } from "core-decorators";
 
+const mapStateToProps = (state: StoreState, props: OwnProps) => {
+	const {
+		player: { currentPlaylistId, status },
+		auth
+	} = state;
+	const {
+		match: {
+			params: { playlistId }
+		}
+	} = props;
 
-interface OwnProps extends RouteComponentProps<{ playlistId: string }> {
-}
+	const isPlayerPlaylist = currentPlaylistId === playlistId;
+	const isPlaylistPlaying = isPlayerPlaylist && status === PlayerStatus.PLAYING;
+
+	const playlist = getNormalizedPlaylist(playlistId as any)(state);
+
+	return {
+		auth,
+		isPlayerPlaylist,
+		isPlaylistPlaying,
+		playlistObject: getPlaylistObjectSelector(playlistId)(state),
+		playlistIdParam: playlistId as any,
+
+		playlist,
+		playlistUser: getNormalizedUser(playlist.user)(state),
+		firstItem: playlist.tracks.length > 1 ? getNormalizedTrack(playlist.tracks[0].id)(state) : undefined
+	};
+};
+
+const mapDispatchToProps = (dispatch: Dispatch) =>
+	bindActionCreators(
+		{
+			playTrack: actions.playTrack,
+			toggleLike: actions.toggleLike,
+			toggleRepost: actions.toggleRepost,
+			fetchPlaylistIfNeeded: actions.fetchPlaylistIfNeeded,
+			fetchPlaylistTracks: actions.fetchPlaylistTracks,
+			addUpNext: actions.addUpNext,
+			toggleStatus: actions.toggleStatus
+		},
+		dispatch
+	);
+
+type OwnProps = RouteComponentProps<{ playlistId: string }>;
 
 type PropsFromState = ReturnType<typeof mapStateToProps>;
 
 type PropsFromDispatch = ReturnType<typeof mapDispatchToProps>;
 
-
 interface State {
-    scrollTop: number;
+	scrollTop: number;
 }
 
 type AllProps = OwnProps & PropsFromState & PropsFromDispatch;
 
+@autobind
 class PlaylistPage extends React.Component<AllProps, State> {
+	public componentDidMount() {
+		const { fetchPlaylistIfNeeded, playlistIdParam } = this.props;
 
-    public componentDidMount() {
-        const { fetchPlaylistIfNeeded, playlistIdParam } = this.props;
+		fetchPlaylistIfNeeded(playlistIdParam);
+	}
 
-        fetchPlaylistIfNeeded(playlistIdParam);
+	public componentDidUpdate(prevProps: AllProps) {
+		const { fetchPlaylistIfNeeded, playlistIdParam } = this.props;
 
-    }
+		if (playlistIdParam !== prevProps.playlistIdParam) {
+			fetchPlaylistIfNeeded(playlistIdParam);
+		}
+	}
 
-    public componentDidUpdate(prevProps: AllProps) {
-        const { fetchPlaylistIfNeeded, playlistIdParam } = this.props;
+	public renderPlayButton() {
+		const { playlist, playlistIdParam, isPlayerPlaylist, isPlaylistPlaying, playTrack, toggleStatus } = this.props;
 
-        if (playlistIdParam !== prevProps.playlistIdParam) {
-            fetchPlaylistIfNeeded(playlistIdParam);
-        }
-    }
+		if (!playlist) {
+			return null;
+		}
 
-    public renderPlayButton = () => {
-        const {
-            playlist,
-            playlistIdParam,
-            isPlayerPlaylist,
-            isPlaylistPlaying,
-            playTrack,
-            toggleStatus
-        } = this.props;
+		if (isPlaylistPlaying) {
+			return (
+				<a
+					href="javascript:void(0)"
+					className="c_btn round colored"
+					onClick={() => {
+						toggleStatus();
+					}}>
+					<i className="bx bx-pause" />
+				</a>
+			);
+		}
 
-        if (!playlist) { return null; }
+		const toggle = () => {
+			if (isPlayerPlaylist) {
+				toggleStatus();
+			} else {
+				playTrack(playlistIdParam.toString());
+			}
+		};
 
-        if (isPlaylistPlaying) {
-            return (
-                <a
-                    href="javascript:void(0)"
-                    className="c_btn round colored"
-                    onClick={() => {
-                        toggleStatus();
-                    }}
-                >
-                    <i className="bx bx-pause" />
-                </a>
-            );
-        }
+		return (
+			<a href="javascript:void(0)" className="c_btn round colored" onClick={toggle}>
+				<i className="bx bx-play" />
+			</a>
+		);
+	}
 
-        const toggle = () => {
-            if (isPlayerPlaylist) {
-                toggleStatus();
-            } else {
-                playTrack(playlistIdParam.toString());
-            }
-        };
+	// tslint:disable-next-line: max-func-body-length cyclomatic-complexity
+	public render() {
+		const {
+			// Vars
+			playlistObject,
+			playlist,
+			auth,
+			playlistIdParam,
+			firstItem,
+			playlistUser,
+			// Functions
+			toggleLike,
+			toggleRepost,
+			fetchPlaylistTracks,
+			addUpNext
+		} = this.props;
 
-        return (
-            <a
-                href="javascript:void(0)"
-                className="c_btn round colored"
-                onClick={toggle}
-            >
-                <i className="bx bx-play" />
-            </a>
-        );
-    }
+		const { likes, playlists, reposts } = auth;
 
-    // tslint:disable-next-line: max-func-body-length cyclomatic-complexity
-    public render() {
-        const {
-            // Vars
-            playlistObject,
-            playlist,
-            auth,
-            playlistIdParam,
-            firstItem,
-            playlistUser,
-            // Functions
-            toggleLike,
-            toggleRepost,
-            fetchPlaylistTracks,
-            addUpNext
-        } = this.props;
+		if (
+			!playlistObject ||
+			!playlist ||
+			(playlistObject && playlistObject.items.length === 0 && playlistObject.isFetching)
+		) {
+			return <Spinner contained />;
+		}
 
-        const { likes, playlists, reposts } = auth;
+		const hasImage = playlist.artwork_url || (firstItem && firstItem.artwork_url);
 
-        if (!playlistObject || !playlist || (playlistObject && playlistObject.items.length === 0 && playlistObject.isFetching)) {
-            return <Spinner contained={true} />;
-        }
+		const liked = SC.hasID(playlistIdParam, likes.playlist);
+		const reposted = SC.hasID(playlistIdParam, reposts.playlist);
+		const playlistOwned = playlists.find(p => p.id === playlist.id);
 
-        const hasImage = playlist.artwork_url || (firstItem && firstItem.artwork_url);
+		const isEmpty =
+			!playlistObject.isFetching &&
+			((playlist.tracks.length === 0 && playlist.duration === 0) || playlist.track_count === 0);
 
-        const liked = SC.hasID(playlistIdParam, likes.playlist);
-        const reposted = SC.hasID(playlistIdParam, reposts.playlist);
-        const playlistOwned = playlists.find((p) => p.id === playlist.id);
+		const likedIcon = liked ? "bx bxs-heart" : "bx bx-heart";
+		const image = hasImage
+			? SC.getImageUrl(playlist.artwork_url || (firstItem && firstItem.artwork_url), IMAGE_SIZES.XLARGE)
+			: null;
 
-        const isEmpty = !playlistObject.isFetching && (playlist.tracks.length === 0 && playlist.duration === 0 || playlist.track_count === 0);
+		const hasMore = playlistObject.items.length > playlistObject.fetchedItems;
 
-        const likedIcon = liked ? "bx bxs-heart" : "bx bx-heart";
-        const image = hasImage ? SC.getImageUrl(playlist.artwork_url || (firstItem && firstItem.artwork_url), IMAGE_SIZES.XLARGE) : null;
+		return (
+			<>
+				<SetLayoutSettings hasImage={hasImage} />
 
-        const hasMore = playlistObject.items.length > playlistObject.fetchedItems;
+				<PageHeader image={image}>
+					<h2>{playlist.title}</h2>
+					<div>
+						<div className="stats">
+							{playlist.track_count} titles -{getReadableTimeFull(playlist.duration, true)}
+						</div>
 
-        return (
-            <>
-                <SetLayoutSettings hasImage={hasImage} />
+						<div className="button-group">
+							{firstItem && !isEmpty ? this.renderPlayButton() : null}
 
-                <PageHeader
-                    image={image}
-                >
+							{playlist.tracks.length && !playlistOwned ? (
+								<a
+									href="javascript:void(0)"
+									className={cn("c_btn", { active: liked })}
+									onClick={() => {
+										toggleLike(playlist.id, true);
+									}}>
+									<i className={likedIcon} />
+									<span>{liked ? "Liked" : "Like"}</span>
+								</a>
+							) : null}
 
+							{playlist.tracks.length && !playlistOwned ? (
+								<a
+									href="javascript:void(0)"
+									className={cn("c_btn", { "text-primary": reposted })}
+									onClick={() => {
+										toggleRepost(playlist.id, true);
+									}}>
+									<i className="bx bx-repost" />
+									<span>{reposted ? "Reposted" : "Repost"}</span>
+								</a>
+							) : null}
 
-                    <h2>{playlist.title}</h2>
-                    <div>
-                        <div className="stats">
-                            {playlist.track_count} titles{" - "}{getReadableTimeFull(playlist.duration, true)}
-                        </div>
+							{!isEmpty && (
+								<Popover
+									autoFocus={false}
+									minimal
+									position={Position.BOTTOM_LEFT}
+									content={
+										<Menu>
+											{playlist.tracks.length ? (
+												<>
+													<MenuItem
+														text="Add to queue"
+														onClick={() => {
+															addUpNext(playlist);
+														}}
+													/>
+													<MenuDivider />
+												</>
+											) : null}
 
-                        <div className="button-group">
-                            {
-                                firstItem && !isEmpty ? (
-                                    this.renderPlayButton()
-                                ) : null
-                            }
-
-
-                            {
-                                playlist.tracks.length && !playlistOwned ? (
-                                    <a
-                                        href="javascript:void(0)"
-                                        className={cn("c_btn", { active: liked })}
-                                        onClick={() => {
-                                            toggleLike(playlist.id, true);
-                                        }}
-                                    >
-                                        <i className={likedIcon} />
-                                        <span>{liked ? "Liked" : "Like"}</span>
-                                    </a>
-                                ) : null
-                            }
-
-                            {
-                                playlist.tracks.length && !playlistOwned ? (
-                                    <a
-                                        href="javascript:void(0)"
-                                        className={cn("c_btn", { "text-primary": reposted })}
-                                        onClick={() => {
-                                            toggleRepost(playlist.id, true);
-                                        }}
-                                    >
-                                        <i className="bx bx-repost" />
-                                        <span>{reposted ? "Reposted" : "Repost"}</span>
-                                    </a>
-                                ) : null
-                            }
-
-                            {
-                                !isEmpty && (
-                                    <Popover
-                                        autoFocus={false}
-                                        minimal={true}
-                                        position={Position.BOTTOM_LEFT}
-                                        content={(
-                                            <Menu>
-                                                {
-                                                    playlist.tracks.length ? (
-                                                        <React.Fragment>
-                                                            <MenuItem
-                                                                text="Add to queue"
-                                                                onClick={() => {
-                                                                    addUpNext(playlist);
-                                                                }}
-                                                            />
-                                                            <MenuDivider />
-                                                        </React.Fragment>
-                                                    ) : null
-                                                }
-
-                                                <MenuItem
-                                                    text="View in browser"
-                                                    onClick={() => {
-                                                        IPC.openExternal(playlist.permalink_url);
-                                                    }}
-                                                />
-                                                {
-                                                    playlistUser && (
-                                                        <ShareMenuItem
-                                                            title={playlist.title}
-                                                            permalink={playlist.permalink_url}
-                                                            username={playlistUser.username}
-                                                        />
-                                                    )
-                                                }
-
-                                            </Menu>
-                                        )}
-                                    >
-                                        <a href="javascript:void(0)" className="c_btn round">
-                                            <i className="bx bx-dots-horizontal-rounded" />
-                                        </a>
-                                    </Popover>
-                                )
-                            }
-
-                        </div>
-                    </div>
-                </PageHeader>
-                {
-                    isEmpty ? (
-                        <div
-                            className={cn({
-                                "mt-5": !hasImage
-                            })}
-                        >
-                            <h5 className="text-muted text-center">
-                                This{" "}<a target="_blank" rel="noopener noreferrer" href={playlist.permalink_url}>playlist</a>{" "}
-                                is empty or not available via a third party!</h5>
-                            <div className="text-center" style={{ fontSize: "5rem" }}>
-                                <span role="img">😲</span>
-                            </div>
-                        </div>
-                    ) : (
-                            <TracksGrid
-                                items={playlistObject.items.slice(0, playlistObject.fetchedItems)}
-                                objectId={playlistIdParam.toString()}
-                                isLoading={playlistObject.isFetching}
-                                isItemLoaded={(index) => !!playlistObject.items[index]}
-                                loadMore={() => fetchPlaylistTracks(playlistIdParam, 30) as any}
-                                hasMore={hasMore}
-                            />
-
-                        )
-                }
-            </>
-        );
-    }
+											<MenuItem
+												text="View in browser"
+												onClick={() => {
+													IPC.openExternal(playlist.permalink_url);
+												}}
+											/>
+											{playlistUser && (
+												<ShareMenuItem
+													title={playlist.title}
+													permalink={playlist.permalink_url}
+													username={playlistUser.username}
+												/>
+											)}
+										</Menu>
+									}>
+									<a href="javascript:void(0)" className="c_btn round">
+										<i className="bx bx-dots-horizontal-rounded" />
+									</a>
+								</Popover>
+							)}
+						</div>
+					</div>
+				</PageHeader>
+				{isEmpty ? (
+					<div
+						className={cn({
+							"mt-5": !hasImage
+						})}>
+						<h5 className="text-muted text-center">
+							This{" "}
+							<a target="_blank" rel="noopener noreferrer" href={playlist.permalink_url}>
+								playlist
+							</a>{" "}
+							is empty or not available via a third party!
+						</h5>
+						<div className="text-center" style={{ fontSize: "5rem" }}>
+							<span role="img">😲</span>
+						</div>
+					</div>
+				) : (
+					<TracksGrid
+						items={playlistObject.items.slice(0, playlistObject.fetchedItems)}
+						objectId={playlistIdParam.toString()}
+						isLoading={playlistObject.isFetching}
+						isItemLoaded={index => !!playlistObject.items[index]}
+						loadMore={() => fetchPlaylistTracks(playlistIdParam, 30) as any}
+						hasMore={hasMore}
+					/>
+				)}
+			</>
+		);
+	}
 }
 
-const mapStateToProps = (state: StoreState, props: OwnProps) => {
-    const { player: { currentPlaylistId, status }, auth } = state;
-    const { match: { params: { playlistId } } } = props;
-
-    const isPlayerPlaylist = currentPlaylistId === playlistId;
-    const isPlaylistPlaying = isPlayerPlaylist && status === PlayerStatus.PLAYING;
-
-    const playlist = getNormalizedPlaylist(playlistId as any)(state);
-
-    return {
-        auth,
-        isPlayerPlaylist,
-        isPlaylistPlaying,
-        playlistObject: getPlaylistObjectSelector(playlistId)(state),
-        playlistIdParam: playlistId as any,
-
-        playlist,
-        playlistUser: getNormalizedUser(playlist.user)(state),
-        firstItem: playlist.tracks.length > 1 ? getNormalizedTrack(playlist.tracks[0].id)(state) : undefined
-    };
-};
-
-const mapDispatchToProps = (dispatch: Dispatch) => bindActionCreators({
-    playTrack,
-    toggleLike,
-    toggleRepost,
-    fetchPlaylistIfNeeded,
-    fetchPlaylistTracks,
-    addUpNext,
-    toggleStatus,
-}, dispatch);
-
-export default connect(mapStateToProps, mapDispatchToProps)(PlaylistPage);
+export default connect(
+	mapStateToProps,
+	mapDispatchToProps
+)(PlaylistPage);
