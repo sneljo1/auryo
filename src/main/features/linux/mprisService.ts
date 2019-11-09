@@ -18,7 +18,8 @@ const logosPath =
 		: path.resolve(__dirname, "./assets/img/logos");
 
 export default class MprisService extends LinuxFeature {
-	private readonly logger: LoggerInstance = Logger.createLogger(MprisService.name);
+	public readonly featureName = "MprisService";
+	private readonly logger: LoggerInstance = Logger.createLogger(MprisService.featureName);
 
 	private meta: MprisServiceClient.MetaData = {};
 	private player: MprisServiceClient.Player | null = null;

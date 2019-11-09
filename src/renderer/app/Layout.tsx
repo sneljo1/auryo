@@ -123,9 +123,6 @@ class Layout extends React.Component<AllProps, State> {
 	}
 
 	public componentWillUnmount() {
-		const { stopWatchers } = this.props;
-		stopWatchers();
-
 		window.removeEventListener("online", this.setOnlineStatus);
 		window.removeEventListener("offline", this.setOnlineStatus);
 
@@ -287,10 +284,4 @@ class Layout extends React.Component<AllProps, State> {
 	}
 }
 
-export default compose(
-	withRouter,
-	connect(
-		mapStateToProps,
-		mapDispatchToProps
-	)
-)(Layout);
+export default compose(withRouter, connect(mapStateToProps, mapDispatchToProps))(Layout);

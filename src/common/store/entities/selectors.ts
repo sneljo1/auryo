@@ -41,16 +41,12 @@ export const normalizeSchema = new schema.Array(
 );
 
 export const getDenormalizedEntities = <T>(result: Normalized.NormalizedResult[]) =>
-	createSelector<StoreState, ReturnType<typeof getEntities>, T[]>(
-		getEntities,
-		entities => denormalize(result, normalizeSchema, entities)
+	createSelector<StoreState, ReturnType<typeof getEntities>, T[]>(getEntities, entities =>
+		denormalize(result, normalizeSchema, entities)
 	);
 
 export const getDenormalizedEntity = <T>(result: Normalized.NormalizedResult) =>
-	createSelector<StoreState, T[], T | null>(
-		getDenormalizedEntities([result]),
-		entities => entities[0]
-	);
+	createSelector<StoreState, T[], T | null>(getDenormalizedEntities([result]), entities => entities[0]);
 
 export const getMusicEntity = getDenormalizedEntity;
 export const getUserEntity = (id: number) => getDenormalizedEntity<SoundCloud.User | null>({ id, schema: "users" });

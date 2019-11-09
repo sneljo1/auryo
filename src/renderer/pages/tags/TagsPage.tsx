@@ -121,7 +121,4 @@ class TagsPage extends React.Component<AllProps> {
 	}
 }
 
-export default connect(
-	mapStateToProps,
-	mapDispatchToProps
-)(TagsPage);
+export default connect(mapStateToProps, mapDispatchToProps)(TagsPage);

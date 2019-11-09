@@ -288,10 +288,7 @@ class Header extends React.Component<AllProps, State> {
 }
 
 export default compose(
-	connect<PropsFromState, PropsFromDispatch, OwnProps, StoreState>(
-		mapStateToProps,
-		mapDispatchToProps
-	),
+	connect<PropsFromState, PropsFromDispatch, OwnProps, StoreState>(mapStateToProps, mapDispatchToProps),
 	withRouter,
 	withContentContext
 )(Header);

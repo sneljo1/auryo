@@ -25,7 +25,7 @@ export const TrackInfo = React.memo<Props>(({ img, title, id, userId, username, 
 				onClick={toggleLike}>
 				<i className={`bx ${liked ? "bxs-heart" : "bx-heart"}`} />
 			</a>
-			<FallbackImage noPlaceholder className="img-fluid" src={img} />
+			<FallbackImage noPlaceholder fluid src={img} />
 		</div>
 		<div className={styles.trackDetails}>
 			<Link className={styles.trackTitle} to={`/track/${id}`}>

@@ -26,7 +26,6 @@ export const tools: typeof Feature[] = [
 	ApplicationMenu,
 	NotificationManager,
 	ChromecastManager,
-
 	// Mac
 	TouchBarManager,
 	MediaServiceManager,

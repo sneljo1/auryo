@@ -12,10 +12,12 @@ import _ from "lodash";
 import { CONFIG } from "../../../config";
 import { Logger, LoggerInstance } from "../../utils/logger";
 import { Feature } from "../feature";
+import { initApp } from "@common/store/actions";
 
 @autobind
 export default class IPCManager extends Feature {
-	private readonly logger: LoggerInstance = Logger.createLogger("IPCManager");
+	public readonly featureName = "IPCManager";
+	private readonly logger: LoggerInstance = Logger.createLogger(this.featureName);
 
 	private readonly awsApiGateway: AWSApiGatewayService = new AWSApiGatewayService();
 
@@ -187,6 +189,7 @@ export default class IPCManager extends Feature {
 
 				this.store.dispatch(setLogin(tokenResponse));
 				this.sendToWebContents("login-success");
+				this.store.dispatch(initApp() as any);
 			}
 		} catch (err) {
 			this.store.dispatch(setLoginError("Something went wrong during refresh"));

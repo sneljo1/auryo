@@ -127,8 +127,6 @@ class TrackGridItem extends React.Component<AllProps> {
 
 		const icon = isTrackPlaying ? "pause" : "play";
 
-		console.log("test");
-
 		let next: Partial<PlayingTrack> = { id: track.id };
 
 		if (track.kind === "playlist") {

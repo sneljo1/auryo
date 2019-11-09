@@ -373,7 +373,4 @@ class Settings extends React.PureComponent<AllProps, State> {
 	}
 }
 
-export default connect(
-	mapStateToProps,
-	mapDispatchToProps
-)(Settings);
+export default connect(mapStateToProps, mapDispatchToProps)(Settings);

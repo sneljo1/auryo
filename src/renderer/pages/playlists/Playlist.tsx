@@ -116,7 +116,7 @@ class Playlist extends React.Component<AllProps> {
 			}
 		} else if (
 			!playlistObject ||
-			(playlistObject.items.length === 0 && (playlistObject && !playlistObject.isFetching))
+			(playlistObject.items.length === 0 && playlistObject && !playlistObject.isFetching)
 		) {
 			fetchMore(objectId, ObjectTypes.PLAYLISTS);
 		}

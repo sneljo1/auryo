@@ -16,7 +16,8 @@ import { addToast, setChromecastAppState, setChromeCastPlayerStatus, useChromeCa
 
 @autobind
 export default class ChromecastManager extends Feature {
-	private readonly logger: LoggerInstance = Logger.createLogger(ChromecastManager.name);
+	public readonly featureName = "ChromecastManager";
+	private readonly logger: LoggerInstance = Logger.createLogger(this.featureName);
 
 	private player?: AuryoReceiver;
 

@@ -62,7 +62,8 @@ export class ChartsPage extends React.Component<AllProps> {
 										700: 2,
 										500: 1
 									}}
-									className="my-masonry-grid">
+									className="my-masonry-grid"
+									columnClassName="my-masonry-grid_column">
 									{MUSIC_GENRES.map(genre => (
 										<ChartGenre
 											key={`chart-genre-key-${genre.key}`}

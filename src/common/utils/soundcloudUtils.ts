@@ -16,7 +16,6 @@ function makeUrl(uri: string, opts: any, v2 = false) {
 			// eslint-disable-next-line no-self-assign
 			options.client_id = options.client_id;
 		} else {
-			console.log(process.env.CLIENT_ID);
 			options.client_id = CONFIG.CLIENT_ID;
 		}
 	}

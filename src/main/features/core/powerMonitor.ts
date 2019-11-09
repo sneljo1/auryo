@@ -8,6 +8,7 @@ import { Feature } from "../feature";
  * Pause music on power down or sleep
  */
 export default class PowerMonitor extends Feature {
+	public readonly featureName = "PowerMonitor";
 	public register() {
 		powerMonitor.on("suspend", this.pause);
 	}

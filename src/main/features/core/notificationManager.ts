@@ -7,6 +7,7 @@ import { Auryo } from "@main/app";
 import { Feature } from "../feature";
 
 export default class NotificationManager extends Feature {
+	public readonly featureName = "NotificationManager";
 	constructor(auryo: Auryo) {
 		super(auryo, "ready-to-show");
 	}

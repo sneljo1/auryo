@@ -18,6 +18,7 @@ const iconsDirectory =
 
 @autobind
 export default class TouchBarManager extends MacFeature {
+	public readonly featureName = "TouchBarManager";
 	// tslint:disable-next-line: typedef
 	public likestates = {
 		liked: nativeImage.createFromPath(path.join(iconsDirectory, "heart-full.png")).resize({

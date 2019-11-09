@@ -27,7 +27,7 @@
     "package-linux": "yarn build && electron-builder build --linux",
     "package-win": "yarn build && electron-builder build --win --x64",
     "package-mac": "yarn build && electron-builder build --mac",
-    "postinstall": "electron-builder install-app-deps package.json && yarn build-dll",
+    "postinstall": "electron-builder install-app-deps && yarn build-dll",
     "postlint-fix": "prettier --ignore-path .eslintignore --single-quote --write '**/*.{*{js,jsx,json},babelrc,eslintrc,prettierrc,stylelintrc}'",
     "postlint-styles-fix": "prettier --ignore-path .eslintignore --single-quote --write '**/*.{css,scss}'",
     "precommit": "lint-staged",
@@ -156,10 +156,11 @@
     "detect-port": "^1.3.0",
     "devtron": "^1.4.0",
     "dotenv": "^8.1.0",
-    "electron": "^6.0.11",
-    "electron-builder": "^21.2.0",
+    "electron": "^7.1.1",
+    "electron-builder": "^22.1.0",
     "electron-devtools-installer": "^2.2.4",
     "electron-download": "^4.1.1",
+    "electron-notarize": "^0.2.0",
     "env-cmd": "^8.0.2",
     "enzyme": "^3.10.0",
     "enzyme-adapter-react-16": "^1.14.0",
@@ -193,7 +194,6 @@
     "postcss-loader": "^2.1.5",
     "postcss-modules": "^1.4.1",
     "postcss-url": "^7.3.2",
-    "prettier": "^1.18.2",
     "redux-logger": "^3.0.6",
     "rimraf": "^2.6.2",
     "sass": "^1.14.0",
@@ -210,7 +210,7 @@
     "typings-for-css-modules-loader": "^1.7.0",
     "uglifyjs-webpack-plugin": "^2.1.3",
     "url-loader": "^2.0.1",
-    "webpack": "^4.38.0",
+    "webpack": "^4.41.2",
     "webpack-build-notifier": "^1.0.3",
     "webpack-bundle-analyzer": "^3.5.2",
     "webpack-cli": "^3.3.5",
@@ -220,10 +220,12 @@
     "why-did-you-update": "^1.0.6"
   },
   "dependencies": {
-    "@amilajack/castv2-client": "file:../caster",
+    "@amilajack/castv2-client": "Superjo149/caster",
     "@blueprintjs/core": "^3.18.0",
     "@blueprintjs/icons": "^3.6.0",
+    "@sentry/browser": "^5.7.1",
     "@sentry/electron": "0.17.4",
+    "@sentry/node": "^5.7.1",
     "autolinker": "^1.8.3",
     "aws-iot-device-sdk": "^2.2.1",
     "axios": "^0.19.0",
@@ -238,8 +240,9 @@
     "electron-dl": "^1.14.0",
     "electron-is": "^3.0.0",
     "electron-localshortcut": "^3.1.0",
+    "electron-redux": "^1.4.0",
     "electron-store": "^4.0.0",
-    "electron-updater": "^4.1.2",
+    "electron-updater": "^4.2.0",
     "electron-window-state": "^5.0.3",
     "history": "^4.10.1",
     "jquery": "3.4.1",
@@ -276,7 +279,7 @@
     "react-window-infinite-loader": "^1.0.5",
     "reactstrap": "^6.5.0",
     "redux": "^4.0.4",
-    "redux-electron-store": "^0.6.5",
+    "redux-electron-store": "Superjo149/redux-electron-store",
     "redux-modal": "^4.0.0",
     "redux-promise-middleware": "^6.1.1",
     "redux-thunk": "^2.3.0",
@@ -299,10 +302,12 @@
     "mpris-service": "2.1.0"
   },
   "build": {
+    "afterSign": "internals/scripts/notarize.js",
     "generateUpdatesFilesForAllChannels": true,
     "productName": "Auryo",
     "files": [
       "dist/**/*",
+      "dll/**/*",
       "static/**/*",
       "node_modules/",
       "package.json",
@@ -333,8 +338,10 @@
         "dmg",
         "zip"
       ],
-      "category": "public.app-category.music",
-      "hardenedRuntime": true
+      "hardenedRuntime": true,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist",
+      "category": "public.app-category.music"
     },
     "win": {
       "target": [
@@ -386,7 +393,7 @@
       "category": "Audio"
     },
     "directories": {
-      "buildResources": "config/build",
+      "buildResources": "resources",
       "output": "release"
     }
   },

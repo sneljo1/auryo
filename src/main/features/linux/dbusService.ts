@@ -6,7 +6,8 @@ import { Logger, LoggerInstance } from "../../utils/logger";
 import LinuxFeature from "./linuxFeature";
 
 export default class DbusService extends LinuxFeature {
-	private readonly logger: LoggerInstance = Logger.createLogger(DbusService.name);
+	public readonly featureName = "DbusService";
+	private readonly logger: LoggerInstance = Logger.createLogger(DbusService.featureName);
 
 	public async register() {
 		try {

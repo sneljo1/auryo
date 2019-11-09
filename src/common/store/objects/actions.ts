@@ -15,7 +15,7 @@ import { getPlaylistObjectSelector } from "./selectors";
 import { ObjectsActionTypes, ObjectState, ObjectTypes } from "./types";
 
 const canFetch = (current: ObjectState<any>): boolean => !current || (!!current && !current.isFetching);
-const canFetchMore = (current: ObjectState<any>): boolean => canFetch(current) && (current && current.nextUrl !== null);
+const canFetchMore = (current: ObjectState<any>): boolean => canFetch(current) && current && current.nextUrl !== null;
 
 // TODO refactor, too hacky. Maybe redux-observables?
 // tslint:disable-next-line:max-line-length
@@ -188,7 +188,7 @@ export function fetchPlaylistIfNeeded(playlistId: number): ThunkResult<Promise<a
 export function fetchPlaylistTracks(
 	playlistId: number,
 	size = 20,
-	ids?: Normalized.NormalizedResult[]
+	ids: Normalized.NormalizedResult[] = []
 ): ThunkResult<Promise<any>> {
 	return async (dispatch, getState) => {
 		const playlistObject = getPlaylistObjectSelector(playlistId.toString())(getState());

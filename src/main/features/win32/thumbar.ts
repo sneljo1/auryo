@@ -27,6 +27,7 @@ interface ThumbarPreset {
 
 @autobind
 export default class Thumbar extends Feature {
+	public readonly featureName = "Thumbar";
 	private thumbarButtons: ThumbarPreset | null = null;
 
 	constructor(auryo: Auryo) {

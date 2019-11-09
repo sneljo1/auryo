@@ -30,7 +30,7 @@ export class Utils {
 
 	static getLogDir(): string {
 		const userData = app.getPath("userData");
-		const appName = app.getName();
+		const appName = app.name;
 
 		const homeDir: string = os.homedir ? os.homedir() : process.env.HOME || "";
 

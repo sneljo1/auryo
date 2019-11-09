@@ -126,7 +126,4 @@ class Queue extends React.PureComponent<AllProps> {
 	}
 }
 
-export default connect<PropsFromState, PropsFromDispatch, {}, StoreState>(
-	mapStateToProps,
-	mapDispatchToProps
-)(Queue);
+export default connect<PropsFromState, PropsFromDispatch, {}, StoreState>(mapStateToProps, mapDispatchToProps)(Queue);

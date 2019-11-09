@@ -8,7 +8,8 @@ import { Logger, LoggerInstance } from "../../../utils/logger";
 import { WindowsFeature } from "../windowsFeature";
 
 export default class Win10MediaService extends WindowsFeature {
-	private readonly logger: LoggerInstance = Logger.createLogger(Win10MediaService.name);
+	public readonly featureName = "Win10MediaService";
+	private readonly logger: LoggerInstance = Logger.createLogger(this.featureName);
 
 	public shouldRun() {
 		return super.shouldRun() && !process.env.TOKEN; // TODO remove this and figure out why nodert isn't being added on AppVeyor

@@ -26,6 +26,7 @@ export interface WatchState<T> {
 }
 
 export class Feature {
+	public readonly featureName: string = "Feature";
 	public timers: any[] = [];
 	public win: BrowserWindow | null = null;
 	public store: Store<StoreState>;

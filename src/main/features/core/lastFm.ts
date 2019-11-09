@@ -16,7 +16,8 @@ import { Feature, WatchState } from "../feature";
 
 @autobind
 export default class LastFm extends Feature {
-	private readonly logger: LoggerInstance = Logger.createLogger(LastFm.name);
+	public readonly featureName = "LastFm";
+	private readonly logger: LoggerInstance = Logger.createLogger(this.featureName);
 	private lastfm: Lastfm.LastFmNode;
 	private readonly scrobbleDebounced: (title: string, artist: string, timestamp: number) => Promise<void>;
 

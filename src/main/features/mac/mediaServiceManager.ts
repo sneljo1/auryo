@@ -18,6 +18,7 @@ enum MediaStates {
 }
 
 export default class MediaServiceManager extends MacFeature {
+	public readonly featureName = "MediaServiceManager";
 	private myService: MediaService | null = null;
 	private readonly meta: MetaData = {
 		state: MediaStates.STOPPED,

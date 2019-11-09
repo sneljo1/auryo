@@ -5,6 +5,7 @@ import { rootReducer, StoreState } from "@common/store";
 import { addToast, logout } from "@common/store/actions";
 import { PlayerActionTypes } from "@common/store/player";
 import { UIActionTypes } from "@common/store/ui";
+import { Logger } from "@main/utils/logger";
 import { routerMiddleware } from "connected-react-router";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { ipcRenderer } from "electron";
@@ -12,11 +13,11 @@ import { History } from "history";
 import { applyMiddleware, compose, createStore, Middleware, Store } from "redux";
 import { electronEnhancer } from "redux-electron-store";
 import { createLogger } from "redux-logger";
-import promiseMiddleware from "redux-promise-middleware";
+import promiseMiddleware, { ActionType } from "redux-promise-middleware";
 import thunk from "redux-thunk";
 
-const test: Middleware = (store: Store<StoreState>) => next => action => {
-	if (action.type && action.type.endsWith("_ERROR")) {
+const handleErrorMiddleware: Middleware = (store: Store<StoreState>) => next => action => {
+	if (action.type && action.type.endsWith(ActionType.Rejected)) {
 		const {
 			payload: { message, response }
 		} = action;
@@ -48,45 +49,66 @@ const test: Middleware = (store: Store<StoreState>) => next => action => {
 	return next(action);
 };
 
-const logger = createLogger({
-	level: "info",
-	collapsed: true,
-	predicate: (_getState: () => any, action: any) =>
-		action.type !== UIActionTypes.SET_SCROLL_TOP && action.type !== PlayerActionTypes.SET_TIME
-} as any);
+const configureStore = (history?: History): Store<StoreState> => {
+	let middleware = [handleErrorMiddleware, thunk, promiseMiddleware];
 
-const configureStore = (history: History): Store<StoreState> => {
-	const router = routerMiddleware(history);
-	const middleware = [test, thunk, router, promiseMiddleware];
+	if (history) {
+		const router = routerMiddleware(history);
+		middleware = [router, ...middleware];
+	}
 
 	if (process.env.NODE_ENV === "development") {
+		let logger: Middleware;
+		if (history) {
+			logger = createLogger({
+				level: "info",
+				collapsed: true,
+				predicate: (_getState: () => any, action: any) =>
+					action.type !== UIActionTypes.SET_SCROLL_TOP && action.type !== PlayerActionTypes.SET_TIME
+			});
+		} else {
+			logger = () => next => action => {
+				const reduxLogger = Logger.createLogger("REDUX");
+
+				if (action.error) {
+					reduxLogger.error(action.type, action.error);
+				} else {
+					reduxLogger.debug(action.type);
+				}
+
+				return next(action);
+			};
+		}
 		middleware.push(logger);
 	}
 
-	const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
-		? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
-		: compose;
+	const composeEnhancers =
+		typeof window === "object" && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
+			? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
+			: compose;
 
 	const enhancer = composeEnhancers(
 		applyMiddleware(...middleware),
-		electronEnhancer({
-			filter: {
-				app: true,
-				config: true,
-				player: {
-					status: true,
-					currentPlaylistId: true,
-					playingTrack: true
-				},
-				modal: true,
-				auth: {
-					authentication: true
-				},
-				ui: {
-					toasts: true
+		electronEnhancer(
+			history && {
+				filter: {
+					app: true,
+					config: true,
+					player: {
+						status: true,
+						currentPlaylistId: true,
+						playingTrack: true
+					},
+					modal: true,
+					auth: {
+						authentication: true
+					},
+					ui: {
+						toasts: true
+					}
 				}
 			}
-		})
+		)
 	);
 
 	const store: Store<StoreState> = createStore(rootReducer(history), enhancer);

@@ -12,7 +12,8 @@ import { Logger, LoggerInstance } from "../../utils/logger";
 import { Feature } from "../feature";
 
 export default class AppUpdater extends Feature {
-	private readonly logger: LoggerInstance = Logger.createLogger(AppUpdater.name);
+	public readonly featureName = "AppUpdater";
+	private readonly logger: LoggerInstance = Logger.createLogger(this.featureName);
 
 	private hasUpdate = false;
 	private readonly currentVersion: string | null = parseVersion(app.getVersion());

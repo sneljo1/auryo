@@ -164,7 +164,4 @@ class ActionsDropdown extends React.Component<AllProps> {
 	}
 }
 
-export default connect(
-	mapStateToProps,
-	mapDispatchToProps
-)(ActionsDropdown);
+export default connect(mapStateToProps, mapDispatchToProps)(ActionsDropdown);

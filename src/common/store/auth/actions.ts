@@ -113,8 +113,8 @@ export function getAuthAllPlaylistsIfNeeded(): ThunkResult<void> {
 }
 
 export function getAuthLikeIds(): ThunkResult<Promise<any>> {
-	return dispatch =>
-		Promise.all([
+	return dispatch => {
+		return Promise.all([
 			dispatch({
 				type: AuthActionTypes.SET_LIKES,
 				payload: fetchToObject(SC.getLikeIdsUrl())
@@ -124,6 +124,7 @@ export function getAuthLikeIds(): ThunkResult<Promise<any>> {
 				payload: fetchToObject(SC.getPlaylistLikeIdsUrl())
 			})
 		]);
+	};
 }
 
 export function getAuthLikesIfNeeded(): ThunkResult<void> {

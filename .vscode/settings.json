@@ -1,21 +1,24 @@
 {
-    "files.exclude": {
-        ".cache-loader": true,
-        ".vscode": true,
-        "node_modules": true,
+  "files.exclude": {
+    ".cache-loader": true,
+    ".vscode": true,
+    "node_modules": true,
+  },
+  "npm-intellisense.importQuotes": "\"",
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    {
+      "language": "typescript",
+      "autoFix": true
     },
-    "npm-intellisense.importQuotes": "\"",
-    "eslint.validate": [
-        "javascript",
-        "javascriptreact",
-        {
-          "language": "typescript",
-          "autoFix": true
-        },
-        {
-          "language": "typescriptreact",
-          "autoFix": true
-        }
-      ],
-      "emmet.showAbbreviationSuggestions": false,
+    {
+      "language": "typescriptreact",
+      "autoFix": true
+    }
+  ],
+  "emmet.showAbbreviationSuggestions": false,
+  "editor.tabSize": 4,
+  "editor.formatOnSave": true,
+  "eslint.autoFixOnSave": true,
 }

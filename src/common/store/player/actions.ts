@@ -195,9 +195,9 @@ export function getItemsAround(position: number): ThunkResult<Promise<void>> {
 			}
 
 			if (itemsToFetch.length) {
-				const response = await dispatch<Promise<{ value: { entities: EntitiesState } }>>(fetchTracks(
-					itemsToFetch.map(i => i.id)
-				) as any);
+				const response = await dispatch<Promise<{ value: { entities: EntitiesState } }>>(
+					fetchTracks(itemsToFetch.map(i => i.id)) as any
+				);
 
 				const {
 					value: {
@@ -572,7 +572,7 @@ export function changeTrack(changeType: ChangeTypes, finished?: boolean): ThunkR
 
 		// If last song
 		if (
-			(nextIndex === queue.length && (currentPlaylistObject && !currentPlaylistObject.nextUrl)) ||
+			(nextIndex === queue.length && currentPlaylistObject && !currentPlaylistObject.nextUrl) ||
 			nextIndex === -1
 		) {
 			if (repeat === null) {

@@ -172,11 +172,11 @@ export class Auryo {
 		const featuresWaitUntil = _.groupBy(getTools(this), "waitUntil");
 
 		const registerFeature = (feature: Feature) => {
-			this.logger.debug(`Registering feature: ${feature.constructor.name}`);
+			this.logger.debug(`Registering feature: ${feature.featureName}`);
 			try {
 				feature.register();
 			} catch (error) {
-				this.logger.error(error, `Error starting feature: ${feature.constructor.name}`);
+				this.logger.error(error, `Error starting feature: ${feature.featureName}`);
 			}
 		};
 

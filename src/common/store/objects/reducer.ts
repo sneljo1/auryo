@@ -63,8 +63,6 @@ const objectState: Reducer<ObjectState<any>> = (state = initialObjectsState, act
 				items: [...payload.items]
 			};
 		case onSuccess(ObjectsActionTypes.SET_TRACKS):
-			console.log(payload);
-
 			// eslint-disable-next-line no-case-declarations
 			const unableToFetch = _.difference(
 				payload.shouldFetchedIds.map((t: Normalized.NormalizedResult) => t.id),

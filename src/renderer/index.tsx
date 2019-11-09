@@ -10,7 +10,7 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { AppContainer } from "react-hot-loader";
 import { App } from "./App";
-import { configureStore } from "./configureStore";
+import { configureStore } from "../common/configureStore";
 import "./css/app.scss";
 import { history } from "./history";
 

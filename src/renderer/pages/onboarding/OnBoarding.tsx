@@ -1,6 +1,7 @@
 import feetonmusicbox from "@assets/img/feetonmusicbox.jpg";
 import { StoreState } from "@common/store";
 import * as actions from "@common/store/actions";
+import { authConfigSelector, configSelector } from "@common/store/config/selectors";
 import AboutModal from "@renderer/app/components/modals/AboutModal/AboutModal";
 import cn from "classnames";
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -17,7 +18,8 @@ import "./OnBoarding.scss";
 
 const mapStateToProps = (state: StoreState) => ({
 	...state.auth.authentication,
-	config: state.config
+	config: configSelector(state),
+	auth: authConfigSelector(state)
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) =>
@@ -40,7 +42,7 @@ interface State {
 	step: "welcome" | "login" | "privacy";
 }
 
-type AllProps = OwnProps & PropsFromState & PropsFromDispatch;
+type AllProps = OwnProps & PropsFromState & PropsFromDispatch & RouteComponentProps;
 
 class OnBoarding extends React.PureComponent<AllProps, State> {
 	public state: State = {
@@ -72,6 +74,13 @@ class OnBoarding extends React.PureComponent<AllProps, State> {
 	public render() {
 		const { loading, error, show, config, setConfigKey, history } = this.props;
 		const { step } = this.state;
+		const {
+			auth: { token }
+		} = config;
+
+		if (token) {
+			history.replace("/");
+		}
 
 		return (
 			<div id="login" className={cn("login", { login_small: step === "login" })}>
@@ -128,7 +137,4 @@ class OnBoarding extends React.PureComponent<AllProps, State> {
 	}
 }
 
-export default connect<PropsFromState, PropsFromDispatch, OwnProps, StoreState>(
-	mapStateToProps,
-	mapDispatchToProps
-)(OnBoarding);
+export default connect(mapStateToProps, mapDispatchToProps)(OnBoarding);

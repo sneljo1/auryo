@@ -32,7 +32,7 @@ class UtilitiesModal extends React.PureComponent<Props> {
 		const { show, handleHide, remainingPlays } = this.props;
 
 		return (
-			<Modal visible={show} toggle={handleHide} className="utilities">
+			<Modal isOpen={show} toggle={handleHide} className="utilities">
 				<ModalBody>
 					<div className="close">
 						<a href="javascript:void(0)" onClick={handleHide}>
@@ -90,7 +90,4 @@ class UtilitiesModal extends React.PureComponent<Props> {
 	}
 }
 
-export default compose(
-	connect(mapStateToProps),
-	connectModal({ name: "utilities" })
-)(UtilitiesModal);
+export default compose(connectModal({ name: "utilities" }), connect(mapStateToProps))(UtilitiesModal);

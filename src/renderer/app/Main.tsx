@@ -1,5 +1,4 @@
 import { StoreState } from "@common/store";
-import * as actions from "@common/store/actions";
 import { getScrollPositions } from "@common/store/ui/selectors";
 import { Utils } from "@common/utils/utils";
 import Settings from "@renderer/pages/settings/Settings";
@@ -7,7 +6,7 @@ import { autobind } from "core-decorators";
 import * as React from "react";
 import { connect } from "react-redux";
 import { Redirect, Route, RouteComponentProps, Switch, withRouter } from "react-router";
-import { bindActionCreators, compose, Dispatch } from "redux";
+import { compose } from "redux";
 import ArtistPage from "../pages/artist/ArtistPage";
 import { ChartsDetailsPage } from "../pages/charts/ChartsDetailsPage";
 import { ChartsPage } from "../pages/charts/ChartsPage";
@@ -28,21 +27,12 @@ import Layout from "./Layout";
 
 const mapStateToProps = (state: StoreState) => {
 	const { app } = state;
-
 	return {
 		offline: app.offline,
 		loaded: app.loaded,
 		scrollPositions: getScrollPositions(state)
 	};
 };
-
-const mapDispatchToProps = (dispatch: Dispatch) =>
-	bindActionCreators(
-		{
-			initApp: actions.initApp
-		},
-		dispatch
-	);
 
 interface State {
 	previousScrollTop?: number;
@@ -51,18 +41,10 @@ interface State {
 
 type PropsFromState = ReturnType<typeof mapStateToProps>;
 
-type PropsFromDispatch = ReturnType<typeof mapDispatchToProps>;
-
-type AllProps = PropsFromState & RouteComponentProps & PropsFromDispatch;
+type AllProps = PropsFromState & RouteComponentProps;
 
 @autobind
 class Main extends React.PureComponent<AllProps, State> {
-	public componentDidMount() {
-		const { initApp } = this.props;
-
-		initApp();
-	}
-
 	public handleResolve(props: RouteComponentProps<any>) {
 		const {
 			location: { search }
@@ -122,10 +104,4 @@ class Main extends React.PureComponent<AllProps, State> {
 	}
 }
 
-export default compose(
-	withRouter,
-	connect(
-		mapStateToProps,
-		mapDispatchToProps
-	)
-)(Main);
+export default compose(withRouter, connect(mapStateToProps))(Main);

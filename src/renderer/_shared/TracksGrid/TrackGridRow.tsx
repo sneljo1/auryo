@@ -76,6 +76,10 @@ export class TrackGridRow extends React.PureComponent<Props> {
 			nodes.push(this.renderItem(i));
 		}
 
+		if (!nodes.length) {
+			return null;
+		}
+
 		return (
 			<div className="row m-0" style={style}>
 				{nodes}

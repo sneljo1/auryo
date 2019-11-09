@@ -281,7 +281,4 @@ class PlaylistPage extends React.Component<AllProps, State> {
 	}
 }
 
-export default connect(
-	mapStateToProps,
-	mapDispatchToProps
-)(PlaylistPage);
+export default connect(mapStateToProps, mapDispatchToProps)(PlaylistPage);

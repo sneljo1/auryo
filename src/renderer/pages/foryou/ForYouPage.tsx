@@ -153,7 +153,4 @@ class ForYou extends React.Component<AllProps, State> {
 	}
 }
 
-export default connect(
-	mapStateToProps,
-	mapDispatchToProps
-)(ForYou);
+export default connect(mapStateToProps, mapDispatchToProps)(ForYou);

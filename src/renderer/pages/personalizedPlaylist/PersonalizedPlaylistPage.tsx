@@ -142,7 +142,7 @@ class PersonalizedPlaylistPage extends React.Component<AllProps, State> {
 			playlist.artwork_url || playlist.calculated_artwork_url || (firstItem && firstItem.artwork_url);
 
 		const permalink = `https://soundcloud.com/discover/sets/${playlist.permalink}`;
-		const isEmpty = !playlistObject.isFetching && (playlistObject.items && playlistObject.items.length === 0);
+		const isEmpty = !playlistObject.isFetching && playlistObject.items && playlistObject.items.length === 0;
 		const image = hasImage
 			? SC.getImageUrl(playlist.artwork_url || playlist.calculated_artwork_url, IMAGE_SIZES.XLARGE)
 			: null;
@@ -222,7 +222,4 @@ class PersonalizedPlaylistPage extends React.Component<AllProps, State> {
 	}
 }
 
-export default connect(
-	mapStateToProps,
-	mapDispatchToProps
-)(PersonalizedPlaylistPage);
+export default connect(mapStateToProps, mapDispatchToProps)(PersonalizedPlaylistPage);

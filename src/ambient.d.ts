@@ -31,3 +31,4 @@ declare module "electron-window-state";
 declare module "react-dotdotdot";
 declare module "color-hash";
 declare module "react-marquee";
+declare module "electron-redux";

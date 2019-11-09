@@ -42,11 +42,11 @@ export function togglePlaylistTrack(trackId: number, playlistId: number): ThunkR
 			payload: {
 				promise: fetchToJson(SC.getPlaylistupdateUrl(playlistId), {
 					method: "PUT",
-					body: JSON.stringify({
+					data: {
 						playlist: {
 							tracks: newitems.map(i => i.id)
 						}
-					})
+					}
 				}).then(() => {
 					const {
 						entities: { trackEntities }
@@ -97,13 +97,13 @@ export function createPlaylist(title: string, type: string, tracks: Normalized.N
 				Accept: "application/json",
 				"Content-Type": "application/json"
 			},
-			body: JSON.stringify({
+			data: {
 				playlist: {
 					title,
 					sharing: type,
 					tracks: tracks.map(i => i.id)
 				}
-			})
+			}
 		});
 }
 

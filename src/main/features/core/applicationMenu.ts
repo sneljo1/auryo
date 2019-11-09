@@ -10,6 +10,7 @@ import { Feature } from "../feature";
 
 @autobind
 export default class ApplicationMenu extends Feature {
+	public readonly featureName = "ApplicationMenu";
 	public shouldRun() {
 		return is.osx();
 	}
@@ -203,7 +204,7 @@ export default class ApplicationMenu extends Feature {
 
 		if (process.platform === "darwin") {
 			template.unshift({
-				label: app.getName(),
+				label: app.name,
 				submenu: [
 					{ role: "about" },
 					{ type: "separator" },

@@ -21,17 +21,14 @@ export const getCurrentPlaylistId = createSelector<StoreState, PlayerState, stri
 );
 
 export const isPlaying = (result: Normalized.NormalizedResult, playlistId: string) =>
-	createSelector<StoreState, PlayingTrack | null, boolean>(
-		[getPlayingTrack],
-		playingTrack => {
-			if (!playingTrack) {
-				return false;
-			}
-
-			if (result.schema === "playlists") {
-				return playingTrack.playlistId === result.id.toString();
-			}
-
-			return playingTrack.id === result.id && playingTrack.playlistId === playlistId;
+	createSelector<StoreState, PlayingTrack | null, boolean>([getPlayingTrack], playingTrack => {
+		if (!playingTrack) {
+			return false;
 		}
-	);
+
+		if (result.schema === "playlists") {
+			return playingTrack.playlistId === result.id.toString();
+		}
+
+		return playingTrack.id === result.id && playingTrack.playlistId === playlistId;
+	});

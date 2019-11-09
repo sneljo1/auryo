@@ -10,6 +10,7 @@ import { Feature } from "../feature";
  * Register global media shortcuts
  */
 export default class Shortcut extends Feature {
+	public readonly featureName = "Shortcut";
 	constructor(auryo: Auryo) {
 		super(auryo, "ready-to-show");
 	}

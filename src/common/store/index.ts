@@ -21,7 +21,7 @@ export const rootReducer = (history?: History) =>
 		config: configReducer,
 		ui: uiReducer,
 		modal: modal as Reducer,
-		router: (history ? connectRouter(history) : undefined) as any
+		...(history ? { router: connectRouter(history) } : {})
 	});
 
 export interface StoreState {

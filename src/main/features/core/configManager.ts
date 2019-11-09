@@ -16,7 +16,8 @@ import { Utils } from "../../utils/utils";
 import { Feature, WatchState } from "../feature";
 
 export default class ConfigManager extends Feature {
-	private readonly logger: LoggerInstance = Logger.createLogger(ConfigManager.name);
+	public readonly featureName = "ConfigManager";
+	private readonly logger: LoggerInstance = Logger.createLogger(this.featureName);
 	private isNewVersion = false;
 	private isNewUser = false;
 
@@ -39,7 +40,7 @@ export default class ConfigManager extends Feature {
 		);
 	}
 
-	public register() {
+	public async register() {
 		try {
 			this.config = settings.store as any;
 		} catch (e) {
@@ -61,33 +62,27 @@ export default class ConfigManager extends Feature {
 			this.logger.info("Enabling proxy");
 
 			if (session.defaultSession) {
-				session.defaultSession.setProxy(
-					{
-						proxyRules: Utils.getProxyUrlFromConfig(this.config.proxy),
-						pacScript: "",
-						proxyBypassRules: ""
-					},
-					() => {
-						if (session.defaultSession) {
-							session.defaultSession.resolveProxy("https://api.soundcloud.com", proxy => {
-								this.logger.info(`Proxy status: ${proxy}`);
+				await session.defaultSession.setProxy({
+					proxyRules: Utils.getProxyUrlFromConfig(this.config.proxy),
+					pacScript: "",
+					proxyBypassRules: ""
+				});
 
-								if (!proxy && session.defaultSession) {
-									session.defaultSession.setProxy(
-										{
-											proxyRules: "",
-											pacScript: "",
-											proxyBypassRules: ""
-										},
-										() => {
-											this.logger.error("Failed to initialize proxy");
-										}
-									);
-								}
-							});
-						}
+				if (session.defaultSession) {
+					const proxy = await session.defaultSession.resolveProxy("https://api.soundcloud.com");
+
+					this.logger.info(`Proxy status: ${proxy}`);
+
+					if (!proxy && session.defaultSession) {
+						await session.defaultSession.setProxy({
+							proxyRules: "",
+							pacScript: "",
+							proxyBypassRules: ""
+						});
+
+						this.logger.error("Failed to initialize proxy");
 					}
-				);
+				}
 			}
 		}
 

@@ -570,7 +570,4 @@ class Player extends React.Component<AllProps, State> {
 	}
 }
 
-export default connect(
-	mapStateToProps,
-	mapDispatchToProps
-)(Player);
+export default connect(mapStateToProps, mapDispatchToProps)(Player);

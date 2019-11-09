@@ -27,7 +27,12 @@
 		"serviceworker": true
 	},
 	"rules": {
-		"prettier/prettier": ["error", { "singleQuote": false }],
+		"prettier/prettier": [
+			"error",
+			{
+				"singleQuote": false
+			}
+		],
 		"import/prefer-default-export": "off",
 		"lines-between-class-members": "off",
 		"import/order": "off",
@@ -43,7 +48,6 @@
 		"react/static-property-placement": "off",
 		"class-methods-use-this": "off",
 		"react/jsx-props-no-spreading": "off",
-
 		// TO FIX LATER,
 		"no-script-url": "off",
 		"jsx-a11y/anchor-is-valid": "off",

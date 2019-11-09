@@ -392,9 +392,4 @@ class ArtistPage extends React.Component<AllProps, State> {
 	}
 }
 
-export default withRouter(
-	connect(
-		mapStateToProps,
-		mapDispatchToProps
-	)(ArtistPage)
-);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(ArtistPage));
