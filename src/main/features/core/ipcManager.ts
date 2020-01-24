@@ -76,7 +76,7 @@ export default class IPCManager extends Feature {
 
 		ipcMain.on(EVENTS.APP.AUTH.LOGIN, this.showAuthWindow);
 
-		ipcMain.on(EVENTS.APP.AUTH.REFRESH, this.refreshToken);
+		ipcMain.handle(EVENTS.APP.AUTH.REFRESH, this.refreshToken);
 	}
 
 	private async showAuthWindow() {
@@ -163,17 +163,15 @@ export default class IPCManager extends Feature {
 			}
 		} = this.store.getState();
 
+		if (loading) {
+			return null;
+		}
+
 		if (!refreshToken) {
 			this.logger.debug("Refreshtoken not found");
 			this.showAuthWindow().catch(this.logger.error);
 
-			return;
-		}
-
-		if (loading) {
-			this.logger.debug("Already loading");
-
-			return;
+			return null;
 		}
 
 		try {
@@ -188,7 +186,11 @@ export default class IPCManager extends Feature {
 
 				this.store.dispatch(setLogin(tokenResponse));
 				this.sendToWebContents("login-success");
-				this.store.dispatch(initApp() as any);
+
+				return {
+					token: tokenResponse.access_token
+				};
+				// this.store.dispatch(initApp() as any);
 			}
 		} catch (err) {
 			this.store.dispatch(setLoginError("Something went wrong during refresh"));
@@ -196,5 +198,7 @@ export default class IPCManager extends Feature {
 
 			this.showAuthWindow().catch(this.logger.error);
 		}
+
+		return null;
 	}
 }

@@ -1001,27 +1001,27 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
-"@blueprintjs/core@^3.18.0":
-  version "3.19.1"
-  resolved "https://registry.yarnpkg.com/@blueprintjs/core/-/core-3.19.1.tgz#22e929e15147a90ca9ad6285b4627c2e8ed1ba33"
-  integrity sha512-O+p/Jbu9kyrTE4Yy5phd7Xp9NJoiHCQ9ycO+QSR2fiuhwnVMO1xjY269QXxylzEswgPyjhST1euqHpyQQ7qnUw==
+"@blueprintjs/core@^3.23.1":
+  version "3.23.1"
+  resolved "https://registry.yarnpkg.com/@blueprintjs/core/-/core-3.23.1.tgz#346bd5430494cc2965fa9cac7366dc94c9dcf918"
+  integrity sha512-Lh+uCYAf2a54L739/NntMKUHkMoCintbs/NidX1j950KL0GW0J95niFqmN2B3oV/uJdXsPjZKj6VyOBlI+tUIA==
   dependencies:
-    "@blueprintjs/icons" "^3.11.0"
+    "@blueprintjs/icons" "^3.12.0"
     "@types/dom4" "^2.0.1"
     classnames "^2.2"
     dom4 "^2.1.5"
     normalize.css "^8.0.1"
     popper.js "^1.15.0"
     react-lifecycles-compat "^3.0.4"
-    react-popper "^1.3.3"
+    react-popper "^1.3.7"
     react-transition-group "^2.9.0"
     resize-observer-polyfill "^1.5.1"
     tslib "~1.9.0"
 
-"@blueprintjs/icons@^3.11.0", "@blueprintjs/icons@^3.6.0":
-  version "3.11.0"
-  resolved "https://registry.yarnpkg.com/@blueprintjs/icons/-/icons-3.11.0.tgz#c104cecef6893f8b7b7d8d8951f51d47f3f08403"
-  integrity sha512-HGS652gFc057t9cr8NyuWFyZ1gcSqG3uuexpzhZm81W35hGfh9vdC9GR+mbHJNawAuKXtu+xw4VWWkv1UGQ0Vg==
+"@blueprintjs/icons@^3.12.0":
+  version "3.13.0"
+  resolved "https://registry.yarnpkg.com/@blueprintjs/icons/-/icons-3.13.0.tgz#bff93a9ea5ced03afd2b3a65ddf4bb90bda485e4"
+  integrity sha512-fvXGsAJ66SSjeHv3OeXjLEdKdPJ3wVztjhJQCAd51uebhj3FJ16EDDvO7BqBw5FyVkLkU11KAxSoCFZt7TC9GA==
   dependencies:
     classnames "^2.2"
     tslib "~1.9.0"
@@ -5862,11 +5862,12 @@ electron-localshortcut@^3.1.0:
     keyboardevent-from-electron-accelerator "^2.0.0"
     keyboardevents-areequal "^0.2.1"
 
-"electron-media-service@file:../electron-media-service":
-  version "0.2.4"
+electron-media-service@auryo/electron-media-service:
+  version "0.2.3"
+  resolved "https://codeload.github.com/auryo/electron-media-service/tar.gz/8e5af9cfcd81b13bdfa92454657191bd11134a28"
   dependencies:
     bindings "^1.5.0"
-    node-addon-api "^2.0.0"
+    node-addon-api "^1.7.1"
     semver "^5.3.0"
 
 electron-notarize@^0.2.0:
@@ -10733,10 +10734,10 @@ no-case@^2.2.0:
   dependencies:
     lower-case "^1.1.1"
 
-node-addon-api@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/node-addon-api/-/node-addon-api-2.0.0.tgz#f9afb8d777a91525244b01775ea0ddbe1125483b"
-  integrity sha512-ASCL5U13as7HhOExbT6OlWJJUV/lLzL2voOSP1UVehpRD8FbSrSDjfScK/KwAvVTI5AS6r4VwbOMlIqtvRidnA==
+node-addon-api@^1.7.1:
+  version "1.7.1"
+  resolved "https://registry.yarnpkg.com/node-addon-api/-/node-addon-api-1.7.1.tgz#cf813cd69bb8d9100f6bdca6755fc268f54ac492"
+  integrity sha512-2+DuKodWvwRTrCfKOeR24KIc5unKjOh8mz17NCzVnHWfjAdDqbfbjqh7gUT+BkXBRQM52+xCHciKWonJ3CbJMQ==
 
 node-fetch@^1.0.1:
   version "1.7.3"
@@ -12838,19 +12839,7 @@ react-masonry-css@^1.0.11:
   resolved "https://registry.yarnpkg.com/react-masonry-css/-/react-masonry-css-1.0.14.tgz#2ac1ca7bb2c7e96826f7da3accc9e95ae12b2f65"
   integrity sha512-oAPVOCMApTT0HkxZJy84yU1EWaaQNZnJE0DjDMy/L+LxZoJEph4RRXsT9ppPKbFSo/tCzj+cCLwiBHjZmZ2eXA==
 
-react-popper@^1.3.3:
-  version "1.3.6"
-  resolved "https://registry.yarnpkg.com/react-popper/-/react-popper-1.3.6.tgz#32122f83af8fda01bdd4f86625ddacaf64fdd06d"
-  integrity sha512-kLTfa9z8n+0jJvRVal9+vIuirg41rObg4Bbrvv/ZfsGPQDN9reyVVSxqnHF1ZNgXgV7x11PeUfd5ItF8DZnqhg==
-  dependencies:
-    "@babel/runtime" "^7.1.2"
-    create-react-context "^0.3.0"
-    popper.js "^1.14.4"
-    prop-types "^15.6.1"
-    typed-styles "^0.0.7"
-    warning "^4.0.2"
-
-react-popper@^1.3.6:
+react-popper@^1.3.6, react-popper@^1.3.7:
   version "1.3.7"
   resolved "https://registry.yarnpkg.com/react-popper/-/react-popper-1.3.7.tgz#f6a3471362ef1f0d10a4963673789de1baca2324"
   integrity sha512-nmqYTx7QVjCm3WUZLeuOomna138R1luC4EqkW3hxJUrAe+3eNz3oFCLYdnPwILfn0mX1Ew2c3wctrjlUMYYUww==

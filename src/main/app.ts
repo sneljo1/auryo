@@ -8,7 +8,6 @@ import { app, BrowserWindow, BrowserWindowConstructorOptions, Menu, nativeImage,
 import is from "electron-is";
 import windowStateKeeper from "electron-window-state";
 import _ from "lodash";
-import { Memoize } from "lodash-decorators";
 import * as os from "os";
 import * as path from "path";
 import * as querystring from "querystring";

@@ -24,18 +24,6 @@ const handleErrorMiddleware: Middleware = (store: Store<StoreState>) => next => 
 
 		if (message && message === "Failed to fetch") {
 			// const { app: { offline } } = store.getState()
-		} else if (response && response.status === 401) {
-			const {
-				config: {
-					auth: { expiresAt, refreshToken }
-				}
-			} = store.getState();
-
-			if (!refreshToken) {
-				store.dispatch<any>(logout());
-			} else if (expiresAt && expiresAt < Date.now()) {
-				ipcRenderer.send(EVENTS.APP.AUTH.REFRESH);
-			}
 		} else if (message) {
 			store.dispatch(
 				addToast({
