@@ -25,4 +25,4 @@ If you have a technical background, feel free to create and work on this issue y
 
 
 <!-- Love Auryo? Please consider supporting us:
-👉  https://www.patreon.com/sneljo -->
+👉  https://github.com/sponsors/Superjo149-->

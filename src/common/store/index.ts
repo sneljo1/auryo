@@ -1,6 +1,6 @@
 import { connectRouter, RouterState } from "connected-react-router";
 import { History } from "history";
-import { combineReducers, Reducer } from "redux";
+import { combineReducers } from "redux";
 import { reducer as modal } from "redux-modal";
 import { ThunkAction } from "redux-thunk";
 import { appReducer, AppState } from "./app";
@@ -20,7 +20,7 @@ export const rootReducer = (history?: History) =>
 		app: appReducer,
 		config: configReducer,
 		ui: uiReducer,
-		modal: modal as Reducer,
+		modal,
 		...(history ? { router: connectRouter(history) } : {})
 	});
 

@@ -7,3 +7,4 @@ dist/**
 babel.config.js
 **/*.module.scss.d.ts
 src/types/**
+node_modules

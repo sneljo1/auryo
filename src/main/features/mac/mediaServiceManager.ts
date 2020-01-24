@@ -1,8 +1,8 @@
 import { EVENTS } from "@common/constants/events";
 import { IMAGE_SIZES } from "@common/constants/Soundcloud";
+import { changeTrack, toggleStatus } from "@common/store/actions";
 import { getTrackEntity } from "@common/store/entities/selectors";
 import { ChangeTypes, PlayerStatus, PlayingTrack } from "@common/store/player";
-import { changeTrack, toggleStatus } from "@common/store/actions";
 import * as SC from "@common/utils/soundcloudUtils";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import MediaService, { MetaData } from "electron-media-service";
@@ -39,13 +39,21 @@ export default class MediaServiceManager extends MacFeature {
 		this.myService.setMetaData(this.meta);
 
 		this.myService.on("play", () => {
-			if (this.meta.state !== MediaStates.PLAYING) {
+			const {
+				player: { status }
+			} = this.store.getState();
+
+			if (status !== PlayerStatus.PLAYING) {
 				this.store.dispatch(toggleStatus(PlayerStatus.PLAYING) as any);
 			}
 		});
 
 		this.myService.on("pause", () => {
-			if (this.meta.state !== MediaStates.PAUSED) {
+			const {
+				player: { status }
+			} = this.store.getState();
+
+			if (status !== PlayerStatus.PAUSED) {
 				this.store.dispatch(toggleStatus(PlayerStatus.PAUSED) as any);
 			}
 		});

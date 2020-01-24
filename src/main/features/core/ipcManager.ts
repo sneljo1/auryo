@@ -1,4 +1,5 @@
 import { EVENTS } from "@common/constants/events";
+import { initApp } from "@common/store/actions";
 import { setLoginError, setLoginLoading } from "@common/store/auth/actions";
 import { setLogin } from "@common/store/config/actions";
 import { createAuthWindow } from "@main/authWindow";
@@ -12,8 +13,6 @@ import _ from "lodash";
 import { CONFIG } from "../../../config";
 import { Logger, LoggerInstance } from "../../utils/logger";
 import { Feature } from "../feature";
-import { initApp } from "@common/store/actions";
-
 @autobind
 export default class IPCManager extends Feature {
 	public readonly featureName = "IPCManager";

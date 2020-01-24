@@ -14,4 +14,4 @@ Search open/closed issues before submitting since someone might have asked the s
 
 
 <!-- Love Auryo? Please consider supporting us:
-👉  https://www.patreon.com/sneljo -->
+👉  https://github.com/sponsors/Superjo149-->

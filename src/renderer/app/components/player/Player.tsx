@@ -340,7 +340,7 @@ class Player extends React.Component<AllProps, State> {
 			volume: configVolume,
 			track,
 			remainingPlays,
-			overrideClientId,
+			// overrideClientId,
 			chromecast,
 			muted
 		} = this.props;
@@ -354,9 +354,7 @@ class Player extends React.Component<AllProps, State> {
 
 		const audioVolume = isVolumeSeeking ? volume : configVolume;
 
-		const url = track.stream_url
-			? SC.appendClientId(track.stream_url, overrideClientId)
-			: SC.appendClientId(`${track.uri}/stream`, overrideClientId);
+		const url = `stream://${track.id}`;
 
 		const limitReached = remainingPlays && remainingPlays.remaining === 0;
 

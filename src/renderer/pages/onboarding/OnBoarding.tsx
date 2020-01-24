@@ -15,11 +15,14 @@ import { LoginStep } from "./components/LoginStep";
 import { PrivacyStep } from "./components/PrivacyStep";
 import { WelcomeStep } from "./components/WelcomeStep";
 import "./OnBoarding.scss";
+import { Position } from "@blueprintjs/core";
+import { Toastr } from "@renderer/app/components/Toastr";
 
 const mapStateToProps = (state: StoreState) => ({
 	...state.auth.authentication,
 	config: configSelector(state),
-	auth: authConfigSelector(state)
+	auth: authConfigSelector(state),
+	toasts: state.ui.toasts
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) =>
@@ -27,7 +30,8 @@ const mapDispatchToProps = (dispatch: Dispatch) =>
 		{
 			login: actions.login,
 			show: ReduxModal.show,
-			setConfigKey: actions.setConfigKey
+			setConfigKey: actions.setConfigKey,
+			clearToasts: actions.clearToasts
 		},
 		dispatch
 	);
@@ -72,7 +76,7 @@ class OnBoarding extends React.PureComponent<AllProps, State> {
 	};
 
 	public render() {
-		const { loading, error, show, config, setConfigKey, history } = this.props;
+		const { loading, error, show, config, setConfigKey, history, toasts, clearToasts } = this.props;
 		const { step } = this.state;
 		const {
 			auth: { token }
@@ -132,6 +136,7 @@ class OnBoarding extends React.PureComponent<AllProps, State> {
 					</div>
 				</div>
 				<AboutModal />
+				<Toastr position={Position.TOP_RIGHT} toasts={toasts} clearToasts={clearToasts} />
 			</div>
 		);
 	}

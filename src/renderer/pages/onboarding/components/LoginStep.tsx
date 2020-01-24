@@ -1,8 +1,8 @@
+import logo from "@assets/img/auryo-dark.png";
 import { Button } from "@blueprintjs/core";
 import SettingsModal from "@renderer/app/components/modals/SettingsModal/SettingsModal";
 import * as React from "react";
 import * as reduxModal from "redux-modal";
-import logo from "@assets/img/auryo-dark.png";
 
 interface Props {
 	error: string | null;
@@ -19,7 +19,8 @@ export const LoginStep = React.memo<Props>(({ error, login, show, loading }) => 
 		<div className="sub-title animated fadeInLeft faster second">
 			A SoundCloud client for your desktop. This project is open-source, so consider{" "}
 			<a href="https://github.com/Superjo149/auryo">contributing</a> or becoming{" "}
-			<a href="https://www.patreon.com/sneljo">a financial backer</a>. But most of all, enjoy the music. 🎉
+			<a href="https://github.com/sponsors/Superjo149">a financial backer</a>. But most of all, enjoy the music.
+			🎉
 		</div>
 
 		<div className="login_section animated fadeInLeft faster third">

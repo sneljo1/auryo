@@ -19,4 +19,8 @@ declare module "castv2" {
     export interface ConnectOptions {
 
     }
+
+    export class Session {
+
+    }
 }

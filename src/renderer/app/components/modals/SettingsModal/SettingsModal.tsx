@@ -6,23 +6,19 @@ import "./SettingsModal.scss";
 
 type Props = InjectedProps;
 
-class SettingsModal extends React.PureComponent<Props> {
-	public render() {
-		const { show, handleHide } = this.props;
+const SettingsModal: React.SFC<Props> = ({ show, handleHide }) => {
+	return (
+		<Modal isOpen={show} toggle={handleHide} className="settings">
+			<div className="close">
+				<a href="javascript:void(0)" onClick={handleHide}>
+					<i className="bx bx-x" />
+				</a>
+			</div>
+			<ModalBody>
+				<Settings noHeader />
+			</ModalBody>
+		</Modal>
+	);
+};
 
-		return (
-			<Modal visible={show} toggle={handleHide} className="settings">
-				<div className="close">
-					<a href="javascript:void(0)" onClick={handleHide}>
-						<i className="bx bx-x" />
-					</a>
-				</div>
-				<ModalBody>
-					<Settings noHeader />
-				</ModalBody>
-			</Modal>
-		);
-	}
-}
-
-export default connectModal({ name: "settings" })(SettingsModal as any);
+export default connectModal({ name: "settings" })(SettingsModal);

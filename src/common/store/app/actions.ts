@@ -1,6 +1,7 @@
 import { push, replace } from "connected-react-router";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { ipcRenderer } from "electron";
+import is from "electron-is";
 import { action } from "typesafe-actions";
 import { ThunkResult } from "..";
 import { fetchRemainingTracks } from "../../api/fetchRemainingTracks";
@@ -112,7 +113,9 @@ export function initWatchers(): ThunkResult<any> {
 			});
 
 			listeners.forEach(l => {
-				ipcRenderer.on(l.event, l.handler);
+				if (is.renderer()) {
+					ipcRenderer.on(l.event, l.handler);
+				}
 			});
 		}
 	};

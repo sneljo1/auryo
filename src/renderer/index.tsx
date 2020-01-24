@@ -8,6 +8,7 @@ import { remote } from "electron";
 import is from "electron-is";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { AppContainer } from "react-hot-loader";
 import { App } from "./App";
 import { configureStore } from "../common/configureStore";

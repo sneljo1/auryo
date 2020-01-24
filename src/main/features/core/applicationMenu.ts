@@ -175,7 +175,7 @@ export default class ApplicationMenu extends Feature {
 					},
 					{
 						label: "Donate",
-						click: () => shell.openExternal("https://www.patreon.com/sneljo")
+						click: () => shell.openExternal("https://github.com/sponsors/Superjo149")
 					},
 					{
 						label: "Learn More",

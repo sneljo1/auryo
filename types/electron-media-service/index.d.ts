@@ -1,6 +1,12 @@
 declare module "electron-media-service" {
     import { EventEmitter } from "events";
 
+    enum MediaStates {
+        STOPPED = "stopped",
+        PLAYING = "playing",
+        PAUSED = "paused"
+    }
+
     export interface MetaData {
         state: MediaStates;
         id?: number;

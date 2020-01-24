@@ -1,16 +1,19 @@
 import { Intent } from "@blueprintjs/core";
+import { axiosClient } from "@common/api/helpers/axiosClient";
 import { EVENTS } from "@common/constants/events";
 import { StoreState } from "@common/store";
 import { addToast, setConfigKey } from "@common/store/actions";
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { app, BrowserWindow, BrowserWindowConstructorOptions, Menu, nativeImage, shell } from "electron";
-import * as is from "electron-is";
+import { app, BrowserWindow, BrowserWindowConstructorOptions, Menu, nativeImage, protocol, shell } from "electron";
+import is from "electron-is";
 import windowStateKeeper from "electron-window-state";
 import _ from "lodash";
+import { Memoize } from "lodash-decorators";
 import * as os from "os";
 import * as path from "path";
 import * as querystring from "querystring";
 import { Store } from "redux";
+import { CONFIG } from "../config";
 // eslint-disable-next-line import/no-cycle
 import { Feature } from "./features/feature";
 import { Logger, LoggerInstance } from "./utils/logger";
@@ -64,6 +67,21 @@ export class Auryo {
 
 	public async start() {
 		app.setAsDefaultProtocolClient("auryo");
+
+		protocol.registerHttpProtocol("stream", async (request, callback) => {
+			const {
+				config: {
+					app: { overrideClientId }
+				}
+			} = this.store.getState();
+			const trackId = request.url.substr(9);
+			const mp3Url = await this.getPlayingTrackStreamUrl(trackId, overrideClientId || CONFIG.CLIENT_ID || "");
+
+			callback({
+				url: mp3Url,
+				method: "GET"
+			});
+		});
 
 		app.on("open-url", (event, data) => {
 			event.preventDefault();
@@ -144,21 +162,19 @@ export class Auryo {
 		const action = url.replace("auryo://", "").match(/^.*(?=\?.*)/g);
 
 		if (action && url.split("?").length) {
+			const result = querystring.parse(url.split("?")[1]);
+
 			switch (action[0]) {
 				case "launch":
-					{
-						const result = querystring.parse(url.split("?")[1]);
+					if (result.client_id && result.client_id.length) {
+						this.store.dispatch(setConfigKey("app.overrideClientId", result.client_id));
 
-						if (result.client_id && result.client_id.length) {
-							this.store.dispatch(setConfigKey("app.overrideClientId", result.client_id));
-
-							this.store.dispatch(
-								addToast({
-									message: `New clientId added`,
-									intent: Intent.SUCCESS
-								})
-							);
-						}
+						this.store.dispatch(
+							addToast({
+								message: `New clientId added`,
+								intent: Intent.SUCCESS
+							})
+						);
 					}
 					break;
 				default:
@@ -247,6 +263,19 @@ export class Auryo {
 				}
 			});
 		}
+	}
+
+	public async getPlayingTrackStreamUrl(trackId: string, clientId: string) {
+		const trackV2data = await axiosClient(`https://api-v2.soundcloud.com/tracks/${trackId}?client_id=${clientId}`);
+
+		const streamUrl = trackV2data.data.media.transcodings.filter(
+			(transcoding: any) => transcoding.format.protocol === "progressive"
+		)[0].url;
+
+		const response = await axiosClient(`${streamUrl}?client_id=${clientId}`);
+		const mp3Url = response.data.url;
+
+		return mp3Url;
 	}
 
 	private readonly registerListeners = () => {

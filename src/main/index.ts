@@ -1,6 +1,6 @@
 import "@common/sentryReporter";
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { app } from "electron";
+import { app, systemPreferences } from "electron";
 import { Auryo } from "./app";
 import { Logger } from "./utils/logger";
 import { configureStore } from "@common/configureStore";
@@ -45,7 +45,7 @@ async function installExtensions() {
 // This method will be called when Electron has done everything
 // initialization and ready for creating browser windows.
 app.on("ready", async () => {
-	app.accessibilitySupportEnabled = true;
+	systemPreferences.isTrustedAccessibilityClient(true);
 
 	try {
 		if (process.env.NODE_ENV === "development") {

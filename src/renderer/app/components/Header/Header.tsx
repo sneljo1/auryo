@@ -265,7 +265,7 @@ class Header extends React.Component<AllProps, State> {
 												text="Suggest a feature"
 												href="https://github.com/Superjo149/auryo/issues"
 											/>
-											<MenuItem text="Donate" href="https://www.patreon.com/sneljo" />
+											<MenuItem text="Donate" href="https://github.com/sponsors/Superjo149" />
 
 											<MenuDivider />
 
