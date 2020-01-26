@@ -21,6 +21,7 @@ import {
 	ProcessedQueueItems,
 	RepeatTypes
 } from "./types";
+import { axiosClient } from "@common/api/helpers/axiosClient";
 
 export const setCurrentTime = (time: number) => action(PlayerActionTypes.SET_TIME, { time });
 export const setDuration = (time: number) => action(PlayerActionTypes.SET_DURATION, { time });
@@ -107,9 +108,10 @@ export function registerPlay(): ThunkResult<void> {
 				params.context_urn = `soundcloud:playlists:${playlistId}`;
 			}
 
-			await fetch(SC.registerPlayUrl(), {
+			await axiosClient.request({
+				url: SC.registerPlayUrl(),
 				method: "POST",
-				body: JSON.stringify(params)
+				data: params
 			});
 		}
 	};

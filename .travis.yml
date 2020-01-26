@@ -5,9 +5,9 @@ matrix:
           node_js: "12"
           sudo: required
           addons:
+              chrome: stable
               apt:
                   packages:
-                      - google-chrome-stable
                       - openjpeg-tools
                       - rpm
                       - bsdtar
@@ -29,16 +29,13 @@ matrix:
           language: node_js
           node_js: "12"
           sudo: required
+          addons:
+              chrome: stable
           env:
               - HOMEBREW_CASK_OPTS='--appdir=/Applications'
               - ELECTRON_CACHE=$HOME/.cache/electron
               - ELECTRON_BUILDER_CACHE=$HOME/.cache/electron-builder
               - ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=true
-before_install:
-    - |
-        if [ "$TRAVIS_OS_NAME" = "osx" ]; then
-          HOMEBREW_NO_AUTO_UPDATE=1 brew cask install google-chrome
-        fi
 cache:
     yarn: true
     directories:

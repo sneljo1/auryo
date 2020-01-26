@@ -52,14 +52,16 @@ axiosClient.interceptors.response.use(
 	(error: AxiosError) => {
 		const originalRequest = error.config as AxiosRequestConfig & { hasRetried: boolean };
 
+		console.log("URL", originalRequest.url);
 		if (originalRequest.url && OAUTH_TOKEN_REGEX.exec(originalRequest.url)) {
 			if (error.response && error.response.status === 401 && !originalRequest.hasRetried) {
+				console.log("isRefreshing", isRefreshing);
 				if (isRefreshing) {
 					return new Promise((resolve, reject) => {
 						failedQueue.push({ resolve, reject });
 					})
-						.then(token => {
-							originalRequest.headers.Authorization = `Bearer ${token}`;
+						.then((token: string) => {
+							replaceTokenInRequest(originalRequest, token);
 							return axios(originalRequest);
 						})
 						.catch(err => {
@@ -74,6 +76,7 @@ axiosClient.interceptors.response.use(
 					ipcRenderer
 						.invoke(EVENTS.APP.AUTH.REFRESH)
 						.then(({ token }) => {
+							console.log("refresh", { token });
 							if (!token) {
 								processQueue(new Error("No token"), null);
 								reject(new Error("No token"));
@@ -84,6 +87,7 @@ axiosClient.interceptors.response.use(
 							resolve(axios(originalRequest));
 						})
 						.catch(err => {
+							console.log("catch", { err });
 							processQueue(err, null);
 							reject(err);
 						})
