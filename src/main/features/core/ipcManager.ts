@@ -175,8 +175,6 @@ export default class IPCManager extends Feature {
 		}
 
 		try {
-			this.store.dispatch(setLoginLoading());
-
 			this.logger.debug("Starting refresh");
 
 			const tokenResponse = await this.awsApiGateway.refresh(refreshToken, "soundcloud");
@@ -190,7 +188,6 @@ export default class IPCManager extends Feature {
 				return {
 					token: tokenResponse.access_token
 				};
-				// this.store.dispatch(initApp() as any);
 			}
 		} catch (err) {
 			this.store.dispatch(setLoginError("Something went wrong during refresh"));

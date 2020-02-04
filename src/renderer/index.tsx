@@ -30,8 +30,9 @@ if (is.macOS()) {
 document.getElementsByTagName("html")[0].classList.add(osClass);
 
 if (process.env.NODE_ENV === "development") {
-	// const { whyDidYouUpdate } = require('why-did-you-update');
-	// whyDidYouUpdate(React);
+	// eslint-disable-next-line
+	const { whyDidYouUpdate } = require("why-did-you-update");
+	whyDidYouUpdate(React);
 }
 
 const store = configureStore(history);

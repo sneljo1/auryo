@@ -17,6 +17,7 @@ import PageHeader from "../../_shared/PageHeader/PageHeader";
 import Spinner from "../../_shared/Spinner/Spinner";
 import TracksGrid from "../../_shared/TracksGrid/TracksGrid";
 import "./PlaylistPage.scss";
+import { SetLayoutSettings } from "@renderer/_shared/context/contentContext";
 
 const mapStateToProps = (state: StoreState, props: OwnProps) => {
 	const {
@@ -149,6 +150,7 @@ class PersonalizedPlaylistPage extends React.Component<AllProps, State> {
 
 		return (
 			<>
+				<SetLayoutSettings hasImage={hasImage} />
 				<PageHeader image={image}>
 					<h2>{playlist.title}</h2>
 					<div>
@@ -209,14 +211,14 @@ class PersonalizedPlaylistPage extends React.Component<AllProps, State> {
 						</div>
 					</div>
 				) : (
-					<TracksGrid
-						items={playlistObject.items.slice(0, playlistObject.fetchedItems)}
-						objectId={playlistIdParam.toString()}
-						isLoading={playlistObject.isFetching}
-						loadMore={() => fetchPlaylistTracks(playlistIdParam, 30) as any}
-						isItemLoaded={index => !!playlistObject.items.slice(0, playlistObject.fetchedItems)[index]}
-					/>
-				)}
+						<TracksGrid
+							items={playlistObject.items.slice(0, playlistObject.fetchedItems)}
+							objectId={playlistIdParam.toString()}
+							isLoading={playlistObject.isFetching}
+							loadMore={() => fetchPlaylistTracks(playlistIdParam, 30) as any}
+							isItemLoaded={index => !!playlistObject.items.slice(0, playlistObject.fetchedItems)[index]}
+						/>
+					)}
 			</>
 		);
 	}

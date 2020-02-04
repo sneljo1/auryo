@@ -17,6 +17,8 @@ import { CONFIG } from "../config";
 import { Feature } from "./features/feature";
 import { Logger, LoggerInstance } from "./utils/logger";
 import { Utils } from "./utils/utils";
+import fetchTrack from "@common/api/fetchTrack";
+import { Track } from "src/types/soundcloud";
 
 const logosPath =
 	process.env.NODE_ENV === "development"
@@ -265,11 +267,25 @@ export class Auryo {
 	}
 
 	public async getPlayingTrackStreamUrl(trackId: string, clientId: string) {
-		const trackV2data = await axiosClient(`https://api-v2.soundcloud.com/tracks/${trackId}?client_id=${clientId}`);
+		const {
+			entities: { trackEntities }
+		} = this.store.getState();
 
-		const streamUrl = trackV2data.data.media.transcodings.filter(
+		let track: Track = trackEntities[trackId];
+
+		if (!track?.media?.transcodings) {
+			const { json } = await fetchTrack(trackId);
+
+			track = json;
+		}
+
+		const streamUrl = track?.media?.transcodings?.filter(
 			(transcoding: any) => transcoding.format.protocol === "progressive"
-		)[0].url;
+		)[0]?.url;
+
+		if (!streamUrl) {
+			return null;
+		}
 
 		const response = await axiosClient(`${streamUrl}?client_id=${clientId}`);
 		const mp3Url = response.data.url;

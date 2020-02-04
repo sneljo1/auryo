@@ -3,7 +3,7 @@ import { IMAGE_SIZES } from "@common/constants";
 import { StoreState } from "@common/store";
 import * as actions from "@common/store/actions";
 import { getUserPlaylistsCombined } from "@common/store/auth/selectors";
-import { getNormalizedTrack } from "@common/store/entities/selectors";
+import { getNormalizedTrack, getNormalizedUser } from "@common/store/entities/selectors";
 import { ObjectTypes, PlaylistTypes } from "@common/store/objects";
 import { getCommentObject, getPlaylistName, getRelatedTracksPlaylistObject } from "@common/store/objects/selectors";
 import { PlayerStatus } from "@common/store/player";
@@ -38,6 +38,7 @@ const mapStateToProps = (state: StoreState, props: OwnProps) => {
 	const relatedPlaylistId = getPlaylistName(songId, PlaylistTypes.RELATED);
 
 	const track = getNormalizedTrack(+songId)(state);
+	const user = getNormalizedUser(track.user)(state);
 
 	return {
 		playingTrack,
@@ -45,6 +46,7 @@ const mapStateToProps = (state: StoreState, props: OwnProps) => {
 		relatedPlaylistId,
 		auth,
 		track,
+		user,
 		userPlaylists: getUserPlaylistsCombined(state),
 		songIdParam: +songId,
 		relatedTracks: getRelatedTracksPlaylistObject(songId)(state),
@@ -151,7 +153,8 @@ class TrackPage extends React.PureComponent<AllProps, State> {
 			toggleRepost,
 			addUpNext,
 			canFetchMoreOf,
-			fetchMore
+			fetchMore,
+			user
 		} = this.props;
 
 		const { activeTab } = this.state;
@@ -163,7 +166,7 @@ class TrackPage extends React.PureComponent<AllProps, State> {
 		const liked = SC.hasID(track.id, likes.track);
 		const reposted = SC.hasID(track.id, reposts.track);
 
-		const image = SC.getImageUrl(track, IMAGE_SIZES.LARGE);
+		const image = SC.getImageUrl({ ...track, user }, IMAGE_SIZES.LARGE);
 
 		const purchaseTitle = track.purchase_title || "Download";
 
@@ -175,11 +178,13 @@ class TrackPage extends React.PureComponent<AllProps, State> {
 
 				<PageHeader image={image}>
 					<Row className="trackHeader">
-						<Col xs="12" md="4" xl="3">
-							<div className="imageWrapper">
-								<FallbackImage src={image} />
-							</div>
-						</Col>
+						{image && (
+							<Col xs="12" md="4" xl="3">
+								<div className="imageWrapper">
+									<FallbackImage src={image} />
+								</div>
+							</Col>
+						)}
 
 						<Col xs="12" md="8" xl="" className="trackInfo text-md-left text-xs-center">
 							<h2>{track.title}</h2>
@@ -188,10 +193,10 @@ class TrackPage extends React.PureComponent<AllProps, State> {
 								{SC.isStreamable(track) ? (
 									this.renderToggleButton()
 								) : (
-									<a href="javascript:void(0)" className="disabled c_btn">
-										<span>This track is not streamable</span>
-									</a>
-								)}
+										<a href="javascript:void(0)" className="disabled c_btn">
+											<span>This track is not streamable</span>
+										</a>
+									)}
 
 								<a
 									href="javascript:void(0)"

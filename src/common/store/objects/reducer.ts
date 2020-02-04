@@ -76,7 +76,7 @@ const objectState: Reducer<ObjectState<any>> = (state = initialObjectsState, act
 				...state,
 				isFetching: false,
 				items: [...filtered],
-				fetchedItems: state.fetchedItems + (payload.fetchedItems as number)
+				fetchedItems: state.fetchedItems + payload.fetchedIds.length
 			};
 		case onSuccess(AuthActionTypes.SET_LIKE):
 			if (payload.liked) {

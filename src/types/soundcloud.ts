@@ -142,6 +142,9 @@ export interface Track extends Asset<AssetType.TRACK> {
 	downloadable: boolean;
 	waveform_url: string;
 	attachments_uri: string;
+	media?: {
+		transcodings: any[];
+	};
 
 	// Will only be added to items fetched by charts
 	score?: number;

@@ -73,7 +73,7 @@ const mapDispatchToProps = (dispatch: Dispatch) =>
 interface State {
 	isScrolling: boolean;
 	settings: LayoutSettings;
-	getList?(): FixedSizeList | null;
+	list?: FixedSizeList | null;
 }
 
 type PropsFromState = ReturnType<typeof mapStateToProps>;
@@ -153,14 +153,10 @@ class Layout extends React.Component<AllProps, State> {
 	private handleScroll(e: React.ChangeEvent<HTMLDivElement>) {
 		const { scrollTop } = e.target;
 		const { location } = this.props;
-		const { getList } = this.state;
+		const { list } = this.state;
 
-		if (getList) {
-			const list = getList();
-
-			if (list) {
-				list.scrollTo(scrollTop);
-			}
+		if (list) {
+			list.scrollTo(scrollTop);
 		}
 
 		this.debouncedSetScrollPosition(scrollTop, location.pathname);
@@ -213,7 +209,7 @@ class Layout extends React.Component<AllProps, State> {
 			userPlayerlists
 		} = this.props;
 
-		const { settings, getList } = this.state;
+		const { settings, list } = this.state;
 
 		return (
 			<ResizeSensor onResize={this.debouncedHandleResize}>
@@ -248,8 +244,8 @@ class Layout extends React.Component<AllProps, State> {
 							<ContentContext.Provider
 								value={{
 									settings,
-									list: getList,
-									setList: getListFunc => this.setState({ getList: getListFunc }),
+									list,
+									setList: newList => this.setState({ list: newList }),
 									applySettings: newSettings => {
 										this.setState(({ settings: oldSettings }) => ({
 											settings: { ...oldSettings, ...newSettings }

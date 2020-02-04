@@ -223,6 +223,15 @@ class Player extends React.Component<AllProps, State> {
 		changeTrack(ChangeTypes.NEXT, true);
 	}
 
+	private onError(_e: ErrorEvent, message: string) {
+		const { addToast } = this.props;
+
+		addToast({
+			message,
+			intent: Intent.DANGER
+		});
+	}
+
 	public get audioRef() {
 		return this.audio.current;
 	}
@@ -384,12 +393,7 @@ class Player extends React.Component<AllProps, State> {
 				onLoadedMetadata={this.onLoad}
 				onListen={this.onPlaying}
 				onEnded={this.onFinishedPlaying}
-				onError={(_e: ErrorEvent, message: string) => {
-					addToast({
-						message,
-						intent: Intent.DANGER
-					});
-				}}
+				onError={this.onError}
 			/>
 		);
 	}

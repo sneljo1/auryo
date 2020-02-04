@@ -17,6 +17,7 @@ import { getCommentObject, getPlaylistName, getRelatedTracksPlaylistObject } fro
 import { PlaylistTypes } from "../objects/types";
 import { addToast } from "../ui/actions";
 import { TrackActionTypes } from "./types";
+import { axiosClient } from "@common/api/helpers/axiosClient";
 
 export function toggleLike(trackId: number, playlist = false): ThunkResult<any> {
 	return (dispatch, getState) => {
@@ -91,7 +92,7 @@ export function toggleRepost(trackId: number, playlist = false): ThunkResult<Pro
 
 		await dispatch<Promise<any>>({
 			type: AuthActionTypes.SET_REPOST,
-			payload: fetch(SC.updateRepostUrl(trackId, !!playlist), {
+			payload: axiosClient(SC.updateRepostUrl(trackId, !!playlist), {
 				method: reposted ? "PUT" : "DELETE"
 			}).then(() => {
 				if (reposted) {

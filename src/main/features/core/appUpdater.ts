@@ -73,11 +73,9 @@ export default class AppUpdater extends Feature {
 				this.logger.info("No update found");
 
 				setTimeout(async () => {
-					await autoUpdater.checkForUpdates();
-				}, 300000);
+					autoUpdater.checkForUpdates();
+				}, 3600000);
 			});
-
-			await autoUpdater.checkForUpdates();
 		}
 	};
 

@@ -13,6 +13,8 @@ import { processQueueItems } from "../player/actions";
 import { SortTypes } from "../playlist/types";
 import { getPlaylistObjectSelector } from "./selectors";
 import { ObjectsActionTypes, ObjectState, ObjectTypes } from "./types";
+import _ from "lodash";
+import { Track } from "src/types/soundcloud";
 
 const canFetch = (current: ObjectState<any>): boolean => !current || (!!current && !current.isFetching);
 const canFetchMore = (current: ObjectState<any>): boolean => canFetch(current) && current && current.nextUrl !== null;
@@ -136,11 +138,6 @@ export function fetchPlaylistIfNeeded(playlistId: number): ThunkResult<Promise<a
 	return async (dispatch, getState) => {
 		const playlistObject = getPlaylistObjectSelector(playlistId.toString())(getState());
 
-		if (playlistObject && !playlistObject.fetchedItems) {
-			// eslint-disable-next-line @typescript-eslint/no-use-before-define
-			await dispatch<Promise<any>>(fetchPlaylistTracks(playlistId));
-		}
-
 		if (!playlistObject || (playlistObject && playlistObject.fetchedItems === 0)) {
 			await dispatch<Promise<any>>({
 				type: ObjectsActionTypes.SET,
@@ -150,22 +147,27 @@ export function fetchPlaylistIfNeeded(playlistId: number): ThunkResult<Promise<a
 							if (normalized.entities && normalized.entities.playlistEntities) {
 								const playlist = normalized.entities.playlistEntities[playlistId];
 
-								let fetchedItems = normalized.result.length;
+								let fetchedItems: Partial<SoundCloud.Track>[] = [];
 
 								if (json.tracks) {
 									fetchedItems = json.tracks.filter(
 										(t: Partial<SoundCloud.Track>) => t.user !== undefined
-									).length;
+									);
 								}
+
+								const fetchedItemsIds = fetchedItems.map(item => item.id);
+
+								// eslint-disable-next-line no-case-declarations
+								const result = playlist.tracks.filter(t => fetchedItemsIds.indexOf(t.id) !== -1);
 
 								return {
 									objectId: playlistId,
 									objectType: ObjectTypes.PLAYLISTS,
 									entities: normalized.entities,
-									result: playlist.tracks,
+									result,
 									nextUrl: json.next_href ? SC.appendToken(json.next_href) : null,
 									futureUrl: json.future_href ? SC.appendToken(json.future_href) : null,
-									fetchedItems
+									fetchedItems: fetchedItems.length
 								};
 							}
 
@@ -201,11 +203,14 @@ export function fetchPlaylistTracks(
 
 		let fetchIds = ids;
 
-		if ((playlistObject.fetchedItems === playlistObject.items.length || playlistObject.isFetching) && !fetchIds) {
+		if (
+			(playlistObject.fetchedItems === playlistObject.items.length || playlistObject.isFetching) &&
+			!fetchIds.length
+		) {
 			return Promise.resolve();
 		}
 
-		if (!fetchIds) {
+		if (!fetchIds.length) {
 			const fetched = playlistObject.fetchedItems || 0;
 
 			let newCount = fetched + size;
@@ -222,7 +227,7 @@ export function fetchPlaylistTracks(
 			return dispatch<Promise<any>>({
 				type: ObjectsActionTypes.SET_TRACKS,
 				payload: {
-					promise: fetchToJson(SC.getTracks(fetchIds.map(id => id.id))).then(tracks => {
+					promise: fetchToJson(SC.getTracks(fetchIds.map(id => id.id))).then((tracks: Track[]) => {
 						const normalized = normalize(
 							tracks,
 							new schema.Array(
@@ -233,13 +238,24 @@ export function fetchPlaylistTracks(
 							)
 						);
 
+						let fetchedItems: Partial<SoundCloud.Track>[] = [];
+
+						if (tracks) {
+							fetchedItems = tracks.filter((t: Partial<SoundCloud.Track>) => t.user !== undefined);
+						}
+
+						const fetchedItemsIds = fetchedItems.map(item => item.id);
+
+						// eslint-disable-next-line no-case-declarations
+						const result = fetchIds.filter(t => fetchedItemsIds.indexOf(t.id) !== -1);
+
 						return {
 							objectId: playlistId,
 							objectType: ObjectTypes.PLAYLISTS,
 							entities: normalized.entities,
-							fetchedItems: size,
-							fetchedIds: normalized.result,
-							shouldFetchedIds: ids
+
+							fetchedIds: result,
+							shouldFetchedIds: fetchIds
 						};
 					}),
 					data: {

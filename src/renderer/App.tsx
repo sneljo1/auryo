@@ -39,6 +39,8 @@ export class App extends React.PureComponent<OwnProps> {
 	public render() {
 		const { history, store } = this.props;
 
+		console.log(process.env.NODE_ENV);
+
 		return (
 			<Provider store={store}>
 				<ConnectedRouter history={history}>

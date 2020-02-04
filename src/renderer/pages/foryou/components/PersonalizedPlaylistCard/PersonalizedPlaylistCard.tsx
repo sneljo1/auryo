@@ -24,8 +24,8 @@ export const PersonalizedPlaylistCard = React.memo<Props>(({ playlist, title, sy
 				style={{ background: `${colorHash.hex(playlist.short_title + playlist.short_description)}` }}>
 				{imageUrl && (
 					<>
-						<img alt="bgImage" className={styles.bgImage} src={imageUrl} />
-						<img alt="bgImage" src={imageUrl} />
+						<img alt="" className={styles.bgImage} src={imageUrl} />
+						<img alt="" src={imageUrl} />
 					</>
 				)}
 

@@ -9,6 +9,7 @@ import { getReadableTimeFull, SC } from "@common/utils";
 import { IPC } from "@common/utils/ipc";
 import { SetLayoutSettings } from "@renderer/_shared/context/contentContext";
 import cn from "classnames";
+import { autobind } from "core-decorators";
 import * as React from "react";
 import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router-dom";
@@ -18,7 +19,6 @@ import ShareMenuItem from "../../_shared/ShareMenuItem";
 import Spinner from "../../_shared/Spinner/Spinner";
 import TracksGrid from "../../_shared/TracksGrid/TracksGrid";
 import "./PlaylistPage.scss";
-import { autobind } from "core-decorators";
 
 const mapStateToProps = (state: StoreState, props: OwnProps) => {
 	const {
@@ -267,15 +267,15 @@ class PlaylistPage extends React.Component<AllProps, State> {
 						</div>
 					</div>
 				) : (
-					<TracksGrid
-						items={playlistObject.items.slice(0, playlistObject.fetchedItems)}
-						objectId={playlistIdParam.toString()}
-						isLoading={playlistObject.isFetching}
-						isItemLoaded={index => !!playlistObject.items[index]}
-						loadMore={() => fetchPlaylistTracks(playlistIdParam, 30) as any}
-						hasMore={hasMore}
-					/>
-				)}
+						<TracksGrid
+							items={playlistObject.items}
+							objectId={playlistIdParam.toString()}
+							isLoading={playlistObject.isFetching}
+							isItemLoaded={index => index < playlistObject.fetchedItems}
+							loadMore={(a, b) => fetchPlaylistTracks(playlistIdParam, 30) as any}
+							hasMore={hasMore}
+						/>
+					)}
 			</>
 		);
 	}

@@ -8,7 +8,7 @@ import fetchToJson from "./helpers/fetchToJson";
 type JsonResponse = SoundCloud.Track;
 
 export default async function fetchTrack(
-	trackId: number
+	trackId: string | number
 ): Promise<{
 	json: JsonResponse;
 	normalized: Normalized.NormalizedResponse;

@@ -41,9 +41,13 @@ function makeUrl(uri: string, opts: any, v2 = false) {
 }
 
 export function getTrackUrl(trackId: string | number) {
-	return makeUrl(`tracks/${trackId}`, {
-		client_id: true
-	});
+	return makeUrl(
+		`tracks/${trackId}`,
+		{
+			client_id: true
+		},
+		true
+	);
 }
 
 export function getChartsUrl(genre: string, sort = "top", limit = 50) {

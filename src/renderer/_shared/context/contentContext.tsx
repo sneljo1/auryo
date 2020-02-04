@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useEffect } from "react";
 import { FixedSizeList } from "react-window";
 
 export const INITIAL_LAYOUT_SETTINGS: LayoutSettings = {
@@ -12,8 +12,8 @@ export interface LayoutSettings {
 type ContentContextProps = {
 	settings: LayoutSettings;
 	// For tracksgrid
-	list?(): FixedSizeList | null;
-	setList(getListRef: () => FixedSizeList | null): void;
+	list?: FixedSizeList | null;
+	setList(list: FixedSizeList | null): void;
 
 	// For other infinite lists
 	applySettings(settings: Partial<LayoutSettings>): void;
@@ -21,7 +21,11 @@ type ContentContextProps = {
 
 export type InjectedContentContextProps = {
 	settings: LayoutSettings;
-	setList(getListRef: () => FixedSizeList | null): void;
+	// For tracksgrid
+	list?: FixedSizeList | null;
+	setList(list: FixedSizeList | null): void;
+
+	// For other infinite lists
 	applySettings(settings: Partial<LayoutSettings>): void;
 };
 
@@ -61,12 +65,11 @@ const SetLayoutSettingsComponent: React.SFC<SetLayoutSettingsComponentProps> = (
 	applySettings,
 	setList
 }) => {
-	React.useEffect(() => {
+	useEffect(() => {
 		applySettings({ hasImage });
 
 		return () => {
 			applySettings(INITIAL_LAYOUT_SETTINGS);
-			setList(() => null);
 		};
 	}, [hasImage]);
 

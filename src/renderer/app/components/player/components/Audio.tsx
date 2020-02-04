@@ -3,6 +3,7 @@
 import { PlayerStatus } from "@common/store/player";
 import { autobind } from "core-decorators";
 import * as React from "react";
+import isEqual from "react-fast-compare";
 
 interface Props {
 	autoPlay?: boolean;
@@ -32,7 +33,7 @@ interface Props {
 	onVolumeChanged(event: Event): void;
 }
 
-const noop = () => {};
+const noop = () => { };
 
 const defaultProps = {
 	autoPlay: false,
@@ -152,6 +153,7 @@ export class ReactAudioPlayer extends React.PureComponent<AllProps, State> {
 
 	public componentDidUpdate() {
 		const { volume } = this.props;
+
 		this.updateVolume(volume);
 	}
 
@@ -234,6 +236,7 @@ export class ReactAudioPlayer extends React.PureComponent<AllProps, State> {
 		const { onListen } = this.props;
 
 		if (this.audio) {
+			console.log(this.audio.currentTime);
 			onListen(this.audio.currentTime, this.audio.duration);
 		}
 	}
@@ -268,6 +271,7 @@ export class ReactAudioPlayer extends React.PureComponent<AllProps, State> {
 	}
 
 	private retry() {
+		console.log("retry");
 		if (this.audio) {
 			const fromTime = this.audio.currentTime;
 			this.audio.load();
@@ -278,6 +282,7 @@ export class ReactAudioPlayer extends React.PureComponent<AllProps, State> {
 
 	private handleError(e: any) {
 		const { onError } = this.props;
+		console.error(e);
 
 		switch (e.target.error.code) {
 			case e.target.error.MEDIA_ERR_NETWORK:
@@ -293,6 +298,8 @@ export class ReactAudioPlayer extends React.PureComponent<AllProps, State> {
 
 	public render() {
 		const { src, className, loop, muted, preload, style } = this.props;
+
+		console.log("render");
 
 		return (
 			<audio

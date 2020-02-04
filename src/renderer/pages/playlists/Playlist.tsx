@@ -173,16 +173,16 @@ class Playlist extends React.Component<AllProps> {
 						</div>
 					</div>
 				) : (
-					<TracksGrid
-						items={playlistObject.items}
-						objectId={objectId}
-						showInfo={showInfo}
-						isItemLoaded={index => !!playlistObject.items[index]}
-						loadMore={() => this.debouncedFetchMore() as any}
-						isLoading={playlistObject.isFetching}
-						hasMore={canFetchMoreOf(objectId, ObjectTypes.PLAYLISTS) as any}
-					/>
-				)}
+						<TracksGrid
+							items={playlistObject.items}
+							objectId={objectId}
+							showInfo={showInfo}
+							isItemLoaded={index => !!playlistObject.items[index]}
+							loadMore={() => this.debouncedFetchMore() as any}
+							isLoading={playlistObject.isFetching}
+							hasMore={canFetchMoreOf(objectId, ObjectTypes.PLAYLISTS) as any}
+						/>
+					)}
 			</>
 		);
 	}
