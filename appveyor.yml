@@ -1,4 +1,4 @@
-os: Visual Studio 2017
+os: Visual Studio 2019
 
 platform:
   - x64
@@ -25,6 +25,7 @@ build_script:
   - node --version
   - yarn --version
   - yarn run build
+  - ls
   # linting woop woop
   - yarn run lint
   # run tests

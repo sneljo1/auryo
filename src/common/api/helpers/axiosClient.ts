@@ -42,11 +42,9 @@ function subscribeTokenRefresh(cb: Function) {
 }
 
 axiosClient.interceptors.response.use(undefined, err => {
-  const {
-    config,
-    response: { status }
-  } = err;
+  const { config, response } = err;
   const originalRequest = config as AxiosRequestConfig & { hasRetried: boolean };
+  const status = response?.status;
 
   const tokenMatch = OAUTH_TOKEN_REGEX.exec(originalRequest?.url || '');
 
