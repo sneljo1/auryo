@@ -18,7 +18,6 @@ init:
 install:
   - ps: Install-Product node $env:nodejs_version x64
   - set CI=true
-  - npx node-gyp configure
   - yarn
 
 build_script:
