@@ -1,3 +1,5 @@
+image: Visual Studio 2017
+
 platform:
   - x64
 
@@ -23,11 +25,10 @@ build_script:
   - node --version
   - yarn --version
   - yarn run build
-  - ls
   # linting woop woop
   # - yarn run lint
   # run tests
-  - yarn run test-e2e -- --retries 2
+  # - yarn run test-e2e -- --retries 2
 
 deploy_script:
   - cmd: yarn run release:win
