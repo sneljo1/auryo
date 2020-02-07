@@ -5,9 +5,9 @@ platform:
 
 environment:
   matrix:
-    - nodejs_version: "8"
+    - nodejs_version: "12"
 
-cache:  
+cache:
   - node_modules -> appveyor.yml,package.json,yarn.lock
   - '%LOCALAPPDATA%\Yarn -> appveyor.yml,package.json,yarn.lock'
   - '%USERPROFILE%\.electron'
@@ -31,7 +31,7 @@ build_script:
   - yarn run test-e2e -- --retries 2
 
 deploy_script:
-- cmd: yarn run release:win
+  - cmd: yarn run release:win
 
 artifacts:
   - path: 'dist\*.exe'
