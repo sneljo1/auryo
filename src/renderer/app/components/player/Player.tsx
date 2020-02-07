@@ -5,8 +5,8 @@ import { StoreState } from "@common/store";
 import * as actions from "@common/store/actions";
 import { hasLiked } from "@common/store/auth/selectors";
 import { getNormalizedTrack, getNormalizedUser } from "@common/store/entities/selectors";
-import { ChangeTypes, PlayerStatus, RepeatTypes } from "@common/store/player";
-import { getReadableTime, SC } from "@common/utils";
+import { ChangeTypes, RepeatTypes } from "@common/store/player";
+import { SC } from "@common/utils";
 import cn from "classnames";
 import { autobind } from "core-decorators";
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -19,8 +19,9 @@ import { connect } from "react-redux";
 import { bindActionCreators, Dispatch } from "redux";
 import FallbackImage from "../../../_shared/FallbackImage";
 import Queue from "../Queue/Queue";
-import { ReactAudioPlayer } from "./components/Audio";
+import { Audio } from "./components/Audio";
 import PlayerControls from "./components/PlayerControls/PlayerControls";
+import { PlayerProgress } from "./components/PlayerProgress/PlayerProgress";
 import { TrackInfo } from "./components/TrackInfo/TrackInfo";
 import * as styles from "./Player.module.scss";
 
@@ -48,7 +49,8 @@ const mapStateToProps = (state: StoreState) => {
 	return {
 		track,
 		trackUser,
-		player,
+		status: player.status,
+		playingTrack: player.playingTrack,
 		volume: config.audio.volume,
 		muted: config.audio.muted,
 		shuffle: config.shuffle,
@@ -69,8 +71,6 @@ const mapDispatchToProps = (dispatch: Dispatch) =>
 			setConfigKey: actions.setConfigKey,
 			setCurrentTime: actions.setCurrentTime,
 			addToast: actions.addToast,
-			setDuration: actions.setDuration,
-			registerPlay: actions.registerPlay,
 			toggleShuffle: actions.toggleShuffle,
 			toggleLike: actions.toggleLike,
 			useChromeCast: actions.useChromeCast
@@ -82,10 +82,9 @@ type PropsFromState = ReturnType<typeof mapStateToProps>;
 type PropsFromDispatch = ReturnType<typeof mapDispatchToProps>;
 
 interface State {
-	nextTime: number;
-	isSeeking: boolean;
 	isVolumeSeeking: boolean;
 	volume: number;
+	volumeBeforeMute: number;
 }
 
 type AllProps = PropsFromState & PropsFromDispatch;
@@ -93,14 +92,12 @@ type AllProps = PropsFromState & PropsFromDispatch;
 @autobind
 class Player extends React.Component<AllProps, State> {
 	public state: State = {
-		nextTime: 0,
-		isSeeking: false,
 		isVolumeSeeking: false,
-		volume: 0
+		volume: 0,
+		volumeBeforeMute: 0.5
 	};
 
 	private readonly debounceDiscover: () => void;
-	private audio = React.createRef<ReactAudioPlayer>();
 
 	constructor(props: AllProps) {
 		super(props);
@@ -111,151 +108,12 @@ class Player extends React.Component<AllProps, State> {
 	}
 
 	public async componentDidMount() {
-		const { isSeeking } = this.state;
-		const { setCurrentTime } = this.props;
-
-		let stopSeeking: any;
-
-		ipcRenderer.on(EVENTS.PLAYER.SEEK, (_event, to: number) => {
-			if (!isSeeking) {
-				this.setState({
-					isSeeking: true
-				});
-			}
-
-			clearTimeout(stopSeeking);
-
-			this.seekChange(to);
-
-			stopSeeking = setTimeout(() => {
-				this.setState({
-					isSeeking: false
-				});
-
-				if (this.audioRef && this.audioRef.audio) {
-					this.audioRef.audio.currentTime = to;
-				}
-
-				setCurrentTime(to);
-				ipcRenderer.send(EVENTS.PLAYER.SEEK_END, to);
-			}, 100);
-		});
-
-		await this.setAudioPlaybackDevice();
-
 		// Get Chromecast devices
 		this.debounceDiscover();
 	}
 
 	public shouldComponentUpdate(nextProps: AllProps, nextState: State) {
 		return nextState !== this.state || !isDeepEqual(nextProps, this.props);
-	}
-
-	public async componentDidUpdate(prevProps: AllProps) {
-		const {
-			player: { status, duration },
-			playbackDeviceId
-		} = this.props;
-
-		if (this.audioRef && status !== this.audioRef.getStatus()) {
-			this.audioRef.setNewStatus(status);
-		}
-
-		if (this.audioRef && this.audioRef.audio) {
-			if (
-				!Number.isNaN(this.audioRef.audio.duration) &&
-				!Number.isNaN(duration) &&
-				duration === 0 &&
-				this.audioRef.audio.duration !== duration
-			) {
-				this.audioRef.clearTime();
-			}
-
-			if (playbackDeviceId !== prevProps.playbackDeviceId) {
-				await this.setAudioPlaybackDevice();
-			}
-		}
-	}
-
-	public componentWillUnmount() {
-		ipcRenderer.removeAllListeners(EVENTS.PLAYER.SEEK);
-	}
-
-	public onLoad(_e: Event, duration: number) {
-		const { setDuration, registerPlay } = this.props;
-
-		setDuration(duration);
-
-		registerPlay();
-	}
-
-	public onPlaying(position: number, newDuration: number) {
-		const {
-			player: { status, duration },
-			setCurrentTime,
-			setDuration
-		} = this.props;
-
-		const { isSeeking } = this.state;
-
-		if (isSeeking) {
-			return;
-		}
-
-		if (status === PlayerStatus.PLAYING) {
-			setCurrentTime(position);
-		}
-
-		if (duration !== newDuration) {
-			setDuration(newDuration);
-		}
-	}
-
-	public onFinishedPlaying() {
-		const { changeTrack, toggleStatus } = this.props;
-
-		if (this.audioRef) {
-			this.audioRef.clearTime();
-		}
-
-		toggleStatus(PlayerStatus.PAUSED);
-
-		changeTrack(ChangeTypes.NEXT, true);
-	}
-
-	private onError(_e: ErrorEvent, message: string) {
-		const { addToast } = this.props;
-
-		addToast({
-			message,
-			intent: Intent.DANGER
-		});
-	}
-
-	public get audioRef() {
-		return this.audio.current;
-	}
-
-	public async setAudioPlaybackDevice() {
-		const { playbackDeviceId } = this.props;
-
-		if (playbackDeviceId && this.audioRef && this.audioRef.audio) {
-			const devices = await navigator.mediaDevices.enumerateDevices();
-			const audioDevices = devices.filter(device => device.kind === "audiooutput");
-
-			const selectedAudioDevice = audioDevices.find(d => d.deviceId === playbackDeviceId);
-
-			if (selectedAudioDevice) {
-				await (this.audioRef.audio as any).setSinkId(playbackDeviceId);
-			}
-		}
-	}
-
-	public seekChange(nextTime: number) {
-		this.setState({
-			nextTime,
-			isSeeking: true
-		});
 	}
 
 	public volumeChange(volume: number) {
@@ -285,11 +143,15 @@ class Player extends React.Component<AllProps, State> {
 	}
 
 	public toggleMute() {
-		const { muted, setConfigKey } = this.props;
+		const { muted, setConfigKey, volume } = this.props;
+		const { volumeBeforeMute } = this.state;
 
 		if (muted) {
-			this.volumeChange(0.5);
+			this.volumeChange(volumeBeforeMute);
 		} else {
+			this.setState({
+				volumeBeforeMute: volume
+			});
 			this.volumeChange(0);
 		}
 
@@ -308,62 +170,25 @@ class Player extends React.Component<AllProps, State> {
 		toggleShuffle(!shuffle);
 	}
 
-	public renderProgressBar() {
-		const {
-			player: { currentTime, duration },
-			setCurrentTime
-		} = this.props;
-
-		const { isSeeking, nextTime } = this.state;
-
-		const sliderValue = isSeeking ? nextTime : currentTime;
-
-		return (
-			<Slider
-				min={0}
-				max={duration}
-				value={sliderValue}
-				stepSize={1}
-				onChange={this.seekChange}
-				labelRenderer={false}
-				onRelease={val => {
-					this.setState({
-						isSeeking: false
-					});
-
-					if (this.audioRef && this.audioRef.audio) {
-						this.audioRef.audio.currentTime = val;
-					}
-
-					setCurrentTime(val);
-					ipcRenderer.send(EVENTS.PLAYER.SEEK_END, val);
-				}}
-			/>
-		);
-	}
-
 	public renderAudio() {
 		const {
-			player,
-			addToast,
+			playingTrack,
+			status,
 			volume: configVolume,
 			track,
 			remainingPlays,
 			// overrideClientId,
 			chromecast,
-			muted
+			muted,
+			playbackDeviceId
 		} = this.props;
 		const { isVolumeSeeking, volume } = this.state;
-
-		const { status, playingTrack } = player;
 
 		if (!track || !playingTrack) {
 			return null;
 		}
 
 		const audioVolume = isVolumeSeeking ? volume : configVolume;
-
-		const url = `stream://${track.id}`;
 
 		const limitReached = remainingPlays && remainingPlays.remaining === 0;
 
@@ -379,28 +204,25 @@ class Player extends React.Component<AllProps, State> {
 			);
 		}
 
-		const autoplay = status === PlayerStatus.PLAYING;
 		const playingOnChromecast = !!chromecast.castApp;
 
 		return (
-			<ReactAudioPlayer
-				ref={this.audio}
-				src={url}
-				autoPlay={autoplay}
-				volume={audioVolume}
+			<Audio
+				// ref={this.audio}
+				src={`http://localhost:8888/stream/${track.id}`}
+				playerStatus={status}
+				// autoPlay={autoplay}
+				playerVolume={audioVolume}
 				muted={muted || playingOnChromecast}
-				id={`${playingTrack.id}`}
-				onLoadedMetadata={this.onLoad}
-				onListen={this.onPlaying}
-				onEnded={this.onFinishedPlaying}
-				onError={this.onError}
+				playbackDeviceId={playbackDeviceId}
 			/>
 		);
 	}
 
 	public render() {
 		const {
-			player,
+			playingTrack,
+			status,
 			volume: configVolume,
 			repeat,
 			liked,
@@ -415,9 +237,7 @@ class Player extends React.Component<AllProps, State> {
 			setConfigKey
 		} = this.props;
 
-		const { nextTime, isSeeking, isVolumeSeeking, volume } = this.state;
-
-		const { status, currentTime, playingTrack, duration } = player;
+		const { isVolumeSeeking, volume } = this.state;
 
 		if (!track || !playingTrack || !trackUser) {
 			return null;
@@ -477,13 +297,7 @@ class Player extends React.Component<AllProps, State> {
 						}}
 					/>
 
-					<div className={styles.playerTimeline}>
-						<div className={styles.time}>
-							{getReadableTime(isSeeking ? nextTime : currentTime, false, true)}
-						</div>
-						<div className={styles.progressInner}>{this.renderProgressBar()}</div>
-						<div className={styles.time}>{getReadableTime(duration, false, true)}</div>
-					</div>
+					<PlayerProgress />
 
 					<Popover
 						className="mr-2"

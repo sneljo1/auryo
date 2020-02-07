@@ -60,11 +60,7 @@ interface SetLayoutSettingsComponentProps extends InjectedContentContextProps {
 	hasImage: boolean;
 }
 
-const SetLayoutSettingsComponent: React.SFC<SetLayoutSettingsComponentProps> = ({
-	hasImage,
-	applySettings,
-	setList
-}) => {
+const SetLayoutSettingsComponent: React.SFC<SetLayoutSettingsComponentProps> = ({ hasImage, applySettings }) => {
 	useEffect(() => {
 		applySettings({ hasImage });
 

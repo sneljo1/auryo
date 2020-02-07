@@ -24,12 +24,12 @@ export class Utils {
 					case "user":
 						return history.replace(`/user/${json.id}`);
 					default:
+						// eslint-disable-next-line no-console
 						console.error("Resolve not implemented for", json.kind);
 						return null;
 				}
 			})
-			.catch(err => {
-				console.error(err);
+			.catch(() => {
 				history.goBack();
 				IPC.openExternal(unescape(url));
 			});

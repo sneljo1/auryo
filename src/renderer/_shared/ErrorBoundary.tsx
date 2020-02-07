@@ -16,9 +16,9 @@ class ErrorBoundary extends React.PureComponent<{}, State> {
 		// Display fallback UI
 		this.setState({ hasError: true, message: error.message });
 		// You can also log the error to an error reporting service
-		// tslint:disable-next-line: no-console
+		// eslint-disable-next-line no-console
 		console.error(errorInfo.componentStack);
-		// tslint:disable-next-line: no-console
+		// eslint-disable-next-line no-console
 		console.error(error);
 	}
 

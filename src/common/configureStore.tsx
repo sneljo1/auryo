@@ -1,8 +1,7 @@
 import { Intent } from "@blueprintjs/core";
-import { EVENTS } from "@common/constants/events";
 import { rootReducer, StoreState } from "@common/store";
 // eslint-disable-next-line import/no-cycle
-import { addToast, logout } from "@common/store/actions";
+import { addToast } from "@common/store/actions";
 import { PlayerActionTypes } from "@common/store/player";
 import { UIActionTypes } from "@common/store/ui";
 import { Logger } from "@main/utils/logger";
@@ -19,7 +18,7 @@ import thunk from "redux-thunk";
 const handleErrorMiddleware: Middleware = (store: Store<StoreState>) => next => action => {
 	if (action.type && action.type.endsWith(ActionType.Rejected)) {
 		const {
-			payload: { message, response }
+			payload: { message }
 		} = action;
 
 		if (message && message === "Failed to fetch") {
@@ -48,6 +47,7 @@ const configureStore = (history?: History): Store<StoreState> => {
 	if (process.env.NODE_ENV === "development") {
 		let logger: Middleware;
 		if (history) {
+			// renderer process
 			logger = createLogger({
 				level: "info",
 				collapsed: true,
@@ -55,6 +55,7 @@ const configureStore = (history?: History): Store<StoreState> => {
 					action.type !== UIActionTypes.SET_SCROLL_TOP && action.type !== PlayerActionTypes.SET_TIME
 			});
 		} else {
+			// main process
 			logger = () => next => action => {
 				const reduxLogger = Logger.createLogger("REDUX");
 
@@ -85,7 +86,8 @@ const configureStore = (history?: History): Store<StoreState> => {
 					player: {
 						status: true,
 						currentPlaylistId: true,
-						playingTrack: true
+						playingTrack: true,
+						currentIndex: true
 					},
 					modal: true,
 					auth: {

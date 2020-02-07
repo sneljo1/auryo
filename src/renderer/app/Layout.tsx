@@ -5,7 +5,6 @@ import * as actions from "@common/store/actions";
 import { getUserPlaylists } from "@common/store/auth/selectors";
 import { PlayerStatus } from "@common/store/player";
 import { getCurrentPlaylistId } from "@common/store/player/selectors";
-import { getPreviousScrollTop } from "@common/store/ui/selectors";
 // eslint-disable-next-line import/no-cycle
 import { ContentContext, INITIAL_LAYOUT_SETTINGS, LayoutSettings } from "@renderer/_shared/context/contentContext";
 import cn from "classnames";
@@ -31,6 +30,7 @@ import Player from "./components/player/Player";
 import SideBar from "./components/Sidebar/Sidebar";
 import { Themes } from "./components/Theme/themes";
 import { Toastr } from "./components/Toastr";
+import { AudioPlayerProvider } from "../../hooks/useAudioPlayer";
 
 const mapStateToProps = (state: StoreState) => {
 	const {
@@ -45,7 +45,6 @@ const mapStateToProps = (state: StoreState) => {
 		playingTrack: player.playingTrack,
 		theme: config.app.theme,
 		toasts: ui.toasts,
-		previousScrollTop: getPreviousScrollTop(state) || 0,
 		currentPlaylistId: getCurrentPlaylistId(state),
 		isActuallyPlaying: player.status === PlayerStatus.PLAYING,
 
@@ -64,7 +63,6 @@ const mapDispatchToProps = (dispatch: Dispatch) =>
 			removeToast: actions.removeToast,
 			setDimensions: actions.setDimensions,
 			toggleOffline: actions.toggleOffline,
-			setScrollPosition: actions.setScrollPosition,
 			stopWatchers: actions.stopWatchers
 		},
 		dispatch
@@ -74,19 +72,27 @@ interface State {
 	isScrolling: boolean;
 	settings: LayoutSettings;
 	list?: FixedSizeList | null;
+	scrollLocations: {
+		[path: string]: number;
+	};
 }
 
 type PropsFromState = ReturnType<typeof mapStateToProps>;
 
 type PropsFromDispatch = ReturnType<typeof mapDispatchToProps>;
 
-type AllProps = PropsFromState & PropsFromDispatch & RouteComponentProps;
+type AllProps = PropsFromState &
+	PropsFromDispatch &
+	RouteComponentProps & {
+		children(props: { scrollTop: number }): React.ReactNode;
+	};
 
 @autobind
 class Layout extends React.Component<AllProps, State> {
 	public state: State = {
 		settings: INITIAL_LAYOUT_SETTINGS,
-		isScrolling: false
+		isScrolling: false,
+		scrollLocations: {}
 	};
 
 	private readonly contentRef: React.RefObject<Scrollbars> = React.createRef();
@@ -98,7 +104,18 @@ class Layout extends React.Component<AllProps, State> {
 		super(props);
 
 		this.debouncedHandleResize = debounce(this.handleResize, 500, { leading: true });
-		this.debouncedSetScrollPosition = debounce(props.setScrollPosition, 100);
+		this.debouncedSetScrollPosition = debounce(
+			(scrollTop, pathname) => {
+				this.setState(state => ({
+					scrollLocations: {
+						...state.scrollLocations,
+						[pathname]: scrollTop
+					}
+				}));
+			},
+			100,
+			{ maxWait: 200 }
+		);
 	}
 
 	public componentDidMount() {
@@ -158,15 +175,15 @@ class Layout extends React.Component<AllProps, State> {
 		if (list) {
 			list.scrollTo(scrollTop);
 		}
-
 		this.debouncedSetScrollPosition(scrollTop, location.pathname);
 	}
 
 	private handlePreviousScrollPositionOnBack() {
-		const { previousScrollTop, history } = this.props;
-		const { isScrolling } = this.state;
-
+		const { history } = this.props;
 		this.unregister = history.listen((_location, action) => {
+			const { isScrolling, scrollLocations } = this.state;
+			const previousScrollTop = scrollLocations[_location.pathname] || 0;
+
 			if (!isScrolling) {
 				const scrollTo = action === "POP" ? previousScrollTop : 0;
 
@@ -201,6 +218,7 @@ class Layout extends React.Component<AllProps, State> {
 			playingTrack,
 			children,
 			theme,
+			location,
 			currentPlaylistId,
 			isActuallyPlaying,
 			// Functions
@@ -209,7 +227,9 @@ class Layout extends React.Component<AllProps, State> {
 			userPlayerlists
 		} = this.props;
 
-		const { settings, list } = this.state;
+		const { settings, list, scrollLocations } = this.state;
+
+		const scrollTop = scrollLocations[location.pathname] || 0;
 
 		return (
 			<ResizeSensor onResize={this.debouncedHandleResize}>
@@ -262,11 +282,13 @@ class Layout extends React.Component<AllProps, State> {
 									renderThumbVertical={props => <div {...props} className="thumb-vertical" />}>
 									<Toastr position={Position.TOP_RIGHT} toasts={toasts} clearToasts={clearToasts} />
 
-									<ErrorBoundary>{children}</ErrorBoundary>
+									<ErrorBoundary>{children({ scrollTop })}</ErrorBoundary>
 								</Scrollbars>
 							</ContentContext.Provider>
 
-							<Player />
+							<AudioPlayerProvider>
+								<Player />
+							</AudioPlayerProvider>
 						</main>
 
 						{/* Register Modals */}

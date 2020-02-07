@@ -1,17 +1,15 @@
 import { Normalized } from "@types";
 import cn from "classnames";
-import { autobind } from "core-decorators";
-import React, { SFC, useRef, useEffect } from "react";
+import React, { SFC, useContext, useEffect, useRef } from "react";
 import AutoSizer from "react-virtualized-auto-sizer";
 import { FixedSizeList as List } from "react-window";
 import InfiniteLoader from "react-window-infinite-loader";
-import { compose } from "redux";
-import { InjectedContentContextProps, withContentContext } from "../context/contentContext";
+import { ContentContext } from "../context/contentContext";
 import Spinner from "../Spinner/Spinner";
 import { TrackGridRow } from "./TrackGridRow";
 import * as styles from "./TracksGrid.module.scss";
 
-interface OwnProps {
+interface Props {
 	showInfo?: boolean;
 	items: Normalized.NormalizedResult[];
 	objectId: string;
@@ -23,15 +21,14 @@ interface OwnProps {
 	loadMore?(startIndex: number, stopIndex: number): Promise<void>;
 }
 
-type AllProps = OwnProps & InjectedContentContextProps;
-
 function getRowsForWidth(width: number): number {
 	return Math.floor(width / 255);
 }
 
-const TracksGrid: SFC<AllProps> = props => {
-	const { items, objectId, showInfo, isItemLoaded, loadMore, hasMore, isLoading, setList } = props;
+const TracksGrid: SFC<Props> = props => {
+	const { items, objectId, showInfo, isItemLoaded, loadMore, hasMore, isLoading } = props;
 	const loaderRef = useRef<InfiniteLoader & { _listRef: List }>(null);
+	const { setList } = useContext(ContentContext);
 
 	useEffect(() => {
 		if (loaderRef?.current?._listRef) {
@@ -41,7 +38,6 @@ const TracksGrid: SFC<AllProps> = props => {
 
 	return (
 		<div className={cn("songs container-fluid")}>
-			{/* <div className={cn("songs container-fluid")} style={{ height: "100%" }}> */}
 			<AutoSizer disableHeight>
 				{({ width }: { width: number }) => {
 					const itemsPerRow = getRowsForWidth(width);
@@ -112,4 +108,4 @@ TracksGrid.defaultProps = {
 	loadMore: () => Promise.resolve()
 };
 
-export default compose(withContentContext)(TracksGrid);
+export default TracksGrid;

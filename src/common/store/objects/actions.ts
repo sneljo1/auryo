@@ -13,7 +13,6 @@ import { processQueueItems } from "../player/actions";
 import { SortTypes } from "../playlist/types";
 import { getPlaylistObjectSelector } from "./selectors";
 import { ObjectsActionTypes, ObjectState, ObjectTypes } from "./types";
-import _ from "lodash";
 import { Track } from "src/types/soundcloud";
 
 const canFetch = (current: ObjectState<any>): boolean => !current || (!!current && !current.isFetching);

@@ -1,5 +1,4 @@
 import { EVENTS } from "@common/constants/events";
-import { initApp } from "@common/store/actions";
 import { setLoginError, setLoginLoading } from "@common/store/auth/actions";
 import { setLogin } from "@common/store/config/actions";
 import { createAuthWindow } from "@main/authWindow";

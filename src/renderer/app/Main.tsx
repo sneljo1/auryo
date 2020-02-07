@@ -1,9 +1,7 @@
 import { StoreState } from "@common/store";
-import { getScrollPositions } from "@common/store/ui/selectors";
 import { Utils } from "@common/utils/utils";
 import Settings from "@renderer/pages/settings/Settings";
-import { autobind } from "core-decorators";
-import * as React from "react";
+import React, { FC } from "react";
 import { connect } from "react-redux";
 import { Redirect, Route, RouteComponentProps, Switch, withRouter } from "react-router";
 import { compose } from "redux";
@@ -29,27 +27,16 @@ const mapStateToProps = (state: StoreState) => {
 	const { app } = state;
 	return {
 		offline: app.offline,
-		loaded: app.loaded,
-		scrollPositions: getScrollPositions(state)
+		loaded: app.loaded
 	};
 };
-
-interface State {
-	previousScrollTop?: number;
-	isScrolling: boolean;
-}
 
 type PropsFromState = ReturnType<typeof mapStateToProps>;
 
 type AllProps = PropsFromState & RouteComponentProps;
 
-@autobind
-class Main extends React.PureComponent<AllProps, State> {
-	public handleResolve(props: RouteComponentProps<any>) {
-		const {
-			location: { search }
-		} = props;
-
+const Main: FC<AllProps> = ({ loaded, offline, location: { search } }) => {
+	const handleResolve = () => {
 		const url = search.replace("?", "");
 
 		if (!url || (url && !url.length)) {
@@ -59,49 +46,42 @@ class Main extends React.PureComponent<AllProps, State> {
 		Utils.resolveUrl(url);
 
 		return <Spinner contained />;
+	};
+
+	if (!loaded && offline) {
+		return <IsOffline full />;
 	}
 
-	public render() {
-		const {
-			loaded,
-			offline,
-			location: { pathname },
-			scrollPositions
-		} = this.props;
-
-		if (!loaded && offline) {
-			return <IsOffline full />;
-		}
-
-		if (!loaded) {
-			return <Spinner full />;
-		}
-
-		const scrollTop = scrollPositions[pathname] || 0;
-
-		return (
-			<Layout>
-				<Header scrollTop={scrollTop} />
-				<Switch>
-					<Route exact path="/" component={FeedPlaylistPage} />
-					<Route path="/charts/genre/:genre" component={ChartsDetailsPage} />
-					<Route path="/charts/:type?" component={ChartsPage} />
-					<Route path="/likes" component={LikesPlaylistPage} />
-					<Route path="/mytracks" component={MyTracksPage} />
-					<Route path="/settings" component={Settings} />
-					<Route path="/foryou" component={ForYouPage} />
-					<Route path="/myplaylists" component={MyPlaylistsPage} />
-					<Route path="/track/:songId" component={TrackPage} />
-					<Route path="/user/:artistId" component={ArtistPage} />
-					<Route path="/playlist/:playlistId" component={PlaylistPage} />
-					<Route path="/personalized/:playlistId" component={PersonalizedPlaylistPage} />
-					<Route exact path="/search/:category?" component={SearchPage} />
-					<Route path="/tags/:tag/:type?" component={TagsPage} />
-					<Route path="/resolve" render={this.handleResolve} />
-				</Switch>
-			</Layout>
-		);
+	if (!loaded) {
+		return <Spinner full />;
 	}
-}
+
+	return (
+		<Layout>
+			{({ scrollTop }: any) => (
+				<>
+					<Header scrollTop={scrollTop} />
+					<Switch>
+						<Route exact path="/" component={FeedPlaylistPage} />
+						<Route path="/charts/genre/:genre" component={ChartsDetailsPage} />
+						<Route path="/charts/:type?" component={ChartsPage} />
+						<Route path="/likes" component={LikesPlaylistPage} />
+						<Route path="/mytracks" component={MyTracksPage} />
+						<Route path="/settings" component={Settings} />
+						<Route path="/foryou" component={ForYouPage} />
+						<Route path="/myplaylists" component={MyPlaylistsPage} />
+						<Route path="/track/:songId" component={TrackPage} />
+						<Route path="/user/:artistId" component={ArtistPage} />
+						<Route path="/playlist/:playlistId" component={PlaylistPage} />
+						<Route path="/personalized/:playlistId" component={PersonalizedPlaylistPage} />
+						<Route exact path="/search/:category?" component={SearchPage} />
+						<Route path="/tags/:tag/:type?" component={TagsPage} />
+						<Route path="/resolve" render={handleResolve} />
+					</Switch>
+				</>
+			)}
+		</Layout>
+	);
+};
 
 export default compose(withRouter, connect(mapStateToProps))(Main);

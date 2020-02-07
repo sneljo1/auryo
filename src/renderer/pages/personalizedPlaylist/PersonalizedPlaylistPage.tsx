@@ -211,14 +211,14 @@ class PersonalizedPlaylistPage extends React.Component<AllProps, State> {
 						</div>
 					</div>
 				) : (
-						<TracksGrid
-							items={playlistObject.items.slice(0, playlistObject.fetchedItems)}
-							objectId={playlistIdParam.toString()}
-							isLoading={playlistObject.isFetching}
-							loadMore={() => fetchPlaylistTracks(playlistIdParam, 30) as any}
-							isItemLoaded={index => !!playlistObject.items.slice(0, playlistObject.fetchedItems)[index]}
-						/>
-					)}
+					<TracksGrid
+						items={playlistObject.items.slice(0, playlistObject.fetchedItems)}
+						objectId={playlistIdParam.toString()}
+						isLoading={playlistObject.isFetching}
+						loadMore={() => fetchPlaylistTracks(playlistIdParam, 30) as any}
+						isItemLoaded={index => !!playlistObject.items.slice(0, playlistObject.fetchedItems)[index]}
+					/>
+				)}
 			</>
 		);
 	}

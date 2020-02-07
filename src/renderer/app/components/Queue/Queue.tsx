@@ -16,6 +16,7 @@ const mapStateToProps = (state: StoreState) => {
 	const { player } = state;
 
 	return {
+		playingTrackId: player.playingTrack?.id,
 		playingTrack: player.playingTrack,
 		currentIndex: player.currentIndex,
 		upNext: player.upNext,

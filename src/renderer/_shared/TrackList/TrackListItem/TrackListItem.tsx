@@ -61,7 +61,7 @@ class TrackListItem extends React.PureComponent<AllProps> {
 			return <TogglePlayButton className="toggleButton" />;
 		}
 
-		const icon = isPlaying ? "pause" : "play";
+		const icon = isTrackPlaying ? "pause" : "play";
 
 		return (
 			<a
@@ -84,7 +84,7 @@ class TrackListItem extends React.PureComponent<AllProps> {
 
 		return (
 			<tr
-				className={cn("trackItem", { isTrackPlaying })}
+				className={cn("trackItem", { isPlaying: isTrackPlaying })}
 				onDoubleClick={e => {
 					this.playTrack(false, e);
 				}}>

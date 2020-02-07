@@ -245,6 +245,50 @@ export class Auryo {
 				}
 			});
 
+			this.mainWindow.webContents.session.webRequest.onBeforeRequest(
+				{
+					urls: ["https://local.stream/*"]
+				},
+				async (details, callback) => {
+					const {
+						config: {
+							app: { overrideClientId }
+						}
+					} = this.store.getState();
+					const { 1: trackId } = details.url.split("https://local.stream/");
+					const mp3Url = await this.getPlayingTrackStreamUrl(
+						trackId,
+						overrideClientId || CONFIG.CLIENT_ID || ""
+					);
+
+					callback({
+						redirectURL: mp3Url
+					});
+				}
+			);
+
+			this.mainWindow.webContents.session.webRequest.onBeforeRequest(
+				{
+					urls: ["http://localhost:8888/stream/*"]
+				},
+				async (details, callback) => {
+					const {
+						config: {
+							app: { overrideClientId }
+						}
+					} = this.store.getState();
+					const { 1: trackId } = details.url.split("http://localhost:8888/stream/");
+					const mp3Url = await this.getPlayingTrackStreamUrl(
+						trackId,
+						overrideClientId || CONFIG.CLIENT_ID || ""
+					);
+
+					callback({
+						redirectURL: mp3Url
+					});
+				}
+			);
+
 			this.mainWindow.webContents.session.webRequest.onCompleted(details => {
 				if (
 					this.mainWindow &&

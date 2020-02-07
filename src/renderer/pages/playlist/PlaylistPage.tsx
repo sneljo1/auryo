@@ -267,15 +267,15 @@ class PlaylistPage extends React.Component<AllProps, State> {
 						</div>
 					</div>
 				) : (
-						<TracksGrid
-							items={playlistObject.items}
-							objectId={playlistIdParam.toString()}
-							isLoading={playlistObject.isFetching}
-							isItemLoaded={index => index < playlistObject.fetchedItems}
-							loadMore={(a, b) => fetchPlaylistTracks(playlistIdParam, 30) as any}
-							hasMore={hasMore}
-						/>
-					)}
+					<TracksGrid
+						items={playlistObject.items}
+						objectId={playlistIdParam.toString()}
+						isLoading={playlistObject.isFetching}
+						isItemLoaded={index => index < playlistObject.fetchedItems}
+						loadMore={() => fetchPlaylistTracks(playlistIdParam, 30) as any}
+						hasMore={hasMore}
+					/>
+				)}
 			</>
 		);
 	}

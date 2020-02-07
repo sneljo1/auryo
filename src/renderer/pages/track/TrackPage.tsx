@@ -193,10 +193,10 @@ class TrackPage extends React.PureComponent<AllProps, State> {
 								{SC.isStreamable(track) ? (
 									this.renderToggleButton()
 								) : (
-										<a href="javascript:void(0)" className="disabled c_btn">
-											<span>This track is not streamable</span>
-										</a>
-									)}
+									<a href="javascript:void(0)" className="disabled c_btn">
+										<span>This track is not streamable</span>
+									</a>
+								)}
 
 								<a
 									href="javascript:void(0)"

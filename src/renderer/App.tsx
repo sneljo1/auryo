@@ -5,51 +5,42 @@ import { ConnectedRouter } from "connected-react-router";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { ipcRenderer } from "electron";
 import { History } from "history";
-import * as React from "react";
+import React, { useEffect, FC } from "react";
 import { Provider } from "react-redux";
 import { Route, Switch } from "react-router";
 import { Store } from "redux";
 import Main from "./app/Main";
 import OnBoarding from "./pages/onboarding/OnBoarding";
 
-interface OwnProps {
+interface Props {
 	history: History;
 	store: Store<StoreState>;
 }
 
-export class App extends React.PureComponent<OwnProps> {
-	public componentDidMount() {
-		const { history, store } = this.props;
-
+export const App: FC<Props> = ({ history, store }) => {
+	useEffect(() => {
 		ipcRenderer.send(EVENTS.APP.READY);
 
-		history.listen(() => {
+		const unregister = history.listen(() => {
 			ipcRenderer.send(EVENTS.APP.NAVIGATE);
 		});
 
 		store.dispatch(initApp() as any);
-	}
 
-	public componentWillUnmount() {
-		const { store } = this.props;
+		return () => {
+			store.dispatch(stopWatchers() as any);
+			unregister();
+		};
+	}, []);
 
-		store.dispatch(stopWatchers() as any);
-	}
-
-	public render() {
-		const { history, store } = this.props;
-
-		console.log(process.env.NODE_ENV);
-
-		return (
-			<Provider store={store}>
-				<ConnectedRouter history={history}>
-					<Switch>
-						<Route path="/login" component={OnBoarding} />
-						<Route path="/" component={Main} />
-					</Switch>
-				</ConnectedRouter>
-			</Provider>
-		);
-	}
-}
+	return (
+		<Provider store={store}>
+			<ConnectedRouter history={history}>
+				<Switch>
+					<Route path="/login" component={OnBoarding} />
+					<Route path="/" component={Main} />
+				</Switch>
+			</ConnectedRouter>
+		</Provider>
+	);
+};

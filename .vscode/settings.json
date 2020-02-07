@@ -8,20 +8,19 @@
   "eslint.validate": [
     "javascript",
     "javascriptreact",
-    {
-      "language": "typescript",
-      "autoFix": true
-    },
-    {
-      "language": "typescriptreact",
-      "autoFix": true
-    }
+    "typescript",
+    "typescriptreact"
   ],
   "emmet.showAbbreviationSuggestions": false,
   "editor.tabSize": 4,
   "editor.formatOnSave": true,
-  "eslint.autoFixOnSave": true,
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
 }
