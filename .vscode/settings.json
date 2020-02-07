@@ -2,15 +2,10 @@
   "files.exclude": {
     ".cache-loader": true,
     ".vscode": true,
-    "node_modules": true,
+    "node_modules": true
   },
   "npm-intellisense.importQuotes": "\"",
-  "eslint.validate": [
-    "javascript",
-    "javascriptreact",
-    "typescript",
-    "typescriptreact"
-  ],
+  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
   "emmet.showAbbreviationSuggestions": false,
   "editor.tabSize": 4,
   "editor.formatOnSave": true,
@@ -22,5 +17,5 @@
   },
   "[typescript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
+  }
 }

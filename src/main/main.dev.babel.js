@@ -1,8 +1,8 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
-const register = require("@babel/register").default;
+const register = require('@babel/register').default;
 
 register({
-	extensions: [".ts", ".tsx", ".js", ".json"]
+  extensions: ['.ts', '.tsx', '.js', '.json']
 });
 
-require("./index.ts");
+require('./index.ts');

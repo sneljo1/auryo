@@ -1,32 +1,32 @@
-import { IToasterProps, IToastOptions, Toaster } from "@blueprintjs/core";
-import * as actions from "@common/store/actions";
-import * as React from "react";
+import { IToasterProps, IToastOptions, Toaster } from '@blueprintjs/core';
+import * as actions from '@common/store/actions';
+import * as React from 'react';
 
 interface Props extends IToasterProps {
-	toasts: IToastOptions[];
-	clearToasts: typeof actions.clearToasts;
+  toasts: IToastOptions[];
+  clearToasts: typeof actions.clearToasts;
 }
 
 export class Toastr extends React.PureComponent<Props> {
-	private toaster = React.createRef<Toaster>();
+  private toaster = React.createRef<Toaster>();
 
-	public componentDidUpdate() {
-		const { toasts, clearToasts } = this.props;
+  public componentDidUpdate() {
+    const { toasts, clearToasts } = this.props;
 
-		if (toasts.length) {
-			toasts.forEach(toast => {
-				if (this.toaster.current) {
-					this.toaster.current.show(toast);
-				}
-			});
+    if (toasts.length) {
+      toasts.forEach(toast => {
+        if (this.toaster.current) {
+          this.toaster.current.show(toast);
+        }
+      });
 
-			clearToasts();
-		}
-	}
+      clearToasts();
+    }
+  }
 
-	public render() {
-		const { toasts, clearToasts, ...props } = this.props;
+  public render() {
+    const { toasts, clearToasts, ...props } = this.props;
 
-		return <Toaster {...props} ref={this.toaster} />;
-	}
+    return <Toaster {...props} ref={this.toaster} />;
+  }
 }

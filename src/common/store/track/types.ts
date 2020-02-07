@@ -3,5 +3,5 @@
 // ACTIONS
 
 export enum TrackActionTypes {
-	ADD = "@@track/ADD"
+  ADD = '@@track/ADD'
 }

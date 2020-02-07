@@ -28,7 +28,7 @@
     "package-win": "yarn build && electron-builder build --win --x64",
     "package-mac": "yarn build && electron-builder build --mac",
     "postinstall": "electron-builder install-app-deps && yarn build-dll",
-    "postlint-fix": "prettier --ignore-path .eslintignore --single-quote --write '**/*.{*{js,jsx,json},babelrc,eslintrc,prettierrc,stylelintrc}'",
+    "postlint-fix": "prettier --ignore-path .eslintignore --single-quote --write '**/*.{*{js,ts,tsx,jsx,json},babelrc,eslintrc,prettierrc,stylelintrc}'",
     "postlint-styles-fix": "prettier --ignore-path .eslintignore --single-quote --write '**/*.{css,scss}'",
     "precommit": "lint-staged",
     "prestart": "yarn build",

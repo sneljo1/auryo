@@ -1,5 +1,5 @@
-import * as SC from "./soundcloudUtils";
+import * as SC from './soundcloudUtils';
 
-export * from "./appUtils";
-export * from "./playerUtils";
+export * from './appUtils';
+export * from './playerUtils';
 export { SC };
