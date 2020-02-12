@@ -17,46 +17,19 @@ src/
 * [Node.js](http://nodejs.org/) >8.10 - Application is written in nodejs
 
 ## Cloning
-You are going to need 2 different repos, 1 for the app and 1 for authenticating (locally). Let's start by cloning the main auryo repository.
+You can easily start developing by cloning the auryo repo.
 
 ```sh
 git clone https://github.com/Superjo149/auryo.git
 ```
 
-After that, we clone the authentication redirect server. Since soundcloud uses OAuth2, we have to have a callback url somewhere. This server will catch the token and send it via websockets to your local app. The reason for having a seperate local server is that we have 2 APP keys. One for development and one for production. 
-
-```sh
-git clone https://github.com/auryo/auryo-auth.git
-```
-You will not have to worry about any configuration here, just insert the correct environment variables and you are good to go.
-
 ## Running and debugging
+Go to the directory in which the project has been cloned.
 
-Now that you got everything installed you can run and start developing on auryo. If you are not logged in yet, you'll have to also start the auth server.
-
-### Auth service
-```sh
-cd auryo-auth
-```
-#### Env keys
-You need to have following env keys in a .env file in this directory.
-
-```sh
-CALLBACK=/oauth/callback
-CLIENT_ID_DEV=QtBpvKhqS08MxQKeRNRaCsUmX9AMWsdP
-
-```
-#### Starting
-With the env variables, you can start the auth server.
-
-```sh
-yarn start
-```
-
-### App
 ```sh
 cd auryo
 ```
+
 #### Env keys
 You need to have following env keys in a the `.env.development` file in the root of your project.
 
@@ -76,17 +49,9 @@ With the env variables, you can start the app.
 yarn run dev
 ```
 
-## Testing
-The only tests which are being run are e2e tests. I never imaged Auryo getting this big, so I've not added any other tests (yet).
-### End-2-End testing
-For local end-2-end testing, you will need to have a valid SoundCloud login in your env vars. End-2-end testing is done using [Spectron](https://github.com/electron/spectron).
+## Testing (currently not working)
 
-**Note: if you changed anything, before testing, always build first**
-
-```sh
-yarn run build
-yarn run test-e2e
-```
+// WIP
 
 ## Building and Packaging
 Packaging and distribution is done via CI, which sends the packaged builds to github released if the commit is tagged. If you would like, you can also do this locally.
