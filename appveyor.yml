@@ -34,8 +34,8 @@ deploy_script:
   - cmd: yarn run release:win
 
 artifacts:
-  - path: 'dist\*.exe'
-  - path: 'dist\latest.yml'
+  - path: 'release\*.exe'
+  - path: 'release\latest.yml'
 
 on_failure:
   - ps: $root = Resolve-Path ./test\screenshots; [IO.Directory]::GetFiles($root.Path, '*.png', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName to-publish }
