@@ -1,6 +1,7 @@
 #!/usr/bin/env sh
 
 KEY_CHAIN=build.keychain
+
 CERTIFICATE_P12=certificate.p12
 
 # Recreate the certificate from the secure environment variable
@@ -21,3 +22,15 @@ security set-key-partition-list -S apple-tool:,apple: -s -k travis $KEY_CHAIN
 
 # remove certs
 rm -fr *.p12
+
+
+# P8
+
+
+CERTIFICATE_P8=AuthKey_2M45D3G29B.p8
+
+mkdir ~/.private_keys
+
+echo $CERTIFICATE_OSX_P8 | base64 --decode > ~/.private_keys/$CERTIFICATE_P8
+
+rm -fr *.p8
