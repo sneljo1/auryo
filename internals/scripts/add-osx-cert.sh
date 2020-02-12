@@ -27,10 +27,10 @@ rm -fr *.p12
 # P8
 
 
-CERTIFICATE_P8=AuthKey_2M45D3G29B.p8
+# CERTIFICATE_P8=AuthKey_2M45D3G29B.p8
 
-mkdir ~/.private_keys
+# mkdir ~/.private_keys
 
-echo $CERTIFICATE_OSX_P8 | base64 --decode > ~/.private_keys/$CERTIFICATE_P8
+# echo $CERTIFICATE_OSX_P8 | base64 --decode > ~/.private_keys/$CERTIFICATE_P8
 
-rm -fr *.p8
+# rm -fr *.p8
