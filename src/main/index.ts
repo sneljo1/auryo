@@ -4,6 +4,7 @@ import { app, systemPreferences } from 'electron';
 import { Auryo } from './app';
 import { Logger } from './utils/logger';
 import { configureStore } from '@common/configureStore';
+import is from 'electron-is';
 
 if (process.env.TOKEN) {
   process.env.ENV = 'test';
@@ -45,7 +46,9 @@ async function installExtensions() {
 // This method will be called when Electron has done everything
 // initialization and ready for creating browser windows.
 app.on('ready', async () => {
-  systemPreferences.isTrustedAccessibilityClient(true);
+  if (is.osx()) {
+    systemPreferences.isTrustedAccessibilityClient(true);
+  }
 
   try {
     if (process.env.NODE_ENV === 'development') {

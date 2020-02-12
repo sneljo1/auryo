@@ -1,7 +1,5 @@
 #!/bin/bash
 
-
-
 current_date_time="`date +%Y%m%d%H%M%S`";
 PACKAGE_VERSION=$(cat package.json \
   | grep version \
