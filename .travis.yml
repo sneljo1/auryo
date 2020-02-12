@@ -27,6 +27,7 @@ matrix:
             - libavahi-compat-libdnssd-dev
     - os: osx
       language: node_js
+      osx_image: xcode11.2
       node_js: '12'
       sudo: required
       addons:
@@ -72,6 +73,8 @@ after_success:
         yarn run release:linux
       else
         if [[ $TRAVIS_PULL_REQUEST == "false" ]]; then
+          # ln -s "/Applications/Xcode.app/Contents/Applications/Application Loader.app/Contents/Frameworks/ITunesSoftwareService.framework/Support/altool" /usr/local/bin/altool
+          # ln -s "/Applications/Xcode.app/Contents/Applications/Application Loader.app/Contents/itms" /usr/local/bin/itms #itms is needed, otherwise altool will not work correctly
           chmod +x ./internals/scripts/add-osx-cert.sh; 
           ./internals/scripts/add-osx-cert.sh;
         fi
