@@ -3,17 +3,16 @@ import { SoundCloud } from '../../../../../types';
 import './ArtistProfiles.scss';
 
 interface Props {
-    profiles?: SoundCloud.UserProfiles;
-    className?: string;
+  profiles?: SoundCloud.UserProfiles;
+  className?: string;
 }
 
 class ArtistProfiles extends React.Component<Props> {
+  public static defaultProps: Props = {
+    profiles: { items: [], loading: false }
+  };
 
-    static defaultProps: Props = {
-        profiles: { items: [], loading: false }
-    };
-
-    /*
+  /*
 
         SOUNDCLOUD = 'soundcloud',
         INSTAGRAM = 'instagram',
@@ -29,76 +28,77 @@ class ArtistProfiles extends React.Component<Props> {
         BEATPORT = 'beatport'
 
     */
-    getIcon(service: string) {
-
-        switch (service) {
-            case SoundCloud.ProfileService.SOUNDCLOUD:
-            return '-cloud';
-            case SoundCloud.ProfileService.SPOTIFY:
-            return '-album';
-            case SoundCloud.ProfileService.PERSONAL:
-            case SoundCloud.ProfileService.SNAPCHAT:
-                return '-globe';
-            default:
-                if (SoundCloud.ProfileService[service.toUpperCase()] != null) {
-                    return `l-${service}`;
-                }
-                return '-globe';
+  public getIcon(service: string) {
+    switch (service) {
+      case SoundCloud.ProfileService.SOUNDCLOUD:
+        return '-cloud';
+      case SoundCloud.ProfileService.SPOTIFY:
+        return '-album';
+      case SoundCloud.ProfileService.PERSONAL:
+      case SoundCloud.ProfileService.SNAPCHAT:
+        return '-globe';
+      default:
+        if (SoundCloud.ProfileService[service.toUpperCase()] != null) {
+          return `l-${service}`;
         }
 
+        return '-globe';
+    }
+  }
+
+  public getTitle(title: string): string | null {
+    if (!title) {
+      return null;
+    }
+    switch (title.toLowerCase()) {
+      case 'spotify':
+        return 'spotify';
+      case 'youtube':
+        return 'youtube';
+      case 'pinterest':
+        return 'pinterest';
+      case 'snapchat':
+        return 'snapchat';
+      default:
+        return null;
+    }
+  }
+
+  public render() {
+    const { profiles, className } = this.props;
+
+    if (!profiles || !profiles.items.length) {
+      return null;
     }
 
-    getTitle(title: string) {
-        if (!title) return;
-        switch (title.toLowerCase()) {
-            case 'spotify':
-                return 'spotify';
-            case 'youtube':
-                return 'youtube';
-            case 'pinterest':
-                return 'pinterest';
-            case 'snapchat':
-                return 'snapchat';
-            default:
-                return null;
-        }
-    }
+    return (
+      <div id="web-profiles" className={className}>
+        {profiles.items.map(profile => {
+          const title = this.getTitle(profile.title);
 
-    render() {
-        const { profiles, className } = this.props;
+          const { service } = profile;
 
-        if (!profiles || !profiles.items.length) return null;
+          let iconString = service.toString();
 
-        return (
-            <div id='web-profiles' className={className}>
-                {
-                    profiles.items.map((profile) => {
+          if (profile.service === SoundCloud.ProfileService.PERSONAL && title) {
+            iconString = title;
+          }
 
-                        const title = this.getTitle(profile.title);
+          const icon = `bx bx${this.getIcon(iconString)}`;
 
-                        let service: string = profile.service;
-
-                        if (profile.service === SoundCloud.ProfileService.PERSONAL && title) {
-                            service = title;
-                        }
-
-                        const icon = `bx bx${this.getIcon(service)}`;
-
-                        return (
-                            <a
-                                href={profile.url}
-                                className={`profile ${profile.service && profile.service != null ? profile.service.toLowerCase() : ''}`}
-                                key={profile.id}
-                            >
-                                <i className={icon} />
-                                <span>{profile.title ? profile.title : profile.service}</span>
-                            </a>
-                        );
-                    })
-                }
-            </div>
-        );
-    }
+          return (
+            <a
+              href={profile.url}
+              className={`profile ${profile.service && profile.service != null ? profile.service.toLowerCase() : ''}`}
+              key={profile.id}>
+              <i className={icon} />
+              <span>{profile.title ? profile.title : profile.service}</span>
+            </a>
+          );
+        })}
+      </div>
+    );
+  }
 }
 
 export default ArtistProfiles;

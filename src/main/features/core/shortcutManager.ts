@@ -1,36 +1,40 @@
-import { globalShortcut } from 'electron';
-import IFeature from '../feature';
-import { EVENTS } from '@common/constants/events';
+import { changeTrack, toggleStatus } from '@common/store/actions';
 import { ChangeTypes, PlayerStatus } from '@common/store/player';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { globalShortcut } from 'electron';
+import is from 'electron-is';
 import { Auryo } from '../../app';
+import { Feature } from '../feature';
 
 /**
  * Register global media shortcuts
  */
-export default class Shortcut extends IFeature {
+export default class Shortcut extends Feature {
+  public readonly featureName = 'Shortcut';
   constructor(auryo: Auryo) {
     super(auryo, 'ready-to-show');
   }
-  register() {
+
+  shouldRun() {
+    return !is.macOS(); // For Mac this is handled in mediaservicemanager
+  }
+
+  public register() {
     globalShortcut.register('MediaPlayPause', () => {
-      this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS);
+      this.store.dispatch(toggleStatus() as any);
     });
     globalShortcut.register('MediaPreviousTrack', () => {
-      this.changeTrack(ChangeTypes.PREV);
+      this.store.dispatch(changeTrack(ChangeTypes.PREV) as any);
     });
     globalShortcut.register('MediaNextTrack', () => {
-      this.changeTrack(ChangeTypes.NEXT);
+      this.store.dispatch(changeTrack(ChangeTypes.NEXT) as any);
     });
     globalShortcut.register('MediaStop', () => {
-      this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PlayerStatus.STOPPED);
+      this.store.dispatch(toggleStatus(PlayerStatus.STOPPED) as any);
     });
   }
 
-  unregister() {
+  public unregister() {
     globalShortcut.unregisterAll();
-  }
-
-  changeTrack = (changeType: ChangeTypes) => {
-    this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, changeType);
   }
 }

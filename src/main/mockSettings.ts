@@ -1,24 +1,22 @@
-import * as _ from 'lodash';
-
 export class MockSettings {
+  public store: any = {};
 
-  public store = {};
-
-  set(key: string, value: any) {
+  public set(key: string, value: any) {
     this.store[key] = value;
   }
-  get(key: string, defaultValue: any) {
+  public get(key: string, defaultValue: any) {
     return this.store[key] || defaultValue;
   }
-  has(key: string) {
+  public has(key: string) {
     return !!this.store[key];
   }
 
-  delete(key: string) {
+  public delete(key: string) {
+    // tslint:disable-next-line: no-dynamic-delete
     delete this.store[key];
   }
 
-  clear() {
+  public clear() {
     this.store = {};
   }
 }

@@ -1,0 +1,32 @@
+.playerTimeline {
+	flex-grow: 1;
+	display: flex;
+	flex-wrap: nowrap;
+	align-items: center;
+	padding: 0 1rem;
+
+	.time {
+		font-size: 0.8rem;
+		display: block;
+		padding: 0 15px;
+	}
+
+	.progressInner {
+		width: 100%;
+		padding: 8px 0;
+
+		&:hover {
+			:global {
+				.bp3-slider {
+					.bp3-slider-progress.bp3-intent-primary {
+						opacity: 1;
+					}
+
+					.bp3-slider-handle {
+						opacity: 1;
+					}
+				}
+			}
+		}
+	}
+}

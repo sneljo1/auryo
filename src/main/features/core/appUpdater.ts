@@ -1,45 +1,56 @@
+import { Intent } from '@blueprintjs/core';
+import { EVENTS } from '@common/constants/events';
+import { addToast, setUpdateAvailable } from '@common/store/actions';
+import axios from 'axios';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { app, shell } from 'electron';
 import * as is from 'electron-is';
 import { autoUpdater } from 'electron-updater';
-import * as request from 'request';
 import { gt as isVersionGreaterThan, valid as parseVersion } from 'semver';
 import { CONFIG } from '../../../config';
-import { EVENTS } from '@common/constants/events';
-import { Logger } from '../../utils/logger';
-import Feature from '../feature';
-import { setUpdateAvailable } from '@common/store/app';
-import { addToast } from '@common/store/ui';
-import { Intent } from '@blueprintjs/core';
+import { Logger, LoggerInstance } from '../../utils/logger';
+import { Feature } from '../feature';
 
 export default class AppUpdater extends Feature {
-  private logger = new Logger('AppUpdater');
+  public readonly featureName = 'AppUpdater';
+  private readonly logger: LoggerInstance = Logger.createLogger(this.featureName);
 
   private hasUpdate = false;
-  private currentVersion = parseVersion(app.getVersion());
+  private readonly currentVersion: string | null = parseVersion(app.getVersion());
 
-  shouldRun() {
-    return !process.env.TOKEN && process.env.NODE_ENV === 'production' && !(process.platform === 'linux' && process.env.SNAP_USER_DATA != null);
+  public shouldRun() {
+    return (
+      !process.env.TOKEN &&
+      process.env.NODE_ENV === 'production' &&
+      !(process.platform === 'linux' && process.env.SNAP_USER_DATA != null)
+    );
   }
 
-  register() {
-    const timer = setTimeout(() => {
-      this.update();
+  public register() {
+    const timer = setTimeout(async () => {
+      try {
+        await this.update();
+      } catch (err) {
+        this.logger.error(err);
+      }
     }, 10000);
 
     this.timers.push(timer);
   }
 
-  notify = (version: string) => {
+  public notify = (version: string) => {
     this.store.dispatch(setUpdateAvailable(version));
 
-    this.store.dispatch(addToast({
-      message: `Update available`,
-      intent: Intent.SUCCESS
-    }));
-  }
+    this.store.dispatch(
+      addToast({
+        message: `Update available`,
+        intent: Intent.SUCCESS
+      })
+    );
+  };
 
-  update = () => {
-    if (is.linux() || is.macOS()) {
+  public update = async () => {
+    if (is.linux()) {
       this.updateLinux();
     } else {
       autoUpdater.addListener('update-available', () => {
@@ -47,12 +58,12 @@ export default class AppUpdater extends Feature {
         this.logger.info('New update available');
       });
 
-      autoUpdater.addListener('update-downloaded', (info) => {
+      autoUpdater.addListener('update-downloaded', info => {
         this.notify(info.version);
 
         this.listenUpdate();
       });
-      autoUpdater.addListener('error', (error) => {
+      autoUpdater.addListener('error', error => {
         this.logger.error(error);
       });
       autoUpdater.addListener('checking-for-update', () => {
@@ -61,59 +72,51 @@ export default class AppUpdater extends Feature {
       autoUpdater.addListener('update-not-available', () => {
         this.logger.info('No update found');
 
-        setTimeout(() => {
+        setTimeout(async () => {
           autoUpdater.checkForUpdates();
-        }, 300000);
+        }, 3600000);
       });
-
-      // if (this.platform === 'darwin') {
-      //     autoUpdater.setFeedURL(`https://${CONFIG.UPDATE_SERVER_HOST}/update/darwin?version=${this.currentVersion}`);
-      // }
-
-      autoUpdater.checkForUpdates();
     }
-  }
+  };
 
-  listenUpdate = () => {
-    this.on(EVENTS.APP.UPDATE, () => {
+  public listenUpdate = () => {
+    this.on(EVENTS.APP.UPDATE, async () => {
       if (this.hasUpdate) {
         this.logger.info('Updating now!');
 
-        if (is.linux() || is.macOS()) {
-          shell.openExternal('http://auryo.com#downloads');
-        } else {
-          autoUpdater.quitAndInstall(true, true);
+        try {
+          if (is.linux() || is.macOS()) {
+            // tslint:disable-next-line: no-http-string
+            await shell.openExternal('http://auryo.com#downloads');
+          } else {
+            autoUpdater.quitAndInstall(true, true);
+          }
+        } catch (err) {
+          this.logger.error('Error during update', err);
         }
       }
     });
-  }
+  };
 
-  updateLinux = () => {
-    request(
-      {
-        url: CONFIG.UPDATE_SERVER_HOST,
-        headers: {
-          'User-Agent': 'request'
+  public updateLinux = () => {
+    axios
+      .get(CONFIG.UPDATE_SERVER_HOST)
+      .then(res => res.data)
+      .then(body => {
+        if (!body || body.draft || !body.tag_name) {
+          return;
         }
-      },
-      (error, response, body) => {
-        if (!error && response.statusCode === 200) {
-          const obj = JSON.parse(body);
-          if (!obj || obj.draft || !obj.tag_name) { return; }
-          const latest = parseVersion(obj.tag_name);
+        const latest = parseVersion(body.tag_name);
 
-          if (latest && this.currentVersion && isVersionGreaterThan(latest, this.currentVersion)) {
-            this.logger.info('New update available');
-            this.hasUpdate = true;
+        if (latest && this.currentVersion && isVersionGreaterThan(latest, this.currentVersion)) {
+          this.logger.info('New update available');
+          this.hasUpdate = true;
 
-            this.notify(latest);
+          this.notify(latest);
 
-            this.listenUpdate();
-          }
-        } else {
-          this.logger.error(error);
+          this.listenUpdate();
         }
-      }
-    );
-  }
+      })
+      .catch(this.logger.error);
+  };
 }

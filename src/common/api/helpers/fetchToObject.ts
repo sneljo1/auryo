@@ -1,14 +1,19 @@
-import { asJson, status, toObject } from '../../utils';
+import { AxiosRequestConfig } from 'axios';
+import fetchToJson from './fetchToJson';
 
-export default function fetchToObject(url: string): Promise<{ [key: string]: boolean }> {
-    return fetch(url)
-        .then(status)
-        .then(asJson)
-        .then((json) => {
-            if (!json.collection.length) {
-                return {};
-            }
+function toObject(collection: string[]): { [key: string]: boolean } {
+  return collection.reduce((obj, t) => ({ ...obj, [t]: true }), {});
+}
 
-            return toObject(json.collection);
-        });
+export default async function fetchToObject(
+  url: string,
+  options?: AxiosRequestConfig
+): Promise<{ [key: string]: boolean }> {
+  return fetchToJson<{ collection?: [] }>(url, options).then(json => {
+    if (!json.collection || !json.collection.length) {
+      return {};
+    }
+
+    return toObject(json.collection);
+  });
 }

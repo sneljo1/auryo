@@ -1,19 +1,19 @@
-// tslint:disable-next-line:no-namespace
+// eslint-disable-next-line
 export namespace MprisServiceClient {
   export interface MetaData {
     'xesam:title'?: string;
     'mpris:trackId'?: string;
     'mpris:artUrl'?: string;
     'mpris:length'?: microseconds;
-    'xesam:artist'?: Array<string>;
+    'xesam:artist'?: string[];
     'xesam:asText'?: string;
     'xesam:audioBPM'?: number;
     'xesam:autoRating'?: number;
-    'xesam:comment'?: Array<number>;
-    'xesam:composer'?: Array<string>;
+    'xesam:comment'?: number[];
+    'xesam:composer'?: string[];
     'xesam:url'?: string;
     'xesam:lastUsed'?: ISOString;
-    'xesam:genre'?: Array<string>;
+    'xesam:genre'?: string[];
     'xesam:contentCreated'?: ISOString;
     'xesam:useCount'?: number;
   }
@@ -21,9 +21,9 @@ export namespace MprisServiceClient {
   export interface PlayerOptions {
     name: string;
     identity: string;
-    supportedUriSchemes: Array<string>;
-    supportedMimeTypes: Array<string>;
-    supportedInterfaces: Array<string>;
+    supportedUriSchemes: string[];
+    supportedMimeTypes: string[];
+    supportedInterfaces: string[];
   }
 
   export type double = number;
@@ -47,17 +47,18 @@ export namespace MprisServiceClient {
     canControl: boolean;
     canEditTracks: boolean;
 
-    // tslint:disable-next-line:no-misused-new
+    // eslint-disable-next-line @typescript-eslint/no-misused-new
     constructor(options: PlayerOptions): void;
 
     seeked(delta: double): void;
     objectPath(trackId: string): string;
 
-    // tslint:disable-next-line:ban-types
-    on(event: 'next' | 'previous' | 'pause' | 'playpause' | 'stop' | 'play' | 'raise' | 'quit', callback: Function): void;
+    on(
+      event: 'next' | 'previous' | 'pause' | 'playpause' | 'stop' | 'play' | 'raise' | 'quit',
+      callback: Function
+    ): void;
     on(event: 'seek', data: { delta: number; position: number }): void;
     on(event: 'position' | 'open', data: { trackId: string; position: number }): void;
-
   }
 
   export type microseconds = number;

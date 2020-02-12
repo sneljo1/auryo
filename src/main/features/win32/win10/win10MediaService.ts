@@ -1,25 +1,33 @@
-
 import { EVENTS } from '@common/constants/events';
 import { IMAGE_SIZES } from '@common/constants/Soundcloud';
-import * as SC from '@common/utils/soundcloudUtils';
-import WindowsFeature from '../windowsFeature';
-import { ChangeTypes, PlayerStatus } from '@common/store/player';
+import { changeTrack, toggleStatus } from '@common/store/actions';
 import { getTrackEntity } from '@common/store/entities/selectors';
-import { Logger } from '../../../utils/logger';
+import { ChangeTypes, PlayerStatus, PlayingTrack } from '@common/store/player';
+import * as SC from '@common/utils/soundcloudUtils';
+import { Logger, LoggerInstance } from '../../../utils/logger';
+import { WindowsFeature } from '../windowsFeature';
 
 export default class Win10MediaService extends WindowsFeature {
-  private logger: Logger = new Logger('MprisService');
+  public readonly featureName = 'Win10MediaService';
+  private readonly logger: LoggerInstance = Logger.createLogger(this.featureName);
 
-  shouldRun() {
+  public shouldRun() {
     return super.shouldRun() && !process.env.TOKEN; // TODO remove this and figure out why nodert isn't being added on AppVeyor
   }
 
-  register() {
-
+  public register() {
     try {
-      const { MediaPlaybackStatus, MediaPlaybackType, SystemMediaTransportControlsButton } = require('@nodert-win10/windows.media');
+      const {
+        MediaPlaybackStatus,
+        MediaPlaybackType,
+        SystemMediaTransportControlsButton
+        // eslint-disable-next-line
+      } = require('@nodert-win10/windows.media');
+      // eslint-disable-next-line
       const { BackgroundMediaPlayer } = require('@nodert-win10/windows.media.playback');
+      // eslint-disable-next-line
       const { RandomAccessStreamReference } = require('@nodert-win10/windows.storage.streams');
+      // eslint-disable-next-line
       const { Uri } = require('@nodert-win10/windows.foundation');
 
       const Controls = BackgroundMediaPlayer.current.systemMediaTransportControls;
@@ -59,16 +67,12 @@ export default class Win10MediaService extends WindowsFeature {
             this.changeTrack(ChangeTypes.PREV);
             break;
           default:
-            break;
         }
       });
 
       this.on(EVENTS.APP.READY, () => {
-        this.on(EVENTS.PLAYER.STATUS_CHANGED, () => {
-          const {
-            player: { status }
-          } = this.store.getState();
-
+        // Status changed
+        this.subscribe<PlayerStatus>(['player', 'status'], ({ currentValue: status }: any) => {
           const mapping = {
             [PlayerStatus.STOPPED]: MediaPlaybackStatus.stopped,
             [PlayerStatus.PAUSED]: MediaPlaybackStatus.paused,
@@ -78,10 +82,11 @@ export default class Win10MediaService extends WindowsFeature {
           Controls.playbackStatus = mapping[status];
         });
 
-        this.on(EVENTS.PLAYER.TRACK_CHANGED, () => {
+        // Track changed
+        this.subscribe<PlayingTrack>(['player', 'playingTrack'], ({ currentState }) => {
           const {
             player: { playingTrack }
-          } = this.store.getState();
+          } = currentState;
 
           if (playingTrack) {
             const trackId = playingTrack.id;
@@ -90,15 +95,17 @@ export default class Win10MediaService extends WindowsFeature {
             if (track) {
               const image = SC.getImageUrl(track, IMAGE_SIZES.SMALL);
               Controls.displayUpdater.musicProperties.title = track.title || '';
-              Controls.displayUpdater.musicProperties.artist = track.user && track.user.username ? track.user.username : 'Unknown artist';
+              Controls.displayUpdater.musicProperties.artist =
+                track.user && track.user.username ? track.user.username : 'Unknown artist';
               Controls.displayUpdater.musicProperties.albumTitle = track.genre || '';
-              Controls.displayUpdater.thumbnail = image ? RandomAccessStreamReference.createFromUri(new Uri(image)) : '';
+              Controls.displayUpdater.thumbnail = image
+                ? RandomAccessStreamReference.createFromUri(new Uri(image))
+                : '';
 
               Controls.displayUpdater.update();
 
               return;
             }
-
           }
 
           Controls.displayUpdater.musicProperties.title = 'Auryo';
@@ -112,17 +119,17 @@ export default class Win10MediaService extends WindowsFeature {
     }
   }
 
-  togglePlay = (new_status: PlayerStatus) => {
+  public togglePlay = (newStatus: PlayerStatus) => {
     const {
       player: { status }
     } = this.store.getState();
 
-    if (status !== new_status) {
-      this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, new_status);
+    if (status !== newStatus) {
+      this.store.dispatch(toggleStatus(newStatus) as any);
     }
-  }
+  };
 
-  changeTrack = (change_type: ChangeTypes) => {
-    this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, change_type);
-  }
+  public changeTrack = (changeType: ChangeTypes) => {
+    this.store.dispatch(changeTrack(changeType) as any);
+  };
 }

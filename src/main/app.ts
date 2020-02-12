@@ -1,24 +1,29 @@
 import { Intent } from '@blueprintjs/core';
-import { app, BrowserWindow, BrowserWindowConstructorOptions, Menu, nativeImage, shell, protocol } from 'electron';
-import * as windowStateKeeper from 'electron-window-state';
-import * as _ from 'lodash';
-import * as os from 'os';
-import * as path from 'path';
-import { Store } from 'redux';
+import { axiosClient } from '@common/api/helpers/axiosClient';
 import { EVENTS } from '@common/constants/events';
 import { StoreState } from '@common/store';
-import { addToast } from '@common/store/ui';
-import Feature from './features/feature';
-import { Logger } from './utils/logger';
-import { Utils } from './utils/utils';
-import { setConfigKey } from '@common/store/config';
+import { addToast, setConfigKey } from '@common/store/actions';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { app, BrowserWindow, BrowserWindowConstructorOptions, Menu, nativeImage, protocol, shell } from 'electron';
+import is from 'electron-is';
+import windowStateKeeper from 'electron-window-state';
+import _ from 'lodash';
+import * as os from 'os';
+import * as path from 'path';
 import * as querystring from 'querystring';
-import * as is from 'electron-is';
+import { Store } from 'redux';
+import { CONFIG } from '../config';
+// eslint-disable-next-line import/no-cycle
+import { Feature } from './features/feature';
+import { Logger, LoggerInstance } from './utils/logger';
+import { Utils } from './utils/utils';
+import fetchTrack from '@common/api/fetchTrack';
+import { Track } from 'src/types/soundcloud';
 
-
-const logosPath = process.env.NODE_ENV === 'development' ?
-  path.resolve(__dirname, '..', '..', '..', 'assets', 'img', 'logos') :
-  path.resolve(__dirname, './assets/img/logos');
+const logosPath =
+  process.env.NODE_ENV === 'development'
+    ? path.resolve(__dirname, '..', '..', '..', 'assets', 'img', 'logos')
+    : path.resolve(__dirname, './assets/img/logos');
 
 const icons = {
   256: nativeImage.createFromPath(path.join(logosPath, 'auryo.png')),
@@ -32,11 +37,10 @@ const icons = {
 };
 
 export class Auryo {
-
   public mainWindow: Electron.BrowserWindow | undefined;
   public store: Store<StoreState>;
-  public quitting: boolean = false;
-  private logger = new Logger('Main');
+  public quitting = false;
+  private readonly logger: LoggerInstance = Logger.createLogger(Auryo.name);
 
   constructor(store: Store<StoreState>) {
     this.store = store;
@@ -46,13 +50,11 @@ export class Auryo {
     app.requestSingleInstanceLock();
 
     app.on('second-instance', () => {
-
       // handle protocol for windows
       if (is.windows()) {
-        process.argv.slice(1)
-          .forEach((arg) => {
-            this.handleProtocolUrl(arg);
-          });
+        process.argv.slice(1).forEach(arg => {
+          this.handleProtocolUrl(arg);
+        });
       }
 
       app.exit();
@@ -64,16 +66,28 @@ export class Auryo {
     });
   }
 
-  start() {
-    this.logger.profile('app-start');
-
+  public async start() {
     app.setAsDefaultProtocolClient('auryo');
+
+    protocol.registerHttpProtocol('stream', async (request, callback) => {
+      const {
+        config: {
+          app: { overrideClientId }
+        }
+      } = this.store.getState();
+      const trackId = request.url.substr(9);
+      const mp3Url = await this.getPlayingTrackStreamUrl(trackId, overrideClientId || CONFIG.CLIENT_ID || '');
+
+      callback({
+        url: mp3Url,
+        method: 'GET'
+      });
+    });
 
     app.on('open-url', (event, data) => {
       event.preventDefault();
 
       this.handleProtocolUrl(data);
-
     });
 
     const mainWindowState = windowStateKeeper({
@@ -95,6 +109,7 @@ export class Auryo {
       show: false,
       fullscreen: mainWindowState.isFullScreen,
       webPreferences: {
+        nodeIntegration: true,
         nodeIntegrationInWorker: true,
         webSecurity: process.env.NODE_ENV !== 'development'
       }
@@ -103,15 +118,13 @@ export class Auryo {
     // Create the browser window
     this.mainWindow = new BrowserWindow(Utils.posCenter(mainWindowOption));
 
-    app.setAccessibilitySupportEnabled(true);
-
     this.registerTools();
 
     mainWindowState.manage(this.mainWindow);
 
     this.mainWindow.setMenu(null);
 
-    this.loadMain();
+    await this.loadMain();
 
     this.registerListeners();
 
@@ -143,7 +156,6 @@ export class Auryo {
       }
     }
 
-    this.logger.profile('app-start');
     this.logger.info('App started');
   }
 
@@ -151,21 +163,22 @@ export class Auryo {
     const action = url.replace('auryo://', '').match(/^.*(?=\?.*)/g);
 
     if (action && url.split('?').length) {
-      switch (action[0]) {
-        case 'launch': {
-          const result = querystring.parse(url.split('?')[1]);
+      const result = querystring.parse(url.split('?')[1]);
 
+      switch (action[0]) {
+        case 'launch':
           if (result.client_id && result.client_id.length) {
             this.store.dispatch(setConfigKey('app.overrideClientId', result.client_id));
 
-            this.store.dispatch(addToast({
-              message: `New clientId added`,
-              intent: Intent.SUCCESS
-            }));
+            this.store.dispatch(
+              addToast({
+                message: `New clientId added`,
+                intent: Intent.SUCCESS
+              })
+            );
           }
-        }
-        default:
           break;
+        default:
       }
     }
   }
@@ -176,71 +189,113 @@ export class Auryo {
     const featuresWaitUntil = _.groupBy(getTools(this), 'waitUntil');
 
     const registerFeature = (feature: Feature) => {
-      this.logger.debug(`Registering feature: ${feature.constructor.name}`);
+      this.logger.debug(`Registering feature: ${feature.featureName}`);
       try {
         feature.register();
       } catch (error) {
-        this.logger.error(`Error starting feature: ${feature.constructor.name}`);
-        this.logger.error(error);
+        this.logger.error(error, `Error starting feature: ${feature.featureName}`);
       }
     };
 
-    Object.keys(featuresWaitUntil)
-      .forEach((event: any) => {
-        const features = featuresWaitUntil[event];
+    Object.keys(featuresWaitUntil).forEach((event: any) => {
+      const features = featuresWaitUntil[event];
 
-        features.forEach((feature: Feature) => {
-          if (event === 'default') {
-            registerFeature(feature);
-          } else {
-            if (this.mainWindow) {
-              this.mainWindow.on(event, registerFeature.bind(this, feature));
-            }
-          }
-        });
+      features.forEach((feature: Feature) => {
+        if (event === 'default') {
+          registerFeature(feature);
+        } else if (this.mainWindow) {
+          this.mainWindow.on(event, registerFeature.bind(this, feature));
+        }
       });
+    });
   }
 
-  private loadMain() {
+  private async loadMain() {
     if (this.mainWindow) {
+      await this.mainWindow.loadURL(`file://${__dirname}/index.html`);
 
-      const url = process.env.NODE_ENV === 'development'
-        ? `http://localhost:${process.env.DEV_PORT || 8080}`
-        : `file://${__dirname}/index.html`;
-
-      this.mainWindow.loadURL(url);
-
-      this.mainWindow.webContents.on('will-navigate', (e, u) => {
+      this.mainWindow.webContents.on('will-navigate', async (e, u) => {
         e.preventDefault();
 
-        if (/^(https?:\/\/)/g.exec(u) !== null) {
-          if (/https?:\/\/(www.)?soundcloud\.com\//g.exec(u) !== null) {
-            if (this.mainWindow) {
-              this.mainWindow.webContents.send(EVENTS.APP.PUSH_NAVIGATION, '/resolve', u);
+        try {
+          if (/^(https?:\/\/)/g.exec(u) !== null) {
+            if (/https?:\/\/(www.)?soundcloud\.com\//g.exec(u) !== null) {
+              if (this.mainWindow) {
+                this.mainWindow.webContents.send(EVENTS.APP.PUSH_NAVIGATION, '/resolve', u);
+              }
+            } else {
+              await shell.openExternal(u);
             }
-          } else {
-            shell.openExternal(u);
+          } else if (/^mailto:/g.exec(u) !== null) {
+            await shell.openExternal(u);
           }
-        } else if (/^mailto:/g.exec(u) !== null) {
-          shell.openExternal(u);
+        } catch (err) {
+          this.logger.error(err);
         }
       });
 
-      this.mainWindow.webContents.on('new-window', (e, u) => {
+      this.mainWindow.webContents.on('new-window', async (e, u) => {
         e.preventDefault();
-        if (/^(https?:\/\/)/g.exec(u) !== null) {
-          shell.openExternal(u);
+        try {
+          if (/^(https?:\/\/)/g.exec(u) !== null) {
+            await shell.openExternal(u);
+          }
+        } catch (err) {
+          this.logger.error(err);
         }
       });
 
-      this.mainWindow.webContents.session.webRequest.onCompleted((details) => {
-        if (this.mainWindow && (details.url.indexOf('/stream?client_id=') !== -1 || details.url.indexOf('cf-media.sndcdn.com') !== -1)) {
+      this.mainWindow.webContents.session.webRequest.onBeforeRequest(
+        {
+          urls: ['https://local.stream/*']
+        },
+        async (details, callback) => {
+          const {
+            config: {
+              app: { overrideClientId }
+            }
+          } = this.store.getState();
+          const { 1: trackId } = details.url.split('https://local.stream/');
+          const mp3Url = await this.getPlayingTrackStreamUrl(trackId, overrideClientId || CONFIG.CLIENT_ID || '');
+
+          callback({
+            redirectURL: mp3Url
+          });
+        }
+      );
+
+      this.mainWindow.webContents.session.webRequest.onBeforeRequest(
+        {
+          urls: ['http://localhost:8888/stream/*']
+        },
+        async (details, callback) => {
+          const {
+            config: {
+              app: { overrideClientId }
+            }
+          } = this.store.getState();
+          const { 1: trackId } = details.url.split('http://localhost:8888/stream/');
+          const mp3Url = await this.getPlayingTrackStreamUrl(trackId, overrideClientId || CONFIG.CLIENT_ID || '');
+
+          callback({
+            redirectURL: mp3Url
+          });
+        }
+      );
+
+      this.mainWindow.webContents.session.webRequest.onCompleted(details => {
+        if (
+          this.mainWindow &&
+          (details.url.indexOf('/stream?client_id=') !== -1 || details.url.indexOf('cf-media.sndcdn.com') !== -1)
+        ) {
           if (details.statusCode < 200 && details.statusCode > 300) {
             if (details.statusCode === 404) {
-              this.store.dispatch(addToast({
-                message: 'This resource might not exists anymore',
-                intent: Intent.DANGER
-              }));
+              this.store.dispatch(
+                addToast({
+                  message: 'This resource might not exists anymore',
+                  intent: Intent.DANGER
+                })
+              );
             }
           }
         }
@@ -248,23 +303,48 @@ export class Auryo {
     }
   }
 
-  private registerListeners = () => {
+  public async getPlayingTrackStreamUrl(trackId: string, clientId: string) {
+    const {
+      entities: { trackEntities }
+    } = this.store.getState();
+
+    let track: Track = trackEntities[trackId];
+
+    if (!track?.media?.transcodings) {
+      const { json } = await fetchTrack(trackId);
+
+      track = json;
+    }
+
+    const streamUrl = track?.media?.transcodings?.filter(
+      (transcoding: any) => transcoding.format.protocol === 'progressive'
+    )[0]?.url;
+
+    if (!streamUrl) {
+      return null;
+    }
+
+    const response = await axiosClient(`${streamUrl}?client_id=${clientId}`);
+    const mp3Url = response.data.url;
+
+    return mp3Url;
+  }
+
+  private readonly registerListeners = () => {
     if (this.mainWindow) {
       this.mainWindow.webContents.on('crashed', (event: any) => {
-        this.logger.error('APP CRASHED:');
-        this.logger.error(event);
+        this.logger.fatal(JSON.stringify(event), 'App Crashed');
       });
 
       this.mainWindow.on('unresponsive', (event: any) => {
-        this.logger.error('APP UNRESPONSIVE:');
-        this.logger.error(event);
+        this.logger.fatal(event, 'App unresponsive');
       });
 
       this.mainWindow.on('closed', () => {
         this.mainWindow = undefined;
       });
 
-      this.mainWindow.on('close', (event) => {
+      this.mainWindow.on('close', event => {
         if (process.platform === 'darwin') {
           if (this.quitting) {
             this.mainWindow = undefined;
@@ -284,5 +364,5 @@ export class Auryo {
         }
       });
     }
-  }
+  };
 }

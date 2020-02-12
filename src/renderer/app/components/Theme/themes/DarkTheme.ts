@@ -52,7 +52,6 @@ export default {
   '--clr-btn-colored-text': 'var(--clr-white)',
   '--clr-btn-active-text': 'var(--clr-white)',
 
-
   // Header
   '--clr-header-pseudo': 'linear-gradient(transparent 0%, rgba(34, 35, 38, .25) 40%, rgb(34, 35, 38) 100%)',
 

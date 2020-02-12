@@ -1,9 +1,21 @@
 {
-    "tslint.enable": true,
-    "tslint.configFile": "tslint.json",
-    "files.exclude": {
-        ".cache-loader": true,
-        ".vscode": true,
-        "node_modules": true,
-    }
+  "files.exclude": {
+    ".cache-loader": true,
+    ".vscode": true,
+    "node_modules": true
+  },
+  "npm-intellisense.importQuotes": "\"",
+  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
+  "emmet.showAbbreviationSuggestions": false,
+  "editor.tabSize": 4,
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }

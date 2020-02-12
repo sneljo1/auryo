@@ -1,0 +1,10 @@
+types/**
+tests/**
+configs/**
+config-old/**
+dll/**
+dist/**
+babel.config.js
+**/*.module.scss.d.ts
+src/types/**
+node_modules

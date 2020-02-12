@@ -1,9 +1,8 @@
 // TYPES
 
-
 // ACTIONS
 
 export enum SortTypes {
-    TOP = 'top',
-    TRENDING = 'trending'
+  TOP = 'top',
+  TRENDING = 'trending'
 }

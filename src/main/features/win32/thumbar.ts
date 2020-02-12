@@ -1,15 +1,18 @@
+import { StoreState } from '@common/store';
+import { ChangeTypes, PlayerStatus } from '@common/store/player';
+import { changeTrack, toggleStatus } from '@common/store/actions';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { nativeImage } from 'electron';
 import * as is from 'electron-is';
 import * as path from 'path';
-import { EVENTS } from '@common/constants/events';
-import IFeature from '../feature';
 import { Auryo } from '../../app';
-import { PlayerStatus, ChangeTypes } from '@common/store/player';
-import { StoreState } from '@common/store';
+import { Feature } from '../feature';
+import { autobind } from 'core-decorators';
 
-const iconsDirectory = process.env.NODE_ENV === 'development' ?
-  path.resolve(__dirname, '..', '..', '..', '..', 'static', 'icons') :
-  path.resolve(__dirname, '../static/icons');
+const iconsDirectory =
+  process.env.NODE_ENV === 'development'
+    ? path.resolve(__dirname, '..', '..', '..', '..', 'static', 'icons')
+    : path.resolve(__dirname, '../static/icons');
 
 interface ThumbarPreset {
   play: Electron.ThumbarButton;
@@ -22,18 +25,20 @@ interface ThumbarPreset {
   nextDisabled: Electron.ThumbarButton;
 }
 
-export default class Thumbar extends IFeature {
+@autobind
+export default class Thumbar extends Feature {
+  public readonly featureName = 'Thumbar';
   private thumbarButtons: ThumbarPreset | null = null;
 
   constructor(auryo: Auryo) {
     super(auryo, 'focus');
   }
 
-  shouldRun() {
+  public shouldRun() {
     return is.windows();
   }
 
-  register() {
+  public register() {
     this.thumbarButtons = {
       play: {
         tooltip: 'Play',
@@ -47,7 +52,7 @@ export default class Thumbar extends IFeature {
         flags: ['disabled'],
         icon: nativeImage.createFromPath(path.join(iconsDirectory, 'play-disabled.png')),
         // tslint:disable-next-line:no-empty
-        click: () => { }
+        click: () => {}
       },
       pause: {
         tooltip: 'Pause',
@@ -61,7 +66,7 @@ export default class Thumbar extends IFeature {
         flags: ['disabled'],
         icon: nativeImage.createFromPath(path.join(iconsDirectory, 'pause-disabled.png')),
         // tslint:disable-next-line:no-empty
-        click: () => { }
+        click: () => {}
       },
       prev: {
         tooltip: 'Prev',
@@ -75,7 +80,7 @@ export default class Thumbar extends IFeature {
         flags: ['disabled'],
         icon: nativeImage.createFromPath(path.join(iconsDirectory, 'previous-disabled.png')),
         // tslint:disable-next-line:no-empty
-        click: () => { }
+        click: () => {}
       },
       next: {
         tooltip: 'Next',
@@ -89,7 +94,7 @@ export default class Thumbar extends IFeature {
         flags: ['disabled'],
         icon: nativeImage.createFromPath(path.join(iconsDirectory, 'next-disabled.png')),
         // tslint:disable-next-line:no-empty
-        click: () => { }
+        click: () => {}
       }
     };
 
@@ -104,7 +109,7 @@ export default class Thumbar extends IFeature {
     });
   }
 
-  setThumbarButtons = (state: StoreState) => {
+  public setThumbarButtons(state: StoreState) {
     const {
       player: { status, queue, currentIndex }
     } = state;
@@ -115,36 +120,43 @@ export default class Thumbar extends IFeature {
           this.win.setThumbarButtons([
             queue.length > 0 || currentIndex > 0 ? this.thumbarButtons.prev : this.thumbarButtons.prevDisabled,
             this.thumbarButtons.pause,
-            queue.length > 0 && currentIndex + 1 <= queue.length ? this.thumbarButtons.next : this.thumbarButtons.nextDisabled
+            queue.length > 0 && currentIndex + 1 <= queue.length
+              ? this.thumbarButtons.next
+              : this.thumbarButtons.nextDisabled
           ]);
           break;
         case PlayerStatus.PAUSED:
           this.win.setThumbarButtons([
             queue.length > 0 || currentIndex > 0 ? this.thumbarButtons.prev : this.thumbarButtons.prevDisabled,
             this.thumbarButtons.play,
-            queue.length > 0 && currentIndex + 1 <= queue.length ? this.thumbarButtons.next : this.thumbarButtons.nextDisabled
+            queue.length > 0 && currentIndex + 1 <= queue.length
+              ? this.thumbarButtons.next
+              : this.thumbarButtons.nextDisabled
           ]);
           break;
         case PlayerStatus.STOPPED:
-          this.win.setThumbarButtons([this.thumbarButtons.prevDisabled, this.thumbarButtons.playDisabled, this.thumbarButtons.nextDisabled]);
+          this.win.setThumbarButtons([
+            this.thumbarButtons.prevDisabled,
+            this.thumbarButtons.playDisabled,
+            this.thumbarButtons.nextDisabled
+          ]);
           break;
         default:
-          break;
       }
     }
   }
 
-  togglePlay = (newStatus: PlayerStatus) => {
+  public togglePlay(newStatus: PlayerStatus) {
     const {
       player: { status }
     } = this.store.getState();
 
     if (status !== newStatus) {
-      this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, newStatus);
+      this.store.dispatch(toggleStatus(newStatus) as any);
     }
   }
 
-  changeTrack = (changeType: ChangeTypes) => {
-    this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, changeType);
+  public changeTrack(changeType: ChangeTypes) {
+    this.store.dispatch(changeTrack(changeType) as any);
   }
 }

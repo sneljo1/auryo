@@ -1,150 +1,141 @@
-import * as React from 'react';
-import { connect, MapDispatchToProps, MapStateToPropsParam } from 'react-redux';
-import { RouteComponentProps } from 'react-router';
-import { bindActionCreators } from 'redux';
 import { StoreState } from '@common/store';
-import { toggleFollowing } from '@common/store/auth';
-import { canFetchMoreOf, fetchMore, ObjectState, ObjectTypes, PlaylistTypes } from '@common/store/objects';
+import * as actions from '@common/store/actions';
+import { ObjectTypes, PlaylistTypes } from '@common/store/objects';
 import { getPlaylistName, getPlaylistObjectSelector } from '@common/store/objects/selectors';
-import { playTrack } from '@common/store/player';
-import { setScrollPosition } from '@common/store/ui';
-import { getPreviousScrollTop } from '@common/store/ui/selectors';
-import { NormalizedResult } from '../../../types';
+import * as React from 'react';
+import { connect } from 'react-redux';
+import { RouteComponentProps } from 'react-router';
+import { NavLink } from 'react-router-dom';
+import { bindActionCreators, Dispatch } from 'redux';
 import Spinner from '../../_shared/Spinner/Spinner';
 import TracksGrid from '../../_shared/TracksGrid/TracksGrid';
-import SearchWrapper from './SearchWrapper';
-import { search } from '@common/store/objects/playlists/search/actions';
-import './SearchPage.scss';
+import { autobind } from 'core-decorators';
 
-interface OwnProps extends RouteComponentProps<{}> {
-}
+const mapStateToProps = (state: StoreState, props: OwnProps) => {
+  const {
+    match: {
+      params: { category }
+    },
+    location: { search: rawSearch }
+  } = props;
 
-interface PropsFromState {
-    playlist: ObjectState<NormalizedResult> | null;
-    objectId: string;
-    query: string;
-    previousScrollTop?: number;
-}
+  const query: string = decodeURI(rawSearch.replace('?', ''));
 
-interface PropsFromDispatch {
-    search: typeof search;
-    canFetchMoreOf: typeof canFetchMoreOf;
-    fetchMore: typeof fetchMore;
-    setScrollPosition: typeof setScrollPosition;
-}
+  let objectId: string;
+
+  switch (category) {
+    case 'user':
+      objectId = getPlaylistName(query, PlaylistTypes.SEARCH_USER);
+      break;
+    case 'playlist':
+      objectId = getPlaylistName(query, PlaylistTypes.SEARCH_PLAYLIST);
+      break;
+    case 'track':
+      objectId = getPlaylistName(query, PlaylistTypes.SEARCH_TRACK);
+      break;
+    default:
+      objectId = getPlaylistName(query, PlaylistTypes.SEARCH);
+  }
+
+  return {
+    query,
+    playlist: getPlaylistObjectSelector(objectId)(state),
+    objectId
+  };
+};
+
+const mapDispatchToProps = (dispatch: Dispatch) =>
+  bindActionCreators(
+    {
+      search: actions.search,
+      canFetchMoreOf: actions.canFetchMoreOf,
+      fetchMore: actions.fetchMore,
+      toggleFollowing: actions.toggleFollowing,
+      playTrack: actions.playTrack
+    },
+    dispatch
+  );
+
+type OwnProps = RouteComponentProps<{ category?: string }>;
+
+type PropsFromState = ReturnType<typeof mapStateToProps>;
+
+type PropsFromDispatch = ReturnType<typeof mapDispatchToProps>;
 
 type AllProps = OwnProps & PropsFromState & PropsFromDispatch;
 
+@autobind
 class Search extends React.Component<AllProps> {
+  public componentDidMount() {
+    const { query, search, playlist, objectId } = this.props;
 
-    componentDidMount() {
-        const { query, search, playlist, objectId } = this.props;
+    if (!playlist && query && query.length) {
+      search({ query }, objectId, 15);
+    }
+  }
 
-        if (!playlist && query && query.length) {
-            search({ query }, objectId, 15);
-        }
+  public componentDidUpdate(prevProps: AllProps) {
+    const { query, search, playlist, objectId } = this.props;
+
+    if ((query !== prevProps.query || !playlist) && query && query.length) {
+      search({ query }, objectId, 15);
+    }
+  }
+
+  public render() {
+    const { playlist, objectId, query, canFetchMoreOf, fetchMore } = this.props;
+
+    if (!playlist || (playlist && !playlist.items.length && playlist.isFetching)) {
+      return <Spinner contained />;
     }
 
-    componentDidUpdate(prevProps: AllProps) {
-        const { query, search, playlist, objectId } = this.props;
+    return (
+      <>
+        <div className="container-fluid charts">
+          <div className="tabs nav nav-tabs">
+            <NavLink exact className="nav-link" to={{ pathname: `/search`, search: query }} activeClassName="active">
+              All
+            </NavLink>
 
-        if ((query !== prevProps.query || !playlist) && query && query.length) {
-            search({ query }, objectId, 15);
-        }
-    }
+            <NavLink className="nav-link" to={{ pathname: `/search/user`, search: query }} activeClassName="active">
+              Users
+            </NavLink>
+            <NavLink className="nav-link" to={{ pathname: `/search/track`, search: query }} activeClassName="active">
+              Tracks
+            </NavLink>
+            <NavLink className="nav-link" to={{ pathname: `/search/playlist`, search: query }} activeClassName="active">
+              Playlist
+            </NavLink>
+          </div>
+        </div>
 
-    hasMore = () => {
-        const { canFetchMoreOf, objectId } = this.props;
-
-        return canFetchMoreOf(objectId, ObjectTypes.PLAYLISTS) as any;
-    }
-
-    loadMore = () => {
-        const { canFetchMoreOf, fetchMore, objectId } = this.props;
-
-        if (canFetchMoreOf(objectId, ObjectTypes.PLAYLISTS)) {
-            fetchMore(objectId, ObjectTypes.PLAYLISTS);
-        }
-    }
-
-    renderContent() {
-        const {
-            playlist,
-            objectId,
-            query
-        } = this.props;
-
-        if (query === '' || (playlist && !playlist.items.length && !playlist.isFetching)) {
-            return (
-                <div className='pt-5 mt-5'>
-                    <h5 className='text-muted text-center'>{query ? `No results for "${query}"` : 'Search for people, tracks and albums'}</h5>
-                    <div className='text-center' style={{ fontSize: '5rem' }}>
-                        {query ? '😭' : '🕵️‍'}
-                    </div>
-                </div>
-            );
-        }
-
-        if (!playlist || (playlist && !playlist.items.length && playlist.isFetching)) {
-            return (
-                <Spinner contained={true} />
-            );
-        }
-
-        return (
-            <div>
-                <TracksGrid
-                    items={playlist.items}
-                    objectId={objectId}
-                />
-
-                {
-                    playlist && playlist.isFetching && <Spinner />
-                }
+        {query === '' || (playlist && !playlist.items.length && !playlist.isFetching) ? (
+          <div className="pt-5 mt-5">
+            <h5 className="text-muted text-center">
+              {query ? `No results for "${query}"` : 'Search for people, tracks and albums'}
+            </h5>
+            <div className="text-center" style={{ fontSize: '5rem' }}>
+              {query ? '😭' : '🕵️‍'}
             </div>
-        );
-    }
-
-    render() {
-        const { query, location, setScrollPosition, previousScrollTop } = this.props;
-
-        return (
-            <SearchWrapper
-                loadMore={this.loadMore}
-                hasMore={this.hasMore}
-                location={location}
-                setScrollPosition={setScrollPosition}
-                previousScrollTop={previousScrollTop}
-                query={query}
-            >
-                {this.renderContent()}
-            </SearchWrapper>
-        );
-    }
+          </div>
+        ) : (
+          <TracksGrid
+            items={playlist.items}
+            objectId={objectId}
+            isLoading={playlist.isFetching}
+            isItemLoaded={index => !!playlist.items[index]}
+            loadMore={() => {
+              return fetchMore(objectId, ObjectTypes.PLAYLISTS) as any;
+            }}
+            hasMore={canFetchMoreOf(objectId, ObjectTypes.PLAYLISTS) as any}
+          />
+        )}
+      </>
+    );
+  }
 }
 
-const mapStateToProps: MapStateToPropsParam<PropsFromState, OwnProps, StoreState> = (state, props) => {
-    const { location: { search: rawSearch } } = props;
-
-    const query: string = decodeURI(rawSearch.replace('?', ''));
-
-    const objectId = getPlaylistName(query, PlaylistTypes.SEARCH);
-
-    return {
-        query,
-        playlist: getPlaylistObjectSelector(objectId)(state),
-        objectId,
-        previousScrollTop: getPreviousScrollTop(state)
-    };
-};
-
-const mapDispatchToProps: MapDispatchToProps<PropsFromDispatch, OwnProps> = (dispatch) => bindActionCreators({
-    search,
-    canFetchMoreOf,
-    fetchMore,
-    toggleFollowing,
-    playTrack,
-    setScrollPosition
-}, dispatch);
-
-export default connect<PropsFromState, PropsFromDispatch, OwnProps, StoreState>(mapStateToProps, mapDispatchToProps)(Search);
+export default connect<PropsFromState, PropsFromDispatch, OwnProps, StoreState>(
+  mapStateToProps,
+  mapDispatchToProps
+)(Search);

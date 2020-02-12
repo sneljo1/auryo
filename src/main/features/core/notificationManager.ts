@@ -1,45 +1,43 @@
 import { IMAGE_SIZES } from '@common/constants';
 import { EVENTS } from '@common/constants/events';
 import { getTrackEntity } from '@common/store/entities/selectors';
+import { PlayingTrack } from '@common/store/player';
 import { SC } from '@common/utils';
 import { Auryo } from '@main/app';
-import Feature from '../feature';
+import { Feature } from '../feature';
 
 export default class NotificationManager extends Feature {
+  public readonly featureName = 'NotificationManager';
   constructor(auryo: Auryo) {
     super(auryo, 'ready-to-show');
   }
 
-  register() {
-
-    this.on(EVENTS.PLAYER.TRACK_CHANGED, () => {
-
+  public register() {
+    // Track changed
+    this.subscribe<PlayingTrack>(['player', 'playingTrack'], ({ currentState }) => {
       if (!this.win || (this.win && this.win.isFocused())) {
         return;
       }
 
-      const state = this.store.getState();
-
       const {
         player: { playingTrack },
-        config: { app: { showTrackChangeNotification } }
-      } = state;
+        config: {
+          app: { showTrackChangeNotification }
+        }
+      } = currentState;
 
       if (playingTrack && showTrackChangeNotification) {
         const trackId = playingTrack.id;
-        const track = getTrackEntity(trackId)(state);
+        const track = getTrackEntity(trackId)(currentState);
 
         if (track) {
-
           this.sendToWebContents(EVENTS.APP.SEND_NOTIFICATION, {
             title: track.title,
             message: `${track.user && track.user.username ? track.user.username : ''}`,
             image: SC.getImageUrl(track, IMAGE_SIZES.SMALL)
           });
-
         }
       }
     });
   }
-
 }

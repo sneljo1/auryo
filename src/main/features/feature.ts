@@ -1,43 +1,38 @@
+import { StoreState } from '@common/store';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { BrowserWindow, ipcMain } from 'electron';
 import { isEqual } from 'lodash';
 import { Store } from 'redux';
-import * as ReduxWatcher from 'redux-watcher';
-import { StoreState } from '@common/store';
+import ReduxWatcher from 'redux-watcher';
+// eslint-disable-next-line import/no-cycle
 import { Auryo } from '../app';
 
-interface IFeature {
-  // tslint:disable-next-line:ban-types
-  subscribe(path: Array<string>, handler: Function): void;
+export type Handler<T> = (t: {
+  store: Store<StoreState>;
+  selector: string | string[];
+  prevState: StoreState;
+  currentState: StoreState;
+  prevValue: T;
+  currentValue: T;
+}) => void;
 
-  sendToWebContents(channel: string, params: object): void;
-
-  register(): void;
-
-  // tslint:disable-next-line:ban-types
-  on(path: string, handler: Function): void;
-
-  unregister(path?: Array<string> | string): void;
-
-  shouldRun(): boolean;
+export interface WatchState<T> {
+  store: Store<StoreState>;
+  selector: string | string[];
+  prevState: StoreState;
+  currentState: StoreState;
+  prevValue: T;
+  currentValue: T;
 }
 
-// tslint:disable-next-line:max-line-length
-export type Handler<T> = (t: { store: Store<StoreState>, selector: string | Array<string>, prevState: StoreState, currentState: StoreState, prevValue: T, currentValue: T }) => void;
-
-// tslint:disable-next-line:max-line-length
-export interface WatchState<T> { store: Store<StoreState>; selector: string | Array<string>; prevState: StoreState; currentState: StoreState; prevValue: T; currentValue: T; }
-
-
-export default class Feature implements IFeature {
-
-  public timers: Array<any> = [];
+export class Feature {
+  public readonly featureName: string = 'Feature';
+  public timers: any[] = [];
   public win: BrowserWindow | null = null;
   public store: Store<StoreState>;
   public watcher: any;
-  // tslint:disable-next-line:ban-types
-  private listeners: Array<{ path: Array<string>; handler: Function }> = [];
-  // tslint:disable-next-line:ban-types
-  private ipclisteners: Array<{ name: string; handler: Function }> = [];
+  private readonly listeners: { path: string[]; handler: Function }[] = [];
+  private readonly ipclisteners: { name: string; handler: Function }[] = [];
 
   constructor(protected app: Auryo, protected waitUntil: string = 'default') {
     if (app.mainWindow) {
@@ -48,7 +43,7 @@ export default class Feature implements IFeature {
     this.watcher = new ReduxWatcher(app.store);
   }
 
-  subscribe<T>(path: Array<string>, handler: Handler<T>) {
+  public subscribe<T>(path: string[], handler: Handler<T>) {
     this.watcher.watch(path, handler);
 
     this.listeners.push({
@@ -57,15 +52,14 @@ export default class Feature implements IFeature {
     });
   }
 
-  sendToWebContents(channel: string, params?: any) {
+  public sendToWebContents(channel: string, params?: any) {
     if (this.win && this.win.webContents) {
-      this.win.webContents.send(channel, params);
+      this.win.webContents.send(channel, params, this.constructor.name);
     }
   }
 
-
-  on(path: string, handler: any) {
-    ipcMain.on(path, (_: any, ...args: Array<any>) => {
+  public on(path: string, handler: any) {
+    ipcMain.on(path, (_: any, ...args: any[]) => {
       handler(args);
     });
 
@@ -75,26 +69,26 @@ export default class Feature implements IFeature {
     });
   }
 
-  // tslint:disable-next-line:no-empty
-  register() { }
+  // eslint-disable-next-line class-methods-use-this
+  public register() {}
 
-  unregister(path?: Array<string> | string) {
+  public unregister(path?: string[] | string) {
     if (path) {
-      const ipcListener = this.ipclisteners.find((l) => isEqual(l.name, path));
+      const ipcListener = this.ipclisteners.find(l => isEqual(l.name, path));
 
       if (typeof path === 'string') {
         if (ipcListener) {
           ipcMain.removeAllListeners(ipcListener.name);
         }
       } else {
-        const listener = this.listeners.find((l) => isEqual(l.path, path));
+        const listener = this.listeners.find(l => isEqual(l.path, path));
 
         if (listener) {
           this.watcher.off(listener.path, listener.handler);
         }
       }
     } else {
-      this.listeners.forEach((listener) => {
+      this.listeners.forEach(listener => {
         try {
           this.watcher.off(listener.path, listener.handler);
         } catch (err) {
@@ -104,18 +98,18 @@ export default class Feature implements IFeature {
         }
       });
 
-      this.ipclisteners.forEach((listener) => {
-        ipcMain.removeListener(listener.name, listener.handler);
+      this.ipclisteners.forEach(listener => {
+        ipcMain.removeAllListeners(listener.name);
       });
     }
 
-    this.timers.forEach((timeout) => {
+    this.timers.forEach(timeout => {
       clearTimeout(timeout);
     });
   }
 
   // eslint-disable-next-line
-  shouldRun() {
+  public shouldRun() {
     return true;
   }
 }

@@ -1,302 +1,181 @@
-// tslint:disable:no-empty
-
-import * as React from 'react';
-import { PlayerStatus } from '@common/store/player';
+import { Intent } from '@blueprintjs/core';
+import { EVENTS } from '@common/constants';
+import * as actions from '@common/store/actions';
+import { ChangeTypes, PlayerStatus } from '@common/store/player';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { ipcRenderer } from 'electron';
+import { FC, useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { useAudioPlayer, useAudioPosition } from '../../../../../hooks/useAudioPlayer';
+import { usePrevious } from '../../../../../hooks/usePrevious';
 
 interface Props {
-    autoPlay?: boolean;
-    children?: React.ReactNode;
-    className?: string;
-    controls?: boolean;
-    crossOrigin: string | null;
-    id?: string;
-    listenInterval?: number;
-    loop?: boolean;
-    muted?: boolean;
-    onAbort?: (event: UIEvent) => void;
-    onCanPlay?: (event: Event) => void;
-    onCanPlayThrough?: (event: Event) => void;
-    onEnded?: (event: Event) => void;
-    onError?: (event: ErrorEvent, message: string) => void;
-    onListen?: (currentTime: number, duration: number) => void;
-    onLoadedMetadata?: (event: Event, duration: number) => void;
-    onPause?: (event: Event) => void;
-    onPlay?: (event: Event) => void;
-    onSeeked?: (event: Event) => void;
-    onVolumeChanged?: (event: Event) => void;
-    preload?: '' | 'none' | 'metadata' | 'auto';
-    src: string | null;
-    style?: any;
-    title?: string;
-    volume?: number;
+  src?: string;
+  muted?: boolean;
+  playerStatus: PlayerStatus;
+  playerVolume?: number;
+  playbackDeviceId: string | null;
 }
 
-const defaultProps = {
-    autoPlay: false,
-    children: null,
-    className: '',
-    controls: false,
-    crossOrigin: null,
-    id: '',
-    listenInterval: 1000,
-    loop: false,
-    muted: false,
-    onAbort: (_event: UIEvent) => { },
-    onCanPlay: (_event: Event) => { },
-    onCanPlayThrough: (_event: Event) => { },
-    onEnded: (_event: Event) => { },
-    onError: (_event: ErrorEvent, _message: string) => { },
-    onListen: (_currentTime: number, _duration: number) => { },
-    onLoadedMetadata: (_event: Event, _duration: number) => { },
-    onPause: (_event: Event) => { },
-    onPlay: (_event: React.SyntheticEvent<HTMLAudioElement>, _duration: number) => { },
-    onSeeked: (_event: Event) => { },
-    onVolumeChanged: (_event: Event) => { },
-    preload: 'metadata',
-    style: {},
-    title: '',
-    volume: 1.0,
-};
+export const Audio: FC<Props> = ({ src, playerStatus, playerVolume, muted, playbackDeviceId }) => {
+  const [isSeeking, setIsSeeking] = useState(false);
+  const { duration, position } = useAudioPosition();
+  const dispatch = useDispatch();
 
-interface State {
-    isLoading: boolean;
-}
+  const {
+    play,
+    pause,
+    ready,
+    loading,
+    playing,
+    load,
+    seek,
+    stopped,
+    ended,
+    stop,
+    volume,
+    mute,
+    error,
+    setSinkId
+  } = useAudioPlayer();
+  const wasPrevLoading = usePrevious(loading);
 
-type DefaultProps = typeof defaultProps;
+  useEffect(() => {
+    if (playerStatus === PlayerStatus.PLAYING && !playing && !loading) {
+      play();
+    } else if (playerStatus === PlayerStatus.PAUSED && playing) {
+      pause();
+    } else if (playerStatus === PlayerStatus.STOPPED && !stopped) {
+      stop();
+    }
+  }, [playerStatus, loading, ready, playing]);
 
-type AllProps = DefaultProps & Props;
+  // SetAudioPlaybackDevice
+  useEffect(() => {
+    const setPlaybackDevice = async () => {
+      if (!playbackDeviceId) {
+        return;
+      }
 
-class ReactAudioPlayer extends React.PureComponent<AllProps, State> {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const audioDevices = devices.filter(device => device.kind === 'audiooutput');
 
-    static readonly defaultProps: DefaultProps = defaultProps;
+      const selectedAudioDevice = audioDevices.find(d => d.deviceId === playbackDeviceId);
 
-    readonly state: State = {
-        isLoading: false
+      if (selectedAudioDevice) {
+        await setSinkId(playbackDeviceId);
+      }
     };
 
-    private audioEl: HTMLAudioElement | null = null;
-    private listenTracker: NodeJS.Timer | null = null;
+    setPlaybackDevice();
+  }, [playbackDeviceId]);
 
-    componentDidMount() {
-
-        const audio = this.audioEl;
-
-        if (audio) {
-            this.updateVolume(this.props.volume);
-
-            audio.addEventListener('error', (e) => this.handleError(e));
-
-            // When enough of the file has downloaded to start playing
-            audio.addEventListener('canplay', (e) => this.props.onCanPlay(e));
-
-            // When enough of the file has downloaded to play the entire file
-            audio.addEventListener('canplaythrough', (e) => this.props.onCanPlayThrough(e));
-
-            // When audio play starts
-            audio.addEventListener('play', (e) => {
-                this.setListenTrack();
-                this.props.onPlay(e);
-            });
-
-            // When unloading the audio player (switching to another src)
-            audio.addEventListener('abort', (e) => {
-                this.clearListenTrack();
-                this.props.onAbort(e);
-            });
-
-            // When the file has finished playing to the end
-            audio.addEventListener('ended', (e) => {
-                this.clearListenTrack();
-                this.props.onEnded(e);
-            });
-
-            // When the user pauses playback
-            audio.addEventListener('pause', (e) => {
-                this.clearListenTrack();
-                this.props.onPause(e);
-            });
-
-            // When the user drags the time indicator to a new time
-            audio.addEventListener('seeked', (e) => {
-                this.props.onSeeked(e);
-            });
-
-            audio.addEventListener('loadedmetadata', (e) => {
-                this.props.onLoadedMetadata(e, audio.duration);
-            });
-
-            audio.addEventListener('volumechange', (e) => {
-                this.props.onVolumeChanged(e);
-            });
-        }
+  // handle src change
+  useEffect(() => {
+    if (src) {
+      load({
+        src,
+        volume: playerVolume
+      });
     }
+  }, [src]);
 
-    componentWillUnmount() {
-        if (this.audioEl) {
-            this.audioEl = null;
-        }
+  // Handle volume change
+  useEffect(() => {
+    if (typeof playerVolume !== 'undefined') {
+      volume(playerVolume);
     }
+  }, [playerVolume]);
 
-    componentDidUpdate() {
-        this.updateVolume(this.props.volume);
+  // Handle mute
+  useEffect(() => {
+    if (typeof muted !== 'undefined') {
+      mute(muted);
     }
+  }, [muted]);
 
-    get instance(): HTMLAudioElement | null {
-        return this.audioEl;
+  // Handle seeking
+  useEffect(() => {
+    let stopSeeking: any;
+
+    ipcRenderer.on(EVENTS.PLAYER.SEEK, (_event, to: number) => {
+      if (!isSeeking) {
+        setIsSeeking(true);
+      }
+
+      clearTimeout(stopSeeking);
+
+      // this.seekChange(to);
+
+      stopSeeking = setTimeout(() => {
+        setIsSeeking(false);
+
+        seek(to);
+
+        // setCurrentTime(to);
+        ipcRenderer.send(EVENTS.PLAYER.SEEK_END, to);
+      }, 100);
+    });
+
+    return () => {
+      ipcRenderer.removeAllListeners(EVENTS.PLAYER.SEEK);
+    };
+  }, []);
+
+  // Onload
+  useEffect(() => {
+    if (wasPrevLoading && !loading && !error) {
+      dispatch(actions.setDuration(duration));
+      dispatch(actions.registerPlay());
     }
+  }, [loading]);
 
-    stop() {
-        if (this.audioEl) {
-            this.audioEl.pause();
-            this.audioEl.currentTime = 0;
-        }
+  // OnPlay
+  useEffect(() => {
+    if (typeof position === 'number') {
+      dispatch(actions.setCurrentTime(position));
     }
-    /**
-     * Set an interval to call props.onListen every props.listenInterval time period
-     */
-    setListenTrack() {
-        if (!this.listenTracker) {
-            const listenInterval = this.props.listenInterval;
-            this.time();
-            this.listenTracker = setInterval(() => {
-                this.time();
-            }, listenInterval);
-        }
+  }, [position, ready]);
+
+  // OnEnd
+  useEffect(() => {
+    if (ended) {
+      dispatch(actions.changeTrack(ChangeTypes.NEXT, true));
     }
+  }, [ended]);
 
-    time() {
-        if (this.audioEl) {
-            this.props.onListen(this.audioEl.currentTime, this.audioEl.duration);
-        }
+  const retry = () => {
+    if (error && src) {
+      load({
+        src,
+        volume: playerVolume
+      });
     }
+  };
 
-    getStatus(): PlayerStatus {
-        if (this.audioEl) {
-            if (this.audioEl.currentTime > 0
-                && !this.audioEl.paused
-                && !this.audioEl.ended
-                && this.audioEl.readyState > 2) {
-                return PlayerStatus.PLAYING;
-            } else if (this.audioEl.paused && !this.audioEl.ended) {
-                return PlayerStatus.PAUSED;
-            }
-        }
-        return PlayerStatus.STOPPED;
+  // OnError
+  useEffect(() => {
+    if (error) {
+      // eslint-disable-next-line no-console
+      console.error(error);
+
+      switch (error.code) {
+        case MediaError.MEDIA_ERR_NETWORK:
+          retry();
+          setTimeout(retry, 500);
+          break;
+        case MediaError.MEDIA_ERR_DECODE:
+        case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
+        default:
+          dispatch(
+            actions.addToast({
+              message: 'An error occurred during playback',
+              intent: Intent.DANGER
+            })
+          );
+      }
     }
+  }, [error]);
 
-    setNewStatus(status: PlayerStatus) {
-        const { isLoading } = this.state;
-        if (this.audioEl) {
-            switch (status) {
-                case PlayerStatus.PLAYING:
-                    if (isLoading) {
-                        break;
-                    }
-                    this.setState({
-                        isLoading: true
-                    });
-
-                    this.play();
-
-                    break;
-                case PlayerStatus.PAUSED:
-                    this.audioEl.pause();
-                    break;
-                case PlayerStatus.STOPPED:
-                    this.audioEl.currentTime = 0;
-                    this.audioEl.pause();
-                    break;
-                default:
-            }
-        }
-    }
-
-    play = () => {
-        if (this.audioEl) {
-            this.audioEl.play()
-                .then(() => {
-                    this.setState({
-                        isLoading: false
-                    });
-                })
-                .catch(() => {
-
-                    this.setState({
-                        isLoading: false
-                    });
-
-                    this.clearListenTrack();
-                });
-        }
-
-    }
-
-    /**
-     * Set the volume on the audio element from props
-     * @param {Number} volume
-     */
-    updateVolume(volume: number) {
-        if (typeof volume === 'number' && this.audioEl && volume !== this.audioEl.volume) {
-            this.audioEl.volume = volume;
-        }
-    }
-
-    /**
-     * Clear the onListen interval
-     */
-    clearListenTrack() {
-        if (this.listenTracker) {
-            clearInterval(this.listenTracker);
-            this.listenTracker = null;
-        }
-    }
-
-    clearTime = () => {
-        if (this.audioEl) {
-            this.audioEl.currentTime = 0;
-        }
-    }
-
-    get audio() {
-        return this.audioEl;
-    }
-
-    render() {
-
-        return (
-            <audio
-                className={`react-audio-player ${this.props.className}`}
-                loop={this.props.loop}
-                muted={this.props.muted}
-                preload={this.props.preload}
-                ref={(ref) => this.audioEl = ref}
-                src={this.props.src || ''}
-                style={this.props.style}
-
-            />
-        );
-    }
-
-    private handleError = (e: any) => {
-        switch (e.target.error.code) {
-            case e.target.error.MEDIA_ERR_NETWORK:
-                setTimeout(() => {
-                    console.log('retry-ing');
-                    if (this.audioEl) {
-                        const fromTime = this.audioEl.currentTime;
-                        this.audioEl.load();
-                        this.audioEl.currentTime = fromTime;
-                        this.play();
-                    }
-                }, 500);
-                break;
-            case e.target.error.MEDIA_ERR_DECODE:
-            case e.target.error.MEDIA_ERR_SRC_NOT_SUPPORTED:
-            default:
-                this.props.onError(e, 'An error occurred during playback.');
-                break;
-        }
-    }
-}
-
-export default ReactAudioPlayer;
+  return null;
+};

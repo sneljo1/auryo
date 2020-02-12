@@ -1,46 +1,46 @@
-import { app, Menu, shell, MenuItemConstructorOptions } from 'electron';
 import { EVENTS } from '@common/constants/events';
+import { ChangeTypes, PlayerStatus, VolumeChangeTypes } from '@common/store/player';
+import { setConfigKey, changeTrack, toggleStatus } from '@common/store/actions';
 import * as SC from '@common/utils/soundcloudUtils';
-import Feature from '../feature';
-import { PlayerStatus, ChangeTypes, PlayerState, VolumeChangeTypes } from '@common/store/player';
+import { autobind } from 'core-decorators';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { app, Menu, MenuItemConstructorOptions, shell } from 'electron';
 import * as is from 'electron-is';
+import { Feature } from '../feature';
 
+@autobind
 export default class ApplicationMenu extends Feature {
-
-  shouldRun() {
+  public readonly featureName = 'ApplicationMenu';
+  public shouldRun() {
     return is.osx();
   }
 
-  register() {
+  public register() {
     this.on(EVENTS.APP.READY, () => {
-      const { player } = this.store.getState();
-      this.buildMenu(player);
+      this.buildMenu();
 
       this.subscribe(['player', 'playingTrack'], () => {
-        const { player } = this.store.getState();
-        this.buildMenu(player);
+        this.buildMenu();
       });
 
       this.subscribe(['player', 'status'], () => {
-        const { player } = this.store.getState();
-        this.buildMenu(player);
+        this.buildMenu();
       });
 
       this.on(EVENTS.TRACK.LIKED, () => {
-        const { player } = this.store.getState();
-        this.buildMenu(player);
+        this.buildMenu();
       });
 
       this.on(EVENTS.TRACK.REPOSTED, () => {
-        const { player } = this.store.getState();
-        this.buildMenu(player);
+        this.buildMenu();
       });
     });
   }
 
-  buildMenu = (player: PlayerState) => {
+  public buildMenu() {
+    const { player } = this.store.getState();
 
-    const template: Array<MenuItemConstructorOptions> = [
+    const template: MenuItemConstructorOptions[] = [
       {
         label: 'View',
         submenu: [
@@ -92,7 +92,7 @@ export default class ApplicationMenu extends Feature {
           {
             label: !player || player.status !== PlayerStatus.PLAYING ? 'Play' : 'Pause',
             accelerator: 'CmdOrCtrl+Shift+Space',
-            click: () => this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS)
+            click: () => this.store.dispatch(toggleStatus() as any)
           },
           {
             type: 'separator'
@@ -100,12 +100,12 @@ export default class ApplicationMenu extends Feature {
           {
             label: 'Next',
             accelerator: 'CmdOrCtrl+Right',
-            click: () => this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, ChangeTypes.NEXT)
+            click: () => this.store.dispatch(changeTrack(ChangeTypes.NEXT) as any)
           },
           {
             label: 'Previous',
             accelerator: 'CmdOrCtrl+Left',
-            click: () => this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, ChangeTypes.PREV)
+            click: () => this.store.dispatch(changeTrack(ChangeTypes.PREV) as any)
           },
           {
             type: 'separator'
@@ -113,12 +113,12 @@ export default class ApplicationMenu extends Feature {
           {
             label: 'Volume up',
             accelerator: 'CmdOrCtrl+Up',
-            click: () => this.sendToWebContents(EVENTS.PLAYER.CHANGE_VOLUME, VolumeChangeTypes.UP)
+            click: () => this.changeVolume(VolumeChangeTypes.UP)
           },
           {
             label: 'Volume down',
             accelerator: 'CmdOrCtrl+Down',
-            click: () => this.sendToWebContents(EVENTS.PLAYER.CHANGE_VOLUME, VolumeChangeTypes.DOWN)
+            click: () => this.changeVolume(VolumeChangeTypes.DOWN)
           }
         ]
       },
@@ -129,7 +129,9 @@ export default class ApplicationMenu extends Feature {
             label: 'Like',
             accelerator: 'CmdOrCtrl+L',
             click: () => {
-              const { player: { playingTrack } } = this.store.getState();
+              const {
+                player: { playingTrack }
+              } = this.store.getState();
 
               if (playingTrack) {
                 this.sendToWebContents(EVENTS.TRACK.LIKE, playingTrack.id);
@@ -141,7 +143,9 @@ export default class ApplicationMenu extends Feature {
             label: 'Repost',
             accelerator: 'CmdOrCtrl+S',
             click: () => {
-              const { player: { playingTrack } } = this.store.getState();
+              const {
+                player: { playingTrack }
+              } = this.store.getState();
 
               if (playingTrack) {
                 this.sendToWebContents(EVENTS.TRACK.REPOST, playingTrack.id);
@@ -165,7 +169,7 @@ export default class ApplicationMenu extends Feature {
           },
           {
             label: 'Donate',
-            click: () => shell.openExternal('https://www.patreon.com/sneljo')
+            click: () => shell.openExternal('https://github.com/sponsors/Superjo149')
           },
           {
             label: 'Learn More',
@@ -176,7 +180,7 @@ export default class ApplicationMenu extends Feature {
     ];
 
     if (process.env.NODE_ENV === 'development') {
-      (template[0].submenu as Array<MenuItemConstructorOptions>).push(
+      (template[0].submenu as MenuItemConstructorOptions[]).push(
         {
           type: 'separator'
         },
@@ -184,7 +188,9 @@ export default class ApplicationMenu extends Feature {
           label: 'Toggle Developer Tools',
           accelerator: process.platform === 'darwin' ? 'Alt+Command+I' : 'Ctrl+Shift+I',
           click: (_item, focusedWindow) => {
-            if (focusedWindow) { focusedWindow.webContents.toggleDevTools(); }
+            if (focusedWindow) {
+              focusedWindow.webContents.toggleDevTools();
+            }
           }
         }
       );
@@ -192,7 +198,7 @@ export default class ApplicationMenu extends Feature {
 
     if (process.platform === 'darwin') {
       template.unshift({
-        label: app.getName(),
+        label: app.name,
         submenu: [
           { role: 'about' },
           { type: 'separator' },
@@ -211,7 +217,7 @@ export default class ApplicationMenu extends Feature {
           { role: 'unhide' },
           { type: 'separator' },
           { role: 'quit' }
-        ]
+        ] as MenuItemConstructorOptions[]
       });
     }
 
@@ -225,7 +231,7 @@ export default class ApplicationMenu extends Feature {
       const trackId = playingTrack.id;
       const track = trackEntities[trackId];
 
-      const index = template.findIndex((r) => r.label === 'Track');
+      const index = template.findIndex(r => r.label === 'Track');
 
       if (trackId && track) {
         const liked = SC.hasID(track.id, likes.track);
@@ -233,25 +239,24 @@ export default class ApplicationMenu extends Feature {
 
         if (template[index]) {
           if (template[index].submenu) {
-            const submenu: Array<MenuItemConstructorOptions> = template[index].submenu as Array<MenuItemConstructorOptions>
-
-              ; (template[index].submenu as Array<MenuItemConstructorOptions>) = [
-                ...submenu,
-                {
-                  ...(submenu[0] || {}),
-                  label: liked ? 'Unlike' : 'Like',
-                  enabled: true
-                },
-                {
-                  ...(submenu[1] || {}),
-                  label: reposted ? 'Remove repost' : 'Repost',
-                  enabled: true
-                }
-              ];
+            const submenu: MenuItemConstructorOptions[] = template[index].submenu as MenuItemConstructorOptions[];
+            (template[index].submenu as MenuItemConstructorOptions[]) = [
+              ...submenu,
+              {
+                ...(submenu[0] || {}),
+                label: liked ? 'Unlike' : 'Like',
+                enabled: true
+              },
+              {
+                ...(submenu[1] || {}),
+                label: reposted ? 'Remove repost' : 'Repost',
+                enabled: true
+              }
+            ];
           }
         }
       } else {
-        (template[index].submenu as Array<MenuItemConstructorOptions>).map((s) => {
+        (template[index].submenu as MenuItemConstructorOptions[]).map(s => {
           s.enabled = false; // eslint-disable-line
 
           return s;
@@ -260,5 +265,29 @@ export default class ApplicationMenu extends Feature {
     }
 
     Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+  }
+
+  private changeVolume(volumeChangeType: VolumeChangeTypes) {
+    const {
+      config: {
+        audio: { volume }
+      }
+    } = this.store.getState();
+
+    let newVolume = volume + 0.05;
+
+    if (volumeChangeType === VolumeChangeTypes.DOWN) {
+      newVolume = volume - 0.05;
+    }
+
+    if (newVolume > 1) {
+      newVolume = 1;
+    } else if (newVolume < 0) {
+      newVolume = 0;
+    }
+
+    if (volume !== newVolume) {
+      this.store.dispatch(setConfigKey('audio.volume', newVolume));
+    }
   }
 }

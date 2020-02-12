@@ -1,13 +1,13 @@
-os: Visual Studio 2017
+image: Visual Studio 2017
 
 platform:
   - x64
 
 environment:
   matrix:
-    - nodejs_version: "8"
+    - nodejs_version: '10'
 
-cache:  
+cache:
   - node_modules -> appveyor.yml,package.json,yarn.lock
   - '%LOCALAPPDATA%\Yarn -> appveyor.yml,package.json,yarn.lock'
   - '%USERPROFILE%\.electron'
@@ -26,16 +26,16 @@ build_script:
   - yarn --version
   - yarn run build
   # linting woop woop
-  - yarn run lint
+  # - yarn run lint
   # run tests
-  - yarn run test-e2e -- --retries 2
+  # - yarn run test-e2e -- --retries 2
 
 deploy_script:
-- cmd: yarn run release:win
+  - cmd: yarn run release:win
 
 artifacts:
-  - path: 'dist\*.exe'
-  - path: 'dist\latest.yml'
+  - path: 'release\*.exe'
+  - path: 'release\latest.yml'
 
 on_failure:
   - ps: $root = Resolve-Path ./test\screenshots; [IO.Directory]::GetFiles($root.Path, '*.png', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName to-publish }

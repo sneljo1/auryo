@@ -1,80 +1,80 @@
 matrix:
-  include:
-  - os: linux
-    language: node_js
-    node_js: '8'
-    sudo: required
-    dist: xenial
-    addons:
-      apt:
-        packages:
-        - google-chrome-stable
-        - openjpeg-tools
-        - rpm
-        - bsdtar
-        - snapd
-        - xvfb
-        - libxtst6
-        - libxss1
-        - libgtk2.0-0
-        - libnss3
-        - libasound2
-        - libdbus-1-dev
-        - libglib2.0-dev
-        - libgconf-2-4
-        - libdbus-1-dev:i386
-        - libdbus-glib-1-dev
-  - os: osx
-    language: node_js
-    osx_image: xcode9
-    node_js: '8'
-    sudo: required
-    env:
-    - HOMEBREW_CASK_OPTS='--appdir=/Applications'
-    - ELECTRON_CACHE=$HOME/.cache/electron
-    - ELECTRON_BUILDER_CACHE=$HOME/.cache/electron-builder
-    - ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=true
-before_install:
-- |
-  if [ "$TRAVIS_OS_NAME" = "osx" ]; then
-    brew update > /dev/null
-    brew cask install google-chrome
-  fi
+    include:
+        - os: linux
+          language: node_js
+          node_js: "12"
+          sudo: required
+          addons:
+              chrome: stable
+              apt:
+                  packages:
+                      - openjpeg-tools
+                      - rpm
+                      - bsdtar
+                      - snapd
+                      - xvfb
+                      - libxtst6
+                      - libxss1
+                      - libgtk2.0-0
+                      - libnss3
+                      - libasound2
+                      - libdbus-1-dev
+                      - libglib2.0-dev
+                      - libgconf-2-4
+                      - libdbus-1-dev:i386
+                      - libdbus-glib-1-dev
+                      # mdns
+                      - libavahi-compat-libdnssd-dev
+        - os: osx
+          language: node_js
+          node_js: "12"
+          sudo: required
+          addons:
+              chrome: stable
+          env:
+              - HOMEBREW_CASK_OPTS='--appdir=/Applications'
+              - ELECTRON_CACHE=$HOME/.cache/electron
+              - ELECTRON_BUILDER_CACHE=$HOME/.cache/electron-builder
+              - ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=true
 cache:
-  yarn: true
-  directories:
-  - node_modules
-  - "$(npm config get prefix)/lib/node_modules"
-  - "$HOME/.cache/electron"
-  - "$HOME/.cache/electron-builder"
-  - "$HOME/docker"
+    yarn: true
+    directories:
+        - node_modules
+        - "$(npm config get prefix)/lib/node_modules"
+        - "$HOME/.cache/electron"
+        - "$HOME/.cache/electron-builder"
+        - "$HOME/docker"
 install:
-- yarn
-- |
-  if [ "$TRAVIS_OS_NAME" == "linux" ]; then
-    export DISPLAY=':99.0'
-    Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-    sleep 3
-    sudo snap install snapcraft --classic
-  fi
+    - yarn
+    - |
+        if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+          export DISPLAY=':99.0'
+          Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+          sleep 3
+          sudo snap install snapcraft --classic
+        fi
 script:
-- yarn run lint || travis_terminate 1
-- yarn run build || travis_terminate 1
+    - yarn run lint || travis_terminate 1
+    - yarn run build || travis_terminate 1
 # TODO re-enable for linux
--  |
-  if [ "$TRAVIS_OS_NAME" = "osx" ]; then
-    yarn run test-e2e -- --retries 2 || travis_terminate 1
-  fi
+# -  |
+#   if [ "$TRAVIS_OS_NAME" = "osx" ]; then
+#     yarn run test-e2e -- --retries 2 || travis_terminate 1
+#   fi
 after_success:
-- |
-  if [ "$TRAVIS_BRANCH" == "master" ] || [ -n "$TRAVIS_TAG" ]; then
-    if [ "$TRAVIS_OS_NAME" == "linux" ]; then
-      # Only create snap in when untagged, otherwise snaps build service will do this for us
-      # if [ -z $TRAVIS_TAG ]; then
-      #   sed -i "s/\"AppImage\",/\"AppImage\",\"snap\",/g" package.json
-      # fi
-      yarn run release:linux
-    else
-      yarn run release:mac
-    fi
-  fi
+    - |
+        if [ "$TRAVIS_BRANCH" == "master" ] || [ -n "$TRAVIS_TAG" ]; then
+          if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+            # Only create snap in when untagged, otherwise snaps build service will do this for us
+            # if [ -z $TRAVIS_TAG ]; then
+            #   sed -i "s/\"AppImage\",/\"AppImage\",\"snap\",/g" package.json
+            # fi
+            yarn run release:linux
+          else
+            if [[ $TRAVIS_PULL_REQUEST == "false" ]]; then
+              chmod +x add-osx-cert.sh; 
+              ./internals/scripts/add-osx-cert.sh;
+            fi
+            yarn run release:mac
+          fi
+        fi

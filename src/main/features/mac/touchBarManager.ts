@@ -1,19 +1,26 @@
-import { nativeImage, TouchBar } from 'electron';
-import * as path from 'path';
 import { EVENTS } from '@common/constants/events';
 import { ChangeTypes, PlayerStatus } from '@common/store/player';
+import { changeTrack, toggleStatus } from '@common/store/actions';
 import * as SC from '@common/utils/soundcloudUtils';
+import { autobind } from 'core-decorators';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { nativeImage, TouchBar } from 'electron';
+import * as path from 'path';
 import { WatchState } from '../feature';
 import MacFeature from './macFeature';
 
 const { TouchBarButton, TouchBarSpacer } = TouchBar;
 
-const iconsDirectory = process.env.NODE_ENV === 'development' ?
-  path.resolve(__dirname, '..', '..', '..', '..', 'static', 'icons') :
-  path.resolve(__dirname, '../static/icons');
+const iconsDirectory =
+  process.env.NODE_ENV === 'development'
+    ? path.resolve(__dirname, '..', '..', '..', '..', 'static', 'icons')
+    : path.resolve(__dirname, '../static/icons');
 
+@autobind
 export default class TouchBarManager extends MacFeature {
-  likestates = {
+  public readonly featureName = 'TouchBarManager';
+  // tslint:disable-next-line: typedef
+  public likestates = {
     liked: nativeImage.createFromPath(path.join(iconsDirectory, 'heart-full.png')).resize({
       width: 20
     }),
@@ -22,7 +29,8 @@ export default class TouchBarManager extends MacFeature {
     })
   };
 
-  repoststates = {
+  // tslint:disable-next-line: typedef
+  public repoststates = {
     reposted: nativeImage.createFromPath(path.join(iconsDirectory, 'repost-enabled.png')).resize({
       width: 20
     }),
@@ -31,7 +39,8 @@ export default class TouchBarManager extends MacFeature {
     })
   };
 
-  playstates = {
+  // tslint:disable-next-line: typedef
+  public playstates = {
     PLAYING: nativeImage.createFromPath(path.join(iconsDirectory, 'pause.png')).resize({
       width: 20
     }),
@@ -43,26 +52,26 @@ export default class TouchBarManager extends MacFeature {
     })
   };
 
-  prev_btn = new TouchBarButton({
+  public prevBtn: Electron.TouchBarButton = new TouchBarButton({
     icon: nativeImage.createFromPath(path.join(iconsDirectory, 'previous.png')).resize({
       width: 20
     }),
-    click: () => this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, ChangeTypes.PREV)
+    click: () => this.store.dispatch(changeTrack(ChangeTypes.PREV) as any)
   });
 
-  playpause_btn = new TouchBarButton({
+  public playPauseBtn: Electron.TouchBarButton = new TouchBarButton({
     icon: this.playstates.PAUSED,
-    click: () => this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS)
+    click: () => this.store.dispatch(toggleStatus() as any)
   });
 
-  next_btn = new TouchBarButton({
+  public nextBtn: Electron.TouchBarButton = new TouchBarButton({
     icon: nativeImage.createFromPath(path.join(iconsDirectory, 'next.png')).resize({
       width: 20
     }),
-    click: () => this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, ChangeTypes.NEXT)
+    click: () => this.store.dispatch(changeTrack(ChangeTypes.NEXT) as any)
   });
 
-  like_btn = new TouchBarButton({
+  public likeBtn: Electron.TouchBarButton = new TouchBarButton({
     icon: this.likestates.unliked,
     click: () => {
       const {
@@ -75,7 +84,7 @@ export default class TouchBarManager extends MacFeature {
     }
   });
 
-  repost_btn = new TouchBarButton({
+  public repostBtn: Electron.TouchBarButton = new TouchBarButton({
     icon: this.repoststates.notReposted,
     click: () => {
       const {
@@ -88,20 +97,20 @@ export default class TouchBarManager extends MacFeature {
     }
   });
 
-  register() {
+  public register() {
     const touchBar = new TouchBar({
       items: [
-        this.prev_btn,
-        this.playpause_btn,
-        this.next_btn,
+        this.prevBtn,
+        this.playPauseBtn,
+        this.nextBtn,
         new TouchBarSpacer({
           size: 'small'
         }),
-        this.like_btn,
+        this.likeBtn,
         new TouchBarSpacer({
           size: 'small'
         }),
-        this.repost_btn
+        this.repostBtn
       ]
     });
 
@@ -118,7 +127,7 @@ export default class TouchBarManager extends MacFeature {
     });
   }
 
-  checkIfLiked = () => {
+  public checkIfLiked() {
     const {
       entities: { trackEntities },
       player: { playingTrack },
@@ -132,14 +141,14 @@ export default class TouchBarManager extends MacFeature {
       if (track) {
         const liked = SC.hasID(track.id, likes.track);
 
-        this.like_btn.icon = liked ? this.likestates.liked : this.likestates.unliked;
+        this.likeBtn.icon = liked ? this.likestates.liked : this.likestates.unliked;
       }
     } else {
-      this.like_btn.icon = this.likestates.unliked;
+      this.likeBtn.icon = this.likestates.unliked;
     }
   }
 
-  checkIfReposted = () => {
+  public checkIfReposted() {
     const {
       entities: { trackEntities },
       player: { playingTrack },
@@ -153,14 +162,14 @@ export default class TouchBarManager extends MacFeature {
       if (track) {
         const reposted = SC.hasID(track.id, reposts.track);
 
-        this.repost_btn.icon = reposted ? this.repoststates.reposted : this.repoststates.notReposted;
+        this.repostBtn.icon = reposted ? this.repoststates.reposted : this.repoststates.notReposted;
       }
     } else {
-      this.repost_btn.icon = this.repoststates.notReposted;
+      this.repostBtn.icon = this.repoststates.notReposted;
     }
   }
 
-  updateStatus = ({ currentValue }: WatchState<PlayerStatus>) => {
-    this.playpause_btn.icon = this.playstates[currentValue];
+  public updateStatus({ currentValue }: WatchState<PlayerStatus>) {
+    this.playPauseBtn.icon = this.playstates[currentValue];
   }
 }

@@ -80,5 +80,5 @@ export default {
   // Track page
   '--clr-transparent-tabs-bg': 'rgba(255, 255, 255, .1)',
   '--clr-transparent-tabs-active-bg': 'rgba(255, 255, 255, .5)',
-  '--clr-transparent-tabs-active-text': 'var(--clr-brand-blue)',
+  '--clr-transparent-tabs-active-text': 'var(--clr-brand-blue)'
 };

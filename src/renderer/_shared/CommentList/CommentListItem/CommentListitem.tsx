@@ -1,69 +1,58 @@
-import * as moment from 'moment';
+import fallbackAvatar from '@assets/img/avatar_placeholder.jpg';
+import { IMAGE_SIZES } from '@common/constants';
+import { StoreState } from '@common/store';
+import { getCommentEntity } from '@common/store/entities/selectors';
+import { SC } from '@common/utils';
+import { Normalized } from '@types';
+import moment from 'moment';
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Col, Row } from 'reactstrap';
-import { IMAGE_SIZES } from '@common/constants';
-import { StoreState } from '@common/store';
-import { SC } from '@common/utils';
-import { NormalizedResult, SoundCloud } from '../../../../types';
 import FallbackImage from '../../FallbackImage';
-import Linkify from '../../Linkify';
-import { getCommentEntity } from '@common/store/entities/selectors';
+import { Linkify } from '../../Linkify';
 import './CommentListItem.scss';
 
-const fallback_url = require('@assets/img/avatar_placeholder.jpg');
+const mapStateToProps = (state: StoreState, { idResult }: OwnProps) => ({
+  comment: getCommentEntity(idResult.id)(state)
+});
 
 interface OwnProps {
-    idResult: NormalizedResult;
+  idResult: Normalized.NormalizedResult;
 }
 
-interface PropsFromState {
-    comment: SoundCloud.Comment | null;
-}
+type PropsFromState = ReturnType<typeof mapStateToProps>;
 
 type AllProps = OwnProps & PropsFromState;
 
 class CommentListItem extends React.PureComponent<AllProps> {
+  public render() {
+    const { comment } = this.props;
 
-    render() {
-        const { comment } = this.props;
-
-        if (!comment) return null;
-
-        const img = SC.getImageUrl(comment.user.avatar_url, IMAGE_SIZES.XSMALL);
-
-        return (
-            <Row className='comment'>
-                <div className='comment-user col-xs no-grow'>
-                    <FallbackImage
-                        src={img}
-                        width={50}
-                        height={50}
-                        fallbackImage={fallback_url}
-                    />
-                </div>
-                <Col xs='8' className='comment-main'>
-                    <div className='info flex'>
-                        <Link to={`/user/${comment.user_id}`}>
-                            {comment.user.username}
-                        </Link>
-                        <span className='divider align-self-center' />
-                        <div className='text-muted'>
-                            {moment(comment.created_at, 'YYYY-MM-DD HH:mm Z').fromNow()}
-                        </div>
-                    </div>
-                    <div className='comment-body'>
-                        <Linkify text={comment.body} />
-                    </div>
-                </Col>
-            </Row>
-        );
+    if (!comment) {
+      return null;
     }
-}
 
-const mapStateToProps = (state: StoreState, { idResult }: OwnProps): PropsFromState => ({
-    comment: getCommentEntity(idResult.id)(state)
-});
+    const img = SC.getImageUrl(comment.user.avatar_url, IMAGE_SIZES.XSMALL);
+
+    return (
+      <Row className="comment">
+        <div className="comment-user col-xs no-grow">
+          <FallbackImage src={img} width={50} height={50} fallbackImage={fallbackAvatar} />
+        </div>
+        <Col xs="8" className="comment-main">
+          <div className="info flex">
+            <Link to={`/user/${comment.user_id}`}>{comment.user.username}</Link>
+            <span className="divider align-self-center" />
+            <div className="text-muted">{moment(comment.created_at, 'YYYY-MM-DD HH:mm Z').fromNow()}</div>
+          </div>
+          <div className="comment-body">
+            <Linkify text={comment.body} />
+          </div>
+        </Col>
+      </Row>
+    );
+  }
+}
 
 export default connect<PropsFromState, {}, OwnProps, StoreState>(mapStateToProps)(CommentListItem);

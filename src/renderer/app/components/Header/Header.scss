@@ -1,37 +1,48 @@
 @import "../../../css/bootstrap.imports.scss";
 
+.sticky-outer-wrapper.sticky {
+  position: relative;
+  z-index: 9;
+}
+
 .header-wrapper {
-  .bp3-popover-target{
-    transform:rotate(90deg)
+  .bp3-popover-target {
+    transform: rotate(90deg)
   }
+
   &.withImage {
     background: rgba(255, 255, 255, 0.15);
     position: relative;
     z-index: 5;
 
 
-    .stickymaker:not(.sticky) {
-      .bp3-popover-target svg{
+    .sticky-outer-wrapper:not(.sticky) {
+      .bp3-popover-target svg {
         color: white;
       }
+
       i {
         color: white;
       }
 
-      #globalSearch{
+      #globalSearch {
         background: rgba(255, 255, 255, 0.23);
         border-radius: 20px;
       }
+
       .navbar .control-nav a {
         color: white;
+
         &:not(.disabled):hover {
           background: rgba(247, 247, 247, 0.33);
           transition: .4s background;
         }
       }
+
       .user .userProfile:not(:hover) {
         color: #fff !important;
       }
+
       .user .userProfile:hover {
         background: rgba(247, 247, 247, 0.33);
         transition: .4s all;
@@ -40,6 +51,7 @@
       .search-box {
         input {
           color: #fff;
+
           &::-webkit-input-placeholder {
             color: rgba(247, 247, 247, 0.7);
           }
@@ -48,12 +60,18 @@
     }
   }
 
+  .sticky-outer-wrapper {
+    transition: .5s tranform;
+  }
+
   .sticky {
+
     .navbar-wrapper {
       background: var(--clr-navbar-bg-sticky);
-      transition: .5s all;
+      transition: .5s tranform;
     }
   }
+
 
   .sticky-1 {
     .navbar-wrapper {
@@ -106,10 +124,12 @@
 .navbar .control-nav {
   align-items: center;
   padding: 0 15px 0 0;
+
   .control-nav-inner {
     border-radius: 20px;
     position: relative;
   }
+
   a {
     display: inline-block;
     padding: 2px;
@@ -117,6 +137,7 @@
     text-decoration: none;
     border-radius: 100%;
     transition: .4s background;
+
     &:not(.disabled):hover {
 
       background: darken(#fff, 3%);
@@ -132,6 +153,7 @@
       border-right: none;
       margin-left: 1px;
     }
+
     i {
       outline: none;
       font-size: 1.7em;
@@ -141,9 +163,10 @@
 
 .navbar {
 
-  .bp3-popover-wrapper{
+  .bp3-popover-wrapper {
     padding: 0 15px 0 8px;
   }
+
   .toggle {
     text-decoration: none !important;
     color: #717171;
@@ -154,7 +177,8 @@
       color: theme-color("primary");
       transition: .5s color;
     }
-    sup{
+
+    sup {
       top: 0;
       height: 8px;
       width: 8px;
@@ -168,7 +192,7 @@
     }
 
     &>svg {
-  
+
       vertical-align: middle;
       fill: currentColor;
       transform: rotate(90deg);

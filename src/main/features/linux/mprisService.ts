@@ -1,34 +1,38 @@
-import * as _ from 'lodash';
-import * as path from 'path';
 import { EVENTS } from '@common/constants/events';
 import { IMAGE_SIZES } from '@common/constants/Soundcloud';
+import { getTrackEntity } from '@common/store/entities/selectors';
 import { ChangeTypes, PlayerStatus } from '@common/store/player';
+import { changeTrack, toggleStatus } from '@common/store/actions';
+import { getCurrentPosition } from '@common/utils';
 import * as SC from '@common/utils/soundcloudUtils';
-import { Logger } from '../../utils/logger';
+import * as _ from 'lodash';
+import * as path from 'path';
+import { Logger, LoggerInstance } from '../../utils/logger';
 import { WatchState } from '../feature';
 import { MprisServiceClient } from './interfaces/mpris-service.interface';
 import LinuxFeature from './linuxFeature';
-import { getTrackEntity } from '@common/store/entities/selectors';
-import { getCurrentPosition } from '@common/utils';
 
-const logosPath = process.env.NODE_ENV === 'development' ?
-  path.resolve(__dirname, '..', '..', '..', 'assets', 'img', 'logos') :
-  path.resolve(__dirname, './assets/img/logos');
+const logosPath =
+  process.env.NODE_ENV === 'development'
+    ? path.resolve(__dirname, '..', '..', '..', 'assets', 'img', 'logos')
+    : path.resolve(__dirname, './assets/img/logos');
 
 export default class MprisService extends LinuxFeature {
-  private logger: Logger = new Logger('MprisService');
+  public readonly featureName = 'MprisService';
+  private readonly logger: LoggerInstance = Logger.createLogger(MprisService.featureName);
 
   private meta: MprisServiceClient.MetaData = {};
   private player: MprisServiceClient.Player | null = null;
 
-  shouldRun() {
+  public shouldRun() {
     return super.shouldRun() && !process.env.TOKEN;
   }
 
-  register() {
+  public register() {
     let mpris;
 
     try {
+      // eslint-disable-next-line
       mpris = require('mpris-service');
 
       this.player = mpris({
@@ -38,7 +42,6 @@ export default class MprisService extends LinuxFeature {
         supportedInterfaces: ['player'],
         desktopEntry: 'Auryo'
       }) as MprisServiceClient.Player;
-
 
       this.player.playbackStatus = 'Stopped';
       this.player.canEditTracks = false;
@@ -69,27 +72,27 @@ export default class MprisService extends LinuxFeature {
       });
 
       this.player.on('play', () => {
-        this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PlayerStatus.PLAYING);
+        this.store.dispatch(toggleStatus(PlayerStatus.PLAYING) as any);
       });
 
       this.player.on('pause', () => {
-        this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PlayerStatus.PAUSED);
+        this.store.dispatch(toggleStatus(PlayerStatus.PAUSED) as any);
       });
 
       this.player.on('playpause', () => {
-        this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS);
+        this.store.dispatch(toggleStatus() as any);
       });
 
       this.player.on('stop', () => {
-        this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PlayerStatus.STOPPED);
+        this.store.dispatch(toggleStatus(PlayerStatus.STOPPED) as any);
       });
 
       this.player.on('next', () => {
-        this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, ChangeTypes.NEXT);
+        this.store.dispatch(changeTrack(ChangeTypes.NEXT) as any);
       });
 
       this.player.on('previous', () => {
-        this.sendToWebContents(EVENTS.PLAYER.CHANGE_TRACK, ChangeTypes.PREV);
+        this.store.dispatch(changeTrack(ChangeTypes.PREV) as any);
       });
 
       //
@@ -149,43 +152,38 @@ export default class MprisService extends LinuxFeature {
         this.subscribe(['player', 'currentTime'], this.updateTime.bind(this));
         this.subscribe(['player', 'duration'], this.updateTime.bind(this));
       });
-
     } catch (e) {
       this.logger.warn('Mpris not supported');
       this.logger.warn(e);
-      return;
     }
-
   }
 
-  updateStatus({ currentValue }: WatchState<PlayerStatus>) {
+  public updateStatus({ currentValue }: WatchState<PlayerStatus>) {
     if (currentValue && this.player) {
-      this.player.playbackStatus =
-        currentValue
-          .toLowerCase()
-          .charAt(0)
-          .toUpperCase() + currentValue.toLowerCase().slice(1) as any;
+      this.player.playbackStatus = (currentValue
+        .toLowerCase()
+        .charAt(0)
+        .toUpperCase() + currentValue.toLowerCase().slice(1)) as any;
     }
   }
 
-  updateTime = ({
+  public updateTime = ({
     currentState: {
       player: { currentTime, duration }
     }
   }: WatchState<number>) => {
-
     if (this.player) {
       this.meta = {
         ...this.meta,
         ...this.player.metadata
       };
 
-      this.meta['mpris:length'] = duration * 1e3 | 0;
-      this.player.position = currentTime * 1e3 | 0;
+      this.meta['mpris:length'] = duration * 1e3 || 0;
+      this.player.position = currentTime * 1e3 || 0;
 
       if (!_.isEqual(this.meta, this.player.metadata)) {
         this.player.metadata = this.meta;
       }
     }
-  }
+  };
 }

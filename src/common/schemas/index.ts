@@ -4,4 +4,3 @@ import trackSchema from './track';
 import userSchema from './user';
 
 export { playlistSchema, userSchema, trackSchema, commentSchema };
-

@@ -1,44 +1,32 @@
+import { Normalized } from '@types';
 import * as React from 'react';
-import * as ReactList from 'react-list';
-import { NormalizedResult } from '../../../types';
+import ReactList from 'react-list';
+import { useInfiniteScroll } from '../hooks/useInfiniteScroll';
+import Spinner from '../Spinner/Spinner';
 import CommentListItem from './CommentListItem/CommentListitem';
 
 interface Props {
-    comments: Array<NormalizedResult>;
+  items: Normalized.NormalizedResult[];
+
+  // Infinite loading
+  hasMore?: boolean;
+  isLoading?: boolean;
+  loadMore?(): Promise<void>;
 }
 
-class CommentList extends React.PureComponent<Props> {
+export const CommentList: React.SFC<Props> = ({ isLoading, loadMore, items = [], hasMore }) => {
+  useInfiniteScroll(isLoading, hasMore ? loadMore : undefined);
 
-    renderItem = (index: number) => {
-        const { comments } = this.props;
+  function renderItem(index: number) {
+    const item = items[index];
 
-        const item = comments[index];
+    return <CommentListItem key={`comment-${item.id}`} idResult={item} />;
+  }
 
-        return (
-            <CommentListItem
-                key={`comment-${item.id}`}
-                idResult={item}
-            />
-        );
-    }
-
-    render() {
-        const { comments } = this.props;
-
-        const items = comments || [];
-
-        return (
-            <div className='comments'>
-                <ReactList
-                    pageSize={8}
-                    type='simple'
-                    length={items.length}
-                    itemRenderer={this.renderItem}
-                    useTranslate3d={true}
-                />
-            </div>
-        );
-    }
-}
-
-export default CommentList;
+  return (
+    <div className="comments">
+      <ReactList pageSize={8} type="simple" length={items.length} itemRenderer={renderItem} useTranslate3d />
+      {isLoading && <Spinner />}
+    </div>
+  );
+};

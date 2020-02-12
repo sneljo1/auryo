@@ -1,26 +1,23 @@
-import { powerMonitor } from 'electron';
-import { EVENTS } from '@common/constants/events';
-import IFeature from '../feature';
 import { PlayerStatus } from '@common/store/player';
+import { toggleStatus } from '@common/store/actions';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { powerMonitor } from 'electron';
+import { Feature } from '../feature';
 
 /**
  * Pause music on power down or sleep
  */
-export default class PowerMonitor extends IFeature {
-  shouldRun() {
-    // ref: https://github.com/electron/electron/issues/13767
-    return super.shouldRun() && !(process.platform === 'linux' && process.env.SNAP_USER_DATA != null);
-  }
-
-  register() {
+export default class PowerMonitor extends Feature {
+  public readonly featureName = 'PowerMonitor';
+  public register() {
     powerMonitor.on('suspend', this.pause);
   }
 
-  pause = () => {
-    this.sendToWebContents(EVENTS.PLAYER.TOGGLE_STATUS, PlayerStatus.PAUSED);
-  }
+  public pause = () => {
+    this.store.dispatch(toggleStatus(PlayerStatus.PAUSED) as any);
+  };
 
-  unregister() {
+  public unregister() {
     powerMonitor.removeListener('suspend', this.pause);
   }
 }

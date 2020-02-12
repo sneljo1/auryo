@@ -1,57 +1,56 @@
-import * as React from 'react';
-import { RouteComponentProps } from 'react-router';
 import { AUDIO_GENRES, GenreConfig, MUSIC_GENRES } from '@common/constants';
 import { SortTypes } from '@common/store/playlist/types';
+import * as React from 'react';
+import { RouteComponentProps } from 'react-router';
 import PlaylistPage from '../playlists/Playlist';
-import { GENRE_IMAGES } from './ChartsPage';
+import { GENRE_IMAGES } from './genreImages';
 
-interface OwnProps extends RouteComponentProps<{ genre: string }> {
-
-}
+type OwnProps = RouteComponentProps<{ genre: string }>;
 
 interface State {
-    sort: SortTypes;
+  sort: SortTypes;
 }
 
-class ChartsDetailsPage extends React.PureComponent<OwnProps> {
+export class ChartsDetailsPage extends React.PureComponent<OwnProps> {
+  public readonly state: State = {
+    sort: SortTypes.TOP
+  };
 
-    readonly state: State = {
-        sort: SortTypes.TOP
-    };
+  public sortTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    this.setState({
+      sort: event.target.value
+    });
+  };
 
-    sortTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        this.setState({
-            sort: event.target.value
-        });
+  public render() {
+    const {
+      match: {
+        params: { genre }
+      }
+    } = this.props;
+    const { sort } = this.state;
+
+    let selectedGenre: GenreConfig | undefined = MUSIC_GENRES.find(g => g.key === genre);
+
+    if (!selectedGenre) {
+      selectedGenre = AUDIO_GENRES.find(g => g.key === genre);
     }
 
-    render() {
-        const { match: { params: { genre } } } = this.props;
-        const { sort } = this.state;
+    selectedGenre = selectedGenre as GenreConfig;
 
-        let selectedGenre: GenreConfig | undefined = MUSIC_GENRES.find((g) => g.key === genre);
+    const objectId = `${genre}_${sort}`;
 
-        if (!selectedGenre) {
-            selectedGenre = AUDIO_GENRES.find((g) => g.key === genre);
-        }
-
-        selectedGenre = selectedGenre as GenreConfig;
-
-        const objectId = `${genre}_${sort}`;
-
-        return (
-            <PlaylistPage
-                showInfo={true}
-                chart={true}
-                backgroundImage={GENRE_IMAGES[selectedGenre.key]}
-                gradient={selectedGenre.gradient}
-                title={selectedGenre.name}
-                objectId={objectId}
-                sortType={sort}
-                sortTypeChange={this.sortTypeChange}
-            />
-        );
-    }
+    return (
+      <PlaylistPage
+        showInfo
+        chart
+        backgroundImage={GENRE_IMAGES[selectedGenre.key]}
+        gradient={selectedGenre.gradient}
+        title={selectedGenre.name}
+        objectId={objectId}
+        sortType={sort}
+        sortTypeChange={this.sortTypeChange}
+      />
+    );
+  }
 }
-
-export default ChartsDetailsPage;

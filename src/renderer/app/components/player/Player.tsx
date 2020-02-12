@@ -1,526 +1,382 @@
-import { Intent, Slider, Tag } from '@blueprintjs/core';
+import { Intent, Popover, PopoverInteractionKind, Slider, Tag } from '@blueprintjs/core';
 import { IMAGE_SIZES } from '@common/constants';
 import { EVENTS } from '@common/constants/events';
 import { StoreState } from '@common/store';
+import * as actions from '@common/store/actions';
 import { hasLiked } from '@common/store/auth/selectors';
-import { setConfigKey } from '@common/store/config';
-import { getTrackEntity } from '@common/store/entities/selectors';
-import {
-    changeTrack, ChangeTypes, PlayerStatus, registerPlay, RepeatTypes, setCurrentTime, setDuration,
-    toggleShuffle,
-    toggleStatus
-} from '@common/store/player';
-import { toggleLike } from '@common/store/track/actions';
-import { addToast, toggleQueue } from '@common/store/ui';
-import { getReadableTime, SC } from '@common/utils';
+import { getNormalizedTrack, getNormalizedUser } from '@common/store/entities/selectors';
+import { ChangeTypes, RepeatTypes } from '@common/store/player';
+import { SC } from '@common/utils';
 import cn from 'classnames';
-import { IpcMessageEvent, ipcRenderer } from 'electron';
-import * as moment from 'moment';
+import { autobind } from 'core-decorators';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { ipcRenderer } from 'electron';
+import { debounce } from 'lodash';
+import moment from 'moment';
 import * as React from 'react';
-import * as isDeepEqual from 'react-fast-compare';
+import isDeepEqual from 'react-fast-compare';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import FallbackImage from '../../../_shared/FallbackImage';
-import Audio from './components/Audio';
+import Queue from '../Queue/Queue';
+import { Audio } from './components/Audio';
 import PlayerControls from './components/PlayerControls/PlayerControls';
-import TrackInfo from './components/TrackInfo/TrackInfo';
+import { PlayerProgress } from './components/PlayerProgress/PlayerProgress';
+import { TrackInfo } from './components/TrackInfo/TrackInfo';
 import * as styles from './Player.module.scss';
 
-type PropsFromState = ReturnType<typeof mapStateToProps>;
+const mapStateToProps = (state: StoreState) => {
+  const { player, app, config } = state;
 
+  let track = null;
+  let trackUser = null;
+  let liked = false;
+
+  if (player.playingTrack && player.playingTrack.id) {
+    track = getNormalizedTrack(player.playingTrack.id)(state);
+
+    if (track) {
+      trackUser = getNormalizedUser(track.user)(state);
+    }
+
+    liked = hasLiked(player.playingTrack.id)(state);
+
+    if (!track || (track && !track.title && track.loading)) {
+      track = null;
+    }
+  }
+
+  return {
+    track,
+    trackUser,
+    status: player.status,
+    playingTrack: player.playingTrack,
+    volume: config.audio.volume,
+    muted: config.audio.muted,
+    shuffle: config.shuffle,
+    repeat: config.repeat,
+    playbackDeviceId: config.audio.playbackDeviceId,
+    overrideClientId: config.app.overrideClientId,
+    remainingPlays: app.remainingPlays,
+    liked,
+    chromecast: app.chromecast
+  };
+};
+
+const mapDispatchToProps = (dispatch: Dispatch) =>
+  bindActionCreators(
+    {
+      changeTrack: actions.changeTrack,
+      toggleStatus: actions.toggleStatus,
+      setConfigKey: actions.setConfigKey,
+      setCurrentTime: actions.setCurrentTime,
+      addToast: actions.addToast,
+      toggleShuffle: actions.toggleShuffle,
+      toggleLike: actions.toggleLike,
+      useChromeCast: actions.useChromeCast
+    },
+    dispatch
+  );
+
+type PropsFromState = ReturnType<typeof mapStateToProps>;
 type PropsFromDispatch = ReturnType<typeof mapDispatchToProps>;
 
 interface State {
-    nextTime: number;
-    isSeeking: boolean;
-    isVolumeSeeking: boolean;
-    muted: boolean;
-    offline: boolean;
-    volume: number;
+  isVolumeSeeking: boolean;
+  volume: number;
+  volumeBeforeMute: number;
 }
 
 type AllProps = PropsFromState & PropsFromDispatch;
 
-class Player extends React.Component<AllProps, State>{
+@autobind
+class Player extends React.Component<AllProps, State> {
+  public state: State = {
+    isVolumeSeeking: false,
+    volume: 0,
+    volumeBeforeMute: 0.5
+  };
 
-    state: State = {
-        nextTime: 0,
-        isSeeking: false,
-        isVolumeSeeking: false,
-        muted: false,
-        offline: false,
-        volume: 0,
-    };
+  private readonly debounceDiscover: () => void;
 
-    private audio: Audio | null = null;
+  constructor(props: AllProps) {
+    super(props);
+    this.debounceDiscover = debounce(() => {
+      // Get Chromecast devices
+      ipcRenderer.send(EVENTS.CHROMECAST.DISCOVER);
+    }, 2000);
+  }
 
-    async componentDidMount() {
-        try {
-            const { isSeeking } = this.state;
-            const { setCurrentTime, playbackDeviceId } = this.props;
+  public async componentDidMount() {
+    // Get Chromecast devices
+    this.debounceDiscover();
+  }
 
-            let stopSeeking: any;
+  public shouldComponentUpdate(nextProps: AllProps, nextState: State) {
+    return nextState !== this.state || !isDeepEqual(nextProps, this.props);
+  }
 
-            ipcRenderer.on(EVENTS.PLAYER.SEEK, (_event: IpcMessageEvent, to: number) => {
-                if (!isSeeking) {
+  public volumeChange(volume: number) {
+    const { muted, setConfigKey } = this.props;
+
+    if (muted) {
+      setConfigKey('audio.muted', false);
+    }
+    this.setState({
+      volume,
+      isVolumeSeeking: true
+    });
+  }
+
+  public toggleRepeat() {
+    const { setConfigKey, repeat } = this.props;
+
+    let newRepeatType: RepeatTypes | null = null;
+
+    if (!repeat) {
+      newRepeatType = RepeatTypes.ALL;
+    } else if (repeat === RepeatTypes.ALL) {
+      newRepeatType = RepeatTypes.ONE;
+    }
+
+    setConfigKey('repeat', newRepeatType);
+  }
+
+  public toggleMute() {
+    const { muted, setConfigKey, volume } = this.props;
+    const { volumeBeforeMute } = this.state;
+
+    if (muted) {
+      this.volumeChange(volumeBeforeMute);
+    } else {
+      this.setState({
+        volumeBeforeMute: volume
+      });
+      this.volumeChange(0);
+    }
+
+    setConfigKey('audio.muted', !muted);
+  }
+
+  public changeSong(changeType: ChangeTypes) {
+    const { changeTrack } = this.props;
+
+    changeTrack(changeType);
+  }
+
+  public toggleShuffle() {
+    const { shuffle, toggleShuffle } = this.props;
+
+    toggleShuffle(!shuffle);
+  }
+
+  public renderAudio() {
+    const {
+      playingTrack,
+      status,
+      volume: configVolume,
+      track,
+      remainingPlays,
+      // overrideClientId,
+      chromecast,
+      muted,
+      playbackDeviceId
+    } = this.props;
+    const { isVolumeSeeking, volume } = this.state;
+
+    if (!track || !playingTrack) {
+      return null;
+    }
+
+    const audioVolume = isVolumeSeeking ? volume : configVolume;
+
+    const limitReached = remainingPlays && remainingPlays.remaining === 0;
+
+    if (remainingPlays && limitReached) {
+      return (
+        <div className={styles.rateLimit}>
+          Stream limit reached! Unfortunately the API enforces a 15K plays/day limit. This limit will expire in{' '}
+          <Tag className="ml-2" intent={Intent.PRIMARY}>
+            {moment(remainingPlays.resetTime).fromNow()}
+          </Tag>
+        </div>
+      );
+    }
+
+    const playingOnChromecast = !!chromecast.castApp;
+
+    return (
+      <Audio
+        // ref={this.audio}
+        src={`http://localhost:8888/stream/${track.id}`}
+        playerStatus={status}
+        // autoPlay={autoplay}
+        playerVolume={audioVolume}
+        muted={muted || playingOnChromecast}
+        playbackDeviceId={playbackDeviceId}
+      />
+    );
+  }
+
+  public render() {
+    const {
+      playingTrack,
+      status,
+      volume: configVolume,
+      repeat,
+      liked,
+      shuffle,
+      toggleStatus,
+      track,
+      toggleLike,
+      chromecast,
+      useChromeCast,
+      muted,
+      trackUser,
+      setConfigKey
+    } = this.props;
+
+    const { isVolumeSeeking, volume } = this.state;
+
+    if (!track || !playingTrack || !trackUser) {
+      return null;
+    }
+
+    if (!track.title || !track.user) {
+      return <div>Loading</div>;
+    }
+
+    const overlayImage = SC.getImageUrl(track, IMAGE_SIZES.XSMALL);
+
+    const audioVolume = isVolumeSeeking ? volume : configVolume;
+
+    let volumeIcon = 'volume-full';
+
+    if (muted || audioVolume === 0) {
+      volumeIcon = 'volume-mute';
+    } else if (audioVolume !== 1) {
+      volumeIcon = 'volume-low';
+    }
+
+    return (
+      <div className={styles.player}>
+        <div className={styles.player_bg}>
+          <FallbackImage noPlaceholder src={overlayImage} />
+        </div>
+
+        {this.renderAudio()}
+
+        <div className="d-flex align-items-center">
+          <TrackInfo
+            title={track.title}
+            id={track.id.toString()}
+            userId={trackUser.id.toString()}
+            username={trackUser.username}
+            img={overlayImage}
+            liked={liked}
+            toggleLike={() => {
+              toggleLike(track.id);
+            }}
+          />
+
+          <PlayerControls
+            status={status}
+            repeat={repeat}
+            shuffle={shuffle}
+            onRepeatClick={this.toggleRepeat}
+            onShuffleClick={this.toggleShuffle}
+            onPreviousClick={() => {
+              this.changeSong(ChangeTypes.PREV);
+            }}
+            onNextClick={() => {
+              this.changeSong(ChangeTypes.NEXT);
+            }}
+            onToggleClick={() => {
+              toggleStatus();
+            }}
+          />
+
+          <PlayerProgress />
+
+          <Popover
+            className="mr-2"
+            popoverClassName={styles.playerPopover}
+            interactionKind={PopoverInteractionKind.HOVER}
+            hoverOpenDelay={50}
+            content={
+              <div className={styles.playerVolume}>
+                <Slider
+                  min={0}
+                  max={1}
+                  value={audioVolume}
+                  stepSize={0.1}
+                  vertical
+                  onChange={this.volumeChange}
+                  labelRenderer={false}
+                  onRelease={value => {
                     this.setState({
-                        isSeeking: true
-                    });
-                }
-
-                clearTimeout(stopSeeking);
-
-                this.seekChange(to);
-
-                stopSeeking = setTimeout(() => {
-                    this.setState({
-                        isSeeking: false,
+                      isVolumeSeeking: false
                     });
 
-                    if (this.audio && this.audio.instance) {
-                        this.audio.instance.currentTime = to;
-                    }
-
-                    setCurrentTime(to);
-                }, 100);
-            });
-
-            await this.setAudioPlaybackDevice();
-        } catch (err) {
-            throw err;
-        }
-
-    }
-
-    async componentDidUpdate(prevProps: AllProps) {
-        try {
-            const { player: { status, duration }, playbackDeviceId } = this.props;
-
-            if (this.audio && status !== this.audio.getStatus()) {
-                this.audio.setNewStatus(status);
-            }
-
-            if (this.audio && this.audio.audio) {
-                if (!isNaN(this.audio.audio.duration) && !isNaN(duration) && duration === 0 && this.audio.audio.duration !== duration) {
-                    this.audio.clearTime();
-                }
-
-                if (playbackDeviceId !== prevProps.playbackDeviceId) {
-                    await this.setAudioPlaybackDevice();
-                }
-            }
-        } catch (err) {
-            throw err;
-        }
-    }
-
-    async setAudioPlaybackDevice() {
-        const { playbackDeviceId } = this.props;
-
-        try {
-
-            if (playbackDeviceId && this.audio && this.audio.audio) {
-                const devices = await navigator.mediaDevices.enumerateDevices();
-                const audioDevices = devices.filter((device) => device.kind === 'audiooutput');
-
-                const selectedAudioDevice = audioDevices.find((d) => d.deviceId === playbackDeviceId);
-
-                if (selectedAudioDevice) {
-                    await (this.audio.audio as any).setSinkId(playbackDeviceId);
-                }
-            }
-        } catch (err) {
-            throw err;
-        }
-    }
-
-    shouldComponentUpdate(nextProps: AllProps, nextState: State) {
-        return nextState !== this.state || !isDeepEqual(nextProps, this.props);
-    }
-
-    componentWillUnmount() {
-        ipcRenderer.removeAllListeners(EVENTS.PLAYER.SEEK);
-    }
-
-    changeSong = (changeType: ChangeTypes) => {
-        const { changeTrack } = this.props;
-
-        changeTrack(changeType);
-    }
-
-    toggleShuffle = () => {
-        const { shuffle, toggleShuffle } = this.props;
-
-        toggleShuffle(!shuffle);
-    }
-
-    toggleRepeat = () => {
-        const { setConfigKey, repeat } = this.props;
-
-        let newRepeatType: RepeatTypes | null = null;
-
-        if (!repeat) {
-            newRepeatType = RepeatTypes.ALL;
-        } else if (repeat === RepeatTypes.ALL) {
-            newRepeatType = RepeatTypes.ONE;
-        }
-
-        setConfigKey('repeat', newRepeatType);
-    }
-
-    toggleMute = () => {
-        const { muted } = this.state;
-
-        if (muted) {
-            this.volumeChange(.5);
-        } else {
-            this.volumeChange(0);
-        }
-
-        this.setState({
-            muted: !muted
-        });
-    }
-
-    // RENDER
-
-    renderProgressBar() {
-        const {
-            player: {
-                currentTime,
-                duration
-            },
-            setCurrentTime
-        } = this.props;
-
-        const {
-            isSeeking, nextTime
-        } = this.state;
-
-        return (
-            <Slider
-                min={0}
-                max={duration}
-                value={isSeeking ? nextTime : currentTime}
-                stepSize={1}
-                onChange={this.seekChange}
-                labelRenderer={false}
-                onRelease={(val) => {
-                    this.setState({
-                        isSeeking: false,
-                    });
-
-                    if (this.audio && this.audio.instance) {
-                        this.audio.instance.currentTime = val;
-                    }
-
-                    setCurrentTime(val);
-                }}
-            />
-        );
-    }
-
-
-    seekChange = (nextTime: number) => {
-        this.setState({
-            nextTime,
-            isSeeking: true
-        });
-    }
-
-    volumeChange = (volume: number) => {
-        this.setState({
-            volume,
-            muted: false,
-            isVolumeSeeking: true
-        });
-    }
-
-    // PLAYER LISTENERS
-
-    onLoad = (_e: Event, duration: number) => {
-        const {
-            setDuration,
-            registerPlay
-        } = this.props;
-
-        setDuration(duration);
-
-        registerPlay();
-    }
-
-    onPlaying = (position: number, newDuration: number) => {
-        const {
-            player: {
-                status,
-                duration
-            },
-            setCurrentTime,
-            setDuration
-        } = this.props;
-
-        const { isSeeking } = this.state;
-
-        if (isSeeking) return;
-
-        if (status === PlayerStatus.PLAYING) {
-            setCurrentTime(position);
-        }
-
-        if (duration !== newDuration) {
-            setDuration(newDuration);
-        }
-
-
-    }
-
-    onFinishedPlaying = () => {
-        const { changeTrack, toggleStatus } = this.props;
-
-        if (this.audio) {
-            this.audio.clearTime();
-        }
-
-        toggleStatus(PlayerStatus.PAUSED);
-
-        changeTrack(ChangeTypes.NEXT, true);
-    }
-
-    render() {
-
-        const {
-            player,
-            toggleQueue,
-            volume: configVolume,
-            repeat,
-            liked,
-            shuffle,
-            toggleStatus,
-            track,
-            toggleLike
-        } = this.props;
-
-        const { muted, isVolumeSeeking, nextTime, isSeeking } = this.state;
-
-        const {
-            status,
-            currentTime,
-            playingTrack,
-            duration
-        } = player;
-
-        /**
-         * If Track ID is empty, just exit here
-         */
-
-        if (!track || !playingTrack) return null;
-
-        if (!track.title || !track.user) return <div>Loading</div>;
-
-        const overlay_image = SC.getImageUrl(track, IMAGE_SIZES.XSMALL);
-
-        const volume = this.state.isVolumeSeeking ? this.state.volume : configVolume;
-
-        let volume_icon = 'volume-full';
-
-        if (muted || volume === 0) {
-            volume_icon = 'volume-mute';
-        } else if (volume !== 1) {
-            volume_icon = 'volume-low';
-        }
-
-        return (
-            <div className={styles.player}>
-                <div className={styles.player_bg}>
-                    <FallbackImage
-                        noPlaceholder={true}
-                        src={overlay_image}
-                    />
-                </div>
-
-                {this.renderAudio()}
-
-                <div className='d-flex align-items-center'>
-
-                    <TrackInfo
-                        title={track.title}
-                        id={track.id.toString()}
-                        userId={track.user.id.toString()}
-                        username={track.user.username}
-                        img={overlay_image}
-                        liked={liked}
-                        toggleLike={() => {
-                            toggleLike(track.id);
-                        }}
-                    />
-
-                    <PlayerControls
-                        status={status}
-                        repeat={repeat}
-                        shuffle={shuffle}
-                        onRepeatClick={this.toggleRepeat}
-                        onShuffleClick={this.toggleShuffle}
-                        onPreviousClick={() => {
-                            this.changeSong(ChangeTypes.PREV);
-                        }}
-                        onNextClick={() => {
-                            this.changeSong(ChangeTypes.NEXT);
-                        }}
-                        onToggleClick={() => {
-                            toggleStatus();
-                        }}
-                    />
-
-                    <div className={styles.playerTimeline}>
-                        <div className={styles.time}>{getReadableTime(isSeeking ? nextTime : currentTime, false, true)}</div>
-                        <div className={styles.progressInner}>
-                            {this.renderProgressBar()}
-                        </div>
-                        <div className={styles.time}>{getReadableTime(duration, false, true)}</div>
-                    </div>
-
-                    <div className={cn('pr-2', styles.playerVolume, { hover: isVolumeSeeking })}>
-                        <a
-                            className={styles.control}
-                            href='javascript:void(0)'
-                            onClick={this.toggleMute}
-                        >
-                            <i className={`bx bx-${volume_icon}`} />
-                        </a>
-
-                        <div className={styles.progressWrapper}>
-                            <Slider
-                                min={0}
-                                max={1}
-                                value={volume}
-                                stepSize={0.1}
-                                vertical={true}
-                                onChange={this.volumeChange}
-                                labelRenderer={false}
-                                onRelease={(value) => {
-                                    this.setState({
-                                        isVolumeSeeking: false
-                                    });
-
-                                    this.props.setConfigKey('audio.volume', value);
-                                }}
-                            />
-                        </div>
-
-                    </div>
-
-                    <a
-                        className={styles.control}
-                        href='javascript:void(0)'
+                    setConfigKey('audio.volume', value);
+                  }}
+                />
+              </div>
+            }>
+            <a className={styles.control} href="javascript:void(0)" onClick={this.toggleMute}>
+              <i className={`bx bx-${volumeIcon}`} />
+            </a>
+          </Popover>
+
+          {!!chromecast.devices.length && (
+            <Popover
+              className="mr-2"
+              popoverClassName={styles.playerPopover}
+              onOpened={this.debounceDiscover}
+              content={
+                <div style={{ minWidth: 200 }}>
+                  <div className={styles.popoverTitle}>Nearby devices</div>
+                  {chromecast.devices.map(d => {
+                    return (
+                      <div
+                        role="button"
+                        key={d.id}
+                        className={styles.castDevice}
                         onClick={() => {
-                            toggleQueue();
-                        }}
-                    >
-                        <i className='bx bxs-playlist' />
-                    </a>
+                          useChromeCast(chromecast.selectedDeviceId === d.id ? undefined : d.id);
+                        }}>
+                        {chromecast.selectedDeviceId === d.id && <i className="bx bx-stop" />}
+                        <div>
+                          {d.name}
+                          <div className={styles.castSub}>
+                            {chromecast.selectedDeviceId === d.id && !chromecast.castApp && 'Connecting...'}
+                            {chromecast.selectedDeviceId === d.id && chromecast.castApp ? 'Casting' : null}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-            </div>
-        );
-    }
+              }>
+              <a
+                className={cn(styles.control, {
+                  [styles.active]: !!chromecast.castApp
+                })}
+                href="javascript:void(0)">
+                <i className="bx bx-cast" />
+              </a>
+            </Popover>
+          )}
 
-    renderAudio = () => {
-        const {
-            player,
-            addToast,
-            volume: configVolume,
-            track,
-            remainingPlays,
-            overrideClientId
-        } = this.props;
-
-        const { muted } = this.state;
-
-        const {
-            status,
-            playingTrack,
-        } = player;
-
-        if (!track || !playingTrack) return null;
-
-        const volume = this.state.isVolumeSeeking ? this.state.volume : configVolume;
-
-        const url = track.stream_url ?
-            SC.appendClientId(track.stream_url, overrideClientId) :
-            SC.appendClientId(`${track.uri}/stream`, overrideClientId);
-
-        const limitReached = remainingPlays && remainingPlays.remaining === 0;
-
-        if (remainingPlays && limitReached) {
-            return (
-                <div className={styles.rateLimit}>
-                    Stream limit reached! Unfortunately the API enforces a 15K plays/day limit.
-                    This limit will expire in <Tag className='ml-2' intent={Intent.PRIMARY}>{moment(remainingPlays.resetTime).fromNow()}</Tag>
-                </div>
-            );
-        }
-
-        return (
-            <Audio
-                ref={(r) => this.audio = r}
-                src={url}
-                autoPlay={status === PlayerStatus.PLAYING}
-                volume={volume}
-                muted={muted}
-                id={`${playingTrack.id}`}
-                onLoadedMetadata={this.onLoad}
-                onListen={this.onPlaying}
-                onEnded={this.onFinishedPlaying}
-                onError={(e: ErrorEvent, message: string) => {
-                    addToast({
-                        message,
-                        intent: Intent.DANGER
-                    });
-                }}
-            />
-        );
-    }
-
+          <Popover popoverClassName={styles.playerPopover} content={<Queue />} position="bottom-right">
+            <a className={styles.control} href="javascript:void(0)">
+              <i className="bx bxs-playlist" />
+            </a>
+          </Popover>
+        </div>
+      </div>
+    );
+  }
 }
-
-const mapStateToProps = (state: StoreState) => {
-    const { player, app, config } = state;
-
-    let track = null;
-    let liked = false;
-
-    if (player.playingTrack && player.playingTrack.id) {
-        track = getTrackEntity(player.playingTrack.id)(state);
-        liked = hasLiked(player.playingTrack.id)(state);
-
-        if (!track || (track && !track.title && track.loading)) {
-            track = null;
-        }
-    }
-
-    return {
-        track,
-        player,
-        volume: config.audio.volume,
-        shuffle: config.shuffle,
-        repeat: config.repeat,
-        playbackDeviceId: config.audio.playbackDeviceId,
-        overrideClientId: config.app.overrideClientId,
-        remainingPlays: app.remainingPlays,
-        liked
-    };
-};
-
-const mapDispatchToProps = (dispatch: Dispatch) => bindActionCreators({
-    changeTrack,
-    toggleStatus,
-    setConfigKey,
-    setCurrentTime,
-    addToast,
-    setDuration,
-    toggleQueue,
-    registerPlay,
-    toggleShuffle,
-    toggleLike
-}, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(Player);

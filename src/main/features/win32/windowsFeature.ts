@@ -1,9 +1,9 @@
 import * as is from 'electron-is';
-import Feature from '../feature';
+import { Feature } from '../feature';
 
-export default class WindowsFeature extends Feature {
+export class WindowsFeature extends Feature {
   // eslint-disable-next-line
-  shouldRun() {
+  public shouldRun() {
     return is.windows();
   }
 }

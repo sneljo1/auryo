@@ -1,0 +1,72 @@
+{
+  "extends": [
+    "airbnb-typescript",
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "plugin:@typescript-eslint/recommended",
+    "prettier/@typescript-eslint",
+    "plugin:prettier/recommended",
+    "prettier",
+    "prettier/react"
+  ],
+  "plugins": ["react", "@typescript-eslint", "prettier"],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "sourceType": "module",
+    "ecmaVersion": 2019,
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "env": {
+    "es6": true,
+    "jest": true,
+    "node": true,
+    "browser": true,
+    "commonjs": true,
+    "serviceworker": true
+  },
+  "rules": {
+    "import/prefer-default-export": "off",
+    "lines-between-class-members": "off",
+    "import/order": "off",
+    "@typescript-eslint/explicit-member-accessibility": 0,
+    "@typescript-eslint/explicit-function-return-type": 0,
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/indent": "off",
+    "no-console": "warn",
+    "camelcase": "error",
+    "react/display-name": "off",
+    "react/prop-types": "off",
+    "react/state-in-constructor": "off",
+    "react/static-property-placement": "off",
+    "class-methods-use-this": "off",
+    "react/jsx-props-no-spreading": "off",
+    // TO FIX LATER,
+    "no-script-url": "off",
+    "jsx-a11y/anchor-is-valid": "off",
+    "react/no-unescaped-entities": "off",
+    "jsx-a11y/accessible-emoji": "off",
+    "jsx-a11y/interactive-supports-focus": "off",
+    "jsx-a11y/click-events-have-key-events": "off",
+    "jsx-a11y/media-has-caption": "off",
+    "jsx-a11y/control-has-associated-label": "off",
+    "no-underscore-dangle": "off"
+  },
+  "settings": {
+    "react": {
+      "pragma": "React",
+      "version": "detect"
+    },
+    "import/parsers": {
+      "@typescript-eslint/parser": [".ts", ".tsx"]
+    },
+    "import/resolver": {
+      // use <root>/tsconfig.json
+      "typescript": {
+        "alwaysTryTypes": true, // always try to resolve types under `<roo/>@types` directory even it doesn't contain any source code, like `@types/unist`,
+        "directory": "./tsconfig.json"
+      }
+    }
+  }
+}

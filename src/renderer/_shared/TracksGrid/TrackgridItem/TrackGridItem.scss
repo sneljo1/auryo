@@ -1,20 +1,6 @@
 @import "../../../css/bootstrap.imports.scss";
 
-.songs {
-  padding: 0 30px !important;
-}
-
 .songs .trackWrapper {
-  @include make-col-ready();
-  @media (min-width: 1000px) and (max-width: 1250px) {
-    @include make-col(3, 9);
-  }
-  @media (min-width: 1250px) and (max-width: 1500px) {
-    @include make-col(3, 12);
-  }
-  @media (min-width: 1500px) {
-    @include make-col(3, 15);
-  }
   min-width: 230px;
   height: 350px;
 }
