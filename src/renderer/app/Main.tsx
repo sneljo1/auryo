@@ -1,10 +1,10 @@
 import { StoreState } from '@common/store';
 import { Utils } from '@common/utils/utils';
 import Settings from '@renderer/pages/settings/Settings';
-import React, { FC } from 'react';
+import React, { FC, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { Redirect, Route, RouteComponentProps, Switch, withRouter } from 'react-router';
-import { compose } from 'redux';
+import { compose, Dispatch, bindActionCreators } from 'redux';
 import ArtistPage from '../pages/artist/ArtistPage';
 import { ChartsDetailsPage } from '../pages/charts/ChartsDetailsPage';
 import { ChartsPage } from '../pages/charts/ChartsPage';
@@ -22,20 +22,31 @@ import Spinner from '../_shared/Spinner/Spinner';
 import Header from './components/Header/Header';
 import IsOffline from './components/Offline/Offline';
 import Layout from './Layout';
+import * as actions from '@common/store/actions';
 
 const mapStateToProps = (state: StoreState) => {
-  const { app } = state;
+  const { app, config } = state;
   return {
     offline: app.offline,
-    loaded: app.loaded
+    loaded: app.loaded,
+    token: config.auth.token
   };
 };
 
+const mapDispatchToProps = (dispatch: Dispatch) =>
+  bindActionCreators(
+    {
+      initApp: actions.initApp
+    },
+    dispatch
+  );
+
 type PropsFromState = ReturnType<typeof mapStateToProps>;
+type PropsFromDispatch = ReturnType<typeof mapDispatchToProps>;
 
-type AllProps = PropsFromState & RouteComponentProps;
+type AllProps = PropsFromState & RouteComponentProps & PropsFromDispatch;
 
-const Main: FC<AllProps> = ({ loaded, offline, location: { search } }) => {
+const Main: FC<AllProps> = ({ loaded, offline, location: { search }, token, initApp }) => {
   const handleResolve = () => {
     const url = search.replace('?', '');
 
@@ -47,6 +58,17 @@ const Main: FC<AllProps> = ({ loaded, offline, location: { search } }) => {
 
     return <Spinner contained />;
   };
+
+  useEffect(() => {
+    if (token) {
+      initApp();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
+
+  if (!token) {
+    return <Redirect to="/login" />;
+  }
 
   if (!loaded && offline) {
     return <IsOffline full />;
@@ -84,4 +106,4 @@ const Main: FC<AllProps> = ({ loaded, offline, location: { search } }) => {
   );
 };
 
-export default compose(withRouter, connect(mapStateToProps))(Main);
+export default compose(withRouter, connect(mapStateToProps, mapDispatchToProps))(Main);

@@ -1,5 +1,4 @@
-@import "../../../css/bootstrap.imports.scss";
-
+@import '../../../css/bootstrap.imports.scss';
 
 .trackList {
   table-layout: fixed;
@@ -18,12 +17,10 @@
   .row-title {
     width: 50%;
     max-width: 50%;
-
   }
   .row-artist {
     width: 25%;
     max-width: 25%;
-
   }
   .row-timer {
     width: 7%;
@@ -33,34 +30,34 @@
   .row-actions {
     width: 13%;
     max-width: 13%;
-
   }
 
   .trackListHeader {
     color: #bbbbbb;
-    font-size: .8rem;
+    font-size: 0.8rem;
     font-weight: $font-weight-bold;
   }
 
   .trackItem {
     padding: 15px 0;
-    font-size: .9rem;
+    font-size: 0.9rem;
     align-items: center;
     border-radius: 10px;
-    .stats{
+    .stats {
       margin-bottom: 0;
-      font-size: .8rem;
+      font-size: 0.8rem;
       pointer-events: none;
     }
-    &:hover,&.isPlaying {
+    &:hover,
+    &.isPlaying {
       td {
         background: var(--clr-track-item-bg-active);
       }
-      .toggleButton{
+      .toggleButton {
         opacity: 1;
         transform: scale(1, 1);
         transition: 0.2s opacity ease-out, 0.2s transform ease-out;
-        transition-delay: .1s;
+        transition-delay: 0.1s;
         z-index: 1;
       }
     }
@@ -84,22 +81,24 @@
     .img-with-shadow {
       position: relative;
       z-index: 1;
-      img {
+      img,
+      picture {
         width: 40px;
         height: 40px;
         border-radius: 10px;
-        &.shadow {
-          position: absolute;
-          top: 0;
-          left: 0;
-          filter: blur(8px);
-          z-index: -1;
-          opacity: .5;
-        }
+      }
+
+      .shadow {
+        position: absolute;
+        top: 0;
+        left: 0;
+        filter: blur(8px);
+        z-index: -1;
+        opacity: 0.5;
       }
     }
 
-    .toggleButton{
+    .toggleButton {
       background: #fff;
       border-radius: 50px;
       position: absolute;
@@ -119,7 +118,7 @@
       transform: scale(0);
 
       i {
-        color: theme-color("primary");
+        color: theme-color('primary');
         font-size: 1.5rem;
         width: 100%;
         height: 100%;
@@ -133,24 +132,25 @@
     a:not(.toggleButton) {
       color: var(--clr-track-item-link);
     }
-    .time{
+    .time {
       text-align: right;
       pointer-events: none;
     }
     .trackTitle {
       font-weight: $font-weight-bold;
     }
-    &.isPlaying .trackTitle a, &.isPlaying .trackArtist a {
-      color: theme-color("primary");
+    &.isPlaying .trackTitle a,
+    &.isPlaying .trackArtist a {
+      color: theme-color('primary');
     }
     .liked i {
-      color: theme-color("primary");
+      color: theme-color('primary');
     }
 
-    .trackitemActions{
+    .trackitemActions {
       text-align: right;
       padding-right: 2rem;
-      a{
+      a {
         text-decoration: none !important;
       }
     }

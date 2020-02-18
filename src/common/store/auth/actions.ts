@@ -1,6 +1,4 @@
 import { replace } from 'connected-react-router';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { ipcRenderer } from 'electron';
 import { action } from 'typesafe-actions';
 import { ThunkResult } from '..';
 import { SoundCloud } from '../../../types';
@@ -8,9 +6,8 @@ import fetchPersonalised from '../../api/fetchPersonalised';
 import fetchPlaylists from '../../api/fetchPlaylists';
 import fetchToJson from '../../api/helpers/fetchToJson';
 import fetchToObject from '../../api/helpers/fetchToObject';
-import { EVENTS } from '../../constants/events';
 import { SC } from '../../utils';
-import { setConfigKey, setToken } from '../config/actions';
+import { setToken } from '../config/actions';
 import { ObjectTypes, PlaylistTypes } from '../objects';
 import { getPlaylist, setObject } from '../objects/actions';
 import { getPlaylistObjectSelector } from '../objects/selectors';
@@ -23,24 +20,6 @@ export function logout(): ThunkResult<void> {
     });
     dispatch(replace('/login'));
     dispatch(setToken(null));
-  };
-}
-
-export function login(): ThunkResult<void> {
-  return (dispatch, getState) => {
-    ipcRenderer.send(EVENTS.APP.AUTH.LOGIN);
-
-    ipcRenderer.once('login-success', () => {
-      const {
-        config: { lastLogin }
-      } = getState();
-
-      if (lastLogin) {
-        dispatch(replace('/'));
-      }
-
-      dispatch(setConfigKey('lastLogin', Date.now()));
-    });
   };
 }
 
