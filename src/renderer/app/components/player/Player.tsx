@@ -13,7 +13,7 @@ import { autobind } from 'core-decorators';
 import { ipcRenderer } from 'electron';
 import { debounce } from 'lodash';
 import moment from 'moment';
-import * as React from 'react';
+import React from 'react';
 import isDeepEqual from 'react-fast-compare';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';

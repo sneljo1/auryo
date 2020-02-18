@@ -1,5 +1,5 @@
 import autolinker from 'autolinker';
-import * as React from 'react';
+import React from 'react';
 
 interface Props {
   text: string;

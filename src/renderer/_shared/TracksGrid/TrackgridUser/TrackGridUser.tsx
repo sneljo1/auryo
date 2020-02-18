@@ -5,7 +5,7 @@ import { isFollowing } from '@common/store/auth/selectors';
 import { getUserEntity } from '@common/store/entities/selectors';
 import { abbreviateNumber, SC } from '@common/utils';
 import cn from 'classnames';
-import * as React from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { bindActionCreators, Dispatch } from 'redux';

@@ -3,10 +3,7 @@ import { BrowserWindow, Menu, nativeImage } from 'electron';
 import * as os from 'os';
 import * as path from 'path';
 
-const logosPath =
-  process.env.NODE_ENV === 'development'
-    ? path.resolve(__dirname, '..', '..', '..', 'assets', 'img', 'logos')
-    : path.resolve(__dirname, './assets/img/logos');
+const logosPath = path.resolve(global.__static, 'logos');
 
 const icons = {
   256: nativeImage.createFromPath(path.join(logosPath, 'auryo.png')),

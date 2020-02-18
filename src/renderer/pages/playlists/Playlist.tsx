@@ -5,7 +5,7 @@ import { getPlaylistObjectSelector } from '@common/store/objects/selectors';
 import { SortTypes } from '@common/store/playlist/types';
 import { SetLayoutSettings } from '@renderer/_shared/context/contentContext';
 import { debounce } from 'lodash';
-import * as React from 'react';
+import React from 'react';
 import isDeepEqual from 'react-fast-compare';
 import { connect } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router-dom';

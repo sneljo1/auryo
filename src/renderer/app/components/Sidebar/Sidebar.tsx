@@ -1,5 +1,5 @@
 import { Normalized } from '@types';
-import * as React from 'react';
+import React from 'react';
 import Scrollbars from 'react-custom-scrollbars';
 import { NavLink, RouteComponentProps, withRouter } from 'react-router-dom';
 import SideBarPlaylistItem from './playlist/SideBarPlaylistItem';

@@ -14,7 +14,7 @@ import { SetLayoutSettings } from '@renderer/_shared/context/contentContext';
 import cn from 'classnames';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
-import * as React from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
 import { Col, Row, TabContent, TabPane } from 'reactstrap';

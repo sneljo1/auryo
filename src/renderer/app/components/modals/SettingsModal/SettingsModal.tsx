@@ -1,5 +1,5 @@
 import Settings from '@renderer/pages/settings/Settings';
-import * as React from 'react';
+import React from 'react';
 import { Modal, ModalBody } from 'reactstrap';
 import { connectModal, InjectedProps } from 'redux-modal';
 import './SettingsModal.scss';

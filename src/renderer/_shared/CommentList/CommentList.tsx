@@ -1,5 +1,5 @@
 import { Normalized } from '@types';
-import * as React from 'react';
+import React from 'react';
 import ReactList from 'react-list';
 import { useInfiniteScroll } from '../hooks/useInfiniteScroll';
 import Spinner from '../Spinner/Spinner';

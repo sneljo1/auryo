@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { Alert } from 'reactstrap';
 import Spinner from '../../../_shared/Spinner/Spinner';
 import './Offline.scss';

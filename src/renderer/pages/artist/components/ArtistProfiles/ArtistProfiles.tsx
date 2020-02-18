@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { SoundCloud } from '../../../../../types';
 import './ArtistProfiles.scss';
 

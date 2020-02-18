@@ -1,7 +1,7 @@
 import { AUDIO_GENRES, MUSIC_GENRES } from '@common/constants';
 import cn from 'classnames';
 import { autobind } from 'core-decorators';
-import * as React from 'react';
+import React from 'react';
 import Masonry from 'react-masonry-css';
 import { NavLink, RouteComponentProps } from 'react-router-dom';
 import { Nav, TabContent, TabPane } from 'reactstrap';

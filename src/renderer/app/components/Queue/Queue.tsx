@@ -4,7 +4,7 @@ import * as actions from '@common/store/actions';
 import { getQueue } from '@common/store/player/selectors';
 import { autobind } from 'core-decorators';
 import { debounce } from 'lodash';
-import * as React from 'react';
+import React from 'react';
 import Scrollbars from 'react-custom-scrollbars';
 import ReactList from 'react-list';
 import { connect } from 'react-redux';

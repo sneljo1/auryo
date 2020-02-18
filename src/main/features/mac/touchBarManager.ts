@@ -11,10 +11,7 @@ import MacFeature from './macFeature';
 
 const { TouchBarButton, TouchBarSpacer } = TouchBar;
 
-const iconsDirectory =
-  process.env.NODE_ENV === 'development'
-    ? path.resolve(__dirname, '..', '..', '..', '..', 'static', 'icons')
-    : path.resolve(__dirname, '../static/icons');
+const iconsDirectory = path.resolve(global.__static, 'icons');
 
 @autobind
 export default class TouchBarManager extends MacFeature {

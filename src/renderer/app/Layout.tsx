@@ -14,7 +14,7 @@ import { ipcRenderer } from 'electron';
 import * as is from 'electron-is';
 import { UnregisterCallback } from 'history';
 import { debounce } from 'lodash';
-import * as React from 'react';
+import React from 'react';
 import Theme from 'react-custom-properties';
 import Scrollbars from 'react-custom-scrollbars';
 import { connect } from 'react-redux';
@@ -30,7 +30,7 @@ import Player from './components/player/Player';
 import SideBar from './components/Sidebar/Sidebar';
 import { Themes } from './components/Theme/themes';
 import { Toastr } from './components/Toastr';
-import { AudioPlayerProvider } from '../../hooks/useAudioPlayer';
+import { AudioPlayerProvider } from '../hooks/useAudioPlayer';
 
 const mapStateToProps = (state: StoreState) => {
   const {

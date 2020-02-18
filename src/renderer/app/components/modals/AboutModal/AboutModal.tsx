@@ -3,7 +3,7 @@ import { StoreState } from '@common/store';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { remote } from 'electron';
 import * as os from 'os';
-import * as React from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import { Modal, ModalBody } from 'reactstrap';
 import { compose } from 'redux';

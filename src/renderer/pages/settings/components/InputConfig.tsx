@@ -2,7 +2,7 @@ import * as actions from '@common/store/actions';
 import { ConfigState } from '@common/store/config';
 import cn from 'classnames';
 import { debounce } from 'lodash';
-import * as React from 'react';
+import React from 'react';
 import { autobind } from 'core-decorators';
 
 interface Props {

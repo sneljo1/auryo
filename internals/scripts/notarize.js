@@ -8,7 +8,7 @@ const electron_notarize = require('electron-notarize');
 
 module.exports = async function(params) {
   // Only notarize the app on Mac OS only.
-  if (process.platform !== 'darwin') {
+  if (process.platform !== 'darwin' || !process.env.APPLE_ID_KEY) {
     return;
   }
 
@@ -22,12 +22,7 @@ module.exports = async function(params) {
 
   console.log(`Notarizing ${appId} found at ${appPath}`);
 
-  let auth = {
-    appleApiIssuer: '4e7abe35-cc68-4368-ad89-bd5aa2a564b9',
-    appleApiKey: '2M45D3G29B'
-  };
-
-  console.log(!!process.env.APPLE_ID_KEY);
+  let auth = {};
 
   if (process.env.APPLE_ID_KEY) {
     auth = {

@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import ReactDotDotDot from 'react-dotdotdot';
 import Marquee from 'react-marquee';
 

@@ -1,5 +1,5 @@
 import cn from 'classnames';
-import * as React from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import FallbackImage from '../../../../../_shared/FallbackImage';
 import { TextShortener } from '../../../../../_shared/TextShortener';

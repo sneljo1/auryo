@@ -6,7 +6,7 @@ import { SC } from '@common/utils';
 import { IPC } from '@common/utils/ipc';
 import cn from 'classnames';
 import _ from 'lodash';
-import * as React from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { SoundCloud } from '../../types';

@@ -12,10 +12,7 @@ import { WatchState } from '../feature';
 import { MprisServiceClient } from './interfaces/mpris-service.interface';
 import LinuxFeature from './linuxFeature';
 
-const logosPath =
-  process.env.NODE_ENV === 'development'
-    ? path.resolve(__dirname, '..', '..', '..', 'assets', 'img', 'logos')
-    : path.resolve(__dirname, './assets/img/logos');
+const logosPath = path.resolve(global.__static, 'logos');
 
 export default class MprisService extends LinuxFeature {
   public readonly featureName = 'MprisService';

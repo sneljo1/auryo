@@ -1,5 +1,5 @@
 import cn from 'classnames';
-import * as React from 'react';
+import React from 'react';
 import { LazyImage } from 'react-lazy-images';
 import defaultFallbackImage from '@assets/img/placeholder.jpg';
 

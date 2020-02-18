@@ -1,6 +1,6 @@
 import { IToasterProps, IToastOptions, Toaster } from '@blueprintjs/core';
 import * as actions from '@common/store/actions';
-import * as React from 'react';
+import React from 'react';
 
 interface Props extends IToasterProps {
   toasts: IToastOptions[];

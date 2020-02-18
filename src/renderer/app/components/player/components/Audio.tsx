@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Intent } from '@blueprintjs/core';
 import { EVENTS } from '@common/constants';
 import * as actions from '@common/store/actions';
@@ -6,8 +7,8 @@ import { ChangeTypes, PlayerStatus } from '@common/store/player';
 import { ipcRenderer } from 'electron';
 import { FC, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { useAudioPlayer, useAudioPosition } from '../../../../../hooks/useAudioPlayer';
-import { usePrevious } from '../../../../../hooks/usePrevious';
+import { useAudioPlayer, useAudioPosition } from '@renderer/hooks/useAudioPlayer';
+import { usePrevious } from '@renderer/hooks/usePrevious';
 
 interface Props {
   src?: string;
@@ -68,7 +69,7 @@ export const Audio: FC<Props> = ({ src, playerStatus, playerVolume, muted, playb
     };
 
     setPlaybackDevice();
-  }, [playbackDeviceId]);
+  }, [playbackDeviceId, setSinkId]);
 
   // handle src change
   useEffect(() => {

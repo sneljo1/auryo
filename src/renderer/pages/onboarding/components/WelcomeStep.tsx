@@ -1,5 +1,5 @@
 import { Button } from '@blueprintjs/core';
-import * as React from 'react';
+import React from 'react';
 
 interface Props {
   onNext(): void;

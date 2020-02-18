@@ -1,7 +1,7 @@
 import logo from '@assets/img/auryo-dark.png';
 import { Button } from '@blueprintjs/core';
 import SettingsModal from '@renderer/app/components/modals/SettingsModal/SettingsModal';
-import * as React from 'react';
+import React from 'react';
 import * as reduxModal from 'redux-modal';
 
 interface Props {

@@ -50,11 +50,11 @@ export class AWSIotService {
 
   public async connect() {
     return new Promise((resolve, reject) => {
-      this.device.once('connect', async () => {
+      this.device.on('connect', async () => {
         this.logger.debug('Connected to MQTT');
         resolve();
       });
-      this.device.once('close', async () => {
+      this.device.on('close', async () => {
         reject(new Error('Disconnected from mqtt'));
       });
     });
@@ -81,7 +81,7 @@ export class AWSIotService {
 
         resolve(granted);
       });
-      this.device.once('close', async () => {
+      this.device.on('close', async () => {
         reject(new Error('Disconnected from mqtt'));
       });
     });

@@ -4,7 +4,7 @@ import { ObjectTypes, PlaylistTypes } from '@common/store/objects';
 import { getPlaylistName, getPlaylistObjectSelector } from '@common/store/objects/selectors';
 import cn from 'classnames';
 import { autobind } from 'core-decorators';
-import * as React from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import { NavLink, RouteComponentProps } from 'react-router-dom';
 import { Nav } from 'reactstrap';

@@ -8,7 +8,7 @@ import * as ReactRouter from 'connected-react-router';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { ipcRenderer } from 'electron';
 import { isEqual } from 'lodash';
-import * as React from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
 import Sticky from 'react-stickynode';

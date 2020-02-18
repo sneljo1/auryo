@@ -5,7 +5,7 @@ import { getTrackEntity } from '@common/store/entities/selectors';
 import { isPlaying } from '@common/store/player/selectors';
 import { abbreviateNumber, getReadableTime, SC } from '@common/utils';
 import cn from 'classnames';
-import * as React from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { bindActionCreators, Dispatch } from 'redux';

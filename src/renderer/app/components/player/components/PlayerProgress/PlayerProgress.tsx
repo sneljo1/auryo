@@ -6,7 +6,7 @@ import { useDispatch } from 'react-redux';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { ipcRenderer } from 'electron';
 import { EVENTS } from '@common/constants';
-import { useAudioPlayer, useAudioPosition } from '../../../../../../hooks/useAudioPlayer';
+import { useAudioPlayer, useAudioPosition } from '../../../../../hooks/useAudioPlayer';
 import * as actions from '@common/store/actions';
 
 export const PlayerProgress: FC = () => {
@@ -52,6 +52,7 @@ export const PlayerProgress: FC = () => {
     return () => {
       ipcRenderer.removeAllListeners(EVENTS.PLAYER.SEEK);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

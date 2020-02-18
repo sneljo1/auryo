@@ -9,10 +9,7 @@ import { Auryo } from '../../app';
 import { Feature } from '../feature';
 import { autobind } from 'core-decorators';
 
-const iconsDirectory =
-  process.env.NODE_ENV === 'development'
-    ? path.resolve(__dirname, '..', '..', '..', '..', 'static', 'icons')
-    : path.resolve(__dirname, '../static/icons');
+const iconsDirectory = path.resolve(global.__static, 'icons');
 
 interface ThumbarPreset {
   play: Electron.ThumbarButton;

@@ -1,7 +1,7 @@
 import { Switch } from '@blueprintjs/core';
 import * as actions from '@common/store/actions';
 import { ConfigState } from '@common/store/config';
-import * as React from 'react';
+import React from 'react';
 import { autobind } from 'core-decorators';
 
 interface Props {

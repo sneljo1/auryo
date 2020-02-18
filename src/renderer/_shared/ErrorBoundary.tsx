@@ -1,7 +1,7 @@
 import { EVENTS } from '@common/constants/events';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { ipcRenderer } from 'electron';
-import * as React from 'react';
+import React from 'react';
 import AppError from '../app/components/AppError/AppError';
 
 interface State {

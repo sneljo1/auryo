@@ -1,4 +1,5 @@
 import { Intent } from '@blueprintjs/core';
+import fetchTrack from '@common/api/fetchTrack';
 import { axiosClient } from '@common/api/helpers/axiosClient';
 import { EVENTS } from '@common/constants/events';
 import { StoreState } from '@common/store';
@@ -12,18 +13,14 @@ import * as os from 'os';
 import * as path from 'path';
 import * as querystring from 'querystring';
 import { Store } from 'redux';
+import { Track } from 'src/types/soundcloud';
 import { CONFIG } from '../config';
 // eslint-disable-next-line import/no-cycle
 import { Feature } from './features/feature';
 import { Logger, LoggerInstance } from './utils/logger';
 import { Utils } from './utils/utils';
-import fetchTrack from '@common/api/fetchTrack';
-import { Track } from 'src/types/soundcloud';
 
-const logosPath =
-  process.env.NODE_ENV === 'development'
-    ? path.resolve(__dirname, '..', '..', '..', 'assets', 'img', 'logos')
-    : path.resolve(__dirname, './assets/img/logos');
+const logosPath = path.resolve(global.__static, 'logos');
 
 const icons = {
   256: nativeImage.createFromPath(path.join(logosPath, 'auryo.png')),
@@ -212,7 +209,10 @@ export class Auryo {
 
   private async loadMain() {
     if (this.mainWindow) {
-      await this.mainWindow.loadURL(`file://${__dirname}/index.html`);
+      const winURL =
+        process.env.NODE_ENV === 'development' ? 'http://localhost:9080' : `file://${__dirname}/index.html`;
+
+      await this.mainWindow.loadURL(winURL);
 
       this.mainWindow.webContents.on('will-navigate', async (e, u) => {
         e.preventDefault();
@@ -275,11 +275,17 @@ export class Auryo {
             }
           } = this.store.getState();
           const { 1: trackId } = details.url.split('http://localhost:8888/stream/');
-          const mp3Url = await this.getPlayingTrackStreamUrl(trackId, overrideClientId || CONFIG.CLIENT_ID || '');
+          try {
+            const clientId = overrideClientId && overrideClientId.length ? overrideClientId : CONFIG.CLIENT_ID;
+            const mp3Url = await this.getPlayingTrackStreamUrl(trackId, clientId || '');
 
-          callback({
-            redirectURL: mp3Url
-          });
+            callback({
+              redirectURL: mp3Url
+            });
+          } catch (err) {
+            this.logger.error(err);
+            callback({ cancel: true });
+          }
         }
       );
 

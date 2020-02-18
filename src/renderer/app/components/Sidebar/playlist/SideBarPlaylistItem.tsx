@@ -2,7 +2,7 @@ import { StoreState } from '@common/store';
 import { getNormalizedPlaylist } from '@common/store/entities/selectors';
 import { PlayerStatus } from '@common/store/player';
 import classNames from 'classnames';
-import * as React from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import { NavLink } from 'react-router-dom';
 import { TextShortener } from '../../../../_shared/TextShortener';

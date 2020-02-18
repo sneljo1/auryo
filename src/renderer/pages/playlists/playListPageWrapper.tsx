@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import PlaylistPage from './Playlist';
 
 const playlistPage = (name: string, objectId: string, showInfo = true) => {

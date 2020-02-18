@@ -1,6 +1,6 @@
 import { MenuDivider, MenuItem } from '@blueprintjs/core';
 import { IPC } from '@common/utils/ipc';
-import * as React from 'react';
+import React from 'react';
 import { CONFIG } from '../../config';
 
 interface Props {

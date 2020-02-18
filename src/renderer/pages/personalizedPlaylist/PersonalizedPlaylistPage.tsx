@@ -9,7 +9,7 @@ import { SC } from '@common/utils';
 import { IPC } from '@common/utils/ipc';
 import cn from 'classnames';
 import { autobind } from 'core-decorators';
-import * as React from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
 import { bindActionCreators, Dispatch } from 'redux';

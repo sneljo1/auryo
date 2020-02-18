@@ -6,7 +6,7 @@ import AboutModal from '@renderer/app/components/modals/AboutModal/AboutModal';
 import cn from 'classnames';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { ipcRenderer } from 'electron';
-import * as React from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import { bindActionCreators, Dispatch } from 'redux';

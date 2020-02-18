@@ -3,7 +3,12 @@
     /* Basic Options */
     "target": "es5" /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017', or 'ESNEXT'. */,
     "module": "commonjs" /* Specify module code generation: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', or 'ESNext'. */,
-    "lib": ["dom", "es2015", "es2016", "es2017"],
+    "lib": [
+      "dom",
+      "es2015",
+      "es2016",
+      "es2017"
+    ],
     "allowJs": true,
     "experimentalDecorators": true,
     "removeComments": true,
@@ -21,22 +26,42 @@
     "pretty": true,
     "strict": false,
     "jsx": "react",
-    "typeRoots": ["./node_modules/@types", "./types"],
+    "typeRoots": [
+      "./types",
+      "node_modules/@types"
+    ],
     "sourceRoot": "/",
     "baseUrl": ".",
     "paths": {
-      "@common/*": ["src/common/*"],
-      "@main/*": ["src/main/*"],
-      "@renderer/*": ["src/renderer/*"],
-      "@assets/*": ["src/assets/*"],
-      "@types": ["src/types/index"]
+      "@common/*": [
+        "src/common/*"
+      ],
+      "@main/*": [
+        "src/main/*"
+      ],
+      "@renderer/*": [
+        "src/renderer/*"
+      ],
+      "@assets/*": [
+        "src/assets/*"
+      ],
+      "@types": [
+        "src/types/index"
+      ]
     },
     // prod
     "sourceMap": true,
     "inlineSources": true
   },
-  "include": ["src"],
-  "exclude": ["node_modules", "dist", "./types", "**/*.babel.js"],
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "./types",
+    "**/*.babel.js"
+  ],
   "formatCodeOptions": {
     "indentSize": 4,
     "tabSize": 4

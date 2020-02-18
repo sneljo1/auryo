@@ -1,5 +1,5 @@
 import cn from 'classnames';
-import * as React from 'react';
+import React from 'react';
 
 interface Props {
   height: number;

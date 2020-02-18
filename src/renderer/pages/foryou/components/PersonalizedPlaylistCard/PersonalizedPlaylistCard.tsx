@@ -1,6 +1,6 @@
 import ColorHash from 'color-hash';
 import moment from 'moment';
-import * as React from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { SoundCloud } from '../../../../../types';
 import * as styles from './PersonalizedPlaylistCard.module.scss';

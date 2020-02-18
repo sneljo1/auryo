@@ -11,6 +11,8 @@ import { Route, Switch } from 'react-router';
 import { Store } from 'redux';
 import Main from './app/Main';
 import OnBoarding from './pages/onboarding/OnBoarding';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { hot } from 'react-hot-loader/root';
 
 interface Props {
   history: History;
@@ -31,6 +33,7 @@ export const App: FC<Props> = ({ history, store }) => {
       store.dispatch(stopWatchers() as any);
       unregister();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -44,3 +47,5 @@ export const App: FC<Props> = ({ history, store }) => {
     </Provider>
   );
 };
+
+export default hot(App);

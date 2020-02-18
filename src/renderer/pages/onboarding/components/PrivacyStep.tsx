@@ -2,7 +2,7 @@ import { Button } from '@blueprintjs/core';
 import { ConfigState } from '@common/store/config';
 import * as actions from '@common/store/actions';
 import { CheckboxConfig } from '@renderer/pages/settings/components/CheckboxConfig';
-import * as React from 'react';
+import React from 'react';
 
 interface Props {
   config: ConfigState;

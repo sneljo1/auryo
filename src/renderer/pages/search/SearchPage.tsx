@@ -2,7 +2,7 @@ import { StoreState } from '@common/store';
 import * as actions from '@common/store/actions';
 import { ObjectTypes, PlaylistTypes } from '@common/store/objects';
 import { getPlaylistName, getPlaylistObjectSelector } from '@common/store/objects/selectors';
-import * as React from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import { NavLink } from 'react-router-dom';

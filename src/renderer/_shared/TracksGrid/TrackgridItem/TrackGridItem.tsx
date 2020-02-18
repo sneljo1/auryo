@@ -7,7 +7,7 @@ import { abbreviateNumber, SC } from '@common/utils';
 import { getReadableTime } from '@common/utils/appUtils';
 import cn from 'classnames';
 import { autobind } from 'core-decorators';
-import * as React from 'react';
+import React from 'react';
 import isDeepEqual from 'react-fast-compare';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';

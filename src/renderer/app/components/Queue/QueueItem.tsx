@@ -6,7 +6,7 @@ import { PlayingTrack } from '@common/store/player';
 import { getCurrentPlaylistId } from '@common/store/player/selectors';
 import { SC } from '@common/utils';
 import cn from 'classnames';
-import * as React from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { bindActionCreators, Dispatch } from 'redux';

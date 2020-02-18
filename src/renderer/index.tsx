@@ -6,12 +6,11 @@ import 'boxicons/css/boxicons.min.css';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { remote } from 'electron';
 import is from 'electron-is';
-import * as React from 'react';
-import * as ReactDOM from 'react-dom';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { AppContainer } from 'react-hot-loader';
-import { App } from './App';
+import React from 'react';
+import ReactDOM from 'react-dom';
 import { configureStore } from '../common/configureStore';
+// eslint-disable-next-line import/no-named-as-default
+import App from './App';
 import './css/app.scss';
 import { history } from './history';
 
@@ -31,8 +30,8 @@ document.getElementsByTagName('html')[0].classList.add(osClass);
 
 if (process.env.NODE_ENV === 'development') {
   // eslint-disable-next-line
-  const { whyDidYouUpdate } = require('why-did-you-update');
-  whyDidYouUpdate(React);
+  // const { whyDidYouUpdate } = require('why-did-you-update');
+  // whyDidYouUpdate(React);
 }
 
 const store = configureStore(history);
@@ -68,21 +67,4 @@ if (token) {
   SC.initialize(token);
 }
 
-const render = () => {
-  ReactDOM.render(
-    <AppContainer>
-      <App history={history} store={store} />
-    </AppContainer>,
-    document.getElementById('root')
-  );
-};
-
-render();
-
-// Hot reloading
-if (module.hot) {
-  // Reload components
-  module.hot.accept('./App', () => {
-    render();
-  });
-}
+ReactDOM.render(<App history={history} store={store} />, document.getElementById('root'));

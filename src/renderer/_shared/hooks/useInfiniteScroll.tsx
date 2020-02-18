@@ -4,10 +4,6 @@ import { useCallback, useEffect } from 'react';
 export const useInfiniteScroll = (isFetching = false, loadMore?: Function, triggerFetchPos = 300) => {
   const elements = document.getElementsByClassName('content');
 
-  if (elements.length !== 1) {
-    return null;
-  }
-
   const element: HTMLDivElement = elements[0] as any;
 
   const throttleOnScroll = useCallback(
@@ -24,10 +20,17 @@ export const useInfiniteScroll = (isFetching = false, loadMore?: Function, trigg
   );
 
   useEffect(() => {
+    if (!element) return;
+
     element.addEventListener('scroll', throttleOnScroll);
 
+    // eslint-disable-next-line consistent-return
     return () => element.removeEventListener('scroll', throttleOnScroll);
-  }, [isFetching]);
+  }, [isFetching, element, throttleOnScroll]);
+
+  if (elements.length !== 1) {
+    return null;
+  }
 
   return [];
 };

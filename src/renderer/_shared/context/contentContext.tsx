@@ -67,6 +67,7 @@ const SetLayoutSettingsComponent: React.SFC<SetLayoutSettingsComponentProps> = (
     return () => {
       applySettings(INITIAL_LAYOUT_SETTINGS);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasImage]);
 
   return null;

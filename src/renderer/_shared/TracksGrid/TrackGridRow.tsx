@@ -1,7 +1,7 @@
 import { PlaylistTypes } from '@common/store/objects';
 import cn from 'classnames';
 import { autobind } from 'core-decorators';
-import * as React from 'react';
+import React from 'react';
 import TrackGridItem from './TrackgridItem/TrackGridItem';
 import TrackGridUser from './TrackgridUser/TrackGridUser';
 

@@ -1,7 +1,7 @@
 import { StoreState } from '@common/store';
 import * as actions from '@common/store/actions';
 import { PlayerStatus } from '@common/store/player';
-import * as React from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 

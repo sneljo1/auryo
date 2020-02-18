@@ -58,7 +58,7 @@ export default class ChromecastManager extends Feature {
             if (!this.client) {
               this.client = new PlatformSender();
 
-              this.client.on('error', async (err: any) => {
+              this.client.on('error', (err: any) => {
                 this.logger.error(err);
                 this.store.dispatch(
                   addToast({
@@ -138,27 +138,27 @@ export default class ChromecastManager extends Feature {
     this.subscribe(['player', 'status'], async ({ currentValue }: WatchState<PlayerStatus>) => {
       try {
         if (this.player) {
-          const status: any = this.player.getStatus();
+          const status: any = await this.player.getStatus();
 
           if (status) {
-            const deviceStatus: DevicePlayerStatus = status.playerState;
+            const deviceStatus = status.playerState as DevicePlayerStatus;
 
             switch (currentValue) {
               case PlayerStatus.PAUSED: {
                 if (deviceStatus !== DevicePlayerStatus.PAUSED) {
-                  this.player.pause();
+                  await this.player.pause();
                 }
                 break;
               }
               case PlayerStatus.PLAYING: {
                 if (deviceStatus !== DevicePlayerStatus.PLAYING) {
-                  this.player.play();
+                  await this.player.play();
                 }
                 break;
               }
               case PlayerStatus.STOPPED: {
                 if (deviceStatus !== DevicePlayerStatus.IDLE) {
-                  this.player.stop();
+                  await this.player.stop();
                 }
                 break;
               }
@@ -182,7 +182,11 @@ export default class ChromecastManager extends Feature {
     });
 
     this.on(EVENTS.APP.READY, async () => {
-      await startScanning(this.store);
+      try {
+        await startScanning(this.store);
+      } catch (err) {
+        //
+      }
     });
   }
 

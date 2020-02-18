@@ -2,7 +2,7 @@ import { autobind } from 'core-decorators';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { ipcRenderer } from 'electron';
 import { debounce } from 'lodash';
-import * as React from 'react';
+import React from 'react';
 import './SearchBox.scss';
 
 interface Props {

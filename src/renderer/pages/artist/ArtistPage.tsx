@@ -15,7 +15,7 @@ import { IPC } from '@common/utils/ipc';
 import { SetLayoutSettings } from '@renderer/_shared/context/contentContext';
 import cn from 'classnames';
 import { autobind } from 'core-decorators';
-import * as React from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
 import { Col, Row, TabContent, TabPane } from 'reactstrap';

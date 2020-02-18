@@ -1,6 +1,6 @@
 import { AUDIO_GENRES, GenreConfig, MUSIC_GENRES } from '@common/constants';
 import { SortTypes } from '@common/store/playlist/types';
-import * as React from 'react';
+import React from 'react';
 import { RouteComponentProps } from 'react-router';
 import PlaylistPage from '../playlists/Playlist';
 import { GENRE_IMAGES } from './genreImages';

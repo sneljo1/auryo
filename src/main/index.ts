@@ -1,10 +1,6 @@
+/* eslint-disable import/first */
 import '@common/sentryReporter';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { app, systemPreferences } from 'electron';
-import { Auryo } from './app';
-import { Logger } from './utils/logger';
-import { configureStore } from '@common/configureStore';
-import is from 'electron-is';
+import path from 'path';
 
 if (process.env.TOKEN) {
   process.env.ENV = 'test';
@@ -13,6 +9,21 @@ if (process.env.TOKEN) {
 if (process.argv.some(arg => arg === '--development') || process.argv.some(arg => arg === '--dev')) {
   process.env.ENV = 'development';
 }
+
+let staticPath = path.resolve(__dirname, '..', '..', 'static');
+
+if (process.env.NODE_ENV !== 'development') {
+  staticPath = path.resolve(__dirname, 'static');
+}
+
+global.__static = staticPath.replace(/\\/g, '\\\\');
+
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { app, systemPreferences } from 'electron';
+import { Auryo } from './app';
+import { Logger } from './utils/logger';
+import { configureStore } from '@common/configureStore';
+import is from 'electron-is';
 
 const store = configureStore();
 
@@ -34,15 +45,6 @@ app.on('activate', () => {
   }
 });
 
-async function installExtensions() {
-  // eslint-disable-next-line
-  const installer = require('electron-devtools-installer');
-  const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
-  const extensions = ['REACT_DEVELOPER_TOOLS', 'REDUX_DEVTOOLS'];
-
-  return Promise.all(extensions.map(name => installer.default(installer[name], forceDownload)));
-}
-
 // This method will be called when Electron has done everything
 // initialization and ready for creating browser windows.
 app.on('ready', async () => {
@@ -51,12 +53,6 @@ app.on('ready', async () => {
   }
 
   try {
-    if (process.env.NODE_ENV === 'development') {
-      await installExtensions();
-
-      // eslint-disable-next-line
-      require('devtron').install();
-    }
     await auryo.start();
   } catch (err) {
     Logger.defaultLogger().error(err);

@@ -1,7 +1,7 @@
 import { ObjectState } from '@common/store/objects';
 import { abbreviateNumber } from '@common/utils';
 import moment from 'moment';
-import * as React from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { Normalized, SoundCloud } from '../../../../types';
 import { CommentList } from '../../../_shared/CommentList/CommentList';

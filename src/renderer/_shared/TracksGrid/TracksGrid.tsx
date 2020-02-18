@@ -29,12 +29,14 @@ const TracksGrid: SFC<Props> = props => {
   const { items, objectId, showInfo, isItemLoaded, loadMore, hasMore, isLoading } = props;
   const loaderRef = useRef<InfiniteLoader & { _listRef: List }>(null);
   const { setList } = useContext(ContentContext);
+  const listRef = loaderRef?.current?._listRef;
 
   useEffect(() => {
-    if (loaderRef?.current?._listRef) {
-      setList(loaderRef?.current?._listRef);
+    if (listRef) {
+      setList(listRef);
     }
-  }, [loaderRef?.current?._listRef]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [listRef]);
 
   return (
     <div className={cn('songs container-fluid')}>
