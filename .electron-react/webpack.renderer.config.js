@@ -14,8 +14,8 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 const base = require('./webpack.base.config');
 const merge = require('webpack-merge');
-
-const { dependencies, optionalDependencies } = require('../package.json');
+const SentryCliPlugin = require('@sentry/webpack-plugin');
+const { dependencies, optionalDependencies, version: appVersion } = require('../package.json');
 
 const externals = [...Object.keys(dependencies || {}), ...Object.keys(optionalDependencies || {})];
 
@@ -242,8 +242,8 @@ if (isProd) {
 
   if (process.env.SENTRY_AUTH_TOKEN) {
     rendererConfig.plugins.push(
-      new SentryPlugin({
-        release: packageJson.version,
+      new SentryCliPlugin({
+        release: appVersion,
         include: [path.join(__dirname, '../dist/electron')]
       })
     );
