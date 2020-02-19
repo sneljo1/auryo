@@ -14,16 +14,6 @@ const { dependencies, optionalDependencies } = require('../package.json');
 
 const externals = [...Object.keys(dependencies || {}), ...Object.keys(optionalDependencies || {})];
 
-// https://github.com/zenghongtu/create-electron-react/issues/3
-// const whiteListedModules = ['']
-
-// const externals = [
-//   ...Object.keys(devDependencies || {}),
-//   ...Object.keys(dependencies || {}).filter(
-//     d => !whiteListedModules.includes(d)
-//   )
-// ]
-
 let mainConfig = {
   entry: {
     main: path.join(__dirname, '../src/main/index.ts')
@@ -95,6 +85,7 @@ if (process.env.NODE_ENV !== 'production') {
  * Adjust mainConfig for production settings
  */
 if (process.env.NODE_ENV === 'production') {
+  mainConfig.devtool = 'source-map';
   mainConfig.optimization = {
     minimize: true,
     minimizer: [new TerserPlugin()]

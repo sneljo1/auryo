@@ -1,4 +1,4 @@
-import { push, replace } from 'connected-react-router';
+import { push, replace, goBack } from 'connected-react-router';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { ipcRenderer } from 'electron';
 import is from 'electron-is';
@@ -18,6 +18,9 @@ import {
 } from '../auth/actions';
 import { toggleLike, toggleRepost } from '../track/actions';
 import { AppActionTypes, CanGoHistory, CastAppState, ChromeCastDevice, DevicePlayerStatus, Dimensions } from './types';
+import fetchToJson from '@common/api/helpers/fetchToJson';
+import { SoundCloud } from '@types';
+import { IPC } from '@common/utils/ipc';
 
 export function getRemainingPlays(): ThunkResult<void> {
   return (dispatch, getState) => {
@@ -169,5 +172,29 @@ export function initApp(): ThunkResult<void> {
         })
       )
     );
+  };
+}
+
+export function resolveUrl(url: string): ThunkResult<void> {
+  return dispatch => {
+    fetchToJson<SoundCloud.Asset<any>>(SC.resolveUrl(url))
+      .then(json => {
+        switch (json.kind) {
+          case 'track':
+            return dispatch(replace(`/track/${json.id}`));
+          case 'playlist':
+            return dispatch(replace(`/playlist/${json.id}`));
+          case 'user':
+            return dispatch(replace(`/user/${json.id}`));
+          default:
+            // eslint-disable-next-line no-console
+            console.error('Resolve not implemented for', json.kind);
+            return null;
+        }
+      })
+      .catch(() => {
+        dispatch(goBack());
+        IPC.openExternal(unescape(url));
+      });
   };
 }

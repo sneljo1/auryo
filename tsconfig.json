@@ -50,8 +50,7 @@
       ]
     },
     // prod
-    "sourceMap": true,
-    "inlineSources": true
+    "sourceMap": true
   },
   "include": [
     "src"

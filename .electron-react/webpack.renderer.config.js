@@ -19,12 +19,8 @@ const { dependencies, optionalDependencies } = require('../package.json');
 
 const externals = [...Object.keys(dependencies || {}), ...Object.keys(optionalDependencies || {})];
 
-// https://github.com/zenghongtu/create-electron-react/issues/3
-const whiteListedModules = ['react', 'react-dom'];
-
 const isProd = process.env.NODE_ENV === 'production';
 const isNotProd = process.env.NODE_ENV !== 'production';
-const rendererPath = path.resolve('src/renderer');
 
 let rendererConfig = {
   devtool: '#cheap-module-eval-source-map',
@@ -32,7 +28,6 @@ let rendererConfig = {
     renderer: path.join(__dirname, '../src/renderer/index.tsx')
   },
   externals,
-  // externals: [...externals.filter(d => !whiteListedModules.includes(d))],
   module: {
     rules: [
       {
@@ -222,7 +217,7 @@ if (isNotProd) {
  * Adjust rendererConfig for production settings
  */
 if (isProd) {
-  rendererConfig.devtool = '';
+  rendererConfig.devtool = 'source-map';
   rendererConfig.optimization = {
     minimize: true,
     minimizer: [new TerserPlugin({ extractComments: false }), new OptimizeCSSAssetsPlugin({})]
@@ -244,6 +239,15 @@ if (isProd) {
       minimize: true
     })
   );
+
+  if (process.env.SENTRY_AUTH_TOKEN) {
+    rendererConfig.plugins.push(
+      new SentryPlugin({
+        release: packageJson.version,
+        include: [path.join(__dirname, '../dist/electron')]
+      })
+    );
+  }
 }
 
 module.exports = merge.smart(base, rendererConfig);

@@ -1,10 +1,10 @@
 import { StoreState } from '@common/store';
-import { Utils } from '@common/utils/utils';
+import * as actions from '@common/store/actions';
 import Settings from '@renderer/pages/settings/Settings';
 import React, { FC, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { Redirect, Route, RouteComponentProps, Switch, withRouter } from 'react-router';
-import { compose, Dispatch, bindActionCreators } from 'redux';
+import { bindActionCreators, compose, Dispatch } from 'redux';
 import ArtistPage from '../pages/artist/ArtistPage';
 import { ChartsDetailsPage } from '../pages/charts/ChartsDetailsPage';
 import { ChartsPage } from '../pages/charts/ChartsPage';
@@ -22,12 +22,12 @@ import Spinner from '../_shared/Spinner/Spinner';
 import Header from './components/Header/Header';
 import IsOffline from './components/Offline/Offline';
 import Layout from './Layout';
-import * as actions from '@common/store/actions';
 
 const mapStateToProps = (state: StoreState) => {
   const { app, config } = state;
   return {
     offline: app.offline,
+    appHasError: app.error,
     loaded: app.loaded,
     token: config.auth.token
   };
@@ -36,7 +36,8 @@ const mapStateToProps = (state: StoreState) => {
 const mapDispatchToProps = (dispatch: Dispatch) =>
   bindActionCreators(
     {
-      initApp: actions.initApp
+      initApp: actions.initApp,
+      resolveUrl: actions.resolveUrl
     },
     dispatch
   );
@@ -46,7 +47,7 @@ type PropsFromDispatch = ReturnType<typeof mapDispatchToProps>;
 
 type AllProps = PropsFromState & RouteComponentProps & PropsFromDispatch;
 
-const Main: FC<AllProps> = ({ loaded, offline, location: { search }, token, initApp }) => {
+const Main: FC<AllProps> = ({ loaded, offline, appHasError, location: { search }, token, initApp, resolveUrl }) => {
   const handleResolve = () => {
     const url = search.replace('?', '');
 
@@ -54,7 +55,7 @@ const Main: FC<AllProps> = ({ loaded, offline, location: { search }, token, init
       return <Redirect to="/" />;
     }
 
-    Utils.resolveUrl(url);
+    resolveUrl(url);
 
     return <Spinner contained />;
   };
@@ -74,7 +75,7 @@ const Main: FC<AllProps> = ({ loaded, offline, location: { search }, token, init
     return <IsOffline full />;
   }
 
-  if (!loaded) {
+  if (!loaded && !appHasError) {
     return <Spinner full />;
   }
 

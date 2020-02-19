@@ -4,6 +4,7 @@
 export interface AppState
   extends Readonly<{
     history: CanGoHistory;
+    error: boolean;
     loaded: boolean;
     loadingError: string | null;
     offline: boolean;

@@ -7,6 +7,7 @@ const initialState: AppState = {
     back: false,
     next: false
   },
+  error: false,
   loaded: false,
   loadingError: null,
   offline: false,
@@ -62,6 +63,7 @@ export const appReducer: Reducer<AppState> = (state = initialState, action) => {
     case onError(AppActionTypes.SET_LOADED):
       return {
         ...state,
+        error: true,
         loadingError: payload.message
       };
     case onSuccess(AppActionTypes.SET_LOADED):

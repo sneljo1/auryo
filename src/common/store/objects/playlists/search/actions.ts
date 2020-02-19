@@ -1,19 +1,20 @@
 import { ThunkResult } from '@common/store';
 // eslint-disable-next-line import/no-cycle
-import { Utils } from '@common/utils/utils';
 import fetchSearch from '../../../../api/fetchSearch';
 import { SC } from '../../../../utils';
 import { canFetchMoreOf, fetchMore } from '../../actions';
 import { getPlaylistObjectSelector, getPlaylistType } from '../../selectors';
 import { ObjectsActionTypes, ObjectTypes, PlaylistTypes } from '../../types';
+import { Dispatch } from 'redux';
+import { resolveUrl } from '@common/store/app/actions';
 
 export function isSoundCloudUrl(query: string) {
   return /https?:\/\/(www.)?soundcloud\.com\//g.exec(query) !== null;
 }
 
-export function tryAndResolveQueryAsSoundCloudUrl(query: string) {
+export function tryAndResolveQueryAsSoundCloudUrl(query: string, dispatch: Dispatch) {
   if (isSoundCloudUrl(query)) {
-    return Utils.resolveUrl(query);
+    return dispatch(resolveUrl(query) as any);
   }
 
   return null;
@@ -32,7 +33,7 @@ export function search(
     const tracklistObject = getPlaylistObjectSelector(objectId)(state);
 
     if (query && isSoundCloudUrl(query)) {
-      return Promise.resolve(tryAndResolveQueryAsSoundCloudUrl(query)) as any;
+      return Promise.resolve(tryAndResolveQueryAsSoundCloudUrl(query, dispatch)) as any;
     }
 
     let url: string | null = null;

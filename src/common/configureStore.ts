@@ -16,6 +16,17 @@ import { createLogger } from 'redux-logger';
 import promiseMiddleware, { ActionType } from 'redux-promise-middleware';
 import thunk from 'redux-thunk';
 
+import debounce from 'lodash/debounce';
+
+const debounceErrorMessage = debounce(store => {
+  store.dispatch(
+    addToast({
+      message: 'Something went wrong',
+      intent: Intent.DANGER
+    })
+  );
+}, 500);
+
 const handleErrorMiddleware: Middleware = (store: Store<StoreState>) => next => action => {
   if (action.type && action.type.endsWith(ActionType.Rejected)) {
     const {
@@ -25,12 +36,7 @@ const handleErrorMiddleware: Middleware = (store: Store<StoreState>) => next => 
     if (message && message === 'Failed to fetch') {
       // const { app: { offline } } = store.getState()
     } else if (message) {
-      store.dispatch(
-        addToast({
-          message: 'Something went wrong',
-          intent: Intent.DANGER
-        })
-      );
+      debounceErrorMessage(store);
     }
   }
 

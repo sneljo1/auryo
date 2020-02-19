@@ -156,14 +156,22 @@ export const useAudioPlayer = (): UseAudioPlayer => {
       return (audioEl as any).setSinkId(deviceId);
     },
     toggle() {
-      if (audioEl.paused) {
-        audioEl.play();
-      } else {
-        audioEl.pause();
+      try {
+        if (audioEl.paused) {
+          audioEl.play();
+        } else {
+          audioEl.pause();
+        }
+      } catch (_) {
+        // Do not handle load interupted play errors
       }
     },
-    play() {
-      return audioEl.play();
+    async play() {
+      try {
+        await audioEl.play();
+      } catch (_) {
+        // Do not handle load interupted play errors
+      }
     },
     pause() {
       audioEl.pause();
