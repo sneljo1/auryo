@@ -1,6 +1,5 @@
 import { Intent, Popover, PopoverInteractionKind, Slider, Tag } from '@blueprintjs/core';
 import { IMAGE_SIZES } from '@common/constants';
-import { EVENTS } from '@common/constants/events';
 import { StoreState } from '@common/store';
 import * as actions from '@common/store/actions';
 import { hasLiked } from '@common/store/auth/selectors';
@@ -9,9 +8,6 @@ import { ChangeTypes, RepeatTypes } from '@common/store/player';
 import { SC } from '@common/utils';
 import cn from 'classnames';
 import { autobind } from 'core-decorators';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { ipcRenderer } from 'electron';
-import { debounce } from 'lodash';
 import moment from 'moment';
 import React from 'react';
 import isDeepEqual from 'react-fast-compare';
@@ -96,21 +92,6 @@ class Player extends React.Component<AllProps, State> {
     volume: 0,
     volumeBeforeMute: 0.5
   };
-
-  private readonly debounceDiscover: () => void;
-
-  constructor(props: AllProps) {
-    super(props);
-    this.debounceDiscover = debounce(() => {
-      // Get Chromecast devices
-      ipcRenderer.send(EVENTS.CHROMECAST.DISCOVER);
-    }, 2000);
-  }
-
-  public async componentDidMount() {
-    // Get Chromecast devices
-    this.debounceDiscover();
-  }
 
   public shouldComponentUpdate(nextProps: AllProps, nextState: State) {
     return nextState !== this.state || !isDeepEqual(nextProps, this.props);
@@ -332,7 +313,6 @@ class Player extends React.Component<AllProps, State> {
             <Popover
               className="mr-2"
               popoverClassName={styles.playerPopover}
-              onOpened={this.debounceDiscover}
               content={
                 <div style={{ minWidth: 200 }}>
                   <div className={styles.popoverTitle}>Nearby devices</div>

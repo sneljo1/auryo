@@ -19,6 +19,11 @@ export default class ChromecastManager extends Feature {
   public readonly featureName = 'ChromecastManager';
   private readonly logger: LoggerInstance = Logger.createLogger(this.featureName);
 
+  shouldRun() {
+    // Disable untill we get this stable
+    return false;
+  }
+
   private player?: AuryoReceiver;
 
   private client?: PlatformSender;
