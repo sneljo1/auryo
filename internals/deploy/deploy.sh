@@ -14,9 +14,9 @@ BASEDIR=$(dirname $0)
 echo "Version: $PACKAGE_VERSION"
 
 cd $BASEDIR/auryo-snap
-ls ../../build/snap/
+ls ../../snap/
 git checkout . -f
-cp -R ../../build/snap/* ./snap
+cp -R ../../snap/* ./snap
 sed -i'' -e "s/{VERSION}/$PACKAGE_VERSION/g" ./snap/snapcraft.yaml
 echo $current_date_time > triggered_build_at
 git add -A

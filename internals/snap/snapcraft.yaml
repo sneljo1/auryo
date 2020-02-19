@@ -17,8 +17,8 @@ parts:
     # Correct path to icon.
     # Clear the execstack - https://forum.snapcraft.io/t/snap-and-executable-stacks/1812
     prepare: |
-        sed -i 's|Icon=auryo|Icon=/usr/share/icons/hicolor/256x256/apps/auryo\.png|' usr/share/applications/auryo.desktop
-        execstack --clear-execstack opt/Auryo/auryo
+      sed -i 's|Icon=auryo|Icon=/usr/share/icons/hicolor/256x256/apps/auryo\.png|' usr/share/applications/auryo.desktop
+      execstack --clear-execstack opt/Auryo/auryo
     build-packages:
       - execstack
     stage-packages:
@@ -34,7 +34,7 @@ parts:
 
 apps:
   auryo:
-    command: bin/desktop-launch $SNAP/opt/Auryo/auryo
+    command: bin/desktop-launch $SNAP/opt/Auryo/auryo --no-sandbox
     environment:
       TMPDIR: $XDG_RUNTIME_DIR
     plugs:
@@ -53,6 +53,3 @@ slots:
   auryo-player-mpris:
     interface: mpris
     name: auryo_player
-  auryo-mpris:
-    interface: mpris
-    name: auryo
