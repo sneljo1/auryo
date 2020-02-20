@@ -3,7 +3,7 @@
   "repository": "Superjo149/auryo",
   "homepage": "http://auryo.com",
   "productName": "Auryo",
-  "version": "2.5.1",
+  "version": "2.5.2",
   "author": {
     "name": "Jonas Snellinckx",
     "email": "jonas.snellinckx@gmail.com"
@@ -28,7 +28,7 @@
     "package:dir": "npm run build && electron-builder --dir",
     "package:win": "electron-builder --win --x64",
     "package:mac": "electron-builder --mac",
-    "package:linux": "electron-builder --linux",
+    "package:linux": "electron-builder --linux deb",
     "package:all": "electron-builder -mwl",
     "release": "electron-builder -wl --ia32 --x64 --publish onTagOrDraft",
     "release:win": "electron-builder -w --ia32 --x64 --publish onTagOrDraft",

@@ -244,7 +244,8 @@ if (isProd) {
     rendererConfig.plugins.push(
       new SentryCliPlugin({
         release: appVersion,
-        include: [path.join(__dirname, '../dist/electron')]
+        include: [path.join(__dirname, '../dist/electron')],
+        urlPrefix: 'app:///dist/electron/'
       })
     );
   }

@@ -5,7 +5,16 @@ import { EVENTS } from '@common/constants/events';
 import { StoreState } from '@common/store';
 import { addToast, setConfigKey } from '@common/store/actions';
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { app, BrowserWindow, BrowserWindowConstructorOptions, Menu, nativeImage, protocol, shell } from 'electron';
+import {
+  app,
+  BrowserWindow,
+  BrowserWindowConstructorOptions,
+  Menu,
+  nativeImage,
+  protocol,
+  shell,
+  Event
+} from 'electron';
 import is from 'electron-is';
 import windowStateKeeper from 'electron-window-state';
 import _ from 'lodash';
@@ -44,7 +53,18 @@ export class Auryo {
 
     app.setAppUserModelId('com.auryo.core');
 
-    app.requestSingleInstanceLock();
+    app.on('before-quit', () => {
+      this.logger.info('Application exiting...');
+      this.quitting = true;
+    });
+
+    const isPrimaryInstance = app.requestSingleInstanceLock();
+
+    if (!isPrimaryInstance) {
+      this.logger.debug(`Not the first instance - quit`);
+      app.quit();
+      return;
+    }
 
     app.on('second-instance', () => {
       // handle protocol for windows
@@ -53,33 +73,15 @@ export class Auryo {
           this.handleProtocolUrl(arg);
         });
       }
-
-      app.exit();
-    });
-
-    app.on('before-quit', () => {
-      this.logger.info('Application exiting...');
-      this.quitting = true;
     });
   }
 
   public async start() {
+    if (this.quitting) {
+      return;
+    }
+
     app.setAsDefaultProtocolClient('auryo');
-
-    protocol.registerHttpProtocol('stream', async (request, callback) => {
-      const {
-        config: {
-          app: { overrideClientId }
-        }
-      } = this.store.getState();
-      const trackId = request.url.substr(9);
-      const mp3Url = await this.getPlayingTrackStreamUrl(trackId, overrideClientId || CONFIG.CLIENT_ID || '');
-
-      callback({
-        url: mp3Url,
-        method: 'GET'
-      });
-    });
 
     app.on('open-url', (event, data) => {
       event.preventDefault();
@@ -245,25 +247,8 @@ export class Auryo {
         }
       });
 
-      this.mainWindow.webContents.session.webRequest.onBeforeRequest(
-        {
-          urls: ['https://local.stream/*']
-        },
-        async (details, callback) => {
-          const {
-            config: {
-              app: { overrideClientId }
-            }
-          } = this.store.getState();
-          const { 1: trackId } = details.url.split('https://local.stream/');
-          const mp3Url = await this.getPlayingTrackStreamUrl(trackId, overrideClientId || CONFIG.CLIENT_ID || '');
-
-          callback({
-            redirectURL: mp3Url
-          });
-        }
-      );
-
+      // SoundCloud's API gave a lot of 401s using the /stream to get the audio file
+      // This is a hacky way to circumvent this :)
       this.mainWindow.webContents.session.webRequest.onBeforeRequest(
         {
           urls: ['http://localhost:8888/stream/*']
@@ -338,11 +323,11 @@ export class Auryo {
 
   private readonly registerListeners = () => {
     if (this.mainWindow) {
-      this.mainWindow.webContents.on('crashed', (event: any) => {
-        this.logger.fatal(JSON.stringify(event), 'App Crashed');
+      this.mainWindow.webContents.on('crashed', (event: Event) => {
+        this.logger.fatal(event, 'App Crashed');
       });
 
-      this.mainWindow.on('unresponsive', (event: any) => {
+      this.mainWindow.on('unresponsive', (event: Event) => {
         this.logger.fatal(event, 'App unresponsive');
       });
 
