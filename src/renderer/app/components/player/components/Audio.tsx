@@ -46,7 +46,7 @@ export const Audio: FC<Props> = ({ src, playerStatus, playerVolume, muted, playb
       play();
     } else if (playerStatus === PlayerStatus.PAUSED && playing) {
       pause();
-    } else if (playerStatus === PlayerStatus.STOPPED && !stopped) {
+    } else if (playerStatus === PlayerStatus.STOPPED && playing) {
       stop();
     }
   }, [playerStatus, loading, ready, playing]);
@@ -120,6 +120,11 @@ export const Audio: FC<Props> = ({ src, playerStatus, playerVolume, muted, playb
 
     return () => {
       ipcRenderer.removeAllListeners(EVENTS.PLAYER.SEEK);
+
+      // Stop if we unload this component
+      if (playing) {
+        stop();
+      }
     };
   }, []);
 
