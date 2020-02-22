@@ -91,7 +91,8 @@ export default class ApplicationMenu extends Feature {
         submenu: [
           {
             label: !player || player.status !== PlayerStatus.PLAYING ? 'Play' : 'Pause',
-            accelerator: 'CmdOrCtrl+Shift+Space',
+            accelerator: 'Space',
+            registerAccelerator: false,
             click: () => this.store.dispatch(toggleStatus() as any)
           },
           {
