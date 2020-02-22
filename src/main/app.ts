@@ -5,16 +5,7 @@ import { EVENTS } from '@common/constants/events';
 import { StoreState } from '@common/store';
 import { addToast, setConfigKey } from '@common/store/actions';
 // eslint-disable-next-line import/no-extraneous-dependencies
-import {
-  app,
-  BrowserWindow,
-  BrowserWindowConstructorOptions,
-  Menu,
-  nativeImage,
-  protocol,
-  shell,
-  Event
-} from 'electron';
+import { app, BrowserWindow, BrowserWindowConstructorOptions, Event, Menu, nativeImage, shell } from 'electron';
 import is from 'electron-is';
 import windowStateKeeper from 'electron-window-state';
 import _ from 'lodash';
@@ -119,13 +110,13 @@ export class Auryo {
 
     this.registerTools();
 
+    this.registerListeners();
+
     mainWindowState.manage(this.mainWindow);
 
     this.mainWindow.setMenu(null);
 
     await this.loadMain();
-
-    this.registerListeners();
 
     if (process.env.NODE_ENV === 'development' || process.env.ENV === 'development') {
       this.mainWindow.webContents.on('context-menu', (_e, props) => {
@@ -210,88 +201,91 @@ export class Auryo {
   }
 
   private async loadMain() {
-    if (this.mainWindow) {
-      const winURL =
-        process.env.NODE_ENV === 'development' ? 'http://localhost:9080' : `file://${__dirname}/index.html`;
-
-      await this.mainWindow.loadURL(winURL);
-
-      this.mainWindow.webContents.on('will-navigate', async (e, u) => {
-        e.preventDefault();
-
-        try {
-          if (/^(https?:\/\/)/g.exec(u) !== null) {
-            if (/https?:\/\/(www.)?soundcloud\.com\//g.exec(u) !== null) {
-              if (this.mainWindow) {
-                this.mainWindow.webContents.send(EVENTS.APP.PUSH_NAVIGATION, '/resolve', u);
-              }
-            } else {
-              await shell.openExternal(u);
-            }
-          } else if (/^mailto:/g.exec(u) !== null) {
-            await shell.openExternal(u);
-          }
-        } catch (err) {
-          this.logger.error(err);
-        }
-      });
-
-      this.mainWindow.webContents.on('new-window', async (e, u) => {
-        e.preventDefault();
-        try {
-          if (/^(https?:\/\/)/g.exec(u) !== null) {
-            await shell.openExternal(u);
-          }
-        } catch (err) {
-          this.logger.error(err);
-        }
-      });
-
-      // SoundCloud's API gave a lot of 401s using the /stream to get the audio file
-      // This is a hacky way to circumvent this :)
-      this.mainWindow.webContents.session.webRequest.onBeforeRequest(
-        {
-          urls: ['http://localhost:8888/stream/*']
-        },
-        async (details, callback) => {
-          const {
-            config: {
-              app: { overrideClientId }
-            }
-          } = this.store.getState();
-          const { 1: trackId } = details.url.split('http://localhost:8888/stream/');
-          try {
-            const clientId = overrideClientId && overrideClientId.length ? overrideClientId : CONFIG.CLIENT_ID;
-            const mp3Url = await this.getPlayingTrackStreamUrl(trackId, clientId || '');
-
-            callback({
-              redirectURL: mp3Url
-            });
-          } catch (err) {
-            this.logger.error(err);
-            callback({ cancel: true });
-          }
-        }
-      );
-
-      this.mainWindow.webContents.session.webRequest.onCompleted(details => {
-        if (
-          this.mainWindow &&
-          (details.url.indexOf('/stream?client_id=') !== -1 || details.url.indexOf('cf-media.sndcdn.com') !== -1)
-        ) {
-          if (details.statusCode < 200 && details.statusCode > 300) {
-            if (details.statusCode === 404) {
-              this.store.dispatch(
-                addToast({
-                  message: 'This resource might not exists anymore',
-                  intent: Intent.DANGER
-                })
-              );
-            }
-          }
-        }
-      });
+    if (!this.mainWindow) {
+      this.logger.fatal('Unable to create window');
+      app.quit();
+      return;
     }
+
+    const winURL = process.env.NODE_ENV === 'development' ? 'http://localhost:9080' : `file://${__dirname}/index.html`;
+
+    await this.mainWindow.loadURL(winURL);
+
+    this.mainWindow.webContents.on('will-navigate', async (e, u) => {
+      e.preventDefault();
+
+      try {
+        if (/^(https?:\/\/)/g.exec(u) !== null) {
+          if (/https?:\/\/(www.)?soundcloud\.com\//g.exec(u) !== null) {
+            if (this.mainWindow) {
+              this.mainWindow.webContents.send(EVENTS.APP.PUSH_NAVIGATION, '/resolve', u);
+            }
+          } else {
+            await shell.openExternal(u);
+          }
+        } else if (/^mailto:/g.exec(u) !== null) {
+          await shell.openExternal(u);
+        }
+      } catch (err) {
+        this.logger.error(err);
+      }
+    });
+
+    this.mainWindow.webContents.on('new-window', async (e, u) => {
+      e.preventDefault();
+      try {
+        if (/^(https?:\/\/)/g.exec(u) !== null) {
+          await shell.openExternal(u);
+        }
+      } catch (err) {
+        this.logger.error(err);
+      }
+    });
+
+    // SoundCloud's API gave a lot of 401s using the /stream to get the audio file
+    // This is a hacky way to circumvent this :)
+    this.mainWindow.webContents.session.webRequest.onBeforeRequest(
+      {
+        urls: ['http://localhost:8888/stream/*']
+      },
+      async (details, callback) => {
+        const {
+          config: {
+            app: { overrideClientId }
+          }
+        } = this.store.getState();
+        const { 1: trackId } = details.url.split('http://localhost:8888/stream/');
+        try {
+          const clientId = overrideClientId && overrideClientId.length ? overrideClientId : CONFIG.CLIENT_ID;
+          const mp3Url = await this.getPlayingTrackStreamUrl(trackId, clientId || '');
+
+          callback({
+            redirectURL: mp3Url
+          });
+        } catch (err) {
+          this.logger.error(err);
+          callback({ cancel: true });
+        }
+      }
+    );
+
+    this.mainWindow.webContents.session.webRequest.onCompleted(details => {
+      if (
+        this.mainWindow &&
+        (details.url.indexOf('/stream?client_id=') !== -1 || details.url.indexOf('cf-media.sndcdn.com') !== -1)
+      ) {
+        if (details.statusCode < 200 && details.statusCode > 300) {
+          if (details.statusCode === 404) {
+            this.store.dispatch(
+              addToast({
+                message: 'This resource might not exists anymore',
+                intent: Intent.DANGER
+              })
+            );
+          }
+        }
+      }
+    });
   }
 
   public async getPlayingTrackStreamUrl(trackId: string, clientId: string) {
@@ -350,6 +344,7 @@ export class Auryo {
       });
 
       this.mainWindow.on('ready-to-show', () => {
+        this.logger.debug('ready-to-show', !!this.mainWindow);
         if (this.mainWindow) {
           this.mainWindow.show();
         }

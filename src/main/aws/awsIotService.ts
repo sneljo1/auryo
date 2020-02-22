@@ -43,8 +43,8 @@ export class AWSIotService {
       this.identityId = getKeysResponse.identityId || '';
     }
 
-    this.device.on('error', err => {
-      this.logger.error('Error with mqtt', err);
+    this.device.on('error', () => {
+      this.logger.error('Error with mqtt');
     });
   }
 

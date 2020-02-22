@@ -31,7 +31,6 @@ export const Audio: FC<Props> = ({ src, playerStatus, playerVolume, muted, playb
     playing,
     load,
     seek,
-    stopped,
     ended,
     stop,
     volume,

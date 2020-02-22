@@ -6,30 +6,25 @@ import { Logger, LoggerInstance } from '../../utils/logger';
 import LinuxFeature from './linuxFeature';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { app } from 'electron';
+import { Auryo } from '@main/app';
 
 export default class DbusService extends LinuxFeature {
   public readonly featureName = 'DbusService';
   private readonly logger: LoggerInstance = Logger.createLogger(DbusService.featureName);
 
+  constructor(auryo: Auryo) {
+    super(auryo, 'focus');
+  }
+
   public async register() {
+    dbus.setBigIntCompat(true);
+
+    const session = dbus.sessionBus();
+
     try {
-      dbus.setBigIntCompat(true);
-
-      const session = dbus.sessionBus();
-
-      try {
-        await this.registerBindings('gnome', session);
-      } catch (err) {
-        // ignore
-      }
-
-      try {
-        await this.registerBindings('mate', session);
-      } catch (err) {
-        // ignore
-      }
-    } catch (e) {
-      this.logger.error(e);
+      await Promise.all(['mate', 'gnome'].map(platform => this.registerBindings(platform, session)));
+    } catch (err) {
+      this.logger.trace({ err }, 'Error registering platform');
     }
   }
 
@@ -41,7 +36,7 @@ export default class DbusService extends LinuxFeature {
     const interfaceLegacy = legacy.getInterface(`org.${desktopEnv}.SettingsDaemon.MediaKeys`);
     interfaceLegacy.on('MediaPlayerKeyPressed', this.onMediaPlayerKeyPressed);
     app.on('browser-window-focus', () => {
-      interfaceLegacy.GrabMediaPlayerKeys('Auryo', 0); // eslint-disable-line
+      interfaceLegacy.GrabMediaPlayerKeys('Auryo', 0);
     });
 
     const future = await session.getProxyObject(
@@ -51,7 +46,7 @@ export default class DbusService extends LinuxFeature {
     const interfaceFuture = future.getInterface(`org.${desktopEnv}.SettingsDaemon.MediaKeys`);
     interfaceFuture.on('MediaPlayerKeyPressed', this.onMediaPlayerKeyPressed);
     app.on('browser-window-focus', () => {
-      interfaceFuture.GrabMediaPlayerKeys('Auryo', 0); // eslint-disable-line
+      interfaceFuture.GrabMediaPlayerKeys('Auryo', 0);
     });
   }
 

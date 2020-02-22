@@ -58,13 +58,13 @@ export const getCommentEntity = (id: number) =>
   getDenormalizedEntity<SoundCloud.Comment | null>({ id, schema: 'comments' });
 
 export const getNormalizedPlaylist = (id: number) =>
-  createSelector<StoreState, EntitiesState['playlistEntities'], Normalized.Playlist>(
+  createSelector<StoreState, EntitiesState['playlistEntities'], Normalized.Playlist | null>(
     getPlaylistEntities(),
     entities => entities[id]
   );
 
 export const getNormalizedUser = (id: number) =>
-  createSelector<StoreState, EntitiesState['userEntities'], SoundCloud.User>(
+  createSelector<StoreState, EntitiesState['userEntities'], SoundCloud.User | null>(
     getUserEntities(),
     entities => entities[id]
   );

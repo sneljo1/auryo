@@ -271,7 +271,6 @@
     "redux-watcher": "^1.0.1",
     "reselect": "^4.0.0",
     "retry-axios": "^2.1.1",
-    "rotating-file-stream": "^1.4.1",
     "semver": "^5.3.0",
     "source-map-support": "^0.5.16",
     "styled-components": "^2.0.1",
