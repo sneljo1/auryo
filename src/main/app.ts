@@ -344,7 +344,6 @@ export class Auryo {
       });
 
       this.mainWindow.on('ready-to-show', () => {
-        this.logger.debug('ready-to-show', !!this.mainWindow);
         if (this.mainWindow) {
           this.mainWindow.show();
         }

@@ -10,6 +10,7 @@ import { gt as isVersionGreaterThan, valid as parseVersion } from 'semver';
 import { CONFIG } from '../../../config';
 import { Logger, LoggerInstance } from '../../utils/logger';
 import { Feature } from '../feature';
+import { Auryo } from '@main/app';
 
 export default class AppUpdater extends Feature {
   public readonly featureName = 'AppUpdater';
@@ -17,6 +18,11 @@ export default class AppUpdater extends Feature {
 
   private hasUpdate = false;
   private readonly currentVersion: string | null = parseVersion(app.getVersion());
+
+  constructor(auryo: Auryo) {
+    super(auryo, 'ready-to-show');
+    autoUpdater.logger = this.logger;
+  }
 
   public shouldRun() {
     return (
@@ -76,6 +82,7 @@ export default class AppUpdater extends Feature {
           autoUpdater.checkForUpdates();
         }, 3600000);
       });
+      autoUpdater.checkForUpdates();
     }
   };
 
