@@ -106,6 +106,7 @@ class SearchBox extends React.Component<Props, State> {
           placeholder="Search people, tracks and albums"
           value={query}
           onKeyPress={this.onKeyPress}
+          onKeyUp={e => e.stopPropagation()}
           onChange={this.onChange}
         />
 

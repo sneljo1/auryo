@@ -74,6 +74,7 @@ export class InputConfig extends React.PureComponent<Props> {
           name={name}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => this.saveDebounced(event.target.value)}
           placeholder={placeholderText}
+          onKeyUp={e => e.stopPropagation()}
           defaultValue={defaultValue}
         />
       </div>

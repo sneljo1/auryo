@@ -12,11 +12,12 @@ import { ObjectTypes, PlaylistTypes } from '../objects';
 import { getPlaylist, setObject } from '../objects/actions';
 import { getPlaylistObjectSelector } from '../objects/selectors';
 import { AuthActionTypes } from './types';
+import { AppActionTypes } from '../app';
 
 export function logout(): ThunkResult<void> {
   return dispatch => {
     dispatch({
-      type: 'APP_RESET_STORE'
+      type: AppActionTypes.RESET_STORE
     });
     dispatch(replace('/login'));
     dispatch(setToken(null));
