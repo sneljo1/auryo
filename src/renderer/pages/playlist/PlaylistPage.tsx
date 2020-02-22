@@ -44,8 +44,8 @@ const mapStateToProps = (state: StoreState, props: OwnProps) => {
     playlistIdParam: playlistId as any,
 
     playlist,
-    playlistUser: getNormalizedUser(playlist.user)(state),
-    firstItem: playlist.tracks.length > 1 ? getNormalizedTrack(playlist.tracks[0].id)(state) : undefined
+    playlistUser: playlist?.user && getNormalizedUser(playlist.user)(state),
+    firstItem: playlist && playlist?.tracks?.length > 1 && getNormalizedTrack(playlist.tracks[0].id)(state)
   };
 };
 
