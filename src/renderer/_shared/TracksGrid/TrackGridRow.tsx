@@ -18,23 +18,17 @@ interface Props {
 
 @autobind
 export class TrackGridRow extends React.PureComponent<Props> {
-  private getClassesForItemCount(itemsPerRow: number): string {
-    switch (itemsPerRow) {
-      case 1:
-        return 'col-12';
-      case 2:
-        return 'col-6';
-      case 3:
-        return 'col-4';
-      case 4:
-      default:
-        return 'col-3';
-    }
+  get itemWidth(): string {
+    const {
+      data: { itemsPerRow }
+    } = this.props;
+
+    return `${100 / itemsPerRow}%`;
   }
 
   private renderItem(index: number) {
     const {
-      data: { showInfo, objectId, items, itemsPerRow }
+      data: { showInfo, objectId, items }
     } = this.props;
 
     const item = items[index];
@@ -43,7 +37,8 @@ export class TrackGridRow extends React.PureComponent<Props> {
       return (
         <div
           key={`grid-item-${item.schema}-${item.id}`}
-          className={cn('userWrapper', this.getClassesForItemCount(itemsPerRow))}>
+          className={cn('userWrapper')}
+          style={{ width: this.itemWidth }}>
           <TrackGridUser withStats idResult={item} />
         </div>
       );
@@ -52,7 +47,7 @@ export class TrackGridRow extends React.PureComponent<Props> {
     const showReposts = objectId === PlaylistTypes.STREAM;
 
     return (
-      <div key={`grid-item-${item.schema}-${item.id}`} className={this.getClassesForItemCount(itemsPerRow)}>
+      <div key={`grid-item-${item.schema}-${item.id}`} style={{ width: this.itemWidth }}>
         <TrackGridItem
           showReposts={showReposts}
           key={`grid-item-${item.schema}-${item.id}`}
