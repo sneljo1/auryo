@@ -121,8 +121,8 @@ export default class MprisService extends LinuxFeature {
 
             if (track) {
               this.meta['mpris:trackId'] = this.player.objectPath(track.id.toString());
-              this.meta['mpris:length'] = +(track.duration || 0).toFixed(0); // int
-              this.meta['mpris:artUrl'] = SC.getImageUrl(track, IMAGE_SIZES.SMALL);
+              this.meta['mpris:length'] = this.parseTime(track.duration); // int
+              this.meta['mpris:artUrl'] = SC.getImageUrl(track, IMAGE_SIZES.XLARGE);
               this.meta['xesam:genre'] = [track.genre || ''];
               this.meta['xesam:title'] = track.title || '';
               this.meta['xesam:artist'] = [track.user && track.user.username ? track.user.username : 'Unknown artist'];
@@ -175,12 +175,20 @@ export default class MprisService extends LinuxFeature {
         ...this.player.metadata
       };
 
-      this.meta['mpris:length'] = +(duration * 1e3 || 0).toFixed(0); // int
-      this.player.position = +(currentTime * 1e3 || 0).toFixed(0); // int
+      this.meta['mpris:length'] = this.parseTime(duration);
+      this.player.position = this.parseTime(currentTime);
 
       if (!_.isEqual(this.meta, this.player.metadata)) {
         this.player.metadata = this.meta;
       }
     }
   };
+
+  private parseTime(time: number) {
+    if (!time || Number.isNaN(time) || time < 0) {
+      return 0;
+    }
+
+    return time * 1e3;
+  }
 }
