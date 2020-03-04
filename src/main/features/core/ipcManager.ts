@@ -134,7 +134,7 @@ export default class IPCManager extends Feature {
         await awsIotWrapper.disconnect();
       }
     } catch (err) {
-      if (authWindow) {
+      if (authWindow?.isClosable()) {
         authWindow.close();
       }
       if (awsIotWrapper) {

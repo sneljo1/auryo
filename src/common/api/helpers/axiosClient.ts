@@ -55,12 +55,19 @@ axiosClient.interceptors.response.use(undefined, err => {
   if (status === 401 && !originalRequest.hasRetried) {
     if (!isRefreshing) {
       isRefreshing = true;
-      ipcRenderer.invoke(EVENTS.APP.AUTH.REFRESH).then(obj => {
-        if (!obj?.token) {
+      let invokePromise: Promise<void | { token: string }> = Promise.resolve();
+
+      if (is.renderer()) {
+        invokePromise = ipcRenderer.invoke(EVENTS.APP.AUTH.REFRESH);
+      }
+
+      invokePromise.then(obj => {
+        isRefreshing = false;
+
+        if (!obj || !obj?.token) {
           throw new Error('no token');
         }
 
-        isRefreshing = false;
         initialize(obj.token);
         onRefreshed(obj.token);
         subscribers = [];

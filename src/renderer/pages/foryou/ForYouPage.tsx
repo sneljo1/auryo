@@ -131,10 +131,10 @@ class ForYou extends React.Component<AllProps, State> {
 
     const rest = items ? [...items] : [];
 
-    const weeklyIndex = rest.findIndex(i => i.query_urn.indexOf('weekly') !== -1);
+    const weeklyIndex = rest.findIndex(i => i.query_urn?.indexOf('weekly') !== -1);
     const weekly = rest.splice(weeklyIndex, 1)[0];
 
-    const uploadIndex = rest.findIndex(i => i.query_urn.indexOf('newforyou') !== -1);
+    const uploadIndex = rest.findIndex(i => i.query_urn?.indexOf('newforyou') !== -1);
     const upload = rest.splice(uploadIndex, 1)[0];
 
     return (

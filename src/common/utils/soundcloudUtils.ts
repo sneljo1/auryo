@@ -371,41 +371,42 @@ export function appendClientId(url: string, overrideClientId?: string | null) {
 }
 
 export function getImageUrl(track: any, size: string) {
-  let s;
+  let imageUrl = '';
   if (typeof track === 'object') {
-    s = track.artwork_url;
+    imageUrl = track.artwork_url;
 
     if ((!track.artwork_url || track.artwork_url == null) && track.user) {
-      s = track.user.avatar_url;
+      imageUrl = track.user.avatar_url;
     }
   } else {
-    s = track;
+    imageUrl = track;
   }
 
-  let str = s;
-  if (!str) {
+  if (!imageUrl) {
     return '';
   }
-  if (str.indexOf('default_avatar') > -1) {
-    return str;
+
+  if (imageUrl.indexOf('default_avatar') > -1) {
+    return imageUrl;
   }
 
-  str = str.replace('http:', '');
+  imageUrl = imageUrl.replace('http:', '');
 
   switch (size) {
     case IMAGE_SIZES.LARGE:
-      return str.replace('large', IMAGE_SIZES.LARGE);
+      return imageUrl.replace('large', IMAGE_SIZES.LARGE);
     case IMAGE_SIZES.XLARGE:
-      return str.replace('large', IMAGE_SIZES.XLARGE);
+      return imageUrl.replace('large', IMAGE_SIZES.XLARGE);
     case IMAGE_SIZES.MEDIUM:
-      return str.replace('large', IMAGE_SIZES.MEDIUM);
+      return imageUrl.replace('large', IMAGE_SIZES.MEDIUM);
     case IMAGE_SIZES.XSMALL:
-      return str.replace('large', IMAGE_SIZES.XSMALL);
+      return imageUrl.replace('large', IMAGE_SIZES.XSMALL);
     case IMAGE_SIZES.SMALL:
-      return str;
+      return imageUrl;
     default:
-      return str;
   }
+
+  return imageUrl;
 }
 
 /*

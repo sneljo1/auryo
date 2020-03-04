@@ -36,6 +36,11 @@ export const createAuthWindow = () => {
     }
   });
 
+  // Spoof user agent to allow for proper google sign in
+  const signInUserAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:73.0) Gecko/20100101 Firefox/73.0';
+
+  authWindow.webContents.session.setUserAgent(signInUserAgent);
+
   authWindow.setMenu(null);
 
   authWindow.once('ready-to-show', () => {
@@ -70,6 +75,12 @@ export const createAuthWindow = () => {
             }
           }
         ]).popup({ window: authWindow });
+      }
+    });
+
+    authWindow.webContents.on('will-navigate', (event, url) => {
+      if (url.indexOf('error_code') !== -1) {
+        authWindow?.close();
       }
     });
 
