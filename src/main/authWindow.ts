@@ -41,6 +41,17 @@ export const createAuthWindow = () => {
 
   authWindow.webContents.session.setUserAgent(signInUserAgent);
 
+  authWindow.webContents.session.webRequest.onBeforeSendHeaders(
+    {
+      urls: ['https://accounts.google.com/*']
+    },
+    (details, callback) => {
+      const newRequestHeaders = { ...(details.requestHeaders || {}), 'User-Agent': signInUserAgent };
+
+      callback({ requestHeaders: newRequestHeaders });
+    }
+  );
+
   authWindow.setMenu(null);
 
   authWindow.once('ready-to-show', () => {
@@ -78,7 +89,7 @@ export const createAuthWindow = () => {
       }
     });
 
-    authWindow.webContents.on('will-navigate', (event, url) => {
+    authWindow.webContents.on('will-navigate', (_, url) => {
       if (url.indexOf('error_code') !== -1) {
         authWindow?.close();
       }
