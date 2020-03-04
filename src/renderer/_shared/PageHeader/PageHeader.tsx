@@ -3,7 +3,7 @@ import React from 'react';
 import './PageHeader.scss';
 
 interface Props {
-  image?: string;
+  image?: string | null;
   gradient?: string;
   title?: string;
   subtitle?: string;
