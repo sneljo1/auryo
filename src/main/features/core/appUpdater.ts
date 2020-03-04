@@ -92,7 +92,7 @@ export default class AppUpdater extends Feature {
         this.logger.info('Updating now!');
 
         try {
-          if (is.linux() || is.macOS()) {
+          if (is.linux()) {
             // tslint:disable-next-line: no-http-string
             await shell.openExternal('http://auryo.com#downloads');
           } else {
