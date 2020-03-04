@@ -189,6 +189,6 @@ export default class MprisService extends LinuxFeature {
       return 0;
     }
 
-    return time * 1e3;
+    return Math.round(time * 1e3);
   }
 }

@@ -130,8 +130,8 @@ export default class MediaServiceManager extends MacFeature {
       player: { currentTime, duration }
     }
   }: WatchState<number>) => {
-    this.meta.currentTime = currentTime * 1e3;
-    this.meta.duration = duration * 1e3;
+    this.meta.currentTime = Math.round(currentTime * 1e3);
+    this.meta.duration = Math.round(duration * 1e3);
 
     if (this.myService) {
       this.myService.setMetaData(this.meta);
