@@ -8,15 +8,21 @@ import { Logger } from '@main/utils/logger';
 import { routerMiddleware } from 'connected-react-router';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { ipcRenderer } from 'electron';
+import {
+  forwardToMainWithParams,
+  forwardToRenderer,
+  replayActionMain,
+  replayActionRenderer,
+  triggerAlias,
+  getInitialStateRenderer
+} from 'electron-redux';
 import { History } from 'history';
+import debounce from 'lodash/debounce';
 import { applyMiddleware, compose, createStore, Middleware, Store } from 'redux';
-import { electronEnhancer } from 'redux-electron-store';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { createLogger } from 'redux-logger';
 import promiseMiddleware, { ActionType } from 'redux-promise-middleware';
 import thunk from 'redux-thunk';
-
-import debounce from 'lodash/debounce';
 
 const debounceErrorMessage = debounce(store => {
   store.dispatch(
@@ -46,11 +52,6 @@ const handleErrorMiddleware: Middleware = (store: Store<StoreState>) => next => 
 const configureStore = (history?: History): Store<StoreState> => {
   let middleware = [handleErrorMiddleware, thunk, promiseMiddleware];
 
-  if (history) {
-    const router = routerMiddleware(history);
-    middleware = [router, ...middleware];
-  }
-
   if (process.env.NODE_ENV === 'development') {
     let logger: Middleware;
     if (history) {
@@ -78,37 +79,33 @@ const configureStore = (history?: History): Store<StoreState> => {
     middleware.push(logger);
   }
 
+  if (history) {
+    const router = routerMiddleware(history);
+    middleware = [
+      forwardToMainWithParams({
+        blacklist: [/^@@(ui|router)/]
+      }),
+      router,
+      ...middleware
+    ];
+  } else {
+    middleware.unshift(triggerAlias);
+    middleware.push(forwardToRenderer);
+  }
+
   const composeEnhancers =
     typeof window === 'object' && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
       ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
       : compose;
 
-  const enhancer = composeEnhancers(
-    applyMiddleware(...middleware),
-    electronEnhancer(
-      history && {
-        filter: {
-          app: true,
-          config: true,
-          player: {
-            status: true,
-            currentPlaylistId: true,
-            playingTrack: true,
-            currentIndex: true
-          },
-          modal: true,
-          auth: {
-            authentication: true
-          },
-          ui: {
-            toasts: true
-          }
-        }
-      }
-    )
-  );
+  const enhancer = composeEnhancers(applyMiddleware(...middleware));
 
-  const store: Store<StoreState> = createStore(rootReducer(history), enhancer);
+  const initialState = history ? getInitialStateRenderer() : {};
+
+  const store: Store<StoreState> = createStore(rootReducer(history), initialState, enhancer);
+
+  const replayAction = history ? replayActionRenderer : replayActionMain;
+  replayAction(store);
 
   if (module.hot) {
     module.hot.accept('../common/store', () => {
