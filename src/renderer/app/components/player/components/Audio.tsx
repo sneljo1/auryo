@@ -3,12 +3,12 @@ import { Intent } from '@blueprintjs/core';
 import { EVENTS } from '@common/constants';
 import * as actions from '@common/store/actions';
 import { ChangeTypes, PlayerStatus } from '@common/store/player';
+import { useAudioPlayer, useAudioPosition } from '@renderer/hooks/useAudioPlayer';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { ipcRenderer } from 'electron';
 import { FC, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { useAudioPlayer, useAudioPosition } from '@renderer/hooks/useAudioPlayer';
-import { usePrevious } from '@renderer/hooks/usePrevious';
+import { usePrevious } from 'react-use';
 
 interface Props {
   src?: string;

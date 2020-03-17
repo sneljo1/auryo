@@ -1,4 +1,4 @@
-import { StoreState } from '@common/store';
+import { StoreState } from '@common/store/rootReducer';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { BrowserWindow, ipcMain } from 'electron';
 import { isEqual } from 'lodash';

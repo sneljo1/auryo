@@ -1,6 +1,6 @@
 import { Menu, MenuDivider, MenuItem, Popover, Position } from '@blueprintjs/core';
 import { IMAGE_SIZES } from '@common/constants';
-import { StoreState } from '@common/store';
+import { StoreState } from '@common/store/rootReducer';
 import * as actions from '@common/store/actions';
 import { getUserPlaylistsCombined } from '@common/store/auth/selectors';
 import { getNormalizedTrack, getNormalizedUser } from '@common/store/entities/selectors';
@@ -20,10 +20,10 @@ import { RouteComponentProps } from 'react-router-dom';
 import { Col, Row, TabContent, TabPane } from 'reactstrap';
 import { bindActionCreators, Dispatch } from 'redux';
 import FallbackImage from '../../_shared/FallbackImage';
+import { TogglePlayButton } from '../../_shared/PageHeader/components/TogglePlayButton';
 import PageHeader from '../../_shared/PageHeader/PageHeader';
 import ShareMenuItem from '../../_shared/ShareMenuItem';
 import Spinner from '../../_shared/Spinner/Spinner';
-import TogglePlayButton from '../../_shared/TogglePlayButton';
 import { TrackList } from '../../_shared/TrackList/TrackList';
 import { TrackOverview } from './components/TrackOverview';
 import './TrackPage.scss';
@@ -38,7 +38,7 @@ const mapStateToProps = (state: StoreState, props: OwnProps) => {
   const relatedPlaylistId = getPlaylistName(songId, PlaylistTypes.RELATED);
 
   const track = getNormalizedTrack(+songId)(state);
-  const user = getNormalizedUser(track.user)(state);
+  const user = getNormalizedUser(track?.user)(state);
 
   return {
     playingTrack,
@@ -95,13 +95,13 @@ class TrackPage extends React.PureComponent<AllProps, State> {
   public componentDidMount() {
     const { fetchTrackIfNeeded, songIdParam } = this.props;
 
-    fetchTrackIfNeeded(songIdParam);
+    // fetchTrackIfNeeded(songIdParam);
   }
 
   public componentDidUpdate() {
     const { fetchTrackIfNeeded, songIdParam } = this.props;
 
-    fetchTrackIfNeeded(songIdParam);
+    // fetchTrackIfNeeded(songIdParam);
   }
 
   public toggle(tab: TabTypes) {
@@ -112,26 +112,6 @@ class TrackPage extends React.PureComponent<AllProps, State> {
         activeTab: tab
       });
     }
-  }
-
-  public renderToggleButton() {
-    const { songIdParam, playTrack, relatedPlaylistId, playingTrack } = this.props;
-
-    // TODO redundant?
-
-    if (playingTrack && playingTrack.id !== null && playingTrack.id === songIdParam) {
-      return <TogglePlayButton className="c_btn round colored" />;
-    }
-
-    const playTrackFunc = () => {
-      playTrack(relatedPlaylistId, { id: songIdParam });
-    };
-
-    return (
-      <a href="javascript:void(0)" className="c_btn round colored" onClick={playTrackFunc}>
-        <i className="bx bx-play" />
-      </a>
-    );
   }
 
   // tslint:disable-next-line: max-func-body-length
@@ -154,7 +134,9 @@ class TrackPage extends React.PureComponent<AllProps, State> {
       addUpNext,
       canFetchMoreOf,
       fetchMore,
-      user
+      user,
+      playTrack,
+      songIdParam
     } = this.props;
 
     const { activeTab } = this.state;
@@ -191,7 +173,13 @@ class TrackPage extends React.PureComponent<AllProps, State> {
 
               <div className="button-group">
                 {SC.isStreamable(track) ? (
-                  this.renderToggleButton()
+                  <TogglePlayButton
+                    className="c_btn round colored"
+                    trackId={songIdParam}
+                    onPlay={() => {
+                      playTrack(relatedPlaylistId, { id: songIdParam });
+                    }}
+                  />
                 ) : (
                   <a href="javascript:void(0)" className="disabled c_btn">
                     <span>This track is not streamable</span>

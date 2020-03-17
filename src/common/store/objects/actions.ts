@@ -1,26 +1,24 @@
-import { GetPlaylistOptions, Normalized, SoundCloud } from '@types';
+import { GetPlaylistOptions, Normalized, SoundCloud, ThunkResult } from '@types';
 import { normalize, schema } from 'normalizr';
+import { Track } from 'src/types/soundcloud';
 import { action } from 'typesafe-actions';
-import { ThunkResult } from '..';
 import fetchComments from '../../api/fetchComments';
 import fetchPlaylist from '../../api/fetchPlaylist';
 import fetchToJson from '../../api/helpers/fetchToJson';
 import { trackSchema } from '../../schemas';
 import * as SC from '../../utils/soundcloudUtils';
-import { PlayerActionTypes, ProcessedQueueItems } from '../player/types';
 // eslint-disable-next-line import/no-cycle
 import { processQueueItems } from '../player/actions';
-import { SortTypes } from '../playlist/types';
+import { PlayerActionTypes, ProcessedQueueItems } from '../player/types';
 import { getPlaylistObjectSelector } from './selectors';
 import { ObjectsActionTypes, ObjectState, ObjectTypes } from './types';
-import { Track } from 'src/types/soundcloud';
 
-const canFetch = (current: ObjectState<any>): boolean => !current || (!!current && !current.isFetching);
-const canFetchMore = (current: ObjectState<any>): boolean => canFetch(current) && current && current.nextUrl !== null;
+const canFetch = (current: ObjectState): boolean => !current || (!!current && !current.isFetching);
+const canFetchMore = (current: ObjectState): boolean => canFetch(current) && current && current.nextUrl !== null;
 
 // TODO refactor, too hacky. Maybe redux-observables?
 // tslint:disable-next-line:max-line-length
-export function getPlaylist(
+export function getPlaylistO(
   url: string,
   objectId: string,
   options: GetPlaylistOptions = { refresh: false, appendId: null }
@@ -153,7 +151,7 @@ export function fetchPlaylistIfNeeded(playlistId: number): ThunkResult<Promise<a
                 const fetchedItemsIds = fetchedItems.map(item => item.id);
 
                 // eslint-disable-next-line no-case-declarations
-                const result = playlist.tracks.filter(t => fetchedItemsIds.indexOf(t.id) !== -1);
+                const result = playlist.tracks?.filter(t => fetchedItemsIds.indexOf(t.id) !== -1);
 
                 return {
                   objectId: playlistId,
@@ -267,35 +265,35 @@ export function fetchPlaylistTracks(
 /**
  * Fetch new chart if needed
  */
-export function fetchChartsIfNeeded(objectId: string, sortType: SortTypes = SortTypes.TOP): ThunkResult<void> {
-  return (dispatch, getState) => {
-    const playlistObject = getPlaylistObjectSelector(objectId)(getState());
+// export function fetchChartsIfNeeded(objectId: string, sortType: SortTypes = SortTypes.TOP): ThunkResult<void> {
+//   return (dispatch, getState) => {
+//     const playlistObject = getPlaylistObjectSelector(objectId)(getState());
 
-    if (!playlistObject) {
-      dispatch(getPlaylist(SC.getChartsUrl(objectId.split('_')[0], sortType, 25), objectId));
-    }
-  };
-}
+//     if (!playlistObject) {
+//       dispatch(getPlaylistO(SC.getChartsUrl(objectId.split('_')[0], sortType, 25), objectId));
+//     }
+//   };
+// }
 
-export function canFetchPlaylistTracks(playlistId: string): ThunkResult<void> {
-  return (_dispatch, getState) => {
-    const playlistObject = getPlaylistObjectSelector(playlistId)(getState());
+// export function canFetchPlaylistTracks(playlistId: string): ThunkResult<void> {
+//   return (_dispatch, getState) => {
+//     const playlistObject = getPlaylistObjectSelector(playlistId)(getState());
 
-    if (!playlistObject || playlistObject.fetchedItems === playlistObject.items.length || playlistObject.isFetching) {
-      return false;
-    }
+//     if (!playlistObject || playlistObject.fetchedItems === playlistObject.items.length || playlistObject.isFetching) {
+//       return false;
+//     }
 
-    let newCount = playlistObject.fetchedItems + 20;
+//     let newCount = playlistObject.fetchedItems + 20;
 
-    if (newCount > playlistObject.items.length) {
-      newCount = playlistObject.items.length;
-    }
+//     if (newCount > playlistObject.items.length) {
+//       newCount = playlistObject.items.length;
+//     }
 
-    const ids = playlistObject.items.slice(playlistObject.fetchedItems, newCount);
+//     const ids = playlistObject.items.slice(playlistObject.fetchedItems, newCount);
 
-    return !!ids.length;
-  };
-}
+//     return !!ids.length;
+//   };
+// }
 
 export function fetchTracks(ids: number[]): ThunkResult<void> {
   return dispatch => {
@@ -339,11 +337,11 @@ export function fetchTracks(ids: number[]): ThunkResult<void> {
   };
 }
 
-export const unset = (objectId: string) =>
-  action(ObjectsActionTypes.UNSET, {
-    objectId,
-    objectType: ObjectTypes.PLAYLISTS
-  });
+// export const unset = (objectId: string) =>
+//   action(ObjectsActionTypes.UNSET, {
+//     objectId,
+//     objectType: ObjectTypes.PLAYLISTS
+//   });
 
 export function fetchMore(objectId: string, objectType: ObjectTypes): ThunkResult<Promise<any>> {
   return async (dispatch, getState) => {
@@ -356,7 +354,7 @@ export function fetchMore(objectId: string, objectType: ObjectTypes): ThunkResul
       if (nextUrl) {
         switch (objectType) {
           case ObjectTypes.PLAYLISTS:
-            return dispatch<Promise<any>>(getPlaylist(nextUrl, objectId));
+            return dispatch<Promise<any>>(getPlaylistO(nextUrl, objectId));
           case ObjectTypes.COMMENTS:
             return dispatch<Promise<any>>(getCommentsByUrl(nextUrl, objectId));
           default:

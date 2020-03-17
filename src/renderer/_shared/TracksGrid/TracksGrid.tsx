@@ -1,3 +1,4 @@
+import { PlaylistIdentifier } from '@common/store/playlist/types';
 import { Normalized } from '@types';
 import cn from 'classnames';
 import React, { SFC, useContext, useEffect, useRef } from 'react';
@@ -9,10 +10,9 @@ import Spinner from '../Spinner/Spinner';
 import { TrackGridRow } from './TrackGridRow';
 import * as styles from './TracksGrid.module.scss';
 
-interface Props {
+interface Props extends PlaylistIdentifier {
   showInfo?: boolean;
   items: Normalized.NormalizedResult[];
-  objectId: string;
 
   hasMore?: boolean;
   isLoading?: boolean;
@@ -26,7 +26,7 @@ function getRowsForWidth(width: number): number {
 }
 
 const TracksGrid: SFC<Props> = props => {
-  const { items, objectId, showInfo, isItemLoaded, loadMore, hasMore, isLoading } = props;
+  const { items, objectId, showInfo, isItemLoaded, loadMore, hasMore, isLoading, playlistType } = props;
   const loaderRef = useRef<InfiniteLoader & { _listRef: List }>(null);
   const { setList } = useContext(ContentContext);
   const listRef = loaderRef?.current?._listRef;
@@ -62,7 +62,8 @@ const TracksGrid: SFC<Props> = props => {
 
                 return true;
               }}
-              threshold={50}
+              threshold={2}
+              minimumBatchSize={2}
               itemCount={itemCount}
               loadMoreItems={(start, end) => {
                 if (loadMoreItems && items.length - end * itemsPerRow < 5) {
@@ -83,6 +84,7 @@ const TracksGrid: SFC<Props> = props => {
                       itemsPerRow,
                       items,
                       objectId,
+                      playlistType,
                       showInfo
                     }}
                     itemSize={350}

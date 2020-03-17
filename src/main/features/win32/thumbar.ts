@@ -1,4 +1,4 @@
-import { StoreState } from '@common/store';
+import { StoreState } from '@common/store/rootReducer';
 import { ChangeTypes, PlayerStatus } from '@common/store/player';
 import { changeTrack, toggleStatus } from '@common/store/actions';
 // eslint-disable-next-line import/no-extraneous-dependencies

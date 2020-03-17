@@ -1,13 +1,18 @@
-import { createSelector } from 'reselect';
-import { StoreState } from '..';
 import { Normalized } from '@types';
-import { PlayerState, PlayingTrack } from './types';
+import { createSelector } from 'reselect';
+import { StoreState } from '../rootReducer';
+import { PlayerState, PlayerStatus, PlayingTrack } from './types';
 
 export const getPlayer = (state: StoreState) => state.player;
 
 export const getPlayingTrack = createSelector<StoreState, PlayerState, PlayingTrack | null>(
   [getPlayer],
   player => player.playingTrack
+);
+
+export const getPlayerStatusSelector = createSelector<StoreState, PlayerState, PlayerStatus>(
+  [getPlayer],
+  player => player.status
 );
 
 export const getQueue = createSelector<StoreState, PlayerState, PlayingTrack[]>(

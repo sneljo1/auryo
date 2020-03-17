@@ -1,4 +1,5 @@
 import { PlaylistTypes } from '@common/store/objects';
+import { PlaylistIdentifier } from '@common/store/playlist/types';
 import cn from 'classnames';
 import { autobind } from 'core-decorators';
 import React from 'react';
@@ -9,9 +10,8 @@ interface Props {
   data: {
     itemsPerRow: number;
     items: any[];
-    objectId: string;
     showInfo: boolean;
-  };
+  } & PlaylistIdentifier;
   index: number;
   style: React.CSSProperties;
 }
@@ -28,7 +28,7 @@ export class TrackGridRow extends React.PureComponent<Props> {
 
   private renderItem(index: number) {
     const {
-      data: { showInfo, objectId, items }
+      data: { showInfo, objectId, playlistType, items }
     } = this.props;
 
     const item = items[index];
@@ -44,7 +44,7 @@ export class TrackGridRow extends React.PureComponent<Props> {
       );
     }
 
-    const showReposts = objectId === PlaylistTypes.STREAM;
+    const showReposts = playlistType === PlaylistTypes.STREAM;
 
     return (
       <div key={`grid-item-${item.schema}-${item.id}`} style={{ width: this.itemWidth }}>

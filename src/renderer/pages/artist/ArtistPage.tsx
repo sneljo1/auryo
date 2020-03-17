@@ -1,6 +1,6 @@
 import { Menu, MenuItem, Popover, Position } from '@blueprintjs/core';
 import { IMAGE_SIZES } from '@common/constants';
-import { StoreState } from '@common/store';
+import { StoreState } from '@common/store/rootReducer';
 import * as actions from '@common/store/actions';
 import { getNormalizedUser } from '@common/store/entities/selectors';
 import { ObjectTypes, PlaylistTypes } from '@common/store/objects';
@@ -17,7 +17,7 @@ import cn from 'classnames';
 import { autobind } from 'core-decorators';
 import React from 'react';
 import { connect } from 'react-redux';
-import { RouteComponentProps, withRouter } from 'react-router';
+import { RouteComponentProps, withRouter } from 'react-router-dom';
 import { Col, Row, TabContent, TabPane } from 'reactstrap';
 import { bindActionCreators, Dispatch } from 'redux';
 import FallbackImage from '../../_shared/FallbackImage';
@@ -29,11 +29,12 @@ import { ToggleMore } from '../../_shared/ToggleMore';
 import { TrackList } from '../../_shared/TrackList/TrackList';
 import './ArtistPage.scss';
 import ArtistProfiles from './components/ArtistProfiles/ArtistProfiles';
+import { currentUserSelector } from '@common/store/auth/selectors';
 
 const mapStateToProps = (state: StoreState, props: OwnProps) => {
   const {
     auth,
-    app: { dimensions },
+    ui: { dimensions },
     player: { currentPlaylistId, status }
   } = state;
   const {
@@ -54,7 +55,8 @@ const mapStateToProps = (state: StoreState, props: OwnProps) => {
     user: getNormalizedUser(+artistId)(state),
     [PlaylistTypes.ARTIST_TRACKS]: getArtistTracksPlaylistObject(artistId)(state),
     [PlaylistTypes.ARTIST_LIKES]: getArtistLikesPlaylistObject(artistId)(state),
-    artistIdParam: +artistId
+    artistIdParam: +artistId,
+    currentUser: currentUserSelector(state)
   };
 };
 
@@ -266,8 +268,8 @@ class ArtistPage extends React.Component<AllProps, State> {
 
   // tslint:disable-next-line: max-func-body-length
   public render() {
-    const { user, artistIdParam, auth } = this.props;
-    const { followings, me } = auth;
+    const { user, artistIdParam, auth, currentUser } = this.props;
+    const { followings } = auth;
     const { small, activeTab } = this.state;
 
     if (!user || (user && user.loading) || user.track_count === null) {
@@ -298,7 +300,7 @@ class ArtistPage extends React.Component<AllProps, State> {
               </h3>
               <div className="button-group">
                 {this.renderPlayButton()}
-                {me && artistIdParam !== me.id ? (
+                {currentUser && artistIdParam !== currentUser.id ? (
                   <a
                     href="javascript:void(0)"
                     className={cn('c_btn', { active: following })}

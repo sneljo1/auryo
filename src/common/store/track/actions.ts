@@ -1,31 +1,35 @@
 import { Intent } from '@blueprintjs/core';
-import moment from 'moment';
+import { axiosClient } from '@common/api/helpers/axiosClient';
 // eslint-disable-next-line import/no-cycle
-import { ThunkResult } from '..';
+import { ThunkResult } from '@types';
+import moment from 'moment';
 // eslint-disable-next-line import/no-cycle
 import fetchTrack from '../../api/fetchTrack';
 import fetchToJson from '../../api/helpers/fetchToJson';
 import { IPC } from '../../utils/ipc';
 import * as SC from '../../utils/soundcloudUtils';
+import { currentUserSelector } from '../auth/selectors';
 import { AuthActionTypes } from '../auth/types';
 // eslint-disable-next-line import/no-cycle
 import { getTrackEntity } from '../entities/selectors';
 // eslint-disable-next-line import/no-cycle
-import { getComments, getPlaylist } from '../objects/actions';
+import { getComments, getPlaylistO } from '../objects/actions';
 // eslint-disable-next-line import/no-cycle
 import { getCommentObject, getPlaylistName, getRelatedTracksPlaylistObject } from '../objects/selectors';
 import { PlaylistTypes } from '../objects/types';
 import { addToast } from '../ui/actions';
 import { TrackActionTypes } from './types';
-import { axiosClient } from '@common/api/helpers/axiosClient';
 
-export function toggleLike(trackId: number, playlist = false): ThunkResult<any> {
+export function toggleLike(trackId: number | string, playlist = false): ThunkResult<any> {
   return (dispatch, getState) => {
+    const state = getState();
     const {
-      auth: { likes, me }
-    } = getState();
+      auth: { likes }
+    } = state;
 
-    if (!me) {
+    const currentUser = currentUserSelector(state);
+
+    if (!currentUser) {
       return;
     }
 
@@ -33,7 +37,7 @@ export function toggleLike(trackId: number, playlist = false): ThunkResult<any> 
 
     dispatch<Promise<any>>({
       type: AuthActionTypes.SET_LIKE,
-      payload: fetchToJson(playlist ? SC.updatePlaylistLikeUrl(me.id, trackId) : SC.updateLikeUrl(trackId), {
+      payload: fetchToJson(playlist ? SC.updatePlaylistLikeUrl(currentUser.id, trackId) : SC.updateLikeUrl(trackId), {
         method: liked ? 'PUT' : 'DELETE'
       }).then(() => {
         if (liked) {
@@ -80,17 +84,17 @@ export function toggleLike(trackId: number, playlist = false): ThunkResult<any> 
  * Toggle repost of a specific track
  */
 
-export function toggleRepost(trackId: number, playlist = false): ThunkResult<Promise<any>> {
+export function toggleRepost(trackOrPlaylistId: number | string, playlist = false): ThunkResult<Promise<any>> {
   return async (dispatch, getState) => {
     const {
       auth: { reposts }
     } = getState();
 
-    const reposted = !SC.hasID(trackId, playlist ? reposts.playlist : reposts.track);
+    const reposted = !SC.hasID(trackOrPlaylistId, playlist ? reposts.playlist : reposts.track);
 
     await dispatch<Promise<any>>({
       type: AuthActionTypes.SET_REPOST,
-      payload: axiosClient(SC.updateRepostUrl(trackId, !!playlist), {
+      payload: axiosClient(SC.updateRepostUrl(trackOrPlaylistId, !!playlist), {
         method: reposted ? 'PUT' : 'DELETE'
       }).then(() => {
         if (reposted) {
@@ -103,7 +107,7 @@ export function toggleRepost(trackId: number, playlist = false): ThunkResult<Pro
         }
 
         return {
-          trackId,
+          trackId: trackOrPlaylistId,
           reposted,
           playlist
         };
@@ -166,7 +170,7 @@ export function fetchTrackIfNeeded(trackId: number): ThunkResult<any> {
     }
 
     if (!getRelatedTracksPlaylistObject(trackId.toString())(state)) {
-      dispatch(getPlaylist(SC.getRelatedUrl(trackId), relatedTracksPlaylistId, { appendId: trackId }));
+      dispatch(getPlaylistO(SC.getRelatedUrl(trackId), relatedTracksPlaylistId, { appendId: trackId }));
     }
 
     if (!getCommentObject(trackId.toString())(state)) {

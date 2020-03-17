@@ -1,5 +1,5 @@
 import { IMAGE_SIZES } from '@common/constants';
-import { StoreState } from '@common/store';
+import { StoreState } from '@common/store/rootReducer';
 import * as actions from '@common/store/actions';
 import { getTrackEntity } from '@common/store/entities/selectors';
 import { isPlaying } from '@common/store/player/selectors';
@@ -13,7 +13,7 @@ import { Normalized } from '../../../../types';
 import ActionsDropdown from '../../ActionsDropdown';
 import FallbackImage from '../../FallbackImage';
 import { TextShortener } from '../../TextShortener';
-import TogglePlayButton from '../../TogglePlayButton';
+import TogglePlayButton from '../../PageHeader/components/TogglePlayButton';
 import './TrackListItem.scss';
 
 interface OwnProps {

@@ -1,13 +1,62 @@
 import { Intent } from '@blueprintjs/core';
-import { Normalized } from '@types';
-import { ThunkResult } from '..';
+import { PersonalisedCollectionItem } from '@common/api/fetchPersonalised';
+import { wError, wSuccess } from '@common/utils/reduxUtils';
+import { Collection, EntitiesOf, EpicFailure, Normalized, SoundCloud, ThunkResult } from '@types';
+import { createAction, createAsyncAction } from 'typesafe-actions';
 import fetchToJson from '../../api/helpers/fetchToJson';
 import { SC } from '../../utils';
 import { getPlaylistEntity } from '../entities/selectors';
 import { ObjectsActionTypes, ObjectTypes } from '../objects';
 import { getPlaylistObjectSelector } from '../objects/selectors';
 import { addToast } from '../ui/actions';
+import { PlaylistActionTypes, PlaylistIdentifier, SortTypes } from './types';
 
+interface ObjectItem<O = any> extends PlaylistIdentifier {
+  objectType: ObjectTypes;
+  entities: EntitiesOf<O>;
+  result: Normalized.NormalizedResult[];
+  nextUrl?: string;
+  fetchedItemsIds?: number[];
+}
+
+export const getGenericPlaylist = createAsyncAction(
+  PlaylistActionTypes.GET_GENERIC_PLAYLIST,
+  wSuccess(PlaylistActionTypes.GET_GENERIC_PLAYLIST),
+  wError(PlaylistActionTypes.GET_GENERIC_PLAYLIST)
+)<
+  PlaylistIdentifier & { refresh: boolean; sortType?: SortTypes; searchString?: string },
+  ObjectItem & { refresh?: boolean; query?: string },
+  EpicFailure & PlaylistIdentifier
+>();
+
+export const genericPlaylistFetchMore = createAsyncAction(
+  PlaylistActionTypes.GENERIC_PLAYLIST_FETCH_MORE,
+  wSuccess(PlaylistActionTypes.GENERIC_PLAYLIST_FETCH_MORE),
+  wError(PlaylistActionTypes.GENERIC_PLAYLIST_FETCH_MORE)
+)<PlaylistIdentifier, ObjectItem, EpicFailure & PlaylistIdentifier>();
+
+export const setPlaylistLoading = createAction(PlaylistActionTypes.SET_PLAYLIST_LOADING)<PlaylistIdentifier>();
+
+export const getSearchPlaylist = createAction(PlaylistActionTypes.SEARCH)<
+  { query?: string; tag?: string; refresh: boolean } & PlaylistIdentifier
+>();
+export const searchPlaylistFetchMore = createAction(PlaylistActionTypes.SEARCH_FETCH_MORE)<PlaylistIdentifier>();
+
+export const getForYouSelection = createAsyncAction(
+  PlaylistActionTypes.GET_FORYOU_SELECTION,
+  wSuccess(PlaylistActionTypes.GET_FORYOU_SELECTION),
+  wError(PlaylistActionTypes.GET_FORYOU_SELECTION)
+)<
+  undefined,
+  {
+    objects: ForYourObject[];
+    entities: EntitiesOf<Omit<SoundCloud.Playlist, 'tracks'> & { tracks: Normalized.NormalizedResult[] }>;
+    result: Array<Normalized.NormalizedPersonalizedItem>;
+  },
+  EpicFailure
+>();
+
+export type ForYourObject = Omit<ObjectItem, 'entities' | 'nextUrl' | 'objectId'> & { objectId: string };
 /**
  * Add track to certain playlist
  */

@@ -1,9 +1,10 @@
 import { Intent } from '@blueprintjs/core';
 import fetchTrack from '@common/api/fetchTrack';
 import { axiosClient } from '@common/api/helpers/axiosClient';
-import { EVENTS } from '@common/constants/events';
-import { StoreState } from '@common/store';
-import { addToast, setConfigKey } from '@common/store/actions';
+import { addToast, push, setConfigKey } from '@common/store/actions';
+import { StoreState } from '@common/store/rootReducer';
+// eslint-disable-next-line import/no-unresolved
+import { RootState } from 'AppReduxTypes';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { app, BrowserWindow, BrowserWindowConstructorOptions, Event, Menu, nativeImage, shell } from 'electron';
 import is from 'electron-is';
@@ -39,9 +40,7 @@ export class Auryo {
   public quitting = false;
   private readonly logger: LoggerInstance = Logger.createLogger(Auryo.name);
 
-  constructor(store: Store<StoreState>) {
-    this.store = store;
-
+  constructor() {
     app.setAppUserModelId('com.auryo.core');
 
     app.on('before-quit', () => {
@@ -65,6 +64,10 @@ export class Auryo {
         });
       }
     });
+  }
+
+  public setStore(store: Store<RootState>) {
+    this.store = store;
   }
 
   public async start() {
@@ -211,20 +214,25 @@ export class Auryo {
 
     await this.mainWindow.loadURL(winURL);
 
-    this.mainWindow.webContents.on('will-navigate', async (e, u) => {
-      e.preventDefault();
+    this.mainWindow.webContents.on('will-navigate', async (event, url) => {
+      event.preventDefault();
 
       try {
-        if (/^(https?:\/\/)/g.exec(u) !== null) {
-          if (/https?:\/\/(www.)?soundcloud\.com\//g.exec(u) !== null) {
+        if (/^(https?:\/\/)/g.exec(url) !== null) {
+          if (/https?:\/\/(www.)?soundcloud\.com\//g.exec(url) !== null) {
             if (this.mainWindow) {
-              this.mainWindow.webContents.send(EVENTS.APP.PUSH_NAVIGATION, '/resolve', u);
+              this.store.dispatch(
+                push({
+                  pathname: '/resolve',
+                  search: url
+                })
+              );
             }
           } else {
-            await shell.openExternal(u);
+            await shell.openExternal(url);
           }
-        } else if (/^mailto:/g.exec(u) !== null) {
-          await shell.openExternal(u);
+        } else if (/^mailto:/g.exec(url) !== null) {
+          await shell.openExternal(url);
         }
       } catch (err) {
         this.logger.error(err);

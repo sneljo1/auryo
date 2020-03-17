@@ -1,3 +1,3 @@
-import { StoreState } from '.';
+import { RootState } from 'AppReduxTypes';
 
-export const getRouter = (state: StoreState) => state.router;
+export const getRouter = (state: RootState) => state.router;

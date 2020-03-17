@@ -1,5 +1,5 @@
 import { Classes } from '@blueprintjs/core';
-import { StoreState } from '@common/store';
+import { StoreState } from '@common/store/rootReducer';
 import * as actions from '@common/store/actions';
 import { getQueue } from '@common/store/player/selectors';
 import { autobind } from 'core-decorators';

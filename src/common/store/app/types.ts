@@ -10,7 +10,6 @@ export interface AppState
     offline: boolean;
     update: UpdateInfo;
     lastChecked: number;
-    dimensions: Dimensions;
     remainingPlays: RemainingPlays | null;
     lastfmLoading: boolean;
     chromecast: ChromeCastState;
@@ -72,20 +71,18 @@ export interface UpdateInfo {
   available: boolean;
   version: string | null;
 }
-export interface Dimensions {
-  width: number;
-  height: number;
-}
 
 // ACTIONS
 
 export enum AppActionTypes {
+  GET_REMAINING_PLAYS = '@@app/GET_REMAINING_PLAYS',
+  RESET_STORE = '@@app/RESET_STORE',
+  INIT = '@@app/INIT',
+
   TOGGLE_OFFLINE = '@@app/TOGGLE_OFFLINE',
   SET_LOADED = '@@app/SET_LOADED',
-  SET_DIMENSIONS = '@@app/SET_DIMENSIONS',
   SET_UPDATE_AVAILABLE = '@@app/SET_UPDATE_AVAILABLE',
   SET_CAN_GO = '@@app/SET_CAN_GO',
-  RESET_STORE = '@@app/RESET_STORE',
   SET_REMAINING_PLAYS = '@@app/SET_REMAINING_PLAYS',
   SET_LASTFM_LOADING = '@@app/SET_LASTFM_LOADING',
   ADD_CHROMECAST_DEVICE = '@@app/ADD_CHROMECAST_DEVICE',

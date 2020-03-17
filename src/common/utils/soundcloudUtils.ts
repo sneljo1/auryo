@@ -3,9 +3,12 @@ import { IMAGE_SIZES } from '../constants';
 
 const endpoint = 'https://api.soundcloud.com/';
 const v2Endpoint = 'https://api-v2.soundcloud.com/';
-let memToken: string;
+
+// eslint-disable-next-line import/no-mutable-exports
+export let memToken: string;
 
 export function initialize(token: string) {
+  console.log('initialize token');
   memToken = token;
 }
 

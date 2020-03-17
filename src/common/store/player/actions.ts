@@ -1,8 +1,8 @@
 import { Intent } from '@blueprintjs/core';
+import { axiosClient } from '@common/api/helpers/axiosClient';
+import { Normalized, SoundCloud, ThunkResult } from '@types';
 import _ from 'lodash';
-import { action } from 'typesafe-actions';
-import { ThunkResult } from '..';
-import { Normalized, SoundCloud } from '../../../types';
+import { action, createAction } from 'typesafe-actions';
 import { getCurrentPosition } from '../../utils/playerUtils';
 import * as SC from '../../utils/soundcloudUtils';
 import { getPlaylistEntity, getTrackEntity } from '../entities/selectors';
@@ -21,11 +21,13 @@ import {
   ProcessedQueueItems,
   RepeatTypes
 } from './types';
-import { axiosClient } from '@common/api/helpers/axiosClient';
 
-export const setCurrentTime = (time: number) => action(PlayerActionTypes.SET_TIME, { time });
+export const toggleShuffle = createAction(PlayerActionTypes.TOGGLE_SHUFFLE)<boolean>();
+
+export const setCurrentTime = createAction(PlayerActionTypes.SET_TIME, (time: number) => ({
+  time
+}))();
 export const setDuration = (time: number) => action(PlayerActionTypes.SET_DURATION, { time });
-export const toggleShuffle = (value: boolean) => action(PlayerActionTypes.TOGGLE_SHUFFLE, { value });
 export const clearUpNext = () => action(PlayerActionTypes.CLEAR_UP_NEXT);
 
 export function getPlaylistObject(playlistId: string, position: number): ThunkResult<Promise<any>> {

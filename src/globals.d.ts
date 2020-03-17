@@ -38,3 +38,11 @@ declare module 'electron-window-state';
 declare module 'react-dotdotdot';
 declare module 'color-hash';
 declare module 'react-marquee';
+
+declare module 'AppReduxTypes' {
+  import { StateType, ActionType } from 'typesafe-actions';
+
+  export type Store = StateType<typeof import('@common/store/index').default>;
+  export type RootAction = ActionType<typeof import('@common/store/actions')>;
+  export type RootState = StateType<ReturnType<typeof import('@common/store/rootReducer').rootReducer>>;
+}

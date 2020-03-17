@@ -1,7 +1,7 @@
 import { Menu, MenuDivider, MenuItem, Popover, Position } from '@blueprintjs/core';
-import { StoreState } from '@common/store';
+import { StoreState } from '@common/store/rootReducer';
 import * as actions from '@common/store/actions';
-import { getLikes, getReposts, getUserPlaylistsCombined } from '@common/store/auth/selectors';
+import { getAuthLikesSelector, getAuthRepostsSelector, getUserPlaylistsCombined } from '@common/store/auth/selectors';
 import { SC } from '@common/utils';
 import { IPC } from '@common/utils/ipc';
 import cn from 'classnames';
@@ -14,8 +14,8 @@ import ShareMenuItem from './ShareMenuItem';
 
 const mapStateToProps = (state: StoreState) => ({
   userPlaylists: getUserPlaylistsCombined(state),
-  likes: getLikes(state),
-  reposts: getReposts(state)
+  likes: getAuthLikesSelector(state),
+  reposts: getAuthRepostsSelector(state)
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) =>

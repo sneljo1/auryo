@@ -11,7 +11,7 @@ import TrackGridUser from '../../../_shared/TracksGrid/TrackgridUser/TrackGridUs
 
 interface Props {
   track: Normalized.Track;
-  comments: ObjectState<Normalized.NormalizedResult> | null;
+  comments: ObjectState | null;
 
   hasMore: boolean;
   loadMore(): Promise<void>;

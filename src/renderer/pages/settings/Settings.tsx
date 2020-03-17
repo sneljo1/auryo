@@ -1,7 +1,7 @@
 import { Button, Collapse, Intent, Switch } from '@blueprintjs/core';
 import fetchToJson from '@common/api/helpers/fetchToJson';
 import { EVENTS } from '@common/constants/events';
-import { StoreState } from '@common/store';
+import { StoreState } from '@common/store/rootReducer';
 import * as actions from '@common/store/actions';
 import { SC } from '@common/utils';
 import { ThemeKeys } from '@renderer/app/components/Theme/themes';
@@ -19,9 +19,9 @@ import { InputConfig } from './components/InputConfig';
 import { SelectConfig } from './components/SelectConfig';
 import './Settings.scss';
 
-const mapStateToProps = ({ config, auth, app }: StoreState) => ({
+const mapStateToProps = ({ config, app, appAuth }: StoreState) => ({
   config,
-  authenticated: !!config.auth.token && !auth.authentication.loading,
+  authenticated: !!config.auth.token && !appAuth.isLoading,
   lastfmLoading: app.lastfmLoading
 });
 

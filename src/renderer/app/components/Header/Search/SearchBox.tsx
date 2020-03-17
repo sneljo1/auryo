@@ -18,7 +18,6 @@ interface State {
 
 @autobind
 class SearchBox extends React.Component<Props, State> {
-  private readonly handleSearchDebounced: (oldValue: string, currentValue?: string) => void;
   private searchInput = React.createRef<HTMLInputElement>();
   public static readonly defaultProps: Partial<Props> = {
     value: '',
@@ -32,8 +31,6 @@ class SearchBox extends React.Component<Props, State> {
     this.state = {
       query: props.initialValue || props.value || ''
     };
-
-    this.handleSearchDebounced = debounce(this.handleSearch, 250);
   }
 
   public componentDidMount() {
@@ -54,7 +51,7 @@ class SearchBox extends React.Component<Props, State> {
     const { query } = this.state;
 
     if (this.searchInput.current) {
-      this.handleSearchDebounced(query, event.currentTarget.value);
+      this.handleSearch(query, event.currentTarget.value);
     }
 
     this.setState({ query: event.currentTarget.value });
@@ -64,7 +61,7 @@ class SearchBox extends React.Component<Props, State> {
     const { query } = this.state;
 
     if (event.key === 'Enter') {
-      this.handleSearchDebounced(query, event.currentTarget.value);
+      this.handleSearch(query, event.currentTarget.value);
     }
   }
 
@@ -117,7 +114,7 @@ class SearchBox extends React.Component<Props, State> {
               href="javascript:void(0)"
               onClick={() => {
                 this.setState({ query: '' });
-                this.handleSearchDebounced(query);
+                this.handleSearch(query);
               }}>
               <i id="clear" className="input-group-addon bx bx-x" />
             </a>

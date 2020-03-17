@@ -1,5 +1,5 @@
 import { IMAGE_SIZES } from '@common/constants';
-import { StoreState } from '@common/store';
+import { StoreState } from '@common/store/rootReducer';
 import * as actions from '@common/store/actions';
 import { getMusicEntity } from '@common/store/entities/selectors';
 import { isPlaying } from '@common/store/player/selectors';
@@ -16,7 +16,7 @@ import { Normalized, SoundCloud } from '../../../../types';
 import ActionsDropdown from '../../ActionsDropdown';
 import FallbackImage from '../../FallbackImage';
 import { TextShortener } from '../../TextShortener';
-import TogglePlayButton from '../../TogglePlayButton';
+import TogglePlayButton from '../../PageHeader/components/TogglePlayButton';
 import './TrackGridItem.scss';
 import { PlayingTrack } from '@common/store/player';
 
@@ -62,7 +62,8 @@ class TrackGridItem extends React.Component<AllProps> {
     const { track, fetchPlaylistIfNeeded, skipFetch } = this.props;
 
     if (track && track.kind === 'playlist' && track.track_count && !track.tracks && !skipFetch) {
-      fetchPlaylistIfNeeded(track.id);
+      // TODO
+      // fetchPlaylistIfNeeded(track.id);
     }
   }
 
@@ -82,7 +83,8 @@ class TrackGridItem extends React.Component<AllProps> {
       (prevProps.track && track && prevProps.track.id !== track.id && !skipFetch)
     ) {
       if (track.kind === 'playlist' && track.track_count && !track.tracks) {
-        fetchPlaylistIfNeeded(track.id);
+        // TODO
+        // fetchPlaylistIfNeeded(track.id);
       }
     }
   }
@@ -94,14 +96,14 @@ class TrackGridItem extends React.Component<AllProps> {
       return null;
     }
 
-    if (track.from_user && showReposts && track.type?.indexOf('repost') !== -1) {
+    if (track.fromUser && showReposts && track.type?.indexOf('repost') !== -1) {
       return (
         <div className="trackArtist">
           <Link to={`/user/${track.user.id}`}>{track.user.username}</Link>
           <i className="bx bx-repost" />
 
-          <Link to={`/user/${track.from_user.id}`} className="repost">
-            {track.from_user.username}
+          <Link to={`/user/${track.fromUser.id}`} className="repost">
+            {track.fromUser.username}
           </Link>
         </div>
       );

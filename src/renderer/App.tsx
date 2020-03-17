@@ -1,25 +1,42 @@
 import { EVENTS } from '@common/constants/events';
-import { StoreState } from '@common/store';
+import { history } from '@common/store';
 import { stopWatchers, toggleStatus } from '@common/store/actions';
-import { ConnectedRouter } from 'connected-react-router';
+import { configSelector } from '@common/store/config/selectors';
+import { ConnectedRouter, push } from 'connected-react-router';
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { ipcRenderer } from 'electron';
-import { History } from 'history';
+import { ipcRenderer, remote } from 'electron';
+import { UnregisterCallback } from 'history';
 import React, { FC, useEffect } from 'react';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { hot } from 'react-hot-loader/root';
-import { Provider } from 'react-redux';
-import { Route, Switch } from 'react-router';
-import { Store } from 'redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { Route, Switch } from 'react-router-dom';
 import Main from './app/Main';
 import OnBoarding from './pages/onboarding/OnBoarding';
+import { ua } from '@common/utils/universalAnalytics';
+import { useKey } from 'react-use';
 
-interface Props {
-  history: History;
-  store: Store<StoreState>;
-}
+export const App: FC = () => {
+  const analyticsEnabled = useSelector(state => configSelector(state).app.analytics);
+  const dispatch = useDispatch();
 
-export const App: FC<Props> = ({ history, store }) => {
+  // Toggle player on Space
+  // TODO re-enable
+  // useKey(' ', () => dispatch(toggleStatus() as any), { event: 'keyup' });
+  // Prevent body from scrolling when pressing Space
+  useKey(
+    ' ',
+    event => {
+      if (event.target === document.body) {
+        event.preventDefault();
+        return false;
+      }
+
+      return true;
+    },
+    { event: 'keydown' }
+  );
+
   useEffect(() => {
     ipcRenderer.send(EVENTS.APP.READY);
 
@@ -27,45 +44,38 @@ export const App: FC<Props> = ({ history, store }) => {
       ipcRenderer.send(EVENTS.APP.NAVIGATE);
     });
 
-    const onKeyUp = (e: KeyboardEvent) => {
-      // When space bar pressed
-      if (e.keyCode === 32) {
-        // Prevent from scrolling
-        store.dispatch(toggleStatus() as any);
-      }
+    return () => {
+      dispatch(stopWatchers() as any);
+      unregister();
     };
+  }, [dispatch]);
 
-    const onKeyDown = (e: KeyboardEvent) => {
-      // Prevent body from scrolling
-      if (e.keyCode === 32 && e.target === document.body) {
-        e.preventDefault();
-        return false;
+  // Page analytics
+  useEffect(() => {
+    let unregister: UnregisterCallback;
+
+    if (!process.env.TOKEN && process.env.NODE_ENV === 'production') {
+      ua.set('version', remote.app.getVersion());
+      ua.set('anonymizeIp', true);
+      if (analyticsEnabled) {
+        ua.pv('/').send();
+
+        unregister = history.listen(location => {
+          ua.pv(location.pathname).send();
+        });
       }
-
-      return true;
-    };
-
-    window.addEventListener('keydown', onKeyDown);
-    window.addEventListener('keyup', onKeyUp);
+    }
 
     return () => {
-      store.dispatch(stopWatchers() as any);
-      unregister();
-      window.removeEventListener('keyup', onKeyUp);
-      window.removeEventListener('keydown', onKeyDown);
+      unregister?.();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [analyticsEnabled]);
 
   return (
-    <Provider store={store}>
-      <ConnectedRouter history={history}>
-        <Switch>
-          <Route path="/login" component={OnBoarding} />
-          <Route path="/" component={Main} />
-        </Switch>
-      </ConnectedRouter>
-    </Provider>
+    <Switch>
+      <Route path="/login/:step?" component={OnBoarding} />
+      <Route path="/" component={Main} />
+    </Switch>
   );
 };
 

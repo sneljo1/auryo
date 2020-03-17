@@ -1,6 +1,5 @@
 import { EVENTS } from '@common/constants/events';
-import { setLoginError, setLoginLoading } from '@common/store/auth/actions';
-import { setLogin } from '@common/store/config/actions';
+import { login, loginError, loginTerminated, refreshToken, loginSuccess } from '@common/store/appAuth/actions';
 import { createAuthWindow } from '@main/authWindow';
 import { AWSApiGatewayService } from '@main/aws/awsApiGatewayService';
 import { AWSIotService } from '@main/aws/awsIotService';
@@ -12,9 +11,11 @@ import _ from 'lodash';
 import { CONFIG } from '../../../config';
 import { Logger, LoggerInstance } from '../../utils/logger';
 import { Feature } from '../feature';
+
 @autobind
 export default class IPCManager extends Feature {
   public readonly featureName = 'IPCManager';
+  public authWindow: Electron.BrowserWindow | null = null;
   private readonly logger: LoggerInstance = Logger.createLogger(this.featureName);
 
   private readonly awsApiGateway: AWSApiGatewayService = new AWSApiGatewayService();
@@ -79,28 +80,23 @@ export default class IPCManager extends Feature {
   }
 
   private async showAuthWindow() {
-    const {
-      auth: {
-        authentication: { loading }
-      }
-    } = this.store.getState();
-    let authWindow: Electron.BrowserWindow | null = null;
+    const { appAuth } = this.store.getState();
     let awsIotWrapper: AWSIotService | undefined;
 
-    if (loading) {
+    if (appAuth.isLoading) {
       this.logger.debug('Already loading');
       return;
     }
 
     try {
-      this.store.dispatch(setLoginLoading());
+      this.store.dispatch(login());
 
       this.logger.debug('Starting login');
 
-      authWindow = createAuthWindow();
+      this.authWindow = createAuthWindow();
 
-      authWindow.on('close', () => {
-        this.store.dispatch(setLoginLoading(false));
+      this.authWindow.on('close', () => {
+        this.store.dispatch(loginTerminated());
       });
 
       const getKeysResponse = await this.awsApiGateway.getKeys();
@@ -114,7 +110,7 @@ export default class IPCManager extends Feature {
       const path = `/auth/signin/soundcloud`;
       const signedRequest = this.awsApiGateway.prepareRequest(path);
 
-      await authWindow.loadURL(`${CONFIG.AWS_API_URL}${path}`, {
+      await this.authWindow.loadURL(`${CONFIG.AWS_API_URL}${path}`, {
         extraHeaders: Object.keys(signedRequest.headers).reduce(
           (prevString, headerName) => `${prevString}${headerName}: ${signedRequest.headers[headerName]}\n`,
           ''
@@ -124,18 +120,16 @@ export default class IPCManager extends Feature {
       // tslint:disable-next-line: no-unnecessary-local-variable
       const tokenResponse = await awsIotWrapper.waitForMessageOrTimeOut();
 
-      authWindow.close();
-
       if (tokenResponse) {
         this.logger.debug('Auth successfull');
 
-        this.store.dispatch(setLogin(tokenResponse));
-        this.sendToWebContents('login-success');
+        this.store.dispatch(loginSuccess(tokenResponse));
         await awsIotWrapper.disconnect();
       }
+      this.authWindow.close();
     } catch (err) {
-      if (authWindow?.isClosable()) {
-        authWindow.close();
+      if (this.authWindow?.isClosable()) {
+        this.authWindow.close();
       }
       if (awsIotWrapper) {
         try {
@@ -145,28 +139,28 @@ export default class IPCManager extends Feature {
         }
       }
 
-      this.store.dispatch(setLoginError('Something went wrong during login'));
+      this.store.dispatch(loginError('Something went wrong during login'));
       this.logger.error(err);
 
       throw err;
     }
+
+    this.authWindow = null;
   }
 
   private async refreshToken() {
     const {
       config: {
-        auth: { refreshToken }
+        auth: { refreshToken: token }
       },
-      auth: {
-        authentication: { loading }
-      }
+      appAuth
     } = this.store.getState();
 
-    if (loading) {
+    if (appAuth.isLoading) {
       return null;
     }
 
-    if (!refreshToken) {
+    if (!token) {
       this.logger.debug('Refreshtoken not found');
       this.showAuthWindow().catch(this.logger.error);
 
@@ -176,20 +170,19 @@ export default class IPCManager extends Feature {
     try {
       this.logger.debug('Starting refresh');
 
-      const tokenResponse = await this.awsApiGateway.refresh(refreshToken, 'soundcloud');
+      const tokenResponse = await this.awsApiGateway.refresh(token, 'soundcloud');
 
       if (tokenResponse) {
         this.logger.debug('Auth successfull');
 
-        this.store.dispatch(setLogin(tokenResponse));
-        this.sendToWebContents('login-success');
+        this.store.dispatch(refreshToken(tokenResponse));
 
         return {
           token: tokenResponse.access_token
         };
       }
     } catch (err) {
-      this.store.dispatch(setLoginError('Something went wrong during refresh'));
+      this.store.dispatch(loginError('Something went wrong during refresh'));
       this.logger.error(err);
 
       this.showAuthWindow().catch(this.logger.error);

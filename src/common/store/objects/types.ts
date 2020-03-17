@@ -1,4 +1,5 @@
 import { Normalized } from '@types';
+import { AxiosError } from 'axios';
 
 // TYPES
 
@@ -14,7 +15,8 @@ export enum PlaylistTypes {
   DISCOVER = 'DISCOVER',
   MYTRACKS = 'MYTRACKS',
   PLAYLIST = 'PLAYLIST',
-  PLAYLISTS = 'PLAYLISTS',
+  MYPLAYLISTS = 'MYPLAYLISTS',
+  CHART = 'CHART',
 
   // With ids
   RELATED = 'RELATED',
@@ -27,22 +29,32 @@ export enum PlaylistTypes {
 }
 
 export type ObjectsState = Readonly<{
+  [PlaylistTypes.STREAM]: ObjectState;
+  [PlaylistTypes.LIKES]: ObjectState;
+  [PlaylistTypes.MYTRACKS]: ObjectState;
+  [PlaylistTypes.MYPLAYLISTS]: ObjectState;
+  [PlaylistTypes.PLAYLIST]: ObjectState;
+  [PlaylistTypes.SEARCH]: ObjectState;
+  [PlaylistTypes.SEARCH_PLAYLIST]: ObjectState;
+  [PlaylistTypes.SEARCH_USER]: ObjectState;
+  [PlaylistTypes.SEARCH_TRACK]: ObjectState;
+
   [ObjectTypes.PLAYLISTS]: ObjectGroup;
   [ObjectTypes.COMMENTS]: ObjectGroup;
 }>;
 
 export interface ObjectGroup {
-  [id: string]: ObjectState<Normalized.NormalizedResult>;
+  [id: string]: ObjectState;
 }
 
-export interface ObjectState<T> {
+export interface ObjectState {
   isFetching: boolean;
-  error: string | null;
-  meta: object;
-  items: T[];
-  futureUrl: string | null;
-  nextUrl: string | null;
+  error: AxiosError | Error | null;
+  items: Normalized.NormalizedResult[];
+  nextUrl?: string | null;
   fetchedItems: number;
+  itemsToFetch: Normalized.NormalizedResult[];
+  meta: { query?: string; createdAt?: number; updatedAt?: number };
 }
 
 // ACTIONS

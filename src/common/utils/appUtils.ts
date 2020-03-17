@@ -84,3 +84,7 @@ export function getReadableTimeFull(sec: number, inMs?: boolean) {
 
   return str;
 }
+
+export function isSoundCloudUrl(query: string) {
+  return /https?:\/\/(www.)?soundcloud\.com\//g.exec(query) !== null;
+}

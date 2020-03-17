@@ -1,7 +1,7 @@
 import { denormalize, schema } from 'normalizr';
 import { createSelector } from 'reselect';
 import { EntitiesState } from '.';
-import { StoreState } from '..';
+import { StoreState } from '../rootReducer';
 import { Normalized, SoundCloud } from '@types';
 import { commentSchema, playlistSchema, trackSchema, userSchema } from '../../schemas';
 
@@ -57,20 +57,20 @@ export const getPlaylistEntity = (id: number) =>
 export const getCommentEntity = (id: number) =>
   getDenormalizedEntity<SoundCloud.Comment | null>({ id, schema: 'comments' });
 
-export const getNormalizedPlaylist = (id: number) =>
+export const getNormalizedPlaylist = (id: string | number) =>
   createSelector<StoreState, EntitiesState['playlistEntities'], Normalized.Playlist | null>(
     getPlaylistEntities(),
     entities => entities[id]
   );
 
-export const getNormalizedUser = (id: number) =>
-  createSelector<StoreState, EntitiesState['userEntities'], SoundCloud.User | null>(
+export const getNormalizedUser = (id?: number) =>
+  createSelector<StoreState, EntitiesState['userEntities'], SoundCloud.User | undefined | null>(
     getUserEntities(),
-    entities => entities[id]
+    entities => (id ? entities[id] : null)
   );
 
-export const getNormalizedTrack = (id: number) =>
-  createSelector<StoreState, EntitiesState['trackEntities'], Normalized.Track>(
+export const getNormalizedTrack = (id?: number) =>
+  createSelector<StoreState, EntitiesState['trackEntities'], Normalized.Track | undefined | null>(
     getTrackEntities(),
-    entities => entities[id]
+    entities => (id ? entities[id] : null)
   );

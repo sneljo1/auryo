@@ -1,56 +1,36 @@
 import { AUDIO_GENRES, GenreConfig, MUSIC_GENRES } from '@common/constants';
 import { SortTypes } from '@common/store/playlist/types';
-import React from 'react';
-import { RouteComponentProps } from 'react-router';
-import PlaylistPage from '../playlists/Playlist';
+import React, { FC, useState } from 'react';
+import { RouteComponentProps } from 'react-router-dom';
+import { GenericPlaylist } from '../GenericPlaylist';
 import { GENRE_IMAGES } from './genreImages';
+import { PlaylistTypes } from '@common/store/objects';
 
-type OwnProps = RouteComponentProps<{ genre: string }>;
+type Props = RouteComponentProps<{ genre: string }>;
 
-interface State {
-  sort: SortTypes;
-}
-
-export class ChartsDetailsPage extends React.PureComponent<OwnProps> {
-  public readonly state: State = {
-    sort: SortTypes.TOP
-  };
-
-  public sortTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    this.setState({
-      sort: event.target.value
-    });
-  };
-
-  public render() {
-    const {
-      match: {
-        params: { genre }
-      }
-    } = this.props;
-    const { sort } = this.state;
-
-    let selectedGenre: GenreConfig | undefined = MUSIC_GENRES.find(g => g.key === genre);
-
-    if (!selectedGenre) {
-      selectedGenre = AUDIO_GENRES.find(g => g.key === genre);
-    }
-
-    selectedGenre = selectedGenre as GenreConfig;
-
-    const objectId = `${genre}_${sort}`;
-
-    return (
-      <PlaylistPage
-        showInfo
-        chart
-        backgroundImage={GENRE_IMAGES[selectedGenre.key]}
-        gradient={selectedGenre.gradient}
-        title={selectedGenre.name}
-        objectId={objectId}
-        sortType={sort}
-        sortTypeChange={this.sortTypeChange}
-      />
-    );
+export const ChartsDetailsPage: FC<Props> = ({
+  match: {
+    params: { genre }
   }
-}
+}) => {
+  const [sortType, setSortType] = useState<SortTypes>(SortTypes.TOP);
+
+  const selectedGenre = [...MUSIC_GENRES, ...AUDIO_GENRES].find(g => g.key === genre);
+
+  if (!selectedGenre) {
+    return null;
+  }
+
+  return (
+    <GenericPlaylist
+      showInfo
+      backgroundImage={GENRE_IMAGES[selectedGenre.key]}
+      gradient={selectedGenre.gradient}
+      title={selectedGenre.name}
+      playlistType={PlaylistTypes.CHART}
+      objectId={`soundcloud:genres:${genre}`}
+      sortType={sortType}
+      onSortTypeChange={event => setSortType(event.target.value as SortTypes)}
+    />
+  );
+};

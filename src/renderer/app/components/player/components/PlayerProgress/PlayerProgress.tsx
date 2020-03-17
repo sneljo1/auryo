@@ -14,8 +14,8 @@ export const PlayerProgress: FC = () => {
   const { seek } = useAudioPlayer();
   const { duration, position: currentTime } = useAudioPosition();
 
-  const [isSeeking, setIsSeeking] = useState();
-  const [nextTime, setNextTime] = useState();
+  const [isSeeking, setIsSeeking] = useState(false);
+  const [nextTime, setNextTime] = useState<number>();
 
   const sliderValue = isSeeking ? nextTime : currentTime;
 
@@ -57,7 +57,7 @@ export const PlayerProgress: FC = () => {
 
   return (
     <div className={styles.playerTimeline}>
-      <div className={styles.time}>{getReadableTime(isSeeking ? nextTime : currentTime, false, true)}</div>
+      <div className={styles.time}>{getReadableTime(isSeeking && nextTime ? nextTime : currentTime, false, true)}</div>
       <div className={styles.progressInner}>
         <Slider
           min={0}

@@ -1,7 +1,7 @@
 import * as SoundCloud from './soundcloud';
 
 export interface Playlist extends Omit<SoundCloud.Playlist, 'tracks' | 'user'> {
-  tracks: NormalizedResult[];
+  tracks?: NormalizedResult[];
   user: number;
 }
 

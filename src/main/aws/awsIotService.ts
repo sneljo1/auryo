@@ -16,8 +16,8 @@ export interface AuthMessage {
 
 export interface TokenResponse {
   access_token: string;
-  expires_at: number;
-  refresh_token: string;
+  expires_at?: number;
+  refresh_token?: string;
 }
 
 export class AWSIotService {

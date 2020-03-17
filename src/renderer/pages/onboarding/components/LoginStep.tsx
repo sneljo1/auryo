@@ -5,7 +5,7 @@ import React from 'react';
 import * as reduxModal from 'redux-modal';
 
 interface Props {
-  error: string | null;
+  error?: string | null;
   show: typeof reduxModal.show;
   loading: boolean;
   login(): void;

@@ -2,7 +2,7 @@ import { PlatformSender } from '@amilajack/castv2-client';
 import { Intent } from '@blueprintjs/core';
 import { IMAGE_SIZES } from '@common/constants';
 import { EVENTS } from '@common/constants/events';
-import { StoreState } from '@common/store';
+import { StoreState } from '@common/store/rootReducer';
 import { DevicePlayerStatus } from '@common/store/app';
 import { getTrackEntity } from '@common/store/entities/selectors';
 import { PlayerStatus } from '@common/store/player';

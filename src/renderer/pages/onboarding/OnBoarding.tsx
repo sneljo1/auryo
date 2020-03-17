@@ -1,14 +1,14 @@
 import feetonmusicbox from '@assets/img/feetonmusicbox.jpg';
-import { StoreState } from '@common/store';
+import { StoreState } from '@common/store/rootReducer';
 import * as actions from '@common/store/actions';
-import { authConfigSelector, configSelector } from '@common/store/config/selectors';
+import { authTokenStateSelector, configSelector } from '@common/store/config/selectors';
 import AboutModal from '@renderer/app/components/modals/AboutModal/AboutModal';
 import cn from 'classnames';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { ipcRenderer } from 'electron';
-import React, { useEffect, useState, FC } from 'react';
+import React, { useEffect, useState, FC, useCallback } from 'react';
 import { connect } from 'react-redux';
-import { RouteComponentProps } from 'react-router';
+import { RouteComponentProps } from 'react-router-dom';
 import { bindActionCreators, Dispatch } from 'redux';
 import * as ReduxModal from 'redux-modal';
 import { LoginStep } from './components/LoginStep';
@@ -18,20 +18,21 @@ import './OnBoarding.scss';
 import { Position } from '@blueprintjs/core';
 import { Toastr } from '@renderer/app/components/Toastr';
 import { EVENTS } from '@common/constants';
+import { getAppAuth } from '@common/store/appAuth/selectors';
 
 const mapStateToProps = (state: StoreState) => ({
-  ...state.auth.authentication,
   config: configSelector(state),
-  auth: authConfigSelector(state),
-  toasts: state.ui.toasts
+  auth: authTokenStateSelector(state),
+  toasts: state.ui.toasts,
+  appAuth: getAppAuth(state)
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) =>
   bindActionCreators(
     {
       show: ReduxModal.show,
-      setConfigKey: actions.setConfigKey,
-      clearToasts: actions.clearToasts
+      clearToasts: actions.clearToasts,
+      finishOnboarding: actions.finishOnboarding
     },
     dispatch
   );
@@ -42,32 +43,32 @@ type PropsFromState = ReturnType<typeof mapStateToProps>;
 
 type PropsFromDispatch = ReturnType<typeof mapDispatchToProps>;
 
-type AllProps = OwnProps & PropsFromState & PropsFromDispatch & RouteComponentProps;
+type Steps = 'welcome' | 'login' | 'privacy';
 
-const OnBoarding: FC<AllProps> = ({ loading, error, show, config, setConfigKey, history, toasts, clearToasts }) => {
-  const [step, setStep] = useState<'welcome' | 'login' | 'privacy'>('login');
+type AllProps = OwnProps & PropsFromState & PropsFromDispatch & RouteComponentProps<{ step?: Steps }>;
 
+const OnBoarding: FC<AllProps> = ({ appAuth, show, config, toasts, clearToasts, match, finishOnboarding }) => {
   const {
-    auth: { token },
-    lastLogin
-  } = config;
-
-  useEffect(() => {
-    if (token) {
-      if (lastLogin) {
-        history.replace('/');
-      } else {
-        setStep('welcome');
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token, lastLogin]);
+    params: { step: initialStep }
+  } = match;
+  const { isLoading, error } = appAuth;
+  const [step, setStep] = useState<Steps>(initialStep ?? 'login');
 
   const login = () => {
-    if (!loading) {
+    if (!isLoading) {
       ipcRenderer.send(EVENTS.APP.AUTH.LOGIN);
     }
   };
+
+  const finish = useCallback(() => {
+    finishOnboarding();
+  }, [finishOnboarding]);
+
+  useEffect(() => {
+    if (initialStep) {
+      setStep(initialStep);
+    }
+  }, [initialStep]);
 
   return (
     <div id="login" className={cn('login', { login_small: step === 'login' })}>
@@ -88,7 +89,7 @@ const OnBoarding: FC<AllProps> = ({ loading, error, show, config, setConfigKey, 
 
       <div className="row d-flex align-items-center">
         <div className={`login-wrap col-12 ${step !== 'login' ? 'col-md-6' : 'col-md-5'}`}>
-          {step === 'login' && <LoginStep loading={loading} error={error} show={show} login={login} />}
+          {step === 'login' && <LoginStep loading={isLoading} error={error} show={show} login={login} />}
 
           {step === 'welcome' && (
             <WelcomeStep
@@ -98,16 +99,7 @@ const OnBoarding: FC<AllProps> = ({ loading, error, show, config, setConfigKey, 
             />
           )}
 
-          {step === 'privacy' && (
-            <PrivacyStep
-              config={config}
-              setConfigKey={setConfigKey}
-              onNext={() => {
-                setConfigKey('lastLogin', Date.now());
-                history.replace('/');
-              }}
-            />
-          )}
+          {step === 'privacy' && <PrivacyStep config={config} onNext={finish} />}
         </div>
       </div>
       <AboutModal />

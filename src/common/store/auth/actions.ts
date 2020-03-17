@@ -1,123 +1,133 @@
-import { replace } from 'connected-react-router';
-import { action } from 'typesafe-actions';
-import { ThunkResult } from '..';
-import { SoundCloud } from '../../../types';
+import { wError, wSuccess } from '@common/utils/reduxUtils';
+import { EntitiesOf, EpicFailure, ObjectMap, SoundCloud, ThunkResult } from '@types';
+import { createAsyncAction } from 'typesafe-actions';
 import fetchPersonalised from '../../api/fetchPersonalised';
-import fetchPlaylists from '../../api/fetchPlaylists';
 import fetchToJson from '../../api/helpers/fetchToJson';
-import fetchToObject from '../../api/helpers/fetchToObject';
 import { SC } from '../../utils';
-import { setToken } from '../config/actions';
-import { ObjectTypes, PlaylistTypes } from '../objects';
-import { getPlaylist, setObject } from '../objects/actions';
-import { getPlaylistObjectSelector } from '../objects/selectors';
-import { AuthActionTypes } from './types';
-import { AppActionTypes } from '../app';
+import { ObjectTypes } from '../objects';
+import { setObject } from '../objects/actions';
+import { FetchedPlaylistItem } from './api';
+import { AuthActionTypes, AuthLikes, AuthPlaylists, AuthReposts } from './types';
 
-export function logout(): ThunkResult<void> {
-  return dispatch => {
-    dispatch({
-      type: AppActionTypes.RESET_STORE
-    });
-    dispatch(replace('/login'));
-    dispatch(setToken(null));
-  };
-}
+// AUTH DATA
+export const getCurrentUser = createAsyncAction(
+  AuthActionTypes.GET_USER,
+  wSuccess(AuthActionTypes.GET_USER),
+  wError(AuthActionTypes.GET_USER)
+)<undefined, SoundCloud.User, EpicFailure>();
 
-export const setLoginError = (data: string) => action(AuthActionTypes.ERROR, data);
+export const getCurrentUserFollowingsIds = createAsyncAction(
+  AuthActionTypes.GET_USER_FOLLOWINGS_IDS,
+  wSuccess(AuthActionTypes.GET_USER_FOLLOWINGS_IDS),
+  wError(AuthActionTypes.GET_USER_FOLLOWINGS_IDS)
+)<undefined, ObjectMap, EpicFailure>();
 
-export const setLoginLoading = (loading = true) => action(AuthActionTypes.LOADING, loading);
+export const getCurrentUserLikeIds = createAsyncAction(
+  AuthActionTypes.GET_USER_LIKE_IDS,
+  wSuccess(AuthActionTypes.GET_USER_LIKE_IDS),
+  wError(AuthActionTypes.GET_USER_LIKE_IDS)
+)<undefined, AuthLikes, EpicFailure>();
 
-export function getAuth(): ThunkResult<void> {
-  return (dispatch, getState) => {
-    const {
-      config: {
-        app: { analytics }
-      }
-    } = getState();
+export const getCurrentUserRepostIds = createAsyncAction(
+  AuthActionTypes.GET_USER_REPOST_IDS,
+  wSuccess(AuthActionTypes.GET_USER_REPOST_IDS),
+  wError(AuthActionTypes.GET_USER_REPOST_IDS)
+)<undefined, AuthReposts, EpicFailure>();
 
-    dispatch(
-      action(
-        AuthActionTypes.SET,
-        fetchToJson<SoundCloud.User>(SC.getMeUrl()).then(user => {
-          if (process.env.NODE_ENV === 'production' && analytics) {
-            // eslint-disable-next-line
-            const { ua } = require('../../utils/universalAnalytics');
+export const getCurrentUserPlaylists = createAsyncAction(
+  AuthActionTypes.GET_USER_PLAYLISTS,
+  wSuccess(AuthActionTypes.GET_USER_PLAYLISTS),
+  wError(AuthActionTypes.GET_USER_PLAYLISTS)
+)<undefined, AuthPlaylists & { entities: EntitiesOf<FetchedPlaylistItem> }, EpicFailure>();
 
-            ua.set('userId', user.id);
-          }
+// export function getAuth(): ThunkResult<void> {
+//   return (dispatch, getState) => {
+//     const {
+//       config: {
+//         app: { analytics }
+//       }
+//     } = getState();
 
-          return user;
-        })
-      )
-    );
-  };
-}
+//     dispatch(
+//       action(
+//         AuthActionTypes.SET,
+//         fetchToJson<SoundCloud.User>(SC.getMeUrl()).then(user => {
+//           if (process.env.NODE_ENV === 'production' && analytics) {
+//             // eslint-disable-next-line
+//             const { ua } = require('../../utils/universalAnalytics');
 
-export function getAuthTracksIfNeeded(): ThunkResult<void> {
-  return (dispatch, getState) => {
-    const state = getState();
-    const {
-      auth: { me }
-    } = state;
+//             ua.set('userId', user.id);
+//           }
 
-    if (!me || !me.id) {
-      return;
-    }
+//           return user;
+//         })
+//       )
+//     );
+//   };
+// }
 
-    const playlistObject = getPlaylistObjectSelector(PlaylistTypes.MYTRACKS)(state);
+// export function getAuthTracksIfNeeded(): ThunkResult<void> {
+//   return (dispatch, getState) => {
+//     const state = getState();
 
-    if (!playlistObject) {
-      dispatch(getPlaylist(SC.getUserTracksUrl(me.id), PlaylistTypes.MYTRACKS));
-    }
-  };
-}
+//     const currentUser = currentUserSelector(state);
 
-export function getAuthAllPlaylistsIfNeeded(): ThunkResult<void> {
-  return (dispatch, getState) => {
-    const state = getState();
-    const {
-      auth: { me }
-    } = state;
+//     if (!currentUser?.id) {
+//       return;
+//     }
 
-    if (!me || !me.id) {
-      return;
-    }
+//     const playlistObject = getPlaylistObjectSelector(PlaylistTypes.MYTRACKS)(state);
 
-    const playlistObject = getPlaylistObjectSelector(PlaylistTypes.PLAYLISTS)(state);
+//     if (!playlistObject) {
+//       dispatch(getPlaylistO(SC.getUserTracksUrl(currentUser.id), PlaylistTypes.MYTRACKS));
+//     }
+//   };
+// }
 
-    if (!playlistObject) {
-      dispatch(getPlaylist(SC.getAllUserPlaylistsUrl(me.id), PlaylistTypes.PLAYLISTS));
-    }
-  };
-}
+// export function getAuthAllPlaylistsIfNeeded(): ThunkResult<void> {
+//   return (dispatch, getState) => {
+//     const state = getState();
 
-export function getAuthLikeIds(): ThunkResult<Promise<any>> {
-  return dispatch => {
-    return Promise.all([
-      dispatch({
-        type: AuthActionTypes.SET_LIKES,
-        payload: fetchToObject(SC.getLikeIdsUrl())
-      }),
-      dispatch({
-        type: AuthActionTypes.SET_PLAYLIST_LIKES,
-        payload: fetchToObject(SC.getPlaylistLikeIdsUrl())
-      })
-    ]);
-  };
-}
+//     const currentUser = currentUserSelector(state);
 
-export function getAuthLikesIfNeeded(): ThunkResult<void> {
-  return (dispatch, getState) => {
-    const playlistObject = getPlaylistObjectSelector(PlaylistTypes.LIKES)(getState());
+//     if (!currentUser?.id) {
+//       return;
+//     }
 
-    if (!playlistObject) {
-      dispatch(getPlaylist(SC.getLikesUrl(), PlaylistTypes.LIKES));
-    }
-  };
-}
+//     const playlistObject = getPlaylistObjectSelector(PlaylistTypes.PLAYLISTS)(state);
 
-export const getAuthFollowings = () => action(AuthActionTypes.SET_FOLLOWINGS, fetchToObject(SC.getFollowingsUrl()));
+//     if (!playlistObject) {
+//       dispatch(getPlaylistO(SC.getAllUserPlaylistsUrl(currentUser.id), PlaylistTypes.PLAYLISTS));
+//     }
+//   };
+// }
+
+// export function getAuthLikeIds(): ThunkResult<Promise<any>> {
+//   return dispatch => {
+//     return Promise.all([
+//       dispatch({
+//         type: AuthActionTypes.SET_LIKES,
+//         payload: fetchToObject(SC.getLikeIdsUrl())
+//       }),
+//       dispatch({
+//         type: AuthActionTypes.SET_PLAYLIST_LIKES,
+//         payload: fetchToObject(SC.getPlaylistLikeIdsUrl())
+//       })
+//     ]);
+//   };
+// }
+
+// export function getAuthLikesIfNeeded(): ThunkResult<void> {
+//   return (dispatch, getState) => {
+//     const playlistObject = getPlaylistObjectSelector(PlaylistTypes.LIKES)(getState());
+
+//     if (!playlistObject) {
+//       dispatch(getPlaylistO(SC.getLikesUrl(), PlaylistTypes.LIKES));
+//     }
+//   };
+// }
+
+// export const getAuthFollowings = () => action(AuthActionTypes.SET_FOLLOWINGS, fetchToObject(SC.getFollowingsUrl()));
 
 /**
  * Toggle following of a specific user
@@ -142,93 +152,95 @@ export function toggleFollowing(userId: number): ThunkResult<void> {
   };
 }
 
-export function getAuthReposts(): ThunkResult<Promise<any>> {
-  return dispatch =>
-    Promise.all([
-      dispatch({
-        type: AuthActionTypes.SET_REPOSTS,
-        payload: fetchToObject(SC.getRepostIdsUrl())
-      }),
-      dispatch({
-        type: AuthActionTypes.SET_PLAYLIST_REPOSTS,
-        payload: fetchToObject(SC.getRepostIdsUrl(true))
-      })
-    ]);
-}
+// export function getAuthReposts(): ThunkResult<Promise<any>> {
+//   return dispatch =>
+//     Promise.all([
+//       dispatch({
+//         type: AuthActionTypes.SET_REPOSTS,
+//         payload: fetchToObject(SC.getRepostIdsUrl())
+//       }),
+//       dispatch({
+//         type: AuthActionTypes.SET_PLAYLIST_REPOSTS,
+//         payload: fetchToObject(SC.getRepostIdsUrl(true))
+//       })
+//     ]);
+// }
 
-export function getAuthFeed(refresh?: boolean): ThunkResult<Promise<any>> {
-  return async (dispatch, getState) => {
-    const {
-      config: { hideReposts }
-    } = getState();
+// export function getAuthFeed(refresh?: boolean): ThunkResult<Promise<any>> {
+//   return async (dispatch, getState) => {
+//     const {
+//       config: { hideReposts }
+//     } = getState();
 
-    return dispatch<Promise<any>>(getPlaylist(SC.getFeedUrl(hideReposts ? 40 : 20), PlaylistTypes.STREAM, { refresh }));
-  };
-}
+//     return dispatch<Promise<any>>(
+//       getPlaylistO(SC.getFeedUrl(hideReposts ? 40 : 20), PlaylistTypes.STREAM, { refresh })
+//     );
+//   };
+// }
 
 /**
  * Get playlists from the authenticated user
  */
-export function getAuthPlaylists(): ThunkResult<any> {
-  return dispatch =>
-    dispatch({
-      type: AuthActionTypes.SET_PLAYLISTS,
-      payload: {
-        promise: fetchPlaylists().then(({ normalized }) => {
-          normalized.result.forEach(playlistResult => {
-            if (normalized.entities.playlistEntities && normalized.entities.playlistEntities[playlistResult.id]) {
-              const playlist = normalized.entities.playlistEntities[playlistResult.id];
+// export function getAuthPlaylists(): ThunkResult<any> {
+//   return dispatch =>
+//     dispatch({
+//       type: AuthActionTypes.SET_PLAYLISTS,
+//       payload: {
+//         promise: fetchPlaylists().then(({ normalized }) => {
+//           normalized.result.forEach(playlistResult => {
+//             if (normalized.entities.playlistEntities && normalized.entities.playlistEntities[playlistResult.id]) {
+//               const playlist = normalized.entities.playlistEntities[playlistResult.id];
 
-              dispatch(setObject(playlistResult.id.toString(), ObjectTypes.PLAYLISTS, {}, playlist.tracks));
-            }
-          });
+//               dispatch(setObject(playlistResult.id.toString(), ObjectTypes.PLAYLISTS, {}, playlist.tracks));
+//             }
+//           });
 
-          return normalized;
-        })
-      }
-    });
-}
+//           return normalized;
+//         })
+//       }
+//     });
+// }
 
-export function fetchPersonalizedPlaylistsIfNeeded(): ThunkResult<void> {
-  return async (dispatch, getState) => {
-    const {
-      auth: { personalizedPlaylists }
-    } = getState();
+// export function fetchPersonalizedPlaylistsIfNeeded(): ThunkResult<void> {
+//   return async (dispatch, getState) => {
+//     const {
+//       auth: { personalizedPlaylists }
+//     } = getState();
 
-    if (!personalizedPlaylists.items && !personalizedPlaylists.loading) {
-      return dispatch<Promise<any>>({
-        type: AuthActionTypes.SET_PERSONALIZED_PLAYLISTS,
-        payload: {
-          promise: fetchPersonalised(SC.getPersonalizedurl()).then(({ normalized }) => {
-            normalized.result.forEach(playlistResult => {
-              (playlistResult.items.collection || []).forEach(playlistId => {
-                if (normalized.entities.playlistEntities && normalized.entities.playlistEntities[playlistId]) {
-                  const playlist = normalized.entities.playlistEntities[playlistId];
+//     if (!personalizedPlaylists.items && !personalizedPlaylists.loading) {
+//       return dispatch<Promise<any>>({
+//         type: AuthActionTypes.SET_PERSONALIZED_PLAYLISTS,
+//         payload: {
+//           promise: fetchPersonalised(SC.getPersonalizedurl()).then(({ normalized }) => {
+//             normalized.result.forEach(playlistResult => {
+//               (playlistResult.items.collection || []).forEach(playlistId => {
+//                 if (normalized.entities.playlistEntities && normalized.entities.playlistEntities[playlistId]) {
+//                   const playlist = normalized.entities.playlistEntities[playlistId];
 
-                  dispatch(
-                    setObject(
-                      playlistId.toString(),
-                      ObjectTypes.PLAYLISTS,
-                      {},
-                      playlist.tracks,
-                      undefined,
-                      undefined,
-                      0
-                    )
-                  );
-                }
-              });
-            });
+//                   dispatch(
+//                     setObject(
+//                       playlistId.toString(),
+//                       ObjectTypes.PLAYLISTS,
+//                       {},
+//                       playlist.tracks || [],
+//                       undefined,
+//                       undefined,
+//                       0
+//                     )
+//                   );
+//                 }
+//               });
+//             });
 
-            return {
-              entities: normalized.entities,
-              items: normalized.result
-            };
-          })
-        }
-      } as any);
-    }
+//             return {
+//               entities: normalized.entities,
+//               items: normalized.result
+//             };
+//           })
+//         }
+//       } as any);
+//     }
 
-    return Promise.resolve();
-  };
-}
+//     return Promise.resolve();
+//   };
+// }

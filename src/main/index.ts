@@ -22,12 +22,12 @@ global.__static = staticPath.replace(/\\/g, '\\\\');
 import { app, systemPreferences } from 'electron';
 import { Auryo } from './app';
 import { Logger } from './utils/logger';
-import { configureStore } from '@common/configureStore';
+import store from '@common/store';
 import is from 'electron-is';
 
-const store = configureStore();
+const auryo = new Auryo();
 
-const auryo = new Auryo(store);
+auryo.setStore(store);
 
 // Quit when all windows are closed
 app.on('window-all-closed', () => {

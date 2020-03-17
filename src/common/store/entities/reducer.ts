@@ -3,7 +3,7 @@ import { Reducer } from 'redux';
 import { AppActionTypes } from '../app';
 import { EntitiesState } from './types';
 
-const initialState = {
+const initialState: EntitiesState = {
   playlistEntities: {},
   trackEntities: {},
   userEntities: {},

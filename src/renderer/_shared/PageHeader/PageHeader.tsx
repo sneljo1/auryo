@@ -19,8 +19,10 @@ const PageHeader = React.memo<Props>(({ image, gradient, children, title, subtit
     {gradient && <div className="gradient" style={{ backgroundImage: gradient }} />}
 
     <div className="header-content">
-      {title ? <h2>{title}</h2> : children}
+      {title && <h2>{title}</h2>}
       {subtitle && <div className="subtitle">{subtitle}</div>}
+
+      {children}
     </div>
   </div>
 ));

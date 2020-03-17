@@ -1,10 +1,7 @@
 import { Intent, IResizeEntry, Position, ResizeSensor } from '@blueprintjs/core';
 import { EVENTS } from '@common/constants/events';
-import { StoreState } from '@common/store';
+import { StoreState } from '@common/store/rootReducer';
 import * as actions from '@common/store/actions';
-import { getUserPlaylists } from '@common/store/auth/selectors';
-import { PlayerStatus } from '@common/store/player';
-import { getCurrentPlaylistId } from '@common/store/player/selectors';
 // eslint-disable-next-line import/no-cycle
 import { ContentContext, INITIAL_LAYOUT_SETTINGS, LayoutSettings } from '@renderer/_shared/context/contentContext';
 import cn from 'classnames';
@@ -18,11 +15,11 @@ import React from 'react';
 import Theme from 'react-custom-properties';
 import Scrollbars from 'react-custom-scrollbars';
 import { connect } from 'react-redux';
-import { RouteComponentProps, withRouter } from 'react-router';
+import { RouteComponentProps, withRouter } from 'react-router-dom';
 import { FixedSizeList } from 'react-window';
 import { bindActionCreators, compose, Dispatch } from 'redux';
+import { AudioPlayerProvider } from '../hooks/useAudioPlayer';
 import ErrorBoundary from '../_shared/ErrorBoundary';
-import Spinner from '../_shared/Spinner/Spinner';
 import AppError from './components/AppError/AppError';
 import AboutModal from './components/modals/AboutModal/AboutModal';
 import ChangelogModal from './components/modals/ChangeLogModal/ChangelogModal';
@@ -30,7 +27,6 @@ import Player from './components/player/Player';
 import SideBar from './components/Sidebar/Sidebar';
 import { Themes } from './components/Theme/themes';
 import { Toastr } from './components/Toastr';
-import { AudioPlayerProvider } from '../hooks/useAudioPlayer';
 
 const mapStateToProps = (state: StoreState) => {
   const {
@@ -41,12 +37,9 @@ const mapStateToProps = (state: StoreState) => {
   } = state;
 
   return {
-    userPlayerlists: getUserPlaylists(state),
     playingTrack: player.playingTrack,
     theme: config.app.theme,
     toasts: ui.toasts,
-    currentPlaylistId: getCurrentPlaylistId(state),
-    isActuallyPlaying: player.status === PlayerStatus.PLAYING,
 
     offline,
     loaded,
@@ -59,9 +52,8 @@ const mapDispatchToProps = (dispatch: Dispatch) =>
     {
       addToast: actions.addToast,
       clearToasts: actions.clearToasts,
-      initApp: actions.initApp,
       removeToast: actions.removeToast,
-      setDimensions: actions.setDimensions,
+      setDebouncedDimensions: actions.setDebouncedDimensions,
       toggleOffline: actions.toggleOffline,
       stopWatchers: actions.stopWatchers
     },
@@ -96,14 +88,12 @@ class Layout extends React.Component<AllProps, State> {
   };
 
   private readonly contentRef: React.RefObject<Scrollbars> = React.createRef();
-  private readonly debouncedHandleResize: (entries: IResizeEntry[]) => void;
   private readonly debouncedSetScrollPosition: (scrollTop: number, pathname: string) => any;
   private unregister?: UnregisterCallback;
 
   constructor(props: AllProps) {
     super(props);
 
-    this.debouncedHandleResize = debounce(this.handleResize, 500, { leading: true });
     this.debouncedSetScrollPosition = debounce(
       (scrollTop, pathname) => {
         this.setState(state => ({
@@ -159,9 +149,9 @@ class Layout extends React.Component<AllProps, State> {
       contentRect: { width, height }
     }
   ]: IResizeEntry[]) {
-    const { setDimensions } = this.props;
+    const { setDebouncedDimensions } = this.props;
 
-    setDimensions({
+    setDebouncedDimensions({
       height,
       width
     });
@@ -219,12 +209,10 @@ class Layout extends React.Component<AllProps, State> {
       children,
       theme,
       location,
-      currentPlaylistId,
-      isActuallyPlaying,
+
       // Functions
       toasts,
-      clearToasts,
-      userPlayerlists
+      clearToasts
     } = this.props;
 
     const { settings, list, scrollLocations } = this.state;
@@ -232,7 +220,7 @@ class Layout extends React.Component<AllProps, State> {
     const scrollTop = scrollLocations[location.pathname] || 0;
 
     return (
-      <ResizeSensor onResize={this.debouncedHandleResize}>
+      <ResizeSensor onResize={this.handleResize}>
         <Theme global properties={Themes[theme]}>
           <div
             className={cn('body auryo', {
@@ -240,8 +228,6 @@ class Layout extends React.Component<AllProps, State> {
               mac: is.osx(),
               playing: !!playingTrack
             })}>
-            {!loaded && !offline && !loadingError ? <Spinner full /> : null}
-
             {loadingError ? (
               <AppError
                 error={loadingError}
@@ -255,11 +241,7 @@ class Layout extends React.Component<AllProps, State> {
               className={cn({
                 playing: playingTrack
               })}>
-              <SideBar
-                items={userPlayerlists}
-                isActuallyPlaying={isActuallyPlaying}
-                currentPlaylistId={currentPlaylistId}
-              />
+              <SideBar />
 
               <ContentContext.Provider
                 value={{

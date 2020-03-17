@@ -1,22 +1,25 @@
-import { Normalized } from '@types';
 import { createSelector } from 'reselect';
 // eslint-disable-next-line import/no-cycle
-import { StoreState } from '..';
+import { StoreState } from '../rootReducer';
+import { RootState } from '../types';
 import { ObjectGroup, ObjectState, ObjectTypes, PlaylistTypes } from './types';
+import { PlaylistIdentifier } from '../playlist/types';
 
 export const getPlaylistsObjects = (state: StoreState) => state.objects[ObjectTypes.PLAYLISTS] || {};
+export const getPlaylistRootObject = (playlistType: PlaylistTypes | ObjectTypes) => (state: StoreState) =>
+  state.objects[playlistType] || {};
 export const getCommentsObjects = (state: StoreState) => state.objects[ObjectTypes.COMMENTS] || {};
 
-export const getPlaylistObjectSelector = (playlistId: string) =>
-  createSelector<StoreState, ObjectGroup, ObjectState<Normalized.NormalizedResult> | null>(
-    [getPlaylistsObjects],
-    playlists => (playlistId in playlists ? playlists[playlistId] : null)
+export const getPlaylistObjectSelector = (identifier: PlaylistIdentifier) =>
+  createSelector<StoreState | RootState, ObjectGroup | ObjectState, ObjectState | null>(
+    [getPlaylistRootObject(identifier.playlistType)],
+    playlistsOrObjectState =>
+      identifier.objectId ? playlistsOrObjectState[identifier.objectId] : playlistsOrObjectState
   );
 
 export const getCommentObject = (trackId: string) =>
-  createSelector<StoreState, ObjectGroup, ObjectState<Normalized.NormalizedResult> | null>(
-    [getCommentsObjects],
-    comments => (trackId in comments ? comments[trackId] : null)
+  createSelector<StoreState, ObjectGroup, ObjectState | null>([getCommentsObjects], comments =>
+    trackId in comments ? comments[trackId] : null
   );
 
 export const getPlaylistName = (id: string, playlistType: PlaylistTypes) => [id, playlistType].join('|');

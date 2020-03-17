@@ -1,29 +1,34 @@
 import { Icon, Menu, MenuDivider, MenuItem, Popover, Position } from '@blueprintjs/core';
 import { EVENTS } from '@common/constants/events';
-import { StoreState } from '@common/store';
+import { StoreState } from '@common/store/rootReducer';
 import * as actions from '@common/store/actions';
+import { currentUserSelector } from '@common/store/auth/selectors';
 import { InjectedContentContextProps, withContentContext } from '@renderer/_shared/context/contentContext';
 import cn from 'classnames';
 import * as ReactRouter from 'connected-react-router';
+import { autobind } from 'core-decorators';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { ipcRenderer } from 'electron';
 import { isEqual } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
-import { RouteComponentProps, withRouter } from 'react-router';
+import { RouteComponentProps, withRouter } from 'react-router-dom';
 import Sticky from 'react-stickynode';
 import { bindActionCreators, compose, Dispatch } from 'redux';
 import * as ReduxModal from 'redux-modal';
 import './Header.scss';
 import SearchBox from './Search/SearchBox';
 import User from './User/User';
-import { autobind } from 'core-decorators';
 
-const mapStateToProps = ({ app, auth }: StoreState) => ({
-  update: app.update,
-  me: auth.me,
-  locHistory: app.history
-});
+const mapStateToProps = (state: StoreState) => {
+  const { app } = state;
+
+  return {
+    update: app.update,
+    currentUser: currentUserSelector(state),
+    locHistory: app.history
+  };
+};
 
 const mapDispatchToProps = (dispatch: Dispatch) =>
   bindActionCreators(
@@ -31,7 +36,8 @@ const mapDispatchToProps = (dispatch: Dispatch) =>
       logout: actions.logout,
       show: ReduxModal.show,
       push: ReactRouter.push,
-      replace: ReactRouter.replace
+      replace: ReactRouter.replace,
+      setDebouncedSearchQuery: actions.setDebouncedSearchQuery
     },
     dispatch
   );
@@ -84,13 +90,13 @@ class Header extends React.Component<AllProps, State> {
   }
 
   public shouldComponentUpdate(nextProps: AllProps, nextState: State) {
-    const { scrollTop, locHistory, me, update, location, settings } = this.props;
+    const { scrollTop, locHistory, currentUser, update, location, settings } = this.props;
 
     return (
       !isEqual(locHistory, nextProps.locHistory) ||
       !isEqual(location.pathname, nextProps.location.pathname) ||
       !isEqual(settings, nextProps.settings) ||
-      me !== nextProps.me ||
+      currentUser !== nextProps.currentUser ||
       (this.navBarWrapper.current && nextState.height !== this.navBarWrapper.current.clientHeight) ||
       nextProps.update !== update ||
       scrollTop !== nextProps.scrollTop
@@ -153,34 +159,16 @@ class Header extends React.Component<AllProps, State> {
   }
 
   public handleSearch(prev: string, rawQuery?: string) {
-    const { push, replace } = this.props;
+    const { push, replace, setDebouncedSearchQuery } = this.props;
 
-    if (!rawQuery) {
-      replace('/search');
-
-      return;
-    }
-
-    const searchQuery = rawQuery;
-
-    if (prev) {
-      replace({
-        pathname: `/search`,
-        search: searchQuery
-      });
-    } else {
-      push({
-        pathname: `/search`,
-        search: searchQuery
-      });
-    }
+    setDebouncedSearchQuery(rawQuery);
   }
 
   // tslint:disable-next-line: max-func-body-length
   public render() {
     const {
       locHistory: { next, back },
-      me,
+      currentUser,
       logout,
       scrollTop,
       settings,
@@ -215,7 +203,7 @@ class Header extends React.Component<AllProps, State> {
               </div>
 
               <div className="d-flex align-items-center justify-content-between">
-                <User me={me} />
+                <User currentUser={currentUser} />
 
                 <Popover
                   position={Position.BOTTOM_RIGHT}
@@ -252,7 +240,7 @@ class Header extends React.Component<AllProps, State> {
 
                       <MenuDivider />
 
-                      <MenuItem text="Logout" icon="log-out" onClick={logout} />
+                      <MenuItem text="Logout" icon="log-out" onClick={() => logout()} />
                     </Menu>
                   }>
                   <a href="javascript:void(0)" className="toggle">

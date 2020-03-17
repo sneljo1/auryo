@@ -48,7 +48,7 @@ export default async function fetchPlaylist(
 
   let normalized = null;
 
-  if (objectId === PlaylistTypes.STREAM || objectId === PlaylistTypes.PLAYLISTS) {
+  if (objectId === PlaylistTypes.STREAM || objectId === PlaylistTypes.MYPLAYLISTS) {
     const { collection } = json as CollectionResponse;
 
     const processedColletion = collection
@@ -62,7 +62,7 @@ export default async function fetchPlaylist(
       .map(item => {
         const obj: any = item.track || item.playlist;
 
-        obj.from_user = item.user;
+        obj.fromUser = item.user;
         obj.type = item.type;
 
         return obj;

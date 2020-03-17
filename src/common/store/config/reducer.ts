@@ -1,51 +1,26 @@
-import { clone, curry, setWith } from 'lodash/fp';
-import { Reducer } from 'redux';
+import immutable from 'object-path-immutable';
+import { createReducer } from 'typesafe-actions';
 import { CONFIG } from '../../../config';
-import { PlayerActionTypes } from '../player';
-import { ConfigActionTypes, ConfigState } from './types';
-
-export const setIn = curry((path: string, value: string, obj: object) => setWith(clone, path, value, clone(obj)));
+import { setConfig, setConfigKey } from './actions';
+import { ConfigState } from './types';
 
 const initialState = CONFIG.DEFAULT_CONFIG;
 
-export const configReducer: Reducer<ConfigState> = (state = initialState, action) => {
-  const { payload, type } = action;
+export const configReducer = createReducer<ConfigState>(initialState)
+  .handleAction(setConfig, (state, action) => {
+    const { payload } = action;
 
-  switch (type) {
-    case ConfigActionTypes.SET_TOKEN:
-      return {
-        ...state,
-        auth: {
-          ...state.auth,
-          token: payload
-        }
-      };
-    case ConfigActionTypes.SET_ALL:
-      return {
-        ...state,
-        ...payload
-      };
-    case ConfigActionTypes.SET_LOGIN:
-      return {
-        ...state,
-        auth: {
-          expiresAt: payload.expires_at,
-          refreshToken: payload.refresh_token,
-          token: payload.access_token
-        }
-      };
-    case ConfigActionTypes.SET_KEY:
-      return {
-        ...state,
-        ...setIn(payload.key, payload.value, state)
-      };
+    return {
+      ...state,
+      ...payload
+    };
+  })
+  .handleAction(setConfigKey, (state, action) => {
+    const { payload } = action;
 
-    case PlayerActionTypes.TOGGLE_SHUFFLE:
-      return {
-        ...state,
-        shuffle: payload.value
-      };
-    default:
-      return state;
-  }
-};
+    console.log(payload, action.type, process.type);
+    return {
+      ...state,
+      ...immutable.set(state, payload.key, payload.value)
+    };
+  });

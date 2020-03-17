@@ -1,11 +1,10 @@
-import { SoundCloud } from '@types';
+import { SoundCloud, ThunkResult } from '@types';
 import fetchToJson from '../../api/helpers/fetchToJson';
 import { SC } from '../../utils';
 import { PlaylistTypes } from '../objects';
-import { getPlaylist } from '../objects/actions';
+import { getPlaylistO } from '../objects/actions';
 import { getArtistLikesPlaylistObject, getArtistTracksPlaylistObject, getPlaylistName } from '../objects/selectors';
 import { UserActionTypes } from './types';
-import { ThunkResult } from '..';
 
 /**
  * Get and save user
@@ -110,12 +109,14 @@ export function fetchArtistIfNeeded(userId: number): ThunkResult<any> {
 
     if (!getArtistTracksPlaylistObject(userId.toString())(state)) {
       dispatch(
-        getPlaylist(SC.getUserTracksUrl(userId), getPlaylistName(userId.toString(), PlaylistTypes.ARTIST_TRACKS))
+        getPlaylistO(SC.getUserTracksUrl(userId), getPlaylistName(userId.toString(), PlaylistTypes.ARTIST_TRACKS))
       );
     }
 
     if (!getArtistLikesPlaylistObject(userId.toString())(state)) {
-      dispatch(getPlaylist(SC.getUserLikesUrl(userId), getPlaylistName(userId.toString(), PlaylistTypes.ARTIST_LIKES)));
+      dispatch(
+        getPlaylistO(SC.getUserLikesUrl(userId), getPlaylistName(userId.toString(), PlaylistTypes.ARTIST_LIKES))
+      );
     }
   };
 }

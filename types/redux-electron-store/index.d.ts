@@ -1,11 +1,12 @@
 declare module 'redux-electron-store' {
-    import { StoreEnhancer } from "redux";
+  import { StoreEnhancer, AnyAction } from 'redux';
 
-    namespace ReduxElectronStore {
+  namespace ReduxElectronStore {
+    function electronEnhancer(opts?: {
+      filter?: object | boolean;
+      dispatchProxy?: (action: AnyAction) => any;
+    }): StoreEnhancer<any>;
+  }
 
-        function electronEnhancer(opts?: { filter: object }): StoreEnhancer<any>;
-
-    }
-
-    export = ReduxElectronStore;
+  export = ReduxElectronStore;
 }

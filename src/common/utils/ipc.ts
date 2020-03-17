@@ -19,7 +19,7 @@ export class IPC {
     ipcRenderer.send(EVENTS.TRACK.REPOSTED);
   }
 
-  static notifyTrackLiked(trackId: number) {
+  static notifyTrackLiked(trackId: number | string) {
     ipcRenderer.send(EVENTS.TRACK.LIKED, trackId);
   }
 }

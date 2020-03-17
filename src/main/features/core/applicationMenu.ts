@@ -1,6 +1,6 @@
 import { EVENTS } from '@common/constants/events';
 import { ChangeTypes, PlayerStatus, VolumeChangeTypes } from '@common/store/player';
-import { setConfigKey, changeTrack, toggleStatus } from '@common/store/actions';
+import { setConfigKey, changeTrack, toggleStatus, push } from '@common/store/actions';
 import * as SC from '@common/utils/soundcloudUtils';
 import { autobind } from 'core-decorators';
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -58,20 +58,38 @@ export default class ApplicationMenu extends Feature {
         label: 'Edit',
         submenu: [
           {
+            label: 'Undo',
+            accelerator: 'CmdOrCtrl+Z',
+            role: 'undo'
+          },
+          {
+            label: 'Redo',
+            accelerator: 'Shift+CmdOrCtrl+Z',
+            role: 'redo'
+          },
+          {
+            type: 'separator'
+          },
+          {
             label: 'Cut',
             accelerator: 'CmdOrCtrl+X',
-            selector: 'cut:'
-          } as any,
+            role: 'cut'
+          },
           {
             label: 'Copy',
             accelerator: 'CmdOrCtrl+C',
-            selector: 'copy:'
-          } as any,
+            role: 'copy'
+          },
           {
             label: 'Paste',
             accelerator: 'CmdOrCtrl+V',
-            selector: 'paste:'
-          } as any,
+            role: 'paste'
+          },
+          {
+            label: 'Select All',
+            accelerator: 'CmdOrCtrl+A',
+            role: 'selectAll'
+          },
           {
             type: 'separator'
           },
@@ -207,7 +225,7 @@ export default class ApplicationMenu extends Feature {
             label: 'Preferences',
             accelerator: 'CmdOrCtrl+,',
             click: () => {
-              this.sendToWebContents(EVENTS.APP.PUSH_NAVIGATION, '/settings');
+              this.store.dispatch(push('/settings'));
             }
           },
           { type: 'separator' },

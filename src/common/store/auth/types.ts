@@ -1,16 +1,25 @@
-import { Normalized, SoundCloud } from '@types';
+import { Normalized, SoundCloud, ObjectMap } from '@types';
+import { EpicError } from '@common/utils/errors/EpicError';
 
 // TYPES
 
 export type AuthState = Readonly<{
-  me: AuthUser | null;
+  me: {
+    isLoading: boolean;
+    error?: any;
+    data?: SoundCloud.User;
+  };
   followings: AuthFollowing;
   likes: AuthLikes;
   reposts: AuthReposts;
-  playlists: Normalized.NormalizedResult[];
-  authentication: AuthStatus;
+  playlists: {
+    isLoading: boolean;
+    error?: any;
+    data: AuthPlaylists;
+  };
   personalizedPlaylists: {
     loading: boolean;
+    error?: EpicError | null;
     items: Normalized.NormalizedPersonalizedItem[] | null;
   };
 }>;
@@ -18,34 +27,31 @@ export type AuthState = Readonly<{
 export interface AuthFollowing {
   [userId: string]: boolean;
 }
+export interface AuthPlaylists {
+  liked: Normalized.NormalizedResult[];
+  owned: Normalized.NormalizedResult[];
+}
 
 export interface AuthLikes {
-  track: {
-    [trackId: string]: boolean;
-  };
-  playlist: {
-    [playlistId: string]: boolean;
-  };
+  track: ObjectMap;
+  playlist: ObjectMap;
+  systemPlaylist: ObjectMap;
 }
+
 export interface AuthReposts {
-  track: {
-    [trackId: string]: boolean;
-  };
-  playlist: {
-    [playlistId: string]: boolean;
-  };
-}
-
-export type AuthUser = SoundCloud.User;
-
-export interface AuthStatus {
-  loading: boolean;
-  error: string | null;
+  track: ObjectMap;
+  playlist: ObjectMap;
 }
 
 // ACTIONS
 
 export enum AuthActionTypes {
+  GET_USER = '@@auth/GET_USER',
+  GET_USER_FOLLOWINGS_IDS = '@@auth/GET_USER_FOLLOWINGS_IDS',
+  GET_USER_LIKE_IDS = '@@auth/GET_USER_LIKE_IDS',
+  GET_USER_REPOST_IDS = '@@auth/GET_USER_REPOST_IDS',
+  GET_USER_PLAYLISTS = '@@auth/GET_USER_PLAYLISTS',
+
   SET = '@@auth/SET',
   SET_PLAYLISTS = '@@auth/SET_PLAYLISTS',
   SET_PERSONALIZED_PLAYLISTS = '@@auth/SET_PERSONALIZED_PLAYLISTS',

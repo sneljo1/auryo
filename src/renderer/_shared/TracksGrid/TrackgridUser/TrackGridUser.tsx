@@ -1,5 +1,5 @@
 import { IMAGE_SIZES } from '@common/constants';
-import { StoreState } from '@common/store';
+import { StoreState } from '@common/store/rootReducer';
 import * as actions from '@common/store/actions';
 import { isFollowing } from '@common/store/auth/selectors';
 import { getUserEntity } from '@common/store/entities/selectors';

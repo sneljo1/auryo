@@ -1,44 +1,42 @@
-import { push, replace, goBack } from 'connected-react-router';
+import fetchToJson from '@common/api/helpers/fetchToJson';
+import { IPC } from '@common/utils/ipc';
+import { wError, wSuccess } from '@common/utils/reduxUtils';
+import { EpicFailure, SoundCloud, ThunkResult } from '@types';
+import { goBack, replace } from 'connected-react-router';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { ipcRenderer } from 'electron';
 import is from 'electron-is';
-import { action } from 'typesafe-actions';
-import { ThunkResult } from '..';
-import { fetchRemainingTracks } from '../../api/fetchRemainingTracks';
+import { Dispatch } from 'redux';
+import { action, createAction, createAsyncAction } from 'typesafe-actions';
 import { EVENTS } from '../../constants/events';
-import { SC } from '../../utils';
-import {
-  getAuth,
-  getAuthFeed,
-  getAuthFollowings,
-  getAuthLikeIds,
-  getAuthLikesIfNeeded,
-  getAuthPlaylists,
-  getAuthReposts
-} from '../auth/actions';
+import { isSoundCloudUrl, SC } from '../../utils';
 import { toggleLike, toggleRepost } from '../track/actions';
-import { AppActionTypes, CanGoHistory, CastAppState, ChromeCastDevice, DevicePlayerStatus, Dimensions } from './types';
-import fetchToJson from '@common/api/helpers/fetchToJson';
-import { SoundCloud } from '@types';
-import { IPC } from '@common/utils/ipc';
+import {
+  AppActionTypes,
+  CanGoHistory,
+  CastAppState,
+  ChromeCastDevice,
+  DevicePlayerStatus,
+  RemainingPlays
+} from './types';
 
-export function getRemainingPlays(): ThunkResult<void> {
-  return (dispatch, getState) => {
-    const {
-      config: {
-        app: { overrideClientId }
-      }
-    } = getState();
+export const resetStore = createAction(AppActionTypes.RESET_STORE)();
+export const initApp = createAction(AppActionTypes.INIT)();
 
-    dispatch({
-      type: AppActionTypes.SET_REMAINING_PLAYS,
-      payload: fetchRemainingTracks(overrideClientId || undefined)
-    });
-  };
+export const getRemainingPlays = createAsyncAction(
+  AppActionTypes.GET_REMAINING_PLAYS,
+  wSuccess(AppActionTypes.GET_REMAINING_PLAYS),
+  wError(AppActionTypes.GET_REMAINING_PLAYS)
+)<undefined, RemainingPlays | null, EpicFailure>();
+export const canGoInHistory = createAction(AppActionTypes.SET_CAN_GO)<CanGoHistory>();
+
+// ======
+export function tryAndResolveQueryAsSoundCloudUrl(query: string, dispatch: Dispatch) {
+  if (isSoundCloudUrl(query)) {
+    dispatch(resolveUrl(query) as any);
+  }
 }
 
-export const setDimensions = (dimensions: Dimensions) => action(AppActionTypes.SET_DIMENSIONS, dimensions);
-export const canGoInHistory = (canGoHistory: CanGoHistory) => action(AppActionTypes.SET_CAN_GO, canGoHistory);
 export const setLastfmLoading = (loading: boolean) => action(AppActionTypes.SET_LASTFM_LOADING, loading);
 export const addChromeCastDevice = (device: ChromeCastDevice) =>
   action(AppActionTypes.ADD_CHROMECAST_DEVICE, {
@@ -70,18 +68,6 @@ export function initWatchers(): ThunkResult<any> {
   // tslint:disable-next-line: max-func-body-length
   return dispatch => {
     if (!listeners.length) {
-      listeners.push({
-        event: EVENTS.APP.PUSH_NAVIGATION,
-        handler: (_e: any, path: string, url: string) => {
-          dispatch(
-            push({
-              pathname: path,
-              search: url
-            })
-          );
-        }
-      });
-
       listeners.push({
         event: EVENTS.TRACK.LIKE,
         handler: (_e: any, trackId: string) => {
@@ -132,48 +118,48 @@ export function stopWatchers(): void {
   listeners = [];
 }
 
-export function initApp(): ThunkResult<void> {
-  return (dispatch, getState) => {
-    const {
-      config: {
-        auth: { token }
-      }
-    } = getState();
+// export function initApp(): ThunkResult<void> {
+//   return (dispatch, getState) => {
+//     const {
+//       config: {
+//         auth: { token }
+//       }
+//     } = getState();
 
-    if (!token) {
-      dispatch(replace('/login'));
+//     if (!token) {
+//       dispatch(replace('/login'));
 
-      return Promise.resolve();
-    }
+//       return Promise.resolve();
+//     }
 
-    SC.initialize(token);
+//     SC.initialize(token);
 
-    dispatch(initWatchers());
+//     dispatch(initWatchers());
 
-    if (process.env.NODE_ENV === 'development') {
-      dispatch(action(AppActionTypes.RESET_STORE));
-    }
+//     if (process.env.NODE_ENV === 'development') {
+//       dispatch(action(AppActionTypes.RESET_STORE));
+//     }
 
-    return dispatch(
-      action(
-        AppActionTypes.SET_LOADED,
-        Promise.all([
-          dispatch(getAuth()),
-          dispatch(getAuthFollowings()),
-          dispatch(getAuthReposts()),
+//     return dispatch(
+//       action(
+//         AppActionTypes.SET_LOADED,
+//         Promise.all([
+//           dispatch(getAuth()),
+//           dispatch(getAuthFollowings()),
+//           dispatch(getAuthReposts()),
 
-          dispatch(getAuthFeed()),
-          dispatch(getAuthLikesIfNeeded()),
-          dispatch(getAuthLikeIds()),
-          dispatch(getAuthPlaylists()),
-          dispatch(getRemainingPlays())
-        ]).then(() => {
-          setInterval(() => dispatch(getRemainingPlays()), 30000);
-        })
-      )
-    );
-  };
-}
+//           dispatch(getAuthFeed()),
+//           dispatch(getAuthLikesIfNeeded()),
+//           dispatch(getAuthLikeIds()),
+//           dispatch(getAuthPlaylists()),
+//           dispatch(getRemainingPlays())
+//         ]).then(() => {
+//           setInterval(() => dispatch(getRemainingPlays()), 30000);
+//         })
+//       )
+//     );
+//   };
+// }
 
 export function resolveUrl(url: string): ThunkResult<void> {
   return dispatch => {

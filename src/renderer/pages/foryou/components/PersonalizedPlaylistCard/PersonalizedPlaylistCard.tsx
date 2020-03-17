@@ -18,7 +18,7 @@ export const PersonalizedPlaylistCard = React.memo<Props>(({ playlist, title, sy
   const imageUrl = playlist.artwork_url || playlist.calculated_artwork_url;
 
   return (
-    <Link className={styles.card} to={`/personalized/${playlist.id}`}>
+    <Link className={styles.card} to={`/playlist/${playlist.id}`}>
       <div
         className={styles.content}
         style={{ background: `${colorHash.hex(playlist.short_title + playlist.short_description)}` }}>

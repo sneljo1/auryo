@@ -1,7 +1,6 @@
 import { RepeatTypes } from '../player/types';
 
 // TYPES
-
 export interface Config extends Object {
   updatedAt: number;
   auth: {
@@ -31,6 +30,7 @@ export interface AppConfig {
   overrideClientId: string | null;
   theme: string;
 }
+
 export interface AudioConfig {
   volume: number;
   playbackDeviceId: null | string;
@@ -50,10 +50,7 @@ export interface ProxyConfig {
 }
 
 // ACTIONS
-
 export enum ConfigActionTypes {
-  SET_TOKEN = '@@config/SET_TOKEN',
-  SET_ALL = '@@config/SET_ALL',
-  SET_KEY = '@@config/SET_KEY',
-  SET_LOGIN = '@@config/SET_LOGIN'
+  SET_CONFIG = '@@config/SET_ALL',
+  SET_CONFIG_KEY = '@@config/SET_KEY'
 }
