@@ -230,7 +230,7 @@
     "electron-updater": "^4.2.0",
     "electron-window-state": "^5.0.3",
     "history": "^4.10.1",
-    "jquery": "3.4.1",
+    "jquery": "3.5.0",
     "lastfm": "auryo/lastfm-node#ef31b1d42e20cbc3c18ae6daa509dcfa9f81dc90",
     "lodash": "^4.17.14",
     "lodash-decorators": "^6.0.1",
