@@ -27,22 +27,22 @@ export default class NotificationManager extends Feature {
       if (playingTrack) {
         const trackId = playingTrack.id;
         const track = getTrackEntity(trackId)(currentState);
-        
-        if (settings.get('app.logTrackChange')){
-          fs.writeFileSync('/tmp/auryo_status.log', track.title + "\n" + track.user.username);
-        };
+
+        if (settings.get('app.logTrackChange')) {
+          fs.writeFileSync('/tmp/auryo_status.log', `${track?.title}\n${track?.user?.username}`);
+        }
 
         if (!this.win || (this.win && this.win.isFocused())) {
           return;
         }
-        if (showTrackChangeNotification){
+        if (showTrackChangeNotification) {
           if (track) {
-              this.sendToWebContents(EVENTS.APP.SEND_NOTIFICATION, {
-                title: track.title,
-                message: `${track.user && track.user.username ? track.user.username : ''}`,
-                image: SC.getImageUrl(track, IMAGE_SIZES.SMALL)
-              });
-            }
+            this.sendToWebContents(EVENTS.APP.SEND_NOTIFICATION, {
+              title: track.title,
+              message: `${track.user && track.user.username ? track.user.username : ''}`,
+              image: SC.getImageUrl(track, IMAGE_SIZES.SMALL)
+            });
+          }
         }
       }
     });
