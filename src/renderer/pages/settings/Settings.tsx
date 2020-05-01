@@ -129,6 +129,18 @@ class Settings extends React.PureComponent<AllProps, State> {
           {
             authenticated: true,
             setting: (
+              <CheckboxConfig
+                key="logTrackChange"
+                name="Log current playing track to /tmp/auryo_track.log"
+                configKey="app.logTrackChange"
+                config={config}
+                setConfigKey={setConfigKey}
+              />
+            )
+          },
+          {
+            authenticated: true,
+            setting: (
               <SelectConfig
                 key="theme"
                 name="Theme"

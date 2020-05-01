@@ -28,6 +28,7 @@ export interface AppConfig {
   crashReports: boolean;
   downloadPath: string;
   showTrackChangeNotification: boolean;
+  logTrackChange: boolean;
   overrideClientId: string | null;
   theme: string;
 }
