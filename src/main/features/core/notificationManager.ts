@@ -32,17 +32,14 @@ export default class NotificationManager extends Feature {
           fs.writeFileSync('/tmp/auryo_status.log', `${track?.title}\n${track?.user?.username}`);
         }
 
-        if (!this.win || (this.win && this.win.isFocused())) {
-          return;
-        }
-        if (showTrackChangeNotification) {
-          if (track) {
-            this.sendToWebContents(EVENTS.APP.SEND_NOTIFICATION, {
-              title: track.title,
-              message: `${track.user && track.user.username ? track.user.username : ''}`,
-              image: SC.getImageUrl(track, IMAGE_SIZES.SMALL)
-            });
-          }
+        const isFocused = !this.win || (this.win && this.win.isFocused());
+
+        if (track && showTrackChangeNotification && !isFocused) {
+          this.sendToWebContents(EVENTS.APP.SEND_NOTIFICATION, {
+            title: track.title,
+            message: `${track.user && track.user.username ? track.user.username : ''}`,
+            image: SC.getImageUrl(track, IMAGE_SIZES.SMALL)
+          });
         }
       }
     });
