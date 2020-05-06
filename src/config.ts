@@ -63,6 +63,7 @@ export const CONFIG = {
       theme: ThemeKeys.darkBlue,
       downloadPath,
       showTrackChangeNotification: true,
+      logTrackChange: false,
       overrideClientId: null
     }
   }

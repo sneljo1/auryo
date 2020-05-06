@@ -5,6 +5,8 @@ import { PlayingTrack } from '@common/store/player';
 import { SC } from '@common/utils';
 import { Auryo } from '@main/app';
 import { Feature } from '../feature';
+import { settings } from '../../settings';
+import fs from 'fs';
 
 export default class NotificationManager extends Feature {
   public readonly featureName = 'NotificationManager';
@@ -15,10 +17,6 @@ export default class NotificationManager extends Feature {
   public register() {
     // Track changed
     this.subscribe<PlayingTrack>(['player', 'playingTrack'], ({ currentState }) => {
-      if (!this.win || (this.win && this.win.isFocused())) {
-        return;
-      }
-
       const {
         player: { playingTrack },
         config: {
@@ -26,11 +24,17 @@ export default class NotificationManager extends Feature {
         }
       } = currentState;
 
-      if (playingTrack && showTrackChangeNotification) {
+      if (playingTrack) {
         const trackId = playingTrack.id;
         const track = getTrackEntity(trackId)(currentState);
 
-        if (track) {
+        if (settings.get('app.logTrackChange')) {
+          fs.writeFileSync('/tmp/auryo_status.log', `${track?.title}\n${track?.user?.username}`);
+        }
+
+        const isFocused = !this.win || (this.win && this.win.isFocused());
+
+        if (track && showTrackChangeNotification && !isFocused) {
           this.sendToWebContents(EVENTS.APP.SEND_NOTIFICATION, {
             title: track.title,
             message: `${track.user && track.user.username ? track.user.username : ''}`,
