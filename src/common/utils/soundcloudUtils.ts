@@ -232,20 +232,28 @@ export function getMeUrl() {
   });
 }
 
-export function getFollowingsUrl() {
-  return makeUrl('me/followings/ids', {
-    oauth_token: true,
-    limit: 5000,
-    linked_partitioning: 1
-  });
+export function getFollowingsUrl(userId: string) {
+  return makeUrl(
+    `users/${userId}/followings/ids`,
+    {
+      oauth_token: true,
+      limit: 5000,
+      linked_partitioning: 1
+    },
+    true
+  );
 }
 
 export function getRepostIdsUrl(playlist?: boolean) {
-  return makeUrl(`e1/me/${playlist ? 'playlist' : 'track'}_reposts/ids`, {
-    oauth_token: true,
-    limit: 5000,
-    linked_partitioning: 1
-  });
+  return makeUrl(
+    `me/${playlist ? 'playlist' : 'track'}_reposts/ids`,
+    {
+      oauth_token: true,
+      limit: 200,
+      linked_partitioning: 1
+    },
+    true
+  );
 }
 
 export function updateLikeUrl(trackId: string | number) {

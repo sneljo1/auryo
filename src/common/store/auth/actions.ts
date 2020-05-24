@@ -117,7 +117,18 @@ export function getAuthLikesIfNeeded(): ThunkResult<void> {
   };
 }
 
-export const getAuthFollowings = () => action(AuthActionTypes.SET_FOLLOWINGS, fetchToObject(SC.getFollowingsUrl()));
+export const getAuthFollowings = (): ThunkResult<void> => (dispatch, getState) => {
+  const state = getState();
+  const {
+    auth: { me }
+  } = state;
+
+  if (!me || !me.id) {
+    return;
+  }
+
+  dispatch(action(AuthActionTypes.SET_FOLLOWINGS, fetchToObject(SC.getFollowingsUrl(me.id.toString()))));
+};
 
 /**
  * Toggle following of a specific user
