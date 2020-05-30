@@ -1,55 +1,63 @@
 import * as actions from '@common/store/actions';
+import { startPlayMusic } from '@common/store/actions';
 import { PlayerStatus } from '@common/store/player';
+import { getPlayerStatus, isPlayingSelector } from '@common/store/selectors';
+import { PlaylistIdentifier } from '@common/store/types';
+import { Normalized } from '@types';
+import cn from 'classnames';
 import React, { FC, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import cn from 'classnames';
 
 interface Props {
   className?: string;
   colored?: boolean;
-
-  playlistId?: string;
-  trackId?: number;
-  onPlay(): void;
+  large?: boolean;
+  idResult?: Normalized.NormalizedResult;
+  playlistID: PlaylistIdentifier;
+  onPlay?(): void;
 }
 
-export const TogglePlayButton: FC<Props> = ({ className, playlistId, trackId, onPlay, colored }) => {
-  const playerStatus = useSelector(state => state.player.status);
-  const isPlayerPlaylist = useSelector(state => !!playlistId && state.player.currentPlaylistId === playlistId);
-  const isTrackPlaying = useSelector(state => !!trackId && state.player.playingTrack?.id === trackId);
+export const TogglePlayButton: FC<Props> = ({ className, idResult, colored, large, playlistID }) => {
+  const playerStatus = useSelector(getPlayerStatus);
+  const isPlaying = useSelector(isPlayingSelector(playlistID, idResult));
+  const isPlayerPlaylist = false;
 
   const dispatch = useDispatch();
+
+  const onStartPlay = useCallback(() => {
+    dispatch(startPlayMusic({ idResult, origin: playlistID }));
+  }, [dispatch, idResult, playlistID]);
 
   const togglePlay = useCallback(
     (event: React.MouseEvent<HTMLAnchorElement>) => {
       event.preventDefault();
       event.nativeEvent.stopImmediatePropagation();
 
-      if (isPlayerPlaylist || isTrackPlaying) {
+      if (isPlayerPlaylist || isPlaying) {
         if (playerStatus !== PlayerStatus.PLAYING) {
           dispatch(actions.toggleStatus(PlayerStatus.PLAYING));
         } else if (playerStatus === PlayerStatus.PLAYING) {
           dispatch(actions.toggleStatus(PlayerStatus.PAUSED));
         }
       } else {
-        onPlay();
+        onStartPlay();
       }
     },
-    [dispatch, isPlayerPlaylist, isTrackPlaying, onPlay, playerStatus]
+    [dispatch, isPlayerPlaylist, isPlaying, onStartPlay, playerStatus]
   );
 
   const getIcon = useCallback(() => {
     let icon = 'play';
 
-    if ((isPlayerPlaylist || isTrackPlaying) && playerStatus === PlayerStatus.PLAYING) {
+    if ((isPlayerPlaylist || isPlaying) && playerStatus === PlayerStatus.PLAYING) {
       icon = 'pause';
     }
 
     return icon;
-  }, [isPlayerPlaylist, isTrackPlaying, playerStatus]);
+  }, [isPlayerPlaylist, isPlaying, playerStatus]);
 
   return (
-    <a href="javascript:void(0)" className={cn('c_btn round', className, { colored })} onClick={togglePlay}>
+    <a href="javascript:void(0)" className={cn('c_btn round', className, { colored, large })} onClick={togglePlay}>
       <i className={`bx bx-${getIcon()}`} />
     </a>
   );

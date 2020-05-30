@@ -1,10 +1,14 @@
 import { Menu, MenuDivider, MenuItem, Popover, Position } from '@blueprintjs/core';
 import { IMAGE_SIZES } from '@common/constants';
-import { addUpNext, getGenericPlaylist, genericPlaylistFetchMore, playTrack } from '@common/store/actions';
-import { getAuthPlaylistsSelector } from '@common/store/auth/selectors';
-import { getNormalizedPlaylist, getNormalizedTrack, getNormalizedUser } from '@common/store/entities/selectors';
-import { PlaylistTypes } from '@common/store/objects';
-import { getPlaylistObjectSelector } from '@common/store/objects/selectors';
+import { addUpNext, genericPlaylistFetchMore, getGenericPlaylist } from '@common/store/actions';
+import {
+  getAuthPlaylistsSelector,
+  getNormalizedPlaylist,
+  getNormalizedTrack,
+  getNormalizedUser,
+  getPlaylistObjectSelector
+} from '@common/store/selectors';
+import { LikeType, PlaylistTypes, RepostType } from '@common/store/types';
 import { getReadableTimeFull, SC } from '@common/utils';
 import { IPC } from '@common/utils/ipc';
 import { useLoadMorePromise } from '@renderer/hooks/useLoadMorePromise';
@@ -13,7 +17,7 @@ import { ToggleLikeButton } from '@renderer/_shared/PageHeader/components/Toggle
 import { TogglePlayButton } from '@renderer/_shared/PageHeader/components/TogglePlayButton';
 import { ToggleRepostButton } from '@renderer/_shared/PageHeader/components/ToggleRepostButton';
 import cn from 'classnames';
-import React, { FC, useEffect } from 'react';
+import React, { FC, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
 import { usePrevious } from 'react-use';
@@ -64,6 +68,8 @@ const PlaylistPage: FC<Props> = ({
     [dispatch, objectId]
   );
 
+  const playlistID = useMemo(() => ({ objectId, playlistType: PlaylistTypes.PLAYLIST }), [objectId]);
+
   if (
     !playlist ||
     !playlistObject ||
@@ -89,6 +95,7 @@ const PlaylistPage: FC<Props> = ({
   const description = isPersonalisedPlaylist
     ? playlist.description
     : `${playlist.track_count} titles - ${getReadableTimeFull(playlist.duration, true)}`;
+
   return (
     <>
       <SetLayoutSettings hasImage={hasImage} />
@@ -96,19 +103,15 @@ const PlaylistPage: FC<Props> = ({
       <PageHeader image={image} title={playlist.title} subtitle={description}>
         <div>
           <div className="button-group">
-            {!!firstItem && !isEmpty && (
-              <TogglePlayButton
-                colored
-                playlistId={objectId}
-                onPlay={() => {
-                  dispatch(playTrack(objectId));
-                }}
-              />
+            {!!firstItem && !isEmpty && <TogglePlayButton colored playlistID={playlistID} />}
+
+            {!isEmpty && !playlistOwned && !isPersonalisedPlaylist && (
+              <ToggleLikeButton id={objectId} type={LikeType.Playlist} />
             )}
 
-            {!isEmpty && !playlistOwned && !isPersonalisedPlaylist && <ToggleLikeButton playlistId={objectId} />}
-
-            {!isEmpty && !playlistOwned && !isPersonalisedPlaylist && <ToggleRepostButton playlistId={objectId} />}
+            {!isEmpty && !playlistOwned && !isPersonalisedPlaylist && (
+              <ToggleRepostButton id={objectId} type={RepostType.Playlist} />
+            )}
 
             {!isEmpty && (
               <Popover
@@ -122,7 +125,7 @@ const PlaylistPage: FC<Props> = ({
                         <MenuItem
                           text="Add to queue"
                           onClick={() => {
-                            dispatch(addUpNext(playlist));
+                            dispatch(addUpNext.request({ id: +objectId, schema: 'playlists' }));
                           }}
                         />
                         <MenuDivider />
@@ -167,8 +170,7 @@ const PlaylistPage: FC<Props> = ({
       ) : (
         <TracksGrid
           items={playlistObject.items}
-          playlistType={playlistType}
-          objectId={objectId}
+          playlistID={{ playlistType, objectId }}
           isLoading={playlistObject.isFetching}
           isItemLoaded={index => !!playlistObject.items[index]}
           loadMore={loadMore}

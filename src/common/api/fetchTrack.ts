@@ -1,7 +1,6 @@
 import { normalize } from 'normalizr';
-import { Normalized, SoundCloud } from '../../types';
+import { Normalized, SoundCloud } from '@types';
 import { trackSchema } from '../schemas';
-// eslint-disable-next-line import/no-cycle
 import { SC } from '../utils';
 import fetchToJson from './helpers/fetchToJson';
 

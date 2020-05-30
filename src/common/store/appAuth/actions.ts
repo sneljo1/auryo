@@ -1,6 +1,6 @@
 import { TokenResponse } from '@main/aws/awsIotService';
 import { createAction } from 'typesafe-actions';
-import { AppAuthActionTypes } from './types';
+import { AppAuthActionTypes } from '../types';
 
 export const refreshToken = createAction(AppAuthActionTypes.REFRESH_TOKEN)<TokenResponse>();
 export const finishOnboarding = createAction(AppAuthActionTypes.FINISH_ONBOARDING)();

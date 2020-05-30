@@ -1,11 +1,7 @@
-// eslint-disable-next-line import/no-unresolved
-import { RootState } from 'AppReduxTypes';
+import { StoreState } from 'AppReduxTypes';
 import { createSelector } from 'reselect';
-import { ConfigState } from './types';
 
-export const configSelector = (state: RootState) => state.config;
+export const configSelector = (state: StoreState) => state.config;
 
-export const authTokenStateSelector = createSelector<RootState, ConfigState, ConfigState['auth']>(
-  [configSelector],
-  config => config.auth
-);
+export const authTokenStateSelector = createSelector([configSelector], config => config.auth);
+export const shuffleSelector = createSelector([configSelector], config => config.shuffle);

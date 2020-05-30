@@ -1,6 +1,6 @@
 import { Intent } from '@blueprintjs/core';
 import { EVENTS } from '@common/constants/events';
-import { getTrackEntity } from '@common/store/entities/selectors';
+import { getTrackEntity } from '@common/store/selectors';
 import { addToast, setConfigKey, setLastfmLoading } from '@common/store/actions';
 import { SC } from '@common/utils';
 import { Auryo } from '@main/app';

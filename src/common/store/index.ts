@@ -2,7 +2,7 @@ import { resetStore } from '@common/store/actions';
 import { PlayerActionTypes } from '@common/store/player';
 import { rootReducer } from '@common/store/rootReducer';
 import { Logger } from '@main/utils/logger';
-import { RootState } from 'AppReduxTypes';
+import { StoreState } from 'AppReduxTypes';
 import { routerMiddleware } from 'connected-react-router';
 import is from 'electron-is';
 import {
@@ -19,17 +19,17 @@ import { composeWithDevTools } from 'redux-devtools-extension';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { createLogger } from 'redux-logger';
 import { createEpicMiddleware } from 'redux-observable';
-import { BehaviorSubject } from 'rxjs';
-import { rootEpic } from './rootEpic';
-import { RootAction } from './types';
 import thunk from 'redux-thunk';
+import { BehaviorSubject } from 'rxjs';
+import { RootAction } from './declarations';
+import { rootEpic } from './rootEpic';
 
 const epic$ = new BehaviorSubject(rootEpic);
 export const history = createMemoryHistory();
 
 history.listen(loc => console.log(process.type, loc));
 
-const epicMiddleware = createEpicMiddleware<RootAction, RootAction, RootState>();
+const epicMiddleware = createEpicMiddleware<RootAction, RootAction, StoreState>();
 const connectRouterMiddleware = routerMiddleware(history);
 
 /** configure dev middlewares */

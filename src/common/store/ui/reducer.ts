@@ -1,7 +1,6 @@
 import { createReducer } from 'typesafe-actions';
-import { resetStore } from '../app/actions';
-import { addToast, clearToasts, removeToast, setDimensions, setSearchQuery } from './actions';
-import { UIState } from './types';
+import { addToast, clearToasts, removeToast, setDimensions, setSearchQuery, resetStore } from '../actions';
+import { UIState } from '../types';
 
 const initialState: UIState = {
   toasts: [],

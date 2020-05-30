@@ -79,3 +79,93 @@ export async function fetchPlaylists() {
     json
   };
 }
+
+// LIKES
+export async function toggleTrackLike(options: { trackId: string | number; userId: string | number; like: boolean }) {
+  const json = await fetchToJsonNew<Collection<SoundCloud.Track>>(
+    {
+      uri: `users/${options.userId}/track_likes/${options.trackId}`,
+      oauthToken: true,
+      useV2Endpoint: true
+    },
+    { method: options.like ? 'PUT' : 'DELETE' }
+  );
+
+  return json;
+}
+
+export async function togglePlaylistLike(options: {
+  playlistId: string | number;
+  userId: string | number;
+  like: boolean;
+}) {
+  const json = await fetchToJsonNew<Collection<SoundCloud.Track>>(
+    {
+      uri: `users/${options.userId}/playlist_likes/${options.playlistId}`,
+      oauthToken: true,
+      useV2Endpoint: true
+    },
+    { method: options.like ? 'PUT' : 'DELETE' }
+  );
+
+  return json;
+}
+
+export async function toggleSystemPlaylistLike(options: {
+  playlistUrn: string;
+  userId: string | number;
+  like: boolean;
+}) {
+  const json = await fetchToJsonNew<Collection<SoundCloud.Track>>(
+    {
+      uri: `users/${options.userId}/system_playlist_likes/${options.playlistUrn}`,
+      oauthToken: true,
+      useV2Endpoint: true
+    },
+    { method: options.like ? 'PUT' : 'DELETE' }
+  );
+
+  return json;
+}
+
+// REPOSTS
+
+export async function toggleTrackRepost(options: { trackId: string | number; repost: boolean }) {
+  const json = await fetchToJsonNew<Collection<SoundCloud.Track>>(
+    {
+      uri: `me/track_reposts/${options.trackId}`,
+      oauthToken: true,
+      useV2Endpoint: true
+    },
+    { method: options.repost ? 'PUT' : 'DELETE' }
+  );
+
+  return json;
+}
+
+export async function togglePlaylistRepost(options: { playlistId: string | number; repost: boolean }) {
+  const json = await fetchToJsonNew<Collection<SoundCloud.Track>>(
+    {
+      uri: `me/playlist_reposts/${options.playlistId}`,
+      oauthToken: true,
+      useV2Endpoint: true
+    },
+    { method: options.repost ? 'PUT' : 'DELETE' }
+  );
+
+  return json;
+}
+
+// Following
+export async function toggleFollowing(options: { userId: string | number; follow: boolean }) {
+  const json = await fetchToJsonNew<Collection<SoundCloud.Track>>(
+    {
+      uri: `me/followings/${options.userId}`,
+      oauthToken: true,
+      useV2Endpoint: true
+    },
+    { method: options.follow ? 'POST' : 'DELETE' }
+  );
+
+  return json;
+}

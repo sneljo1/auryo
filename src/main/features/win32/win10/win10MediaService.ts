@@ -1,8 +1,8 @@
 import { EVENTS } from '@common/constants/events';
 import { IMAGE_SIZES } from '@common/constants/Soundcloud';
 import { changeTrack, toggleStatus } from '@common/store/actions';
-import { getTrackEntity } from '@common/store/entities/selectors';
 import { ChangeTypes, PlayerStatus, PlayingTrack } from '@common/store/player';
+import { getTrackEntity } from '@common/store/selectors';
 import * as SC from '@common/utils/soundcloudUtils';
 import { Logger, LoggerInstance } from '../../../utils/logger';
 import { WindowsFeature } from '../windowsFeature';

@@ -2,9 +2,8 @@ import { Intent } from '@blueprintjs/core';
 import fetchTrack from '@common/api/fetchTrack';
 import { axiosClient } from '@common/api/helpers/axiosClient';
 import { addToast, push, setConfigKey } from '@common/store/actions';
-import { StoreState } from '@common/store/rootReducer';
 // eslint-disable-next-line import/no-unresolved
-import { RootState } from 'AppReduxTypes';
+import { StoreState } from 'AppReduxTypes';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { app, BrowserWindow, BrowserWindowConstructorOptions, Event, Menu, nativeImage, shell } from 'electron';
 import is from 'electron-is';
@@ -66,7 +65,7 @@ export class Auryo {
     });
   }
 
-  public setStore(store: Store<RootState>) {
+  public setStore(store: Store<StoreState>) {
     this.store = store;
   }
 
@@ -186,7 +185,7 @@ export class Auryo {
       try {
         feature.register();
       } catch (error) {
-        this.logger.error(error, `Error starting feature: ${feature.featureName}`);
+        this.logger.error(`Error starting feature: ${feature.featureName}`, error);
       }
     };
 
@@ -235,7 +234,7 @@ export class Auryo {
           await shell.openExternal(url);
         }
       } catch (err) {
-        this.logger.error(err);
+        this.logger.error('Error handling will navigate', err);
       }
     });
 
@@ -246,7 +245,7 @@ export class Auryo {
           await shell.openExternal(u);
         }
       } catch (err) {
-        this.logger.error(err);
+        this.logger.error('Error handling new window', err);
       }
     });
 
@@ -271,7 +270,7 @@ export class Auryo {
             redirectURL: mp3Url
           });
         } catch (err) {
-          this.logger.error(err);
+          this.logger.error('Soundcloud stream hack', err);
           callback({ cancel: true });
         }
       }
@@ -326,11 +325,11 @@ export class Auryo {
   private readonly registerListeners = () => {
     if (this.mainWindow) {
       this.mainWindow.webContents.on('crashed', (event: Event) => {
-        this.logger.fatal(event, 'App Crashed');
+        this.logger.fatal('App Crashed', event);
       });
 
       this.mainWindow.on('unresponsive', (event: Event) => {
-        this.logger.fatal(event, 'App unresponsive');
+        this.logger.fatal('App unresponsive', event);
       });
 
       this.mainWindow.on('closed', () => {

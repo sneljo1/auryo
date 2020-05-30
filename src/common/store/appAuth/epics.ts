@@ -1,28 +1,33 @@
+import { SC } from '@common/utils';
+import { TokenResponse } from '@main/aws/awsIotService';
 import { replace } from 'connected-react-router';
 import { of } from 'rxjs';
-import { filter, map, mergeMap, switchMap, withLatestFrom, tap } from 'rxjs/operators';
+import { filter, map, mergeMap, switchMap, tap, withLatestFrom, pluck } from 'rxjs/operators';
 import { isActionOf } from 'typesafe-actions';
-import { resetStore, getRemainingPlays } from '../app/actions';
-import { setConfigKey } from '../config/actions';
-import { RootEpic } from '../types';
-import { loginSuccess, logout, refreshToken, finishOnboarding } from './actions';
-import { configSelector } from '../config/selectors';
-import { TokenResponse } from '@main/aws/awsIotService';
-import { SC } from '@common/utils';
+import { CONFIG } from '../../../config';
 import {
+  finishOnboarding,
   getCurrentUser,
   getCurrentUserFollowingsIds,
   getCurrentUserLikeIds,
+  getCurrentUserPlaylists,
   getCurrentUserRepostIds,
-  getCurrentUserPlaylists
-} from '../auth/actions';
-import { CONFIG } from 'src/config';
+  getRemainingPlays,
+  loginSuccess,
+  logout,
+  refreshToken,
+  resetStore,
+  setConfigKey
+} from '../actions';
+import { RootEpic } from '../declarations';
+import { configSelector } from '../selectors';
 
 export const setTokenEpic: RootEpic = action$ =>
   action$.pipe(
     filter(isActionOf([loginSuccess, refreshToken])),
-    map(action => action.payload),
+    pluck('payload'),
     filter((payload): payload is TokenResponse => !!payload?.access_token),
+    // TODO: should we also try to set this in the frontend?
     tap(payload => SC.initialize(payload.access_token)),
     filter((payload): payload is TokenResponse => !!payload.refresh_token),
     mergeMap(payload =>
@@ -47,7 +52,7 @@ export const loginEpic: RootEpic = (action$, state$) =>
         return of(
           replace('/'),
           // Fetch user
-          getCurrentUser.request(),
+          getCurrentUser.request({}),
           // Fetch follow Ids
           getCurrentUserFollowingsIds.request(),
           // Fetch like Ids
@@ -55,7 +60,7 @@ export const loginEpic: RootEpic = (action$, state$) =>
           // Fetch repost Ids
           getCurrentUserRepostIds.request(),
           // Fetch playlists user owns
-          getCurrentUserPlaylists.request(),
+          getCurrentUserPlaylists.request({}),
           getRemainingPlays.request()
         );
       }

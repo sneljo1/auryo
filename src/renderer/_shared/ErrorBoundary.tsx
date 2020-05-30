@@ -17,9 +17,9 @@ class ErrorBoundary extends React.PureComponent<{}, State> {
     // this.setState({ hasError: true, message: error.message });
     // You can also log the error to an error reporting service
     // eslint-disable-next-line no-console
-    console.error(errorInfo.componentStack);
+    console.error('ErrorBoundary', errorInfo.componentStack);
     // eslint-disable-next-line no-console
-    console.error(error);
+    console.error('ErrorBoundary', error);
   }
 
   private reload() {

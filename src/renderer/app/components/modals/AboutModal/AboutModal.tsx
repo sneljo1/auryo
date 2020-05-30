@@ -1,5 +1,5 @@
 import logo from '@assets/img/auryo-dark.png';
-import { StoreState } from '@common/store/rootReducer';
+import { StoreState } from 'AppReduxTypes';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { remote } from 'electron';
 import * as os from 'os';

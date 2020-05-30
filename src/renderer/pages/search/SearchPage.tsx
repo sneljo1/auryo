@@ -1,8 +1,7 @@
 import * as actions from '@common/store/actions';
 import { searchPlaylistFetchMore } from '@common/store/actions';
 import { PlaylistTypes } from '@common/store/objects';
-import { getPlaylistObjectSelector } from '@common/store/objects/selectors';
-import { getSearchQuery } from '@common/store/ui/selectors';
+import { getPlaylistObjectSelector, getSearchQuery } from '@common/store/selectors';
 import { useLoadMorePromise } from '@renderer/hooks/useLoadMorePromise';
 import React, { FC, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -53,10 +52,10 @@ export const SearchPage: FC<Props> = ({
           <NavLink className="nav-link" to={`/search/${PlaylistTypes.SEARCH_USER}`} activeClassName="active">
             Users
           </NavLink>
-          <NavLink className="nav-link" to={`/search/${PlaylistTypes.SEARCH_PLAYLIST}`} activeClassName="active">
+          <NavLink className="nav-link" to={`/search/${PlaylistTypes.SEARCH_TRACK}`} activeClassName="active">
             Tracks
           </NavLink>
-          <NavLink className="nav-link" to={`/search/${PlaylistTypes.SEARCH_TRACK}`} activeClassName="active">
+          <NavLink className="nav-link" to={`/search/${PlaylistTypes.SEARCH_PLAYLIST}`} activeClassName="active">
             Playlist
           </NavLink>
         </div>
@@ -78,7 +77,7 @@ export const SearchPage: FC<Props> = ({
           ) : (
             <TracksGrid
               items={playlistObject.items}
-              playlistType={playlistType}
+              playlistID={{ playlistType }}
               isLoading={playlistObject.isFetching}
               isItemLoaded={index => !!playlistObject.items[index]}
               loadMore={loadMore}

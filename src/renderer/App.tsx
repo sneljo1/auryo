@@ -1,8 +1,7 @@
 import { EVENTS } from '@common/constants/events';
 import { history } from '@common/store';
-import { stopWatchers, toggleStatus } from '@common/store/actions';
-import { configSelector } from '@common/store/config/selectors';
-import { ConnectedRouter, push } from 'connected-react-router';
+import { configSelector } from '@common/store/selectors';
+import { ua } from '@common/utils/universalAnalytics';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { ipcRenderer, remote } from 'electron';
 import { UnregisterCallback } from 'history';
@@ -11,10 +10,9 @@ import React, { FC, useEffect } from 'react';
 import { hot } from 'react-hot-loader/root';
 import { useDispatch, useSelector } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
+import { useKey } from 'react-use';
 import Main from './app/Main';
 import OnBoarding from './pages/onboarding/OnBoarding';
-import { ua } from '@common/utils/universalAnalytics';
-import { useKey } from 'react-use';
 
 export const App: FC = () => {
   const analyticsEnabled = useSelector(state => configSelector(state).app.analytics);
@@ -45,7 +43,6 @@ export const App: FC = () => {
     });
 
     return () => {
-      dispatch(stopWatchers() as any);
       unregister();
     };
   }, [dispatch]);

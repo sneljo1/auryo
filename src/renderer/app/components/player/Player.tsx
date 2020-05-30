@@ -1,9 +1,7 @@
 import { Intent, Popover, PopoverInteractionKind, Slider, Tag } from '@blueprintjs/core';
 import { IMAGE_SIZES } from '@common/constants';
-import { StoreState } from '@common/store/rootReducer';
 import * as actions from '@common/store/actions';
-import { hasLiked } from '@common/store/auth/selectors';
-import { getNormalizedTrack, getNormalizedUser } from '@common/store/entities/selectors';
+import { hasLiked, getNormalizedTrack, getNormalizedUser } from '@common/store/selectors';
 import { ChangeTypes, RepeatTypes } from '@common/store/player';
 import { SC } from '@common/utils';
 import cn from 'classnames';
@@ -14,12 +12,13 @@ import isDeepEqual from 'react-fast-compare';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import FallbackImage from '../../../_shared/FallbackImage';
-import Queue from '../Queue/Queue';
+import { Queue } from '../Queue/Queue';
 import { Audio } from './components/Audio';
 import PlayerControls from './components/PlayerControls/PlayerControls';
 import { PlayerProgress } from './components/PlayerProgress/PlayerProgress';
 import { TrackInfo } from './components/TrackInfo/TrackInfo';
 import * as styles from './Player.module.scss';
+import { StoreState } from 'AppReduxTypes';
 
 const mapStateToProps = (state: StoreState) => {
   const { player, app, config } = state;
@@ -69,7 +68,7 @@ const mapDispatchToProps = (dispatch: Dispatch) =>
       addToast: actions.addToast,
       toggleShuffle: actions.toggleShuffle,
       toggleLike: actions.toggleLike,
-      useChromeCast: actions.useChromeCast
+      useChromeCast: actions.setChromecastDevice
     },
     dispatch
   );

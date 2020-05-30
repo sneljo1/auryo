@@ -1,7 +1,7 @@
 import * as actions from '@common/store/actions';
 import { searchPlaylistFetchMore } from '@common/store/actions';
 import { PlaylistTypes } from '@common/store/objects';
-import { getPlaylistObjectSelector } from '@common/store/objects/selectors';
+import { getPlaylistObjectSelector } from '@common/store/selectors';
 import { useLoadMorePromise } from '@renderer/hooks/useLoadMorePromise';
 import cn from 'classnames';
 import React, { FC, useEffect } from 'react';
@@ -70,7 +70,7 @@ export const TagsPage: FC<Props> = ({
       ) : (
         <TracksGrid
           items={playlistObject.items}
-          playlistType={playlistType}
+          playlistID={{ playlistType }}
           isLoading={playlistObject.isFetching}
           isItemLoaded={index => !!playlistObject.items[index]}
           loadMore={loadMore}

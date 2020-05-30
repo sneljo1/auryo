@@ -1,4 +1,3 @@
-import { StoreState } from '@common/store/rootReducer';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { BrowserWindow, ipcMain } from 'electron';
 import { isEqual } from 'lodash';
@@ -6,6 +5,7 @@ import { Store } from 'redux';
 import ReduxWatcher from 'redux-watcher';
 // eslint-disable-next-line import/no-cycle
 import { Auryo } from '../app';
+import { StoreState } from 'AppReduxTypes';
 
 export type Handler<T> = (t: {
   store: Store<StoreState>;

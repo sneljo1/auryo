@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 import { Normalized, SoundCloud } from '@types';
 import { normalize, schema } from 'normalizr';
 import { commentSchema } from '../schemas';

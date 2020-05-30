@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 import { normalize, schema } from 'normalizr';
-import { Normalized, SoundCloud } from '../../types';
+import { Normalized, SoundCloud } from '@types';
 import { playlistSchema, trackSchema, userSchema } from '../schemas';
 import fetchToJson from './helpers/fetchToJson';
 

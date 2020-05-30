@@ -1,16 +1,11 @@
-import { ObjectMap } from '@types';
-import { RootState } from 'AppReduxTypes';
+import { StoreState } from 'AppReduxTypes';
 import { createSelector } from 'reselect';
-import { AuthFollowing, AuthLikes, AuthState } from '.';
 import { SC } from '../../utils';
-import { EntitiesState } from '../entities';
-import { getEntities } from '../entities/selectors';
-import { ObjectGroup, ObjectState } from '../objects';
+import { ObjectState } from '../types';
 import { getPlaylistsObjects } from '../objects/selectors';
-import { StoreState } from '../rootReducer';
-import { AuthPlaylists, AuthReposts } from './types';
+import { getEntities } from '../entities/selectors';
 
-export const getAuth = (state: RootState) => state.auth;
+export const getAuth = (state: StoreState) => state.auth;
 
 export const isCurrentUserLoading = createSelector(getAuth, auth => auth.me.isLoading);
 export const currentUserSelector = createSelector(getAuth, auth => auth.me.data);
@@ -27,21 +22,19 @@ export const getAuthPlaylistsSelector = createSelector(getAuth, auth => auth.pla
 
 export type CombinedUserPlaylistState = { title: string; id: number } & ObjectState;
 
-export const getUserPlaylistsCombined = createSelector<
-  StoreState,
-  AuthPlaylists,
-  ObjectGroup,
-  EntitiesState,
-  CombinedUserPlaylistState[]
->(getAuthPlaylistsSelector, getPlaylistsObjects, getEntities, (playlists, objects, entities) =>
-  playlists.owned.map(p => ({
-    ...objects[p.id],
-    id: p.id,
-    title: (entities.playlistEntities[p.id] || {}).title || ''
-  }))
+export const getUserPlaylistsCombined = createSelector(
+  getAuthPlaylistsSelector,
+  getPlaylistsObjects,
+  getEntities,
+  (playlists, objects, entities) =>
+    playlists.owned.map(p => ({
+      ...objects[p.id],
+      id: p.id,
+      title: (entities.playlistEntities[p.id] || {}).title || ''
+    }))
 );
 
-export const isFollowing = (userId: number) =>
+export const isFollowing = (userId: number | string) =>
   createSelector(getFollowings, followings => SC.hasID(userId, followings));
 export const hasLiked = (trackId: number | string, type: 'playlist' | 'track' | 'systemPlaylist' = 'track') =>
   createSelector(getAuthLikesSelector, likes => SC.hasID(trackId, likes[type]));

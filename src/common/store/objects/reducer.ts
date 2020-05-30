@@ -1,14 +1,21 @@
-import { NormalizedResult } from 'src/types/normalized';
+import { Normalized } from '@types';
+import _, { isEqual, pick, uniqWith } from 'lodash';
 import { createReducer } from 'typesafe-actions';
 import {
+  commentsFetchMore,
   genericPlaylistFetchMore,
+  getComments,
+  getForYouSelection,
   getGenericPlaylist,
   getSearchPlaylist,
+  queueInsert,
+  setCurrentPlaylist,
   setPlaylistLoading,
-  getForYouSelection
-} from '../playlist/actions';
-import { ObjectGroup, ObjectsState, ObjectState, ObjectTypes, PlaylistTypes } from './types';
-import { uniqWith, isEqual } from 'lodash';
+  shuffleQueue,
+  resolvePlaylistItems,
+  setCommentsLoading
+} from '../actions';
+import { ObjectGroup, ObjectsState, ObjectState, ObjectStateItem, ObjectTypes, PlaylistTypes } from '../types';
 
 const initialObjectsState: ObjectState = {
   isFetching: false,
@@ -20,7 +27,7 @@ const initialObjectsState: ObjectState = {
 };
 
 const objectState = createReducer<ObjectState>(initialObjectsState)
-  .handleAction([getGenericPlaylist.request, setPlaylistLoading], state => {
+  .handleAction([getGenericPlaylist.request, setPlaylistLoading, getComments.request, setCommentsLoading], state => {
     return {
       ...state,
       isFetching: true,
@@ -29,9 +36,12 @@ const objectState = createReducer<ObjectState>(initialObjectsState)
   })
   .handleAction(getSearchPlaylist, (state, action) => {
     const { query, tag } = action.payload;
+
+    const isFetching = !!(query && query.length) || !!tag;
+
     return {
       ...state,
-      isFetching: (query && query.length) || !!tag,
+      isFetching,
       items: [],
       error: null,
       meta: { query }
@@ -41,7 +51,7 @@ const objectState = createReducer<ObjectState>(initialObjectsState)
     const { payload } = action;
 
     let itemsToAdd = payload.result;
-    let itemsToFetch: NormalizedResult[] = [];
+    let itemsToFetch: Normalized.NormalizedResult[] = [];
 
     if (payload.fetchedItemsIds) {
       itemsToAdd = itemsToAdd.filter(i => payload.fetchedItemsIds?.includes(i.id));
@@ -65,35 +75,58 @@ const objectState = createReducer<ObjectState>(initialObjectsState)
       meta: { query: payload.query, createdAt: Date.now() }
     };
   })
-  .handleAction(getGenericPlaylist.failure, (state, action) => {
-    const { payload } = action;
+  .handleAction(genericPlaylistFetchMore.success, (state, { payload }) => {
+    const { result = [], fetchedItemsIds = [] } = payload;
+
+    const itemsToFetch = state.itemsToFetch.filter(a => !fetchedItemsIds.includes(a.id));
 
     return {
       ...state,
       isFetching: false,
-      error: payload.error
+      items: uniqWith([...state.items, ...result], isEqual),
+      nextUrl: payload.nextUrl,
+      itemsToFetch,
+      meta: { ...state.meta, updatedAt: Date.now() }
     };
   })
-  .handleAction(genericPlaylistFetchMore.success, (state, action) => {
+  .handleAction(getComments.success, (state, action) => {
     const { payload } = action;
 
-    const itemsToFetch = state.itemsToFetch.filter(a => !payload.fetchedItemsIds?.includes(a.id));
+    const itemsToAdd = payload.result;
+
+    const items = payload.refresh ? itemsToAdd : uniqWith([...state.items, ...itemsToAdd], isEqual);
+
+    return {
+      ...state,
+      isFetching: false,
+      items,
+      nextUrl: payload.nextUrl,
+      meta: { createdAt: Date.now() }
+    };
+  })
+  .handleAction(commentsFetchMore.success, (state, action) => {
+    const { payload } = action;
 
     return {
       ...state,
       isFetching: false,
       items: uniqWith([...state.items, ...payload.result], isEqual),
       nextUrl: payload.nextUrl,
-      itemsToFetch,
       meta: { ...state.meta, updatedAt: Date.now() }
     };
   })
-  .handleAction(genericPlaylistFetchMore.failure, state => {
-    return {
-      ...state,
-      isFetching: false
-    };
-  });
+  .handleAction(
+    [getGenericPlaylist.failure, genericPlaylistFetchMore.failure, getComments.failure, commentsFetchMore.failure],
+    (state, action) => {
+      const { payload } = action;
+
+      return {
+        ...state,
+        isFetching: false,
+        error: payload.error
+      };
+    }
+  );
 // const objectState: Reducer<ObjectState<any>> = (state = initialObjectsState, action) => {
 //   const { type, payload } = action;
 
@@ -209,6 +242,29 @@ const objectGroup = createReducer<ObjectGroup>(initialObjectGroupState)
       };
     }
   )
+  .handleAction(
+    [
+      getComments.request,
+      getComments.success,
+      getComments.failure,
+      commentsFetchMore.request,
+      commentsFetchMore.success,
+      commentsFetchMore.failure,
+      setCommentsLoading
+    ],
+    (state, action) => {
+      const trackId = action.payload?.trackId;
+
+      if (!trackId) {
+        return state;
+      }
+
+      return {
+        ...state,
+        [trackId]: objectState(state[trackId], action)
+      };
+    }
+  )
   .handleAction(getForYouSelection.success, (state, action) => {
     const { objects } = action.payload;
 
@@ -274,11 +330,12 @@ const initialState: ObjectsState = {
   [PlaylistTypes.LIKES]: initialObjectsState,
   [PlaylistTypes.MYTRACKS]: initialObjectsState,
   [PlaylistTypes.MYPLAYLISTS]: initialObjectsState,
-  [PlaylistTypes.PLAYLIST]: initialObjectsState,
+  [PlaylistTypes.PLAYLIST]: initialObjectGroupState,
   [PlaylistTypes.SEARCH]: initialObjectsState,
   [PlaylistTypes.SEARCH_PLAYLIST]: initialObjectsState,
   [PlaylistTypes.SEARCH_TRACK]: initialObjectsState,
   [PlaylistTypes.SEARCH_USER]: initialObjectsState,
+  [PlaylistTypes.QUEUE]: initialObjectsState,
 
   [ObjectTypes.PLAYLISTS]: {},
   [ObjectTypes.COMMENTS]: {}
@@ -288,11 +345,9 @@ export const objectsReducer = createReducer<ObjectsState>(initialState)
   .handleAction(
     [
       getGenericPlaylist.request,
-      getGenericPlaylist.success,
       getGenericPlaylist.failure,
       setPlaylistLoading,
       genericPlaylistFetchMore.request,
-      genericPlaylistFetchMore.success,
       genericPlaylistFetchMore.failure,
       getSearchPlaylist
     ],
@@ -304,12 +359,169 @@ export const objectsReducer = createReducer<ObjectsState>(initialState)
       };
     }
   )
+  .handleAction(
+    [
+      getComments.request,
+      getComments.success,
+      getComments.failure,
+      commentsFetchMore.request,
+      commentsFetchMore.success,
+      commentsFetchMore.failure,
+      setCommentsLoading
+    ],
+    (state, action) => {
+      return {
+        ...state,
+        [ObjectTypes.COMMENTS]: objectGroup(state[ObjectTypes.COMMENTS], action)
+      };
+    }
+  )
   .handleAction(getForYouSelection.success, (state, action) => {
     return {
       ...state,
       [PlaylistTypes.PLAYLIST]: objectGroup(state[PlaylistTypes.PLAYLIST], action)
     };
+  })
+
+  // Managing QUEUE state
+  .handleAction([getGenericPlaylist.success], (state, action) => {
+    const { playlistType, objectId } = action.payload;
+    const queuePlaylist = state[PlaylistTypes.QUEUE];
+
+    const newPlaylistState = objectId
+      ? objectGroup(state[playlistType], action)
+      : objectState(state[playlistType], action);
+
+    const newState: Partial<ObjectState> = {
+      [playlistType]: newPlaylistState
+    };
+    // const isPlaylist = objectId && playlistType === PlaylistTypes.PLAYLIST;
+    // const unResolvedPlaylistIndices = objectId
+    //   ? _.keys(_.pickBy(queuePlaylist.items, { schema: 'playlists', id: +objectId }))
+    //   : [];
+
+    // if (isPlaylist && unResolvedPlaylistIndices.length) {
+    //   const items = [...queuePlaylist.items];
+
+    //   unResolvedPlaylistIndices.forEach(index => items.splice(+index, 1, ...(newPlaylistState as ObjectState).items));
+    // }
+
+    return {
+      ...state,
+      ...newState
+    };
+  })
+  .handleAction([genericPlaylistFetchMore.success], (state, action) => {
+    const { playlistType, objectId, shuffle, result } = action.payload;
+    const queuePlaylist = state[PlaylistTypes.QUEUE];
+    const { originalPlaylistID } = queuePlaylist.meta;
+
+    const newPlaylistState = objectId
+      ? objectGroup(state[playlistType], action)
+      : objectState(state[playlistType], action);
+
+    const newState: Partial<ObjectState> = {
+      [playlistType]: newPlaylistState
+    };
+
+    const isCurrentPlaylistSameAsQueue = isEqual(originalPlaylistID, {
+      playlistType,
+      objectId
+    });
+
+    if (isCurrentPlaylistSameAsQueue) {
+      newState[PlaylistTypes.QUEUE] = {
+        ...queuePlaylist,
+        ...pick(newPlaylistState, ['fetchedItems', 'nextUrl', 'itemsToFetch'])
+      };
+
+      // if (shuffle) {
+      newState[PlaylistTypes.QUEUE].items = [...newState[PlaylistTypes.QUEUE].items, ...result];
+      // }
+    }
+
+    return {
+      ...state,
+      ...newState
+    };
+  })
+  .handleAction(setCurrentPlaylist.success, (state, action) => {
+    const {
+      playlistId: { playlistType, objectId },
+      items
+    } = action.payload;
+
+    let queueObjectState: ObjectState = state[playlistType];
+
+    if (objectId) {
+      queueObjectState = state[playlistType]?.[objectId] ?? initialObjectsState;
+    }
+
+    return {
+      ...state,
+      [PlaylistTypes.QUEUE]: {
+        ...queueObjectState,
+        items,
+        meta: {
+          ...queueObjectState.meta,
+          originalPlaylistID: { playlistType, objectId }
+        }
+      }
+    };
+  })
+  .handleAction(queueInsert, (state, action) => {
+    const { items, position } = action.payload;
+
+    const queuePlaylist = state[PlaylistTypes.QUEUE];
+    const newItems = [...queuePlaylist.items];
+
+    newItems.splice(position, 0, ...items);
+
+    return {
+      ...state,
+      [PlaylistTypes.QUEUE]: {
+        ...queuePlaylist,
+        items: newItems
+      }
+    };
+  })
+  .handleAction(resolvePlaylistItems, (state, action) => {
+    const { items, playlistItem } = action.payload;
+
+    const queuePlaylist = state[PlaylistTypes.QUEUE];
+    const newItems = [...queuePlaylist.items];
+
+    const indexToReplace = _.findIndex(newItems, item => _.isEqual(item, playlistItem));
+
+    if (indexToReplace === -1) {
+      return state;
+    }
+
+    newItems.splice(indexToReplace, 1, ...items);
+
+    return {
+      ...state,
+      [PlaylistTypes.QUEUE]: {
+        ...queuePlaylist,
+        items: newItems
+      }
+    };
+  })
+  .handleAction(shuffleQueue, (state, { payload }) => {
+    const { fromIndex } = payload;
+
+    const queuePlaylist = state[PlaylistTypes.QUEUE];
+    const items = [...queuePlaylist.items];
+
+    return {
+      ...state,
+      [PlaylistTypes.QUEUE]: {
+        ...queuePlaylist,
+        items: items.slice(0, fromIndex).concat(_.shuffle(items.slice(fromIndex, items.length)))
+      }
+    };
   });
+
 //   const { type, payload } = action;
 
 //   switch (type) {

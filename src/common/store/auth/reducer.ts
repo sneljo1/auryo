@@ -1,14 +1,17 @@
 import { createReducer } from 'typesafe-actions';
-import { resetStore } from '../app/actions';
 import {
   getCurrentUser,
   getCurrentUserFollowingsIds,
   getCurrentUserLikeIds,
   getCurrentUserPlaylists,
-  getCurrentUserRepostIds
-} from './actions';
+  getCurrentUserRepostIds,
+  getForYouSelection,
+  resetStore,
+  toggleLike,
+  toggleRepost
+} from '../actions';
 import { AuthState } from './types';
-import { getForYouSelection } from '../playlist/actions';
+import { toggleFollowing } from './actions';
 
 const initialState: AuthState = {
   me: {
@@ -64,7 +67,7 @@ export const authReducer = createReducer<AuthState>(initialState)
       me: {
         ...state.me,
         isLoading: false,
-        error: action.payload
+        error: action.payload.error
       }
     };
   })
@@ -75,6 +78,23 @@ export const authReducer = createReducer<AuthState>(initialState)
       followings: action.payload
     };
   })
+  .handleAction(toggleFollowing.success, (state, action) => {
+    const { userId, follow } = action.payload;
+    const { followings } = state;
+
+    if (follow) {
+      followings[userId] = follow;
+    } else {
+      delete followings[userId];
+    }
+
+    return {
+      ...state,
+      followings: {
+        ...followings
+      }
+    };
+  })
   // TODO handle getCurrentUserLikeIds error & loading?
   .handleAction(getCurrentUserLikeIds.success, (state, action) => {
     return {
@@ -82,11 +102,51 @@ export const authReducer = createReducer<AuthState>(initialState)
       likes: action.payload
     };
   })
+  .handleAction(toggleLike.success, (state, action) => {
+    const { id, type, liked } = action.payload;
+    const likes = state.likes[type];
+
+    if (liked) {
+      likes[id] = liked;
+    } else {
+      delete likes[id];
+    }
+
+    return {
+      ...state,
+      likes: {
+        ...state.likes,
+        [type]: {
+          ...likes
+        }
+      }
+    };
+  })
   // TODO handle getCurrentUserRepostIds error & loading?
   .handleAction(getCurrentUserRepostIds.success, (state, action) => {
     return {
       ...state,
       reposts: action.payload
+    };
+  })
+  .handleAction(toggleRepost.success, (state, action) => {
+    const { id, type, reposted } = action.payload;
+    const reposts = state.reposts[type];
+
+    if (reposted) {
+      reposts[id] = reposted;
+    } else {
+      delete reposts[id];
+    }
+
+    return {
+      ...state,
+      reposts: {
+        ...state.reposts,
+        [type]: {
+          ...reposts
+        }
+      }
     };
   })
   .handleAction(getCurrentUserPlaylists.request, state => {
@@ -115,11 +175,11 @@ export const authReducer = createReducer<AuthState>(initialState)
       playlists: {
         ...state.playlists,
         isLoading: false,
-        error: action.payload
+        error: action.payload.error
       }
     };
   })
-  .handleAction(getForYouSelection.request, (state, action) => {
+  .handleAction(getForYouSelection.request, state => {
     return {
       ...state,
       personalizedPlaylists: {

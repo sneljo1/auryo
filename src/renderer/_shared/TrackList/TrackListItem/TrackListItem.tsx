@@ -1,8 +1,6 @@
 import { IMAGE_SIZES } from '@common/constants';
-import { StoreState } from '@common/store/rootReducer';
 import * as actions from '@common/store/actions';
-import { getTrackEntity } from '@common/store/entities/selectors';
-import { isPlaying } from '@common/store/player/selectors';
+import { getTrackEntity, isPlayingSelector } from '@common/store/selectors';
 import { abbreviateNumber, getReadableTime, SC } from '@common/utils';
 import cn from 'classnames';
 import React from 'react';
@@ -10,22 +8,24 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { bindActionCreators, Dispatch } from 'redux';
 import { Normalized } from '../../../../types';
-import ActionsDropdown from '../../ActionsDropdown';
+import { ActionsDropdown } from '../../ActionsDropdown';
 import FallbackImage from '../../FallbackImage';
+import { TogglePlayButton } from '../../PageHeader/components/TogglePlayButton';
 import { TextShortener } from '../../TextShortener';
-import TogglePlayButton from '../../PageHeader/components/TogglePlayButton';
 import './TrackListItem.scss';
+import { StoreState } from 'AppReduxTypes';
+import { PlaylistIdentifier } from '@common/store/types';
 
 interface OwnProps {
   idResult: Normalized.NormalizedResult;
-  currentPlaylistId: string;
+  playlistId: PlaylistIdentifier;
 }
 
 const mapStateToProps = (state: StoreState, props: OwnProps) => {
-  const { idResult, currentPlaylistId } = props;
+  const { idResult, playlistId } = props;
 
   return {
-    isTrackPlaying: isPlaying(idResult, currentPlaylistId)(state),
+    isTrackPlaying: isPlayingSelector(idResult, playlistId.objectId || '')(state),
     track: getTrackEntity(idResult.id)(state)
   };
 };
@@ -33,7 +33,7 @@ const mapStateToProps = (state: StoreState, props: OwnProps) => {
 const mapDispatchToProps = (dispatch: Dispatch) =>
   bindActionCreators(
     {
-      playTrack: actions.playTrack
+      playTrack: actions.playTrackO
     },
     dispatch
   );
@@ -55,10 +55,10 @@ class TrackListItem extends React.PureComponent<AllProps> {
   }
 
   public renderToggleButton = () => {
-    const { isTrackPlaying } = this.props;
+    const { isTrackPlaying, idResult } = this.props;
 
     if (isTrackPlaying) {
-      return <TogglePlayButton className="toggleButton" />;
+      return <TogglePlayButton idResult={idResult} className="toggleButton" />;
     }
 
     const icon = isTrackPlaying ? 'pause' : 'play';
@@ -116,7 +116,7 @@ class TrackListItem extends React.PureComponent<AllProps> {
         </td>
         <td className="time">{getReadableTime(track.duration, true, true)}</td>
         <td className="trackitemActions">
-          <ActionsDropdown track={track} />
+          <ActionsDropdown trackOrPlaylist={track} />
         </td>
       </tr>
     );

@@ -1,6 +1,6 @@
 import { EVENTS } from '@common/constants/events';
-import { ChangeTypes, PlayerStatus } from '@common/store/player';
 import { changeTrack, toggleStatus } from '@common/store/actions';
+import { ChangeTypes, PlayerStatus } from '@common/store/player';
 import * as SC from '@common/utils/soundcloudUtils';
 import { autobind } from 'core-decorators';
 // eslint-disable-next-line import/no-extraneous-dependencies

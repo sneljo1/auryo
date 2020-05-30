@@ -1,6 +1,5 @@
 import { Intent, IResizeEntry, Position, ResizeSensor } from '@blueprintjs/core';
 import { EVENTS } from '@common/constants/events';
-import { StoreState } from '@common/store/rootReducer';
 import * as actions from '@common/store/actions';
 // eslint-disable-next-line import/no-cycle
 import { ContentContext, INITIAL_LAYOUT_SETTINGS, LayoutSettings } from '@renderer/_shared/context/contentContext';
@@ -27,6 +26,7 @@ import Player from './components/player/Player';
 import SideBar from './components/Sidebar/Sidebar';
 import { Themes } from './components/Theme/themes';
 import { Toastr } from './components/Toastr';
+import { StoreState } from 'AppReduxTypes';
 
 const mapStateToProps = (state: StoreState) => {
   const {
@@ -54,8 +54,7 @@ const mapDispatchToProps = (dispatch: Dispatch) =>
       clearToasts: actions.clearToasts,
       removeToast: actions.removeToast,
       setDebouncedDimensions: actions.setDebouncedDimensions,
-      toggleOffline: actions.toggleOffline,
-      stopWatchers: actions.stopWatchers
+      toggleOffline: actions.toggleOffline
     },
     dispatch
   );
@@ -258,6 +257,7 @@ class Layout extends React.Component<AllProps, State> {
                   className="content"
                   ref={this.contentRef}
                   onScroll={this.handleScroll as any}
+                  renderView={props => <div id="scrollContainer" {...props} />}
                   renderTrackHorizontal={() => <div />}
                   renderTrackVertical={props => <div {...props} className="track-vertical" />}
                   renderThumbHorizontal={() => <div />}

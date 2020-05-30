@@ -1,18 +1,21 @@
-import { connectRouter, RouterState } from 'connected-react-router';
+import { connectRouter } from 'connected-react-router';
 import { MemoryHistory } from 'history';
 import { combineReducers } from 'redux';
 import { reducer as modal } from 'redux-modal';
-import { appReducer, AppState } from './app';
-import { appAuthReducer, AppAuthState } from './appAuth';
-import { authReducer, AuthState } from './auth';
-import { configReducer, ConfigState } from './config';
-import { entitiesReducer, EntitiesState } from './entities';
-import { objectsReducer, ObjectsState } from './objects';
-import { playerReducer, PlayerState } from './player';
-import { uiReducer, UIState } from './ui';
+import { appReducer } from './app/reducer';
+import { appAuthReducer } from './appAuth/reducer';
+import { authReducer } from './auth/reducer';
+import { configReducer } from './config/reducer';
+import { entitiesReducer } from './entities/reducer';
+import { objectsReducer } from './objects/reducer';
+import { playerReducer } from './player/reducer';
+import { uiReducer } from './ui/reducer';
+import { StoreState } from 'AppReduxTypes';
+import { trackReducer } from './track/reducer';
+import { userReducer } from './user/reducer';
 
 export const rootReducer = (history: MemoryHistory) =>
-  combineReducers({
+  combineReducers<StoreState>({
     auth: authReducer,
     appAuth: appAuthReducer,
     entities: entitiesReducer,
@@ -22,18 +25,7 @@ export const rootReducer = (history: MemoryHistory) =>
     config: configReducer,
     ui: uiReducer,
     modal,
-    router: connectRouter(history)
+    router: connectRouter(history),
+    track: trackReducer,
+    user: userReducer
   });
-
-export interface StoreState {
-  appAuth: AppAuthState;
-  auth: AuthState;
-  entities: EntitiesState;
-  player: PlayerState;
-  objects: ObjectsState;
-  app: AppState;
-  config: ConfigState;
-  ui: UIState;
-  router: RouterState;
-  modal: any;
-}

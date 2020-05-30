@@ -1,4 +1,4 @@
-import { RepeatTypes } from '../player/types';
+import { RepeatTypes } from '../types';
 
 // TYPES
 export interface Config extends Object {
@@ -48,6 +48,8 @@ export interface ProxyConfig {
   username?: string;
   password?: string;
 }
+
+export type ConfigValue = string | number | boolean | object | null | (string | number | object)[];
 
 // ACTIONS
 export enum ConfigActionTypes {

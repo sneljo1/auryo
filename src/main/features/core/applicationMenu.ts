@@ -1,6 +1,6 @@
 import { EVENTS } from '@common/constants/events';
+import { push, setConfigKey, toggleStatus, changeTrack } from '@common/store/actions';
 import { ChangeTypes, PlayerStatus, VolumeChangeTypes } from '@common/store/player';
-import { setConfigKey, changeTrack, toggleStatus, push } from '@common/store/actions';
 import * as SC from '@common/utils/soundcloudUtils';
 import { autobind } from 'core-decorators';
 // eslint-disable-next-line import/no-extraneous-dependencies

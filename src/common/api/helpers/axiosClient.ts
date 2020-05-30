@@ -19,7 +19,6 @@ const replaceTokenInRequest = (request: AxiosRequestConfig, token: string) => {
   }
 };
 
-console.log(is.dev());
 export const axiosClient = axios.create({
   // eslint-disable-next-line global-require
   adapter: is.dev() && require('axios/lib/adapters/http')

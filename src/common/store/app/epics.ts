@@ -2,9 +2,8 @@ import { replace } from 'connected-react-router';
 import { from, of } from 'rxjs';
 import { catchError, filter, map, switchMap, withLatestFrom } from 'rxjs/operators';
 import { isActionOf } from 'typesafe-actions';
-import { loginSuccess } from '../appAuth/actions';
-import { RootEpic } from '../types';
-import { getRemainingPlays, initApp } from './actions';
+import { RootEpic } from '../declarations';
+import { getRemainingPlays, initApp, loginSuccess } from '../actions';
 import * as APIService from './api';
 
 export const initAppEpic: RootEpic = (action$, state$) =>

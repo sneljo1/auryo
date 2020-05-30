@@ -1,6 +1,5 @@
 import fetchToJsonNew from '@common/api/helpers/fetchToJsonNew';
 import { Collection, SoundCloud } from '@types';
-import { SC } from '@common/utils';
 import { SortTypes } from './types';
 
 // Stream
@@ -122,20 +121,6 @@ export async function fetchTracks(options: { ids: number[] }) {
       ids: options.ids.join(',')
     }
   });
-
-  return json;
-}
-
-export async function fetchFromUrl<T>(url: string) {
-  const json = await fetchToJsonNew<T>(
-    {
-      oauthToken: true,
-      useV2Endpoint: true
-    },
-    {
-      url: SC.appendToken(url)
-    }
-  );
 
   return json;
 }

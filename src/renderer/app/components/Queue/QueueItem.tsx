@@ -1,18 +1,17 @@
 import { IMAGE_SIZES } from '@common/constants';
-import { StoreState } from '@common/store/rootReducer';
 import * as actions from '@common/store/actions';
-import { getTrackEntity } from '@common/store/entities/selectors';
+import { getTrackEntity, getCurrentPlaylistId } from '@common/store/selectors';
 import { PlayingTrack } from '@common/store/player';
-import { getCurrentPlaylistId } from '@common/store/player/selectors';
 import { SC } from '@common/utils';
 import cn from 'classnames';
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { bindActionCreators, Dispatch } from 'redux';
-import ActionsDropdown from '../../../_shared/ActionsDropdown';
+import { ActionsDropdown } from '../../../_shared/ActionsDropdown';
 import FallbackImage from '../../../_shared/FallbackImage';
 import { TextShortener } from '../../../_shared/TextShortener';
+import { StoreState } from 'AppReduxTypes';
 
 const mapStateToProps = (state: StoreState, props: OwnProps) => {
   const { trackData } = props;
@@ -26,7 +25,7 @@ const mapStateToProps = (state: StoreState, props: OwnProps) => {
 const mapDispatchToProps = (dispatch: Dispatch) =>
   bindActionCreators(
     {
-      playTrack: actions.playTrack
+      playTrack: actions.playTrackO
     },
     dispatch
   );
@@ -133,7 +132,7 @@ class QueueItem extends React.PureComponent<AllProps> {
           </div>
         </div>
 
-        <ActionsDropdown index={index} track={track} playing={playing} />
+        <ActionsDropdown index={index} trackOrPlaylist={track} playing={playing} />
       </div>
     );
   }

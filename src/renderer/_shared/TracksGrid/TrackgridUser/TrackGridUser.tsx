@@ -1,24 +1,22 @@
 import { IMAGE_SIZES } from '@common/constants';
-import { StoreState } from '@common/store/rootReducer';
 import * as actions from '@common/store/actions';
-import { isFollowing } from '@common/store/auth/selectors';
-import { getUserEntity } from '@common/store/entities/selectors';
+import { isFollowing, getUserEntity } from '@common/store/selectors';
 import { abbreviateNumber, SC } from '@common/utils';
 import cn from 'classnames';
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { bindActionCreators, Dispatch } from 'redux';
-import { Normalized } from '../../../../types';
 import FallbackImage from '../../FallbackImage';
 import './TrackGridUser.scss';
+import { StoreState } from 'AppReduxTypes';
 
 const mapStateToProps = (state: StoreState, props: OwnProps) => {
-  const { idResult } = props;
+  const { userId } = props;
 
   return {
-    isAuthUserFollowing: idResult ? isFollowing(idResult.id)(state) : null,
-    trackUser: getUserEntity(idResult.id)(state)
+    isAuthUserFollowing: userId ? isFollowing(userId)(state) : null,
+    trackUser: getUserEntity(userId)(state)
   };
 };
 
@@ -31,7 +29,7 @@ const mapDispatchToProps = (dispatch: Dispatch) =>
   );
 
 interface OwnProps {
-  idResult: Normalized.NormalizedResult;
+  userId: number;
   withStats?: boolean;
 }
 
@@ -40,6 +38,7 @@ type PropsFromDispatch = ReturnType<typeof mapDispatchToProps>;
 
 type AllProps = OwnProps & PropsFromState & PropsFromDispatch;
 
+// TODO: use hooks
 class TrackGridUser extends React.PureComponent<AllProps> {
   public static defaultProps: Partial<AllProps> = {
     withStats: false

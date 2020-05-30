@@ -1,8 +1,8 @@
 import { EVENTS } from '@common/constants/events';
 import { IMAGE_SIZES } from '@common/constants/Soundcloud';
-import { getTrackEntity } from '@common/store/entities/selectors';
-import { ChangeTypes, PlayerStatus } from '@common/store/player';
 import { changeTrack, toggleStatus } from '@common/store/actions';
+import { ChangeTypes, PlayerStatus } from '@common/store/player';
+import { getTrackEntity } from '@common/store/selectors';
 import { getCurrentPosition } from '@common/utils';
 import * as SC from '@common/utils/soundcloudUtils';
 import * as _ from 'lodash';

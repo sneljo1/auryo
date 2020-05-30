@@ -1,6 +1,6 @@
 import { getGenericPlaylist, genericPlaylistFetchMore } from '@common/store/actions';
-import { PlaylistTypes } from '@common/store/objects';
-import { getPlaylistObjectSelector } from '@common/store/objects/selectors';
+import { PlaylistTypes } from '@common/store/types';
+import { getPlaylistObjectSelector } from '@common/store/selectors';
 import { SortTypes } from '@common/store/playlist/types';
 import { useLoadMorePromise } from '@renderer/hooks/useLoadMorePromise';
 import { SetLayoutSettings } from '@renderer/_shared/context/contentContext';
@@ -10,7 +10,7 @@ import PageHeader from '../../_shared/PageHeader/PageHeader';
 import Spinner from '../../_shared/Spinner/Spinner';
 import TracksGrid from '../../_shared/TracksGrid/TracksGrid';
 
-interface OwnProps {
+interface Props {
   playlistType: PlaylistTypes;
   objectId?: string;
   title: string;
@@ -21,9 +21,7 @@ interface OwnProps {
   onSortTypeChange?(event: React.ChangeEvent<HTMLSelectElement>): void;
 }
 
-type AllProps = OwnProps;
-
-export const GenericPlaylist: FC<AllProps> = ({
+export const GenericPlaylist: FC<Props> = ({
   onSortTypeChange,
   sortType,
   playlistType,
@@ -37,11 +35,13 @@ export const GenericPlaylist: FC<AllProps> = ({
   const isChart = playlistType === PlaylistTypes.CHART;
   const playlistObject = useSelector(getPlaylistObjectSelector({ objectId, playlistType }));
 
+  // Do initial fetch for playlist
   useEffect(() => {
     dispatch(
       getGenericPlaylist.request({
         playlistType,
-        refresh: true,
+        // TODO: For the stream page, do not refresh automatically. Show a button to refresh instead
+        refresh: false,
         sortType,
         objectId
       })
@@ -103,8 +103,7 @@ export const GenericPlaylist: FC<AllProps> = ({
       ) : (
         <TracksGrid
           items={playlistObject.items}
-          playlistType={playlistType}
-          objectId={objectId}
+          playlistID={{ playlistType, objectId }}
           showInfo={showInfo}
           isItemLoaded={index => !!playlistObject.items[index]}
           loadMore={loadMore}

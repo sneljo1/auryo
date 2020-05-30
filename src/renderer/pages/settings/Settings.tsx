@@ -1,11 +1,11 @@
 import { Button, Collapse, Intent, Switch } from '@blueprintjs/core';
 import fetchToJson from '@common/api/helpers/fetchToJson';
 import { EVENTS } from '@common/constants/events';
-import { StoreState } from '@common/store/rootReducer';
 import * as actions from '@common/store/actions';
 import { SC } from '@common/utils';
 import { ThemeKeys } from '@renderer/app/components/Theme/themes';
 import PageHeader from '@renderer/_shared/PageHeader/PageHeader';
+import { StoreState } from 'AppReduxTypes';
 import { autobind } from 'core-decorators';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { ipcRenderer } from 'electron';

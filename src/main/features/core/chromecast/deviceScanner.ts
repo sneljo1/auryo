@@ -1,4 +1,4 @@
-import { StoreState } from '@common/store/rootReducer';
+import { StoreState } from 'AppReduxTypes';
 import { ChromeCastDevice } from '@common/store/app';
 import { addChromeCastDevice, removeChromeCastDevice } from '@common/store/actions';
 import createMdnsInterface from 'multicast-dns';

@@ -3,14 +3,9 @@ import { IPC } from '@common/utils/ipc';
 import { wError, wSuccess } from '@common/utils/reduxUtils';
 import { EpicFailure, SoundCloud, ThunkResult } from '@types';
 import { goBack, replace } from 'connected-react-router';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { ipcRenderer } from 'electron';
-import is from 'electron-is';
 import { Dispatch } from 'redux';
 import { action, createAction, createAsyncAction } from 'typesafe-actions';
-import { EVENTS } from '../../constants/events';
 import { isSoundCloudUrl, SC } from '../../utils';
-import { toggleLike, toggleRepost } from '../track/actions';
 import {
   AppActionTypes,
   CanGoHistory,
@@ -18,13 +13,13 @@ import {
   ChromeCastDevice,
   DevicePlayerStatus,
   RemainingPlays
-} from './types';
+} from '../types';
 
 export const resetStore = createAction(AppActionTypes.RESET_STORE)();
 export const initApp = createAction(AppActionTypes.INIT)();
 
 export const getRemainingPlays = createAsyncAction(
-  AppActionTypes.GET_REMAINING_PLAYS,
+  String(AppActionTypes.GET_REMAINING_PLAYS),
   wSuccess(AppActionTypes.GET_REMAINING_PLAYS),
   wError(AppActionTypes.GET_REMAINING_PLAYS)
 )<undefined, RemainingPlays | null, EpicFailure>();
@@ -46,7 +41,7 @@ export const removeChromeCastDevice = (deviceId: string) =>
   action(AppActionTypes.REMOVE_CHROMECAST_DEVICE, {
     deviceId
   });
-export const useChromeCast = (deviceId?: string) => action(AppActionTypes.SET_CHROMECAST_DEVICE, deviceId);
+export const setChromecastDevice = (deviceId?: string) => action(AppActionTypes.SET_CHROMECAST_DEVICE, deviceId);
 export const setChromeCastPlayerStatus = (playerStatus: DevicePlayerStatus) =>
   action(AppActionTypes.SET_CHROMECAST_PLAYER_STATUS, playerStatus);
 export const setChromecastAppState = (state: CastAppState | null) =>
@@ -62,61 +57,61 @@ export const setUpdateAvailable = (version: string) =>
     version
   });
 
-let listeners: any[] = [];
+const listeners: any[] = [];
 
-export function initWatchers(): ThunkResult<any> {
-  // tslint:disable-next-line: max-func-body-length
-  return dispatch => {
-    if (!listeners.length) {
-      listeners.push({
-        event: EVENTS.TRACK.LIKE,
-        handler: (_e: any, trackId: string) => {
-          if (trackId) {
-            dispatch(toggleLike(+trackId, false)); // TODO determine if track or playlist
-          }
-        }
-      });
+// export function initWatchers(): ThunkResult<any> {
+//   // tslint:disable-next-line: max-func-body-length
+//   return dispatch => {
+//     if (!listeners.length) {
+//       listeners.push({
+//         event: EVENTS.TRACK.LIKE,
+//         handler: (_e: any, trackId: string) => {
+//           if (trackId) {
+//             dispatch(toggleLike(+trackId, false)); // TODO determine if track or playlist
+//           }
+//         }
+//       });
 
-      listeners.push({
-        event: EVENTS.TRACK.REPOST,
-        handler: (_e: string, trackId: string) => {
-          if (trackId) {
-            dispatch(toggleRepost(+trackId, false)); // TODO determine if track or playlist
-          }
-        }
-      });
+//       listeners.push({
+//         event: EVENTS.TRACK.REPOST,
+//         handler: (_e: string, trackId: string) => {
+//           if (trackId) {
+//             dispatch(toggleRepost(+trackId, false)); // TODO determine if track or playlist
+//           }
+//         }
+//       });
 
-      listeners.push({
-        event: EVENTS.APP.SEND_NOTIFICATION,
-        handler: (_e: string, contents: { title: string; message: string; image: string }) => {
-          const myNotification = new Notification(contents.title, {
-            body: contents.message,
-            icon: contents.image,
-            silent: true
-          });
+//       listeners.push({
+//         event: EVENTS.APP.SEND_NOTIFICATION,
+//         handler: (_e: string, contents: { title: string; message: string; image: string }) => {
+//           const myNotification = new Notification(contents.title, {
+//             body: contents.message,
+//             icon: contents.image,
+//             silent: true
+//           });
 
-          myNotification.onclick = () => {
-            ipcRenderer.send(EVENTS.APP.RAISE);
-          };
-        }
-      });
+//           myNotification.onclick = () => {
+//             ipcRenderer.send(EVENTS.APP.RAISE);
+//           };
+//         }
+//       });
 
-      listeners.forEach(l => {
-        if (is.renderer()) {
-          ipcRenderer.on(l.event, l.handler);
-        }
-      });
-    }
-  };
-}
+//       listeners.forEach(l => {
+//         if (is.renderer()) {
+//           ipcRenderer.on(l.event, l.handler);
+//         }
+//       });
+//     }
+//   };
+// }
 
-export function stopWatchers(): void {
-  listeners.forEach(l => {
-    ipcRenderer.removeListener(l.event, l.handler);
-  });
+// export function stopWatchers(): void {
+//   listeners.forEach(l => {
+//     ipcRenderer.removeListener(l.event, l.handler);
+//   });
 
-  listeners = [];
-}
+//   listeners = [];
+// }
 
 // export function initApp(): ThunkResult<void> {
 //   return (dispatch, getState) => {

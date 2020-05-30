@@ -1,162 +1,68 @@
 import { Menu, MenuDivider, MenuItem, Popover, Position } from '@blueprintjs/core';
-import { StoreState } from '@common/store/rootReducer';
-import * as actions from '@common/store/actions';
-import { getAuthLikesSelector, getAuthRepostsSelector, getUserPlaylistsCombined } from '@common/store/auth/selectors';
-import { SC } from '@common/utils';
+import { addUpNext, toggleLike, toggleRepost } from '@common/store/actions';
+import { getNormalizedSchemaForType, hasLiked } from '@common/store/selectors';
 import { IPC } from '@common/utils/ipc';
 import cn from 'classnames';
-import _ from 'lodash';
-import React from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators, Dispatch } from 'redux';
+import React, { FC } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { SoundCloud } from '../../types';
 import ShareMenuItem from './ShareMenuItem';
 
-const mapStateToProps = (state: StoreState) => ({
-  userPlaylists: getUserPlaylistsCombined(state),
-  likes: getAuthLikesSelector(state),
-  reposts: getAuthRepostsSelector(state)
-});
-
-const mapDispatchToProps = (dispatch: Dispatch) =>
-  bindActionCreators(
-    {
-      addUpNext: actions.addUpNext,
-      toggleLike: actions.toggleLike,
-      toggleRepost: actions.toggleRepost,
-      togglePlaylistTrack: actions.togglePlaylistTrack
-    },
-    dispatch
-  );
-
-interface OwnProps {
-  track: SoundCloud.Music;
+interface Props {
+  trackOrPlaylist: SoundCloud.Playlist | SoundCloud.Track;
   index?: number;
   playing?: boolean;
   currentPlaylistId?: string;
 }
 
-type PropsFromState = ReturnType<typeof mapStateToProps>;
+export const ActionsDropdown: FC<Props> = ({ trackOrPlaylist }) => {
+  const dispatch = useDispatch();
+  const isLiked = useSelector(hasLiked(trackOrPlaylist.id, trackOrPlaylist.kind));
+  const isReposted = useSelector(hasLiked(trackOrPlaylist.id, trackOrPlaylist.kind));
+  const idResult = getNormalizedSchemaForType(trackOrPlaylist);
 
-type PropsFromDispatch = ReturnType<typeof mapDispatchToProps>;
+  const likedText = isLiked ? 'Liked' : 'Like';
+  const repostedText = isReposted ? 'Reposted' : 'Repost';
 
-type AllProps = OwnProps & PropsFromState & PropsFromDispatch;
+  return (
+    <Popover
+      className="actions-dropdown"
+      autoFocus={false}
+      minimal
+      position={Position.BOTTOM_LEFT}
+      content={
+        <Menu>
+          <MenuItem
+            className={cn({ 'text-primary': isLiked })}
+            text={likedText}
+            onClick={() => dispatch(toggleLike.request({ id: trackOrPlaylist.id, type: trackOrPlaylist.kind }))}
+          />
 
-class ActionsDropdown extends React.Component<AllProps> {
-  public shouldComponentUpdate(nextProps: AllProps) {
-    const { track, likes, index, reposts, userPlaylists } = this.props;
+          <MenuItem
+            className={cn({ 'text-primary': isReposted })}
+            text={repostedText}
+            onClick={() => dispatch(toggleRepost.request({ id: trackOrPlaylist.id, type: trackOrPlaylist.kind }))}
+          />
 
-    return (
-      track.id !== nextProps.track.id ||
-      index !== nextProps.index ||
-      !_.isEqual(likes, nextProps.likes) ||
-      !_.isEqual(reposts, nextProps.reposts) ||
-      !_.isEqual(userPlaylists, nextProps.userPlaylists)
-    );
-  }
+          <MenuItem text="Add to queue" onClick={() => dispatch(addUpNext.request(idResult))} />
 
-  // tslint:disable-next-line: max-func-body-length
-  public render() {
-    const {
-      toggleLike,
-      toggleRepost,
-      reposts,
-      likes,
-      track,
-      addUpNext,
-      playing,
-      index
-      // userPlaylists,
-      // togglePlaylistTrack,
-      // currentPlaylistId
-    } = this.props;
+          {/* {index !== undefined && !playing ? (
+            <MenuItem text="Remove from queue" onClick={() => addUpNext(trackOrPlaylist, index)} />
+          ) : null} */}
 
-    const trackId = track.id;
+          <MenuDivider />
 
-    const liked = SC.hasID(track.id, track.kind === 'playlist' ? likes.playlist : likes.track);
-    const reposted = SC.hasID(track.id, track.kind === 'playlist' ? reposts.playlist : reposts.track);
-
-    // const currentPlaylist: CombinedUserPlaylistState | null =
-    //     currentPlaylistId ? userPlaylists.find((p) => p.id === +currentPlaylistId) || null : null;
-
-    // const inPlaylist = currentPlaylist ? currentPlaylist.items.find((t) => t.id === trackId) : false;
-
-    const likedText = liked ? 'Liked' : 'Like';
-    const repostedText = reposted ? 'Reposted' : 'Repost';
-
-    return (
-      <Popover
-        className="actions-dropdown"
-        autoFocus={false}
-        minimal
-        position={Position.BOTTOM_LEFT}
-        content={
-          <Menu>
-            <MenuItem
-              className={cn({ 'text-primary': liked })}
-              text={likedText}
-              onClick={() => toggleLike(trackId, track.kind === 'playlist')}
-            />
-
-            <MenuItem
-              className={cn({ 'text-primary': reposted })}
-              text={repostedText}
-              onClick={() => toggleRepost(trackId, track.kind === 'playlist')}
-            />
-
-            {_.isNil(index) && <MenuItem text="Add to queue" onClick={() => addUpNext(track)} />}
-
-            {track.kind !== 'playlist' ? (
-              <MenuItem text="Add to playlist">
-                <div style={{ fontSize: '.8rem', opacity: 0.8, color: 'grey', padding: '5px' }}>
-                  I'm sorry, this feature has been disabled to preserve your playlists. Since we are unable to fetch all
-                  tracks, we do not know for sure if we will delete tracks upon adding/removing track via Auryo.
-                </div>
-
-                {/* {
-                                        userPlaylists.map((playlist) => {
-                                            const inPlaylist = !!playlist.items.find((t) => t.id === track.id);
-
-                                            return (
-                                                <MenuItem
-                                                    key={`menu-item-add-to-playlist-${playlist.id}`}
-                                                    className={cn({ 'text-primary': inPlaylist })}
-                                                    onClick={() => {
-                                                        togglePlaylistTrack(track.id, playlist.id);
-                                                    }}
-                                                    text={playlist.title}
-                                                />
-                                            );
-                                        })
-                                    } */}
-              </MenuItem>
-            ) : null}
-
-            {/* {
-                            currentPlaylist && inPlaylist && (
-                                <MenuItem
-                                    text='Remove from playlist'
-                                    onClick={() => togglePlaylistTrack(track.id, currentPlaylist.id)}
-                                />
-                            )
-                        } */}
-
-            {index !== undefined && !playing ? (
-              <MenuItem text="Remove from queue" onClick={() => addUpNext(track, index)} />
-            ) : null}
-
-            <MenuDivider />
-
-            <MenuItem text="View in browser" onClick={() => IPC.openExternal(track.permalink_url)} />
-            <ShareMenuItem title={track.title} permalink={track.permalink_url} username={track.user.username} />
-          </Menu>
-        }>
-        <a href="javascript:void(0)">
-          <i className="bx bx-dots-horizontal-rounded" />
-        </a>
-      </Popover>
-    );
-  }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(ActionsDropdown);
+          <MenuItem text="View in browser" onClick={() => IPC.openExternal(trackOrPlaylist.permalink_url)} />
+          <ShareMenuItem
+            title={trackOrPlaylist.title}
+            permalink={trackOrPlaylist.permalink_url}
+            username={trackOrPlaylist.user.username}
+          />
+        </Menu>
+      }>
+      <a href="javascript:void(0)">
+        <i className="bx bx-dots-horizontal-rounded" />
+      </a>
+    </Popover>
+  );
+};

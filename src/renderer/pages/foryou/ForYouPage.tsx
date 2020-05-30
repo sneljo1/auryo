@@ -1,6 +1,5 @@
 import { getForYouSelection } from '@common/store/actions';
-import { getAuthPersonalizedPlaylistsSelector } from '@common/store/auth/selectors';
-import { getPlaylistEntities } from '@common/store/entities/selectors';
+import { getAuthPersonalizedPlaylistsSelector, getPlaylistEntities } from '@common/store/selectors';
 import cn from 'classnames';
 import React, { FC, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -91,6 +90,7 @@ export const ForYou: FC<Props> = () => {
       </>
     );
   };
+
   return (
     <div className={styles.container}>
       {weekly && renderPlaylist('Made for you', 'Playlists created by SoundCloud just for you', combinedCollection)}

@@ -1,13 +1,13 @@
-import { StoreState } from '@common/store/rootReducer';
-import { ChangeTypes, PlayerStatus } from '@common/store/player';
 import { changeTrack, toggleStatus } from '@common/store/actions';
+import { ChangeTypes, PlayerStatus } from '@common/store/player';
+import { StoreState } from 'AppReduxTypes';
+import { autobind } from 'core-decorators';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { nativeImage } from 'electron';
 import * as is from 'electron-is';
 import * as path from 'path';
 import { Auryo } from '../../app';
 import { Feature } from '../feature';
-import { autobind } from 'core-decorators';
 
 const iconsDirectory = path.resolve(global.__static, 'icons');
 

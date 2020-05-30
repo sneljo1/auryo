@@ -1,11 +1,16 @@
 import { routerActions } from 'connected-react-router';
 import { of } from 'rxjs';
-import { debounceTime, filter, map, switchMap, withLatestFrom } from 'rxjs/operators';
+import { debounceTime, filter, map, switchMap, withLatestFrom, pluck } from 'rxjs/operators';
 import { isActionOf } from 'typesafe-actions';
-import { PlaylistTypes } from '../objects';
-import { getSearchPlaylist } from '../playlist/actions';
-import { RootEpic } from '../types';
-import { setDebouncedDimensions, setDebouncedSearchQuery, setDimensions, setSearchQuery } from './actions';
+import { PlaylistTypes } from '../types';
+import {
+  setDebouncedDimensions,
+  setDebouncedSearchQuery,
+  setDimensions,
+  setSearchQuery,
+  getSearchPlaylist
+} from '../actions';
+import { RootEpic } from '../declarations';
 
 export const setDebouncedDimensionsEpic: RootEpic = action$ =>
   action$.pipe(
@@ -26,17 +31,18 @@ export const setDebouncedSearchQueryEpic: RootEpic = action$ =>
   );
 
 export const setSearchQueryEpic: RootEpic = (action$, state$) =>
+  // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
   // @ts-ignore
   action$.pipe(
     filter(isActionOf(setSearchQuery)),
-    map(action => action.payload),
+    pluck('payload'),
     withLatestFrom(state$),
     switchMap(([{ query, noNavigation }, state]) => {
       const {
         router: { location }
       } = state;
 
-      const navigateToSearch = [];
+      const navigateToSearch: any[] = [];
 
       if (!noNavigation && !location.pathname.startsWith('/search')) {
         navigateToSearch.push(routerActions.replace('/search'));

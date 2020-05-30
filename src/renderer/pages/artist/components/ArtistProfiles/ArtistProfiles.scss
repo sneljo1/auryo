@@ -11,6 +11,7 @@ $tumblr: #35465c;
 $pinterest: #cb2027;
 $beatport: #8fc73e;
 $snapchat: #fffc00;
+
 @mixin color($color) {
   &:hover {
     i {
@@ -21,50 +22,65 @@ $snapchat: #fffc00;
 
 #web-profiles {
   padding: 0 10px 20px;
+
   .profile {
-    color: #3b3e42;
+    color: var(--clr-body-text);
     display: flex;
     text-decoration: none;
     align-items: center;
     text-transform: capitalize;
     font-size: .8rem;
+
     i {
       font-size: 1rem;
     }
+
     @include color(#3b3e42);
+
     &.facebook {
       @include color($facebook_color);
     }
+
     &.twitter {
       @include color($twitter_color);
     }
+
     &.instagram {
       @include color($instagram_color);
     }
+
     &.youtube {
       @include color($youtube_color);
     }
+
     &.soundcloud {
       @include color($soundcloud);
     }
+
     &.songkick {
       @include color($songkick);
     }
+
     &.spotify {
       @include color($spotify);
     }
+
     &.tumblr {
       @include color($tumblr);
     }
+
     &.pinterest {
       @include color($pinterest);
     }
+
     &.beatport {
       @include color($beatport);
     }
+
     &.snapchat {
       @include color(darken($snapchat, 3%));
     }
+
     i {
       width: 35px;
       height: 35px;
@@ -76,10 +92,12 @@ $snapchat: #fffc00;
       margin-right: 8px;
       flex-shrink: 0;
     }
+
     &:hover {
       span {
         text-decoration: underline;
       }
+
       i {
         color: #50545a;
         transition: .5s color, .5s background;

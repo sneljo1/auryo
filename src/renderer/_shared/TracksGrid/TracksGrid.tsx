@@ -10,7 +10,8 @@ import Spinner from '../Spinner/Spinner';
 import { TrackGridRow } from './TrackGridRow';
 import * as styles from './TracksGrid.module.scss';
 
-interface Props extends PlaylistIdentifier {
+interface Props {
+  playlistID: PlaylistIdentifier;
   showInfo?: boolean;
   items: Normalized.NormalizedResult[];
 
@@ -26,7 +27,7 @@ function getRowsForWidth(width: number): number {
 }
 
 const TracksGrid: SFC<Props> = props => {
-  const { items, objectId, showInfo, isItemLoaded, loadMore, hasMore, isLoading, playlistType } = props;
+  const { items, showInfo, isItemLoaded, loadMore, hasMore, isLoading, playlistID } = props;
   const loaderRef = useRef<InfiniteLoader & { _listRef: List }>(null);
   const { setList } = useContext(ContentContext);
   const listRef = loaderRef?.current?._listRef;
@@ -83,9 +84,8 @@ const TracksGrid: SFC<Props> = props => {
                     itemData={{
                       itemsPerRow,
                       items,
-                      objectId,
-                      playlistType,
-                      showInfo
+                      showInfo,
+                      playlistID
                     }}
                     itemSize={350}
                     width={width}>

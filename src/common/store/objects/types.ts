@@ -1,7 +1,17 @@
-import { Normalized } from '@types';
+import { EntitiesOf, Normalized } from '@types';
 import { AxiosError } from 'axios';
+import { PlaylistIdentifier } from '../playlist';
 
 // TYPES
+
+export interface ObjectItem<O = any> {
+  objectType: ObjectTypes;
+  entities: EntitiesOf<O>;
+  result: Normalized.NormalizedResult[];
+  nextUrl?: string;
+  fetchedItemsIds?: number[];
+  refresh?: boolean;
+}
 
 export enum ObjectTypes {
   PLAYLISTS = 'PLAYLISTS',
@@ -22,10 +32,12 @@ export enum PlaylistTypes {
   RELATED = 'RELATED',
   ARTIST_LIKES = 'ARTIST_LIKES',
   ARTIST_TRACKS = 'ARTIST_TRACKS',
+  ARTIST_TOP_TRACKS = 'ARTIST_TOP_TRACKS',
   SEARCH = 'SEARCH',
   SEARCH_USER = 'SEARCH_USER',
   SEARCH_TRACK = 'SEARCH_TRACK',
-  SEARCH_PLAYLIST = 'SEARCH_PLAYLIST'
+  SEARCH_PLAYLIST = 'SEARCH_PLAYLIST',
+  QUEUE = 'QUEUE'
 }
 
 export type ObjectsState = Readonly<{
@@ -33,11 +45,12 @@ export type ObjectsState = Readonly<{
   [PlaylistTypes.LIKES]: ObjectState;
   [PlaylistTypes.MYTRACKS]: ObjectState;
   [PlaylistTypes.MYPLAYLISTS]: ObjectState;
-  [PlaylistTypes.PLAYLIST]: ObjectState;
+  [PlaylistTypes.PLAYLIST]: ObjectGroup;
   [PlaylistTypes.SEARCH]: ObjectState;
   [PlaylistTypes.SEARCH_PLAYLIST]: ObjectState;
   [PlaylistTypes.SEARCH_USER]: ObjectState;
   [PlaylistTypes.SEARCH_TRACK]: ObjectState;
+  [PlaylistTypes.QUEUE]: ObjectState;
 
   [ObjectTypes.PLAYLISTS]: ObjectGroup;
   [ObjectTypes.COMMENTS]: ObjectGroup;
@@ -50,12 +63,14 @@ export interface ObjectGroup {
 export interface ObjectState {
   isFetching: boolean;
   error: AxiosError | Error | null;
-  items: Normalized.NormalizedResult[];
+  items: ObjectStateItem[];
   nextUrl?: string | null;
   fetchedItems: number;
   itemsToFetch: Normalized.NormalizedResult[];
-  meta: { query?: string; createdAt?: number; updatedAt?: number };
+  meta: { query?: string; createdAt?: number; updatedAt?: number; originalPlaylistID?: PlaylistIdentifier };
 }
+
+export type ObjectStateItem = Normalized.NormalizedResult & { parentPlaylistID?: PlaylistIdentifier };
 
 // ACTIONS
 

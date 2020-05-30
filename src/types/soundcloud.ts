@@ -4,9 +4,7 @@ export interface Asset<T> {
   id: number;
   kind: T;
   uri: string;
-
-  // Local addition for checking if there's already one of these assets being loaded
-  loading?: boolean;
+  urn: string;
 }
 
 export enum AssetType {
@@ -29,33 +27,41 @@ export enum ProfileService {
   PINTEREST = 'pinterest',
   SNAPCHAT = 'snapchat',
   PERSONAL = 'personal',
-  SONGKICK = 'songkick',
-  BEATPORT = 'beatport'
+  SONGKICK = 'songkick'
+  //BEATPORT = 'beatport'
 }
 
 export interface Profile extends Asset<AssetType.WEBPROFILE> {
-  created_at: DateString;
-  service: ProfileService;
+  network: ProfileService;
   title: string;
   url: string;
   username: string;
 }
 
 export interface Comment extends Asset<AssetType.COMMENT> {
-  created_at: DateString;
   user_id: number;
   track_id: number;
+  created_at: DateString;
+  self: { urn: string };
   timestamp: number;
   body: string;
   user: CompactUser;
 }
 
 export interface CompactUser extends Asset<AssetType.USER> {
-  permalink: string;
-  username: string;
-  last_modified: string;
-  permalink_url: string;
   avatar_url: string;
+  first_name: string;
+  full_name: string;
+  id: number;
+  last_modified: Date;
+  last_name: string;
+  permalink: string;
+  permalink_url: string;
+  urn: string;
+  username: string;
+  verified: boolean;
+  city?: any;
+  country_code?: any;
 }
 
 export interface User extends Asset<AssetType.USER> {
@@ -89,14 +95,9 @@ export interface User extends Asset<AssetType.USER> {
   primary_email_confirmed: boolean;
   locale: string;
   reposts_count: number;
-
-  profiles?: UserProfiles;
 }
 
-export interface UserProfiles {
-  items: Profile[];
-  loading: boolean;
-}
+export type UserProfiles = Profile[];
 
 export interface Track extends Asset<AssetType.TRACK> {
   created_at: string;

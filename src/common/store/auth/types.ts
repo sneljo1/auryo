@@ -1,4 +1,5 @@
-import { Normalized, SoundCloud, ObjectMap } from '@types';
+import { Normalized, ObjectMap, SoundCloud } from '@types';
+import { AxiosError } from 'axios';
 import { EpicError } from '@common/utils/errors/EpicError';
 
 // TYPES
@@ -6,7 +7,7 @@ import { EpicError } from '@common/utils/errors/EpicError';
 export type AuthState = Readonly<{
   me: {
     isLoading: boolean;
-    error?: any;
+    error?: EpicError | AxiosError | Error | null;
     data?: SoundCloud.User;
   };
   followings: AuthFollowing;
@@ -14,12 +15,12 @@ export type AuthState = Readonly<{
   reposts: AuthReposts;
   playlists: {
     isLoading: boolean;
-    error?: any;
+    error?: EpicError | AxiosError | Error | null;
     data: AuthPlaylists;
   };
   personalizedPlaylists: {
     loading: boolean;
-    error?: EpicError | null;
+    error?: EpicError | AxiosError | Error | null;
     items: Normalized.NormalizedPersonalizedItem[] | null;
   };
 }>;
@@ -43,6 +44,16 @@ export interface AuthReposts {
   playlist: ObjectMap;
 }
 
+export enum LikeType {
+  Playlist = 'playlist',
+  Track = 'track',
+  SystemPlaylist = 'systemPlaylist'
+}
+export enum RepostType {
+  Playlist = 'playlist',
+  Track = 'track'
+}
+
 // ACTIONS
 
 export enum AuthActionTypes {
@@ -51,6 +62,12 @@ export enum AuthActionTypes {
   GET_USER_LIKE_IDS = '@@auth/GET_USER_LIKE_IDS',
   GET_USER_REPOST_IDS = '@@auth/GET_USER_REPOST_IDS',
   GET_USER_PLAYLISTS = '@@auth/GET_USER_PLAYLISTS',
+
+  TOGGLE_LIKE = '@@track/TOGGLE_LIKE',
+  TOGGLE_REPOST = '@@track/TOGGLE_REPOST',
+  TOGGLE_FOLLOWING = '@@track/TOGGLE_FOLLOWING',
+
+  // OLD?
 
   SET = '@@auth/SET',
   SET_PLAYLISTS = '@@auth/SET_PLAYLISTS',

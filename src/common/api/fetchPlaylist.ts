@@ -4,7 +4,7 @@ import { normalize, schema } from 'normalizr';
 import { SoundCloud, Normalized } from '@types';
 import { playlistSchema, trackSchema, userSchema } from '../schemas';
 // eslint-disable-next-line import/no-cycle
-import { PlaylistTypes } from '../store/objects';
+import { PlaylistTypes } from '../store/types';
 import fetchToJson from './helpers/fetchToJson';
 
 interface CollectionItem {

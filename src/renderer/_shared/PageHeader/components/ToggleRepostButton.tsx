@@ -1,20 +1,19 @@
 import * as actions from '@common/store/actions';
-import { hasReposted } from '@common/store/auth/selectors';
+import { hasReposted } from '@common/store/selectors';
 import cn from 'classnames';
 import React, { FC } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { RepostType } from '@common/store/types';
 
 interface Props {
   className?: string;
-
-  playlistId?: string;
-  trackId?: number;
+  id: string | number;
+  type: RepostType;
   colored?: boolean;
 }
 
-export const ToggleRepostButton: FC<Props> = ({ className, playlistId, trackId, colored }) => {
-  const playlistOrTrackId = (playlistId || trackId) as number | string;
-  const reposted = useSelector(hasReposted(playlistOrTrackId, playlistId ? 'playlist' : 'track'));
+export const ToggleRepostButton: FC<Props> = ({ className, id, type, colored }) => {
+  const reposted = useSelector(hasReposted(id, type));
   const dispatch = useDispatch();
 
   return (
@@ -22,7 +21,7 @@ export const ToggleRepostButton: FC<Props> = ({ className, playlistId, trackId, 
       href="javascript:void(0)"
       className={cn('c_btn', className, { active: reposted, colored })}
       onClick={() => {
-        dispatch(actions.toggleRepost(playlistOrTrackId, !!playlistId));
+        dispatch(actions.toggleRepost.request({ id, type }));
       }}>
       <i className="bx bx-repost" />
       <span>{reposted ? 'Reposted' : 'Repost'}</span>

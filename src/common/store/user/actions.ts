@@ -1,122 +1,24 @@
-import { SoundCloud, ThunkResult } from '@types';
-import fetchToJson from '../../api/helpers/fetchToJson';
-import { SC } from '../../utils';
-import { PlaylistTypes } from '../objects';
-import { getPlaylistO } from '../objects/actions';
-import { getArtistLikesPlaylistObject, getArtistTracksPlaylistObject, getPlaylistName } from '../objects/selectors';
-import { UserActionTypes } from './types';
+import { wError, wSuccess } from '@common/utils/reduxUtils';
+import { EntitiesOf, EpicFailure, SoundCloud } from '@types';
+import { createAsyncAction } from 'typesafe-actions';
+import { UserActionTypes } from '../types';
 
-/**
- * Get and save user
- */
-function getUser(userId: number) {
-  return {
-    type: UserActionTypes.SET,
-    payload: {
-      promise: fetchToJson<SoundCloud.User>(SC.getUserUrl(userId))
-        .then(user => ({
-          entities: {
-            userEntities: {
-              [user.id]: {
-                ...user,
-                loading: false
-              }
-            }
-          }
-        }))
-        .catch(() => ({
-          entities: {
-            userEntities: {
-              [userId]: {
-                loading: false
-              }
-            }
-          }
-        })),
-      data: {
-        entities: {
-          userEntities: {
-            [userId]: {
-              loading: true
-            }
-          }
-        }
-      }
-    }
-  };
-}
+export const getUser = createAsyncAction(
+  String(UserActionTypes.GET_USER),
+  wSuccess(UserActionTypes.GET_USER),
+  wError(UserActionTypes.GET_USER)
+)<
+  { refresh: boolean; userId: number },
+  { userId: number; entities: EntitiesOf<SoundCloud.User> },
+  EpicFailure & { userId: number }
+>();
 
-function getUserProfiles(userId: number) {
-  return {
-    type: UserActionTypes.SET_PROFILES,
-    payload: {
-      promise: fetchToJson(SC.getUserWebProfilesUrl(userId))
-        .then(profiles => ({
-          entities: {
-            userEntities: {
-              [userId]: {
-                profiles: {
-                  loading: false,
-                  items: profiles
-                }
-              }
-            }
-          }
-        }))
-        .catch(() => ({
-          entities: {
-            userEntities: {
-              [userId]: {
-                profiles: {
-                  loading: false,
-                  items: []
-                }
-              }
-            }
-          }
-        })),
-      data: {
-        entities: {
-          userEntities: {
-            [userId]: {
-              profiles: {
-                loading: true,
-                items: []
-              }
-            }
-          }
-        }
-      }
-    }
-  };
-}
-
-export function fetchArtistIfNeeded(userId: number): ThunkResult<any> {
-  return (dispatch, getState) => {
-    const state = getState();
-    const { entities } = state;
-    const { userEntities } = entities;
-
-    const user = userEntities[userId];
-
-    if (!user || (user && !user.followers_count && !user.loading)) {
-      dispatch(getUser(userId));
-    }
-
-    if (!user || (user && !user.profiles)) {
-      dispatch(getUserProfiles(userId));
-    }
-
-    if (!getArtistTracksPlaylistObject(userId.toString())(state)) {
-      dispatch(
-        getPlaylistO(SC.getUserTracksUrl(userId), getPlaylistName(userId.toString(), PlaylistTypes.ARTIST_TRACKS))
-      );
-    }
-
-    if (!getArtistLikesPlaylistObject(userId.toString())(state)) {
-      dispatch(
-        getPlaylistO(SC.getUserLikesUrl(userId), getPlaylistName(userId.toString(), PlaylistTypes.ARTIST_LIKES))
-      );
-    }
-  };
-}
+export const getUserProfiles = createAsyncAction(
+  String(UserActionTypes.GET_USER_PROFILES),
+  wSuccess(UserActionTypes.GET_USER_PROFILES),
+  wError(UserActionTypes.GET_USER_PROFILES)
+)<
+  { userUrn: string },
+  { userUrn: string; entities: EntitiesOf<SoundCloud.UserProfiles> },
+  EpicFailure & { userUrn: string }
+>();

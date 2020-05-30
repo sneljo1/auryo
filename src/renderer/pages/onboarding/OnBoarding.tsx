@@ -1,12 +1,15 @@
 import feetonmusicbox from '@assets/img/feetonmusicbox.jpg';
-import { StoreState } from '@common/store/rootReducer';
+import { Position } from '@blueprintjs/core';
+import { EVENTS } from '@common/constants';
 import * as actions from '@common/store/actions';
-import { authTokenStateSelector, configSelector } from '@common/store/config/selectors';
+import { getAppAuth, authTokenStateSelector, configSelector } from '@common/store/selectors';
 import AboutModal from '@renderer/app/components/modals/AboutModal/AboutModal';
+import { Toastr } from '@renderer/app/components/Toastr';
+import { StoreState } from 'AppReduxTypes';
 import cn from 'classnames';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { ipcRenderer } from 'electron';
-import React, { useEffect, useState, FC, useCallback } from 'react';
+import React, { FC, useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
 import { bindActionCreators, Dispatch } from 'redux';
@@ -15,10 +18,6 @@ import { LoginStep } from './components/LoginStep';
 import { PrivacyStep } from './components/PrivacyStep';
 import { WelcomeStep } from './components/WelcomeStep';
 import './OnBoarding.scss';
-import { Position } from '@blueprintjs/core';
-import { Toastr } from '@renderer/app/components/Toastr';
-import { EVENTS } from '@common/constants';
-import { getAppAuth } from '@common/store/appAuth/selectors';
 
 const mapStateToProps = (state: StoreState) => ({
   config: configSelector(state),

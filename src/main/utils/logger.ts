@@ -7,7 +7,7 @@ const config: pino.LoggerOptions = {
     colorize: !isProd
   },
   base: null,
-  level: isProd ? 'info' : 'debug'
+  level: isProd ? 'info' : process.env.LOG_LEVEL ?? 'debug'
 };
 
 export type LoggerInstance = pino.Logger;

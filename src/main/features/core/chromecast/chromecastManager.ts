@@ -2,9 +2,9 @@ import { PlatformSender } from '@amilajack/castv2-client';
 import { Intent } from '@blueprintjs/core';
 import { IMAGE_SIZES } from '@common/constants';
 import { EVENTS } from '@common/constants/events';
-import { StoreState } from '@common/store/rootReducer';
+import { StoreState } from 'AppReduxTypes';
 import { DevicePlayerStatus } from '@common/store/app';
-import { getTrackEntity } from '@common/store/entities/selectors';
+import { getTrackEntity } from '@common/store/selectors';
 import { PlayerStatus } from '@common/store/player';
 import { SC } from '@common/utils';
 import { Logger, LoggerInstance } from '@main/utils/logger';
@@ -12,7 +12,7 @@ import { autobind } from 'core-decorators';
 import { Feature, WatchState } from '../../feature';
 import AuryoReceiver from './auryoReceiver';
 import { startScanning } from './deviceScanner';
-import { addToast, setChromecastAppState, setChromeCastPlayerStatus, useChromeCast } from '@common/store/actions';
+import { addToast, setChromecastAppState, setChromeCastPlayerStatus, setChromecastDevice } from '@common/store/actions';
 
 @autobind
 export default class ChromecastManager extends Feature {
@@ -76,7 +76,7 @@ export default class ChromecastManager extends Feature {
                   this.client.close();
                 }
 
-                this.store.dispatch(useChromeCast());
+                this.store.dispatch(setChromecastDevice());
               });
 
               this.client.on('status', this.handleClientStatusChange);
@@ -98,7 +98,7 @@ export default class ChromecastManager extends Feature {
         } catch (err) {
           this.logger.error(err);
           this.store.dispatch(setChromecastAppState(null));
-          this.store.dispatch(useChromeCast());
+          this.store.dispatch(setChromecastDevice());
           throw err;
         }
       }
@@ -217,7 +217,7 @@ export default class ChromecastManager extends Feature {
         );
       } else {
         this.store.dispatch(setChromecastAppState(null));
-        this.store.dispatch(useChromeCast());
+        this.store.dispatch(setChromecastDevice());
       }
     }
   }

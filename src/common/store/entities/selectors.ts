@@ -1,9 +1,9 @@
-import { denormalize, schema } from 'normalizr';
-import { createSelector } from 'reselect';
-import { EntitiesState } from '.';
-import { StoreState } from '../rootReducer';
 import { Normalized, SoundCloud } from '@types';
-import { commentSchema, playlistSchema, trackSchema, userSchema } from '../../schemas';
+import { StoreState } from 'AppReduxTypes';
+import { denormalize } from 'normalizr';
+import { createSelector } from 'reselect';
+import { EntitiesState } from '../types';
+import { genericSchema } from '@common/schemas';
 
 export const getEntities = (state: StoreState) => state.entities;
 
@@ -12,11 +12,8 @@ export const getPlaylistEntities = () =>
     getEntities,
     entities => entities.playlistEntities
   );
-export const getUserEntities = () =>
-  createSelector<StoreState, ReturnType<typeof getEntities>, EntitiesState['userEntities']>(
-    getEntities,
-    entities => entities.userEntities
-  );
+export const getUserEntities = () => createSelector(getEntities, entities => entities.userEntities);
+export const getUserProfilesEntities = () => createSelector(getEntities, entities => entities.userProfileEntities);
 
 export const getCommentEntities = () =>
   createSelector<StoreState, ReturnType<typeof getEntities>, EntitiesState['commentEntities']>(
@@ -30,19 +27,9 @@ export const getTrackEntities = () =>
     entities => entities.trackEntities
   );
 
-export const normalizeSchema = new schema.Array(
-  {
-    tracks: trackSchema,
-    playlists: playlistSchema,
-    users: userSchema,
-    comments: commentSchema
-  },
-  input => `${input.kind}s`
-);
-
 export const getDenormalizedEntities = <T>(result: Normalized.NormalizedResult[]) =>
   createSelector<StoreState, ReturnType<typeof getEntities>, T[]>(getEntities, entities =>
-    denormalize(result, normalizeSchema, entities)
+    denormalize(result, genericSchema, entities)
   );
 
 export const getDenormalizedEntity = <T>(result: Normalized.NormalizedResult) =>
@@ -63,14 +50,36 @@ export const getNormalizedPlaylist = (id: string | number) =>
     entities => entities[id]
   );
 
-export const getNormalizedUser = (id?: number) =>
+export const getNormalizedUser = (id?: number | string) =>
   createSelector<StoreState, EntitiesState['userEntities'], SoundCloud.User | undefined | null>(
     getUserEntities(),
     entities => (id ? entities[id] : null)
   );
 
-export const getNormalizedTrack = (id?: number) =>
+export const getNormalizedUserForPage = (id?: number | string) =>
+  createSelector(getNormalizedUser(id), user => {
+    if (user?.followers_count !== undefined && user?.followings_count !== undefined) {
+      return user;
+    }
+
+    return null;
+  });
+
+export const getNormalizedTrack = (id?: number | string) =>
   createSelector<StoreState, EntitiesState['trackEntities'], Normalized.Track | undefined | null>(
     getTrackEntities(),
-    entities => (id ? entities[id] : null)
+    entities => {
+      if (id) {
+        const track = entities[id];
+
+        if (track.media) {
+          return track;
+        }
+      }
+
+      return null;
+    }
   );
+
+export const getNormalizedUserProfiles = (userUrn?: string) =>
+  createSelector(getUserProfilesEntities(), entities => (userUrn ? entities?.[userUrn] : null));

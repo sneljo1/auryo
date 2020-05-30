@@ -1,6 +1,6 @@
 import fallbackAvatar from '@assets/img/avatar_placeholder.jpg';
 import { IMAGE_SIZES } from '@common/constants';
-import { getCommentEntity } from '@common/store/entities/selectors';
+import { getCommentEntity } from '@common/store/selectors';
 import { SC } from '@common/utils';
 import { Normalized } from '@types';
 import moment from 'moment';

@@ -1,8 +1,6 @@
-import { Reducer } from 'redux';
-import { onError, onSuccess } from '../../utils/reduxUtils';
-import { AppActionTypes, AppState, ChromeCastDevice } from './types';
 import { createReducer } from 'typesafe-actions';
-import { resetStore, getRemainingPlays } from './actions';
+import { getRemainingPlays, resetStore } from '../actions';
+import { AppState } from './types';
 
 const initialState: AppState = {
   history: {

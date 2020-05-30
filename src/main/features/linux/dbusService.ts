@@ -1,12 +1,12 @@
-import { ChangeTypes, PlayerStatus } from '@common/store/player';
 import { changeTrack, toggleStatus } from '@common/store/actions';
+import { ChangeTypes, PlayerStatus } from '@common/store/player';
+import { Auryo } from '@main/app';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import * as dbus from 'dbus-next';
-import { Logger, LoggerInstance } from '../../utils/logger';
-import LinuxFeature from './linuxFeature';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { app } from 'electron';
-import { Auryo } from '@main/app';
+import { Logger, LoggerInstance } from '../../utils/logger';
+import LinuxFeature from './linuxFeature';
 
 export default class DbusService extends LinuxFeature {
   public readonly featureName = 'DbusService';

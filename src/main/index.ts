@@ -55,6 +55,6 @@ app.on('ready', async () => {
   try {
     await auryo.start();
   } catch (err) {
-    Logger.defaultLogger().error(err);
+    Logger.defaultLogger().error('Error starting auryo', err);
   }
 });

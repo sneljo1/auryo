@@ -180,6 +180,7 @@ function init() {
       startElectron();
     })
     .catch(err => {
+      console.error('Startup error');
       console.error(err);
     });
 }

@@ -1,4 +1,4 @@
-import { ObjectTypes, PlaylistTypes } from '../objects';
+import { ObjectItem, ObjectTypes, PlaylistTypes } from '../types';
 
 // TYPES
 
@@ -12,6 +12,8 @@ export type PlaylistIdentifier = {
   playlistType: PlaylistTypes | ObjectTypes;
 };
 
+export interface PlaylistObjectItem<O = any> extends ObjectItem<O>, PlaylistIdentifier {}
+
 // ACTIONS
 
 export enum PlaylistActionTypes {
@@ -22,5 +24,6 @@ export enum PlaylistActionTypes {
   SEARCH = '@@playlist/SEARCH',
   SEARCH_FETCH_MORE = '@@playlist/SEARCH_FETCH_MORE',
 
-  GET_FORYOU_SELECTION = '@@playlist/GET_FORYOU_SELECTION'
+  GET_FORYOU_SELECTION = '@@playlist/GET_FORYOU_SELECTION',
+  GET_PLAYLIST_TRACKS = '@@playlist/GET_PLAYLIST_TRACKS'
 }

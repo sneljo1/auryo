@@ -1,18 +1,36 @@
-import { ObjectMap, Normalized } from '@types';
-import { empty, forkJoin, from, of } from 'rxjs';
+import { EpicError } from '@common/utils/errors/EpicError';
+import { Normalized, ObjectMap } from '@types';
+import { StoreState } from 'AppReduxTypes';
+import { AxiosError } from 'axios';
+import { StateObservable } from 'redux-observable';
+import { empty, forkJoin, from, of, throwError } from 'rxjs';
 import { catchError, filter, first, map, mergeMap, switchMap, withLatestFrom } from 'rxjs/operators';
 import { EmptyAction, isActionOf } from 'typesafe-actions';
-import { RootEpic, RootState } from '../types';
 import {
   getCurrentUser,
   getCurrentUserFollowingsIds,
   getCurrentUserLikeIds,
+  getCurrentUserPlaylists,
   getCurrentUserRepostIds,
-  getCurrentUserPlaylists
-} from './actions';
+  toggleLike,
+  toggleRepost
+} from '../actions';
+import { RootEpic } from '../declarations';
+import { currentUserSelector, hasLiked, hasReposted } from '../selectors';
+import { LikeType, RepostType } from '../types';
 import * as APIService from './api';
-import { currentUserSelector } from './selectors';
-import { StateObservable } from 'redux-observable';
+import { toggleFollowing } from './actions';
+import { isFollowing } from './selectors';
+
+const handleEpicError = (error: any) => {
+  if ((error as AxiosError).isAxiosError) {
+    console.log(error.message, error.response.data);
+  } else {
+    console.error('Epic error - track', error);
+  }
+  // TODO Sentry?
+  return error;
+};
 
 export const getCurrentUserEpic: RootEpic = action$ =>
   action$.pipe(
@@ -115,11 +133,155 @@ export const getCurrentUserPlaylistsEpic: RootEpic = action$ =>
     )
   );
 
+// TODO: add toaster for success and erro
+export const toggleLikeEpic: RootEpic = (action$, state$) =>
+  action$.pipe(
+    filter(isActionOf(toggleLike.request)),
+    withLatestFrom(state$),
+    map(([{ payload }, state]) => {
+      const isLiked = hasLiked(payload.id, payload.type)(state);
+      const currentUser = currentUserSelector(state);
+
+      return {
+        payload,
+        isLiked,
+        userId: currentUser?.id as number
+      };
+    }),
+    switchMap(({ payload, isLiked, userId }) => {
+      const { id, type } = payload;
+
+      let ob$;
+
+      switch (type) {
+        case LikeType.Track:
+          ob$ = APIService.toggleTrackLike({ trackId: id, userId, like: !isLiked });
+          break;
+        case LikeType.Playlist:
+          ob$ = APIService.togglePlaylistLike({ playlistId: id, userId, like: !isLiked });
+          break;
+        case LikeType.SystemPlaylist:
+          ob$ = APIService.toggleSystemPlaylistLike({ playlistUrn: id.toString(), userId, like: !isLiked });
+          break;
+        default:
+          ob$ = throwError(new EpicError(`${type}: Unknown type found`));
+      }
+
+      return from(ob$).pipe(
+        map(() =>
+          toggleLike.success({
+            id,
+            type,
+            liked: !isLiked
+          })
+        ),
+        catchError(error =>
+          of(
+            toggleLike.failure({
+              error: handleEpicError(error),
+              id,
+              type,
+              liked: !isLiked
+            })
+          )
+        )
+      );
+    })
+  );
+
+// TODO: add toaster for success and error
+export const toggleRepostEpic: RootEpic = (action$, state$) =>
+  action$.pipe(
+    filter(isActionOf(toggleRepost.request)),
+    withLatestFrom(state$),
+    map(([{ payload }, state]) => {
+      const isReposted = hasReposted(payload.id, payload.type)(state);
+
+      return {
+        payload,
+        isReposted
+      };
+    }),
+    switchMap(({ payload, isReposted }) => {
+      const { id, type } = payload;
+      const repost = !isReposted;
+
+      let ob$;
+
+      switch (type) {
+        case RepostType.Track:
+          ob$ = APIService.toggleTrackRepost({ trackId: id, repost });
+          break;
+        case RepostType.Playlist:
+          ob$ = APIService.togglePlaylistRepost({ playlistId: id, repost });
+          break;
+        default:
+          ob$ = throwError(new EpicError(`${type}: Unknown type found`));
+      }
+
+      return from(ob$).pipe(
+        map(() =>
+          toggleRepost.success({
+            id,
+            type,
+            reposted: repost
+          })
+        ),
+        catchError(error =>
+          of(
+            toggleRepost.failure({
+              error: handleEpicError(error),
+              id,
+              type,
+              reposted: repost
+            })
+          )
+        )
+      );
+    })
+  );
+
+export const toggleFollowingEpic: RootEpic = (action$, state$) =>
+  action$.pipe(
+    filter(isActionOf(toggleFollowing.request)),
+    withLatestFrom(state$),
+    map(([{ payload }, state]) => {
+      const isFollowingUser = isFollowing(payload.userId)(state);
+
+      return {
+        payload,
+        isFollowingUser
+      };
+    }),
+    switchMap(({ payload, isFollowingUser }) => {
+      const { userId } = payload;
+      const follow = !isFollowingUser;
+
+      return from(APIService.toggleFollowing({ userId, follow })).pipe(
+        map(() =>
+          toggleFollowing.success({
+            userId,
+            follow
+          })
+        ),
+        catchError(error =>
+          of(
+            toggleFollowing.failure({
+              error: handleEpicError(error),
+              userId,
+              follow
+            })
+          )
+        )
+      );
+    })
+  );
+
 // Helpers
 
-const getCurrentUserFromState = (state$: StateObservable<RootState>) => ([action, state]: [
+const getCurrentUserFromState = (state$: StateObservable<StoreState>) => ([action, state]: [
   EmptyAction<any>,
-  RootState
+  StoreState
 ]) => {
   const currentUser = currentUserSelector(state);
 

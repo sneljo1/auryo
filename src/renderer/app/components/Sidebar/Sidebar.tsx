@@ -1,5 +1,4 @@
-import { getAuthPlaylistsSelector } from '@common/store/auth/selectors';
-import { getCurrentPlaylistId } from '@common/store/player/selectors';
+import { getAuthPlaylistsSelector, getCurrentPlaylistId } from '@common/store/selectors';
 import React, { FC } from 'react';
 import Scrollbars from 'react-custom-scrollbars';
 import { useSelector } from 'react-redux';

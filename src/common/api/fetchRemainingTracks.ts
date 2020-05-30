@@ -1,7 +1,4 @@
-/* eslint-disable camelcase */
-// eslint-disable-next-line import/no-cycle
-import { RemainingPlays } from '../store/app';
-// eslint-disable-next-line import/no-cycle
+import { RemainingPlays } from '../store/types';
 import { SC } from '../utils';
 import fetchToJson from './helpers/fetchToJson';
 

@@ -1,6 +1,6 @@
 import { IMAGE_SIZES } from '@common/constants';
 import { EVENTS } from '@common/constants/events';
-import { getTrackEntity } from '@common/store/entities/selectors';
+import { getTrackEntity } from '@common/store/selectors';
 import { PlayingTrack } from '@common/store/player';
 import { SC } from '@common/utils';
 import { Auryo } from '@main/app';

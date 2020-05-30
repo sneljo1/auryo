@@ -1,6 +1,5 @@
 import { createReducer } from 'typesafe-actions';
-import { resetStore } from '../app/actions';
-import { login, loginError, loginSuccess, loginTerminated } from './actions';
+import { resetStore, login, loginError, loginSuccess, loginTerminated } from '../actions';
 import { AppAuthState } from './types';
 
 const initialState = {

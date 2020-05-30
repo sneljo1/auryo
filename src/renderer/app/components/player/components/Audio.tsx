@@ -2,13 +2,14 @@
 import { Intent } from '@blueprintjs/core';
 import { EVENTS } from '@common/constants';
 import * as actions from '@common/store/actions';
-import { ChangeTypes, PlayerStatus } from '@common/store/player';
+import { PlayerStatus } from '@common/store/player';
 import { useAudioPlayer, useAudioPosition } from '@renderer/hooks/useAudioPlayer';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { ipcRenderer } from 'electron';
-import { FC, useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { FC, useCallback, useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { usePrevious } from 'react-use';
+import { getPlayerCurrentTime } from '@common/store/selectors';
 
 interface Props {
   src?: string;
@@ -18,9 +19,14 @@ interface Props {
   playbackDeviceId: string | null;
 }
 
+// TODO: use webAudio?
+// https://github.com/DPr00f/electron-music-player-tutorial/blob/master/app/utils/AudioController.js
+
 export const Audio: FC<Props> = ({ src, playerStatus, playerVolume, muted, playbackDeviceId }) => {
   const [isSeeking, setIsSeeking] = useState(false);
   const { duration, position } = useAudioPosition();
+  const currentTime = useSelector(getPlayerCurrentTime);
+  const previousSrc = usePrevious(src);
   const dispatch = useDispatch();
 
   const {
@@ -130,14 +136,27 @@ export const Audio: FC<Props> = ({ src, playerStatus, playerVolume, muted, playb
   // Onload
   useEffect(() => {
     if (wasPrevLoading && !loading && !error) {
-      dispatch(actions.setDuration(duration));
-      dispatch(actions.registerPlay());
+      // TODO: remove
+      // dispatch(actions.setDuration(duration));
+
+      // TODO: can we move this to our observables?
+      dispatch(actions.registerPlayO());
     }
   }, [loading]);
 
+  // handle track restart
+  useEffect(() => {
+    if (currentTime === 0 && position > 0 && src && src === previousSrc) {
+      load({
+        src,
+        volume: playerVolume
+      });
+    }
+  }, [currentTime]);
+
   // OnPlay
   useEffect(() => {
-    if (typeof position === 'number') {
+    if (typeof position === 'number' && playerStatus === PlayerStatus.PLAYING) {
       dispatch(actions.setCurrentTime(position));
     }
   }, [position, ready]);
@@ -145,24 +164,24 @@ export const Audio: FC<Props> = ({ src, playerStatus, playerVolume, muted, playb
   // OnEnd
   useEffect(() => {
     if (ended) {
-      dispatch(actions.changeTrack(ChangeTypes.NEXT, true));
+      dispatch(actions.trackFinished());
     }
   }, [ended]);
 
-  const retry = () => {
+  const retry = useCallback(() => {
     if (error && src) {
       load({
         src,
         volume: playerVolume
       });
     }
-  };
+  }, [load, src, error, playerVolume]);
 
   // OnError
   useEffect(() => {
     if (error) {
       // eslint-disable-next-line no-console
-      console.error(error);
+      console.error('Audio.tsx', error);
 
       switch (error.code) {
         case MediaError.MEDIA_ERR_NETWORK:

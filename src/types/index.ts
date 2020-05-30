@@ -2,7 +2,7 @@ import { AxiosError } from 'axios';
 import { ThunkAction } from 'redux-thunk';
 import * as Normalized from './normalized';
 import * as SoundCloud from './soundcloud';
-import { StoreState } from '@common/store/types';
+import { StoreState } from 'AppReduxTypes';
 
 export { SoundCloud, Normalized };
 

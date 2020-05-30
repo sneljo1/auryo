@@ -1,9 +1,9 @@
 import { Icon, Menu, MenuDivider, MenuItem, Popover, Position } from '@blueprintjs/core';
 import { EVENTS } from '@common/constants/events';
-import { StoreState } from '@common/store/rootReducer';
 import * as actions from '@common/store/actions';
-import { currentUserSelector } from '@common/store/auth/selectors';
+import { currentUserSelector } from '@common/store/selectors';
 import { InjectedContentContextProps, withContentContext } from '@renderer/_shared/context/contentContext';
+import { StoreState } from 'AppReduxTypes';
 import cn from 'classnames';
 import * as ReactRouter from 'connected-react-router';
 import { autobind } from 'core-decorators';
@@ -161,7 +161,7 @@ class Header extends React.Component<AllProps, State> {
   public handleSearch(prev: string, rawQuery?: string) {
     const { push, replace, setDebouncedSearchQuery } = this.props;
 
-    setDebouncedSearchQuery(rawQuery);
+    setDebouncedSearchQuery(rawQuery || '');
   }
 
   // tslint:disable-next-line: max-func-body-length

@@ -1,6 +1,5 @@
 import { findIndex } from 'lodash';
-// eslint-disable-next-line import/no-cycle
-import { PlayerState, PlayerStatus, PlayingTrack } from '../store/player';
+import { PlayerState, PlayerStatus, PlayingTrack } from '../store/types';
 
 export function isCurrentPlaylistPlaying(player: PlayerState, playlistId: string): boolean {
   return player.currentPlaylistId === playlistId && player.status === PlayerStatus.PLAYING;

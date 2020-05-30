@@ -1,39 +1,42 @@
-import { Normalized } from '@types';
+import { StoreState } from 'AppReduxTypes';
+import { isEqual } from 'lodash';
 import { createSelector } from 'reselect';
-import { StoreState } from '../rootReducer';
-import { PlayerState, PlayerStatus, PlayingTrack } from './types';
+import { PlaylistIdentifier } from '../types';
+import { PlayerState, PlayingTrack } from './types';
+import { Normalized, SoundCloud } from '@types';
+import { PlaylistTypes } from '../objects';
+import { AssetType } from 'src/types/soundcloud';
 
-export const getPlayer = (state: StoreState) => state.player;
+export const getPlayerNode = (state: StoreState) => state.player;
 
-export const getPlayingTrack = createSelector<StoreState, PlayerState, PlayingTrack | null>(
-  [getPlayer],
-  player => player.playingTrack
-);
+export const getPlayingTrack = createSelector([getPlayerNode], player => player.playingTrack);
+export const getPlayerCurrentTime = createSelector([getPlayerNode], player => player.currentTime);
+export const getPlayingTrackIndex = createSelector([getPlayerNode], player => player.currentIndex);
+export const getPlayerUpNext = createSelector([getPlayerNode], player => player.upNext);
+export const getPlayerStatus = createSelector([getPlayerNode], player => player.status);
+export const getCurrentPlaylistId = createSelector([getPlayerNode], player => player.currentPlaylistId || null);
 
-export const getPlayerStatusSelector = createSelector<StoreState, PlayerState, PlayerStatus>(
-  [getPlayer],
-  player => player.status
-);
+export const getNormalizedSchemaForType = (
+  trackOrPlaylist: SoundCloud.Track | SoundCloud.Playlist
+): Normalized.NormalizedResult => ({
+  id: trackOrPlaylist.id,
+  schema: trackOrPlaylist.kind === AssetType.PLAYLIST ? 'playlists' : 'tracks'
+});
 
-export const getQueue = createSelector<StoreState, PlayerState, PlayingTrack[]>(
-  [getPlayer],
-  player => player.queue || []
-);
-
-export const getCurrentPlaylistId = createSelector<StoreState, PlayerState, string | null>(
-  [getPlayer],
-  player => player.currentPlaylistId || null
-);
-
-export const isPlaying = (result: Normalized.NormalizedResult, playlistId: string) =>
-  createSelector<StoreState, PlayingTrack | null, boolean>([getPlayingTrack], playingTrack => {
+export const isPlayingSelector = (playlistId: PlaylistIdentifier, idResult?: Normalized.NormalizedResult) =>
+  createSelector([getPlayingTrack], playingTrack => {
     if (!playingTrack) {
       return false;
     }
 
-    if (result.schema === 'playlists') {
-      return playingTrack.playlistId === result.id.toString();
+    if (!idResult) return isEqual(playingTrack.playlistId, playlistId);
+
+    if (idResult.schema === 'playlists') {
+      return isEqual(playingTrack.parentPlaylistID, {
+        playlistType: PlaylistTypes.PLAYLIST,
+        objectId: idResult.id.toString()
+      });
     }
 
-    return playingTrack.id === result.id && playingTrack.playlistId === playlistId;
+    return playingTrack.id === idResult.id && isEqual(playingTrack.playlistId, playlistId);
   });
