@@ -232,7 +232,7 @@
     "history": "^4.10.1",
     "jquery": "3.4.1",
     "lastfm": "auryo/lastfm-node#ef31b1d42e20cbc3c18ae6daa509dcfa9f81dc90",
-    "lodash": "^4.17.14",
+    "lodash": "^4.17.19",
     "lodash-decorators": "^6.0.1",
     "moment": "^2.17.0",
     "multicast-dns": "^7.2.0",
