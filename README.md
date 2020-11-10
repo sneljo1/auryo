@@ -34,11 +34,10 @@ As of release 2.0.0, Auryo also has been open-sourced. See the list of [contribu
 
 ### Tip Jar
 Show me some love, buy me a 🍺.
-- Paypal: [paypal.me](https://www.paypal.me/Superjo149)
-- Ethereum: 0x6a9F12D2084CD54587BC3BBfFf52C5931d10fB38
-- Stellar: GCHNLOV4GV54LIUEULLCSGSITFO2OY2B44IF2EUL36OA3ZRLNVADPWBE
-- Bitcoin: 17E7wxp6J6Gj4mvaZ58D3ESFe22Ezp5adz
-- Litecoin: LQFHz35BdEaavCWNGAQPZDDVTS25hKbBJr
+- Patreon: [patreon.com/sneljo](https://www.patreon.com/sneljo)
+- Ethereum: 0xC9268DF874467474b6e0D4f87409214167fa9070
+- Stellar: GAET3RYSW7KYUBVKOXF46DOSFX5YXZUF7HJ4YZREPXDDVE6FAG7U3TXI
+- Bitcoin: 3EXVQB1CSSEYDK3nDYYmqKWEFgZN5CvjHt
 
 ## License
 This project is licensed under the GNU General Public License v3.0 - see the [LICENSE.md](LICENSE.md) file for details
