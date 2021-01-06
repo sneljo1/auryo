@@ -36,7 +36,7 @@ type actions = {
   routerActions: typeof routerActions;
 };
 
-type _Store = StateType<typeof import('.').default>;
+type _Store = StateType<StoreState>;
 type _RootAction = ActionType<actions> | ActionType<RouterActions>;
 
 export type Store = _Store;

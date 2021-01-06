@@ -1,13 +1,12 @@
-import { Normalized, ObjectMap, SoundCloud } from '@types';
-import { AxiosError } from 'axios';
 import { EpicError } from '@common/utils/errors/EpicError';
+import { Normalized, ObjectMap, SoundCloud } from '@types';
 
 // TYPES
 
 export type AuthState = Readonly<{
   me: {
     isLoading: boolean;
-    error?: EpicError | AxiosError | Error | null;
+    error?: EpicError | Error | null;
     data?: SoundCloud.User;
   };
   followings: AuthFollowing;
@@ -15,12 +14,12 @@ export type AuthState = Readonly<{
   reposts: AuthReposts;
   playlists: {
     isLoading: boolean;
-    error?: EpicError | AxiosError | Error | null;
+    error?: EpicError | Error | null;
     data: AuthPlaylists;
   };
   personalizedPlaylists: {
     loading: boolean;
-    error?: EpicError | AxiosError | Error | null;
+    error?: EpicError | Error | null;
     items: Normalized.NormalizedPersonalizedItem[] | null;
   };
 }>;
@@ -57,29 +56,29 @@ export enum RepostType {
 // ACTIONS
 
 export enum AuthActionTypes {
-  GET_USER = '@@auth/GET_USER',
-  GET_USER_FOLLOWINGS_IDS = '@@auth/GET_USER_FOLLOWINGS_IDS',
-  GET_USER_LIKE_IDS = '@@auth/GET_USER_LIKE_IDS',
-  GET_USER_REPOST_IDS = '@@auth/GET_USER_REPOST_IDS',
-  GET_USER_PLAYLISTS = '@@auth/GET_USER_PLAYLISTS',
+  GET_USER = 'auryo.auth.GET_USER',
+  GET_USER_FOLLOWINGS_IDS = 'auryo.auth.GET_USER_FOLLOWINGS_IDS',
+  GET_USER_LIKE_IDS = 'auryo.auth.GET_USER_LIKE_IDS',
+  GET_USER_REPOST_IDS = 'auryo.auth.GET_USER_REPOST_IDS',
+  GET_USER_PLAYLISTS = 'auryo.auth.GET_USER_PLAYLISTS',
 
-  TOGGLE_LIKE = '@@track/TOGGLE_LIKE',
-  TOGGLE_REPOST = '@@track/TOGGLE_REPOST',
-  TOGGLE_FOLLOWING = '@@track/TOGGLE_FOLLOWING',
+  TOGGLE_LIKE = 'auryo.track.TOGGLE_LIKE',
+  TOGGLE_REPOST = 'auryo.track.TOGGLE_REPOST',
+  TOGGLE_FOLLOWING = 'auryo.track.TOGGLE_FOLLOWING',
 
   // OLD?
 
-  SET = '@@auth/SET',
-  SET_PLAYLISTS = '@@auth/SET_PLAYLISTS',
-  SET_PERSONALIZED_PLAYLISTS = '@@auth/SET_PERSONALIZED_PLAYLISTS',
-  SET_FOLLOWINGS = '@@auth/SET_FOLLOWINGS',
-  SET_LIKES = '@@auth/SET_LIKES',
-  SET_PLAYLIST_LIKES = '@@auth/SET_PLAYLIST_LIKES',
-  SET_REPOSTS = '@@auth/SET_REPOSTS',
-  SET_PLAYLIST_REPOSTS = '@@auth/SET_PLAYLIST_REPOSTS',
-  SET_LIKE = '@@auth/SET_LIKE',
-  SET_FOLLOWING = '@@auth/SET_FOLLOWING',
-  SET_REPOST = '@@auth/SET_REPOST',
-  ERROR = '@@auth/ERROR',
-  LOADING = '@@auth/LOADING'
+  SET = 'auryo.auth.SET',
+  SET_PLAYLISTS = 'auryo.auth.SET_PLAYLISTS',
+  SET_PERSONALIZED_PLAYLISTS = 'auryo.auth.SET_PERSONALIZED_PLAYLISTS',
+  SET_FOLLOWINGS = 'auryo.auth.SET_FOLLOWINGS',
+  SET_LIKES = 'auryo.auth.SET_LIKES',
+  SET_PLAYLIST_LIKES = 'auryo.auth.SET_PLAYLIST_LIKES',
+  SET_REPOSTS = 'auryo.auth.SET_REPOSTS',
+  SET_PLAYLIST_REPOSTS = 'auryo.auth.SET_PLAYLIST_REPOSTS',
+  SET_LIKE = 'auryo.auth.SET_LIKE',
+  SET_FOLLOWING = 'auryo.auth.SET_FOLLOWING',
+  SET_REPOST = 'auryo.auth.SET_REPOST',
+  ERROR = 'auryo.auth.ERROR',
+  LOADING = 'auryo.auth.LOADING'
 }

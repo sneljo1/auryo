@@ -1,11 +1,12 @@
 import { EVENTS } from '@common/constants/events';
-import { push, setConfigKey, toggleStatus, changeTrack } from '@common/store/actions';
+import { changeTrack, push, setConfigKey, toggleLike, toggleRepost, toggleStatus } from '@common/store/actions';
 import { ChangeTypes, PlayerStatus, VolumeChangeTypes } from '@common/store/player';
+import { getPlayingTrackSelector } from '@common/store/selectors';
 import * as SC from '@common/utils/soundcloudUtils';
 import { autobind } from 'core-decorators';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { app, Menu, MenuItemConstructorOptions, shell } from 'electron';
-import * as is from 'electron-is';
+import is from 'electron-is';
 import { Feature } from '../feature';
 
 @autobind
@@ -16,24 +17,22 @@ export default class ApplicationMenu extends Feature {
   }
 
   public register() {
-    this.on(EVENTS.APP.READY, () => {
+    this.buildMenu();
+
+    this.observables.trackChanged.subscribe(() => {
       this.buildMenu();
+    });
 
-      this.subscribe(['player', 'playingTrack'], () => {
-        this.buildMenu();
-      });
+    this.observables.statusChanged.subscribe(() => {
+      this.buildMenu();
+    });
 
-      this.subscribe(['player', 'status'], () => {
-        this.buildMenu();
-      });
+    this.observables.playingTrackLikeChanged.subscribe(() => {
+      this.buildMenu();
+    });
 
-      this.on(EVENTS.TRACK.LIKED, () => {
-        this.buildMenu();
-      });
-
-      this.on(EVENTS.TRACK.REPOSTED, () => {
-        this.buildMenu();
-      });
+    this.observables.playingTrackRepostChanged.subscribe(() => {
+      this.buildMenu();
     });
   }
 
@@ -109,9 +108,8 @@ export default class ApplicationMenu extends Feature {
         submenu: [
           {
             label: !player || player.status !== PlayerStatus.PLAYING ? 'Play' : 'Pause',
-            accelerator: 'Space',
             registerAccelerator: false,
-            click: () => this.store.dispatch(toggleStatus() as any)
+            click: () => this.store.dispatch(toggleStatus())
           },
           {
             type: 'separator'
@@ -119,12 +117,12 @@ export default class ApplicationMenu extends Feature {
           {
             label: 'Next',
             accelerator: 'CmdOrCtrl+Right',
-            click: () => this.store.dispatch(changeTrack(ChangeTypes.NEXT) as any)
+            click: () => this.store.dispatch(changeTrack(ChangeTypes.NEXT))
           },
           {
             label: 'Previous',
             accelerator: 'CmdOrCtrl+Left',
-            click: () => this.store.dispatch(changeTrack(ChangeTypes.PREV) as any)
+            click: () => this.store.dispatch(changeTrack(ChangeTypes.PREV))
           },
           {
             type: 'separator'
@@ -148,13 +146,7 @@ export default class ApplicationMenu extends Feature {
             label: 'Like',
             accelerator: 'CmdOrCtrl+L',
             click: () => {
-              const {
-                player: { playingTrack }
-              } = this.store.getState();
-
-              if (playingTrack) {
-                this.sendToWebContents(EVENTS.TRACK.LIKE, playingTrack.id);
-              }
+              this.store.dispatch(toggleLike.request({}));
             },
             enabled: false
           },
@@ -162,13 +154,7 @@ export default class ApplicationMenu extends Feature {
             label: 'Repost',
             accelerator: 'CmdOrCtrl+S',
             click: () => {
-              const {
-                player: { playingTrack }
-              } = this.store.getState();
-
-              if (playingTrack) {
-                this.sendToWebContents(EVENTS.TRACK.REPOST, playingTrack.id);
-              }
+              this.store.dispatch(toggleRepost.request({}));
             },
             enabled: false
           }

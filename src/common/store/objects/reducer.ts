@@ -9,13 +9,14 @@ import {
   getGenericPlaylist,
   getSearchPlaylist,
   queueInsert,
+  removeFromQueue,
+  resolvePlaylistItems,
+  setCommentsLoading,
   setCurrentPlaylist,
   setPlaylistLoading,
-  shuffleQueue,
-  resolvePlaylistItems,
-  setCommentsLoading
+  shuffleQueue
 } from '../actions';
-import { ObjectGroup, ObjectsState, ObjectState, ObjectStateItem, ObjectTypes, PlaylistTypes } from '../types';
+import { ObjectGroup, ObjectsState, ObjectState, ObjectTypes, PlaylistTypes } from '../types';
 
 const initialObjectsState: ObjectState = {
   isFetching: false,
@@ -62,6 +63,11 @@ const objectState = createReducer<ObjectState>(initialObjectsState)
           a.filter(c => !b.map(({ id }) => id).includes(c.id))
         );
       }
+    }
+
+    // If related playlist, also include the song which it relates to
+    if (payload.playlistType === PlaylistTypes.RELATED && payload.objectId) {
+      itemsToAdd.unshift({ id: +payload.objectId, schema: 'tracks' });
     }
 
     const items = payload.refresh ? itemsToAdd : uniqWith([...state.items, ...itemsToAdd], isEqual);
@@ -336,6 +342,7 @@ const initialState: ObjectsState = {
   [PlaylistTypes.SEARCH_TRACK]: initialObjectsState,
   [PlaylistTypes.SEARCH_USER]: initialObjectsState,
   [PlaylistTypes.QUEUE]: initialObjectsState,
+  [PlaylistTypes.RELATED]: initialObjectGroupState,
 
   [ObjectTypes.PLAYLISTS]: {},
   [ObjectTypes.COMMENTS]: {}
@@ -476,6 +483,20 @@ export const objectsReducer = createReducer<ObjectsState>(initialState)
     const newItems = [...queuePlaylist.items];
 
     newItems.splice(position, 0, ...items);
+
+    return {
+      ...state,
+      [PlaylistTypes.QUEUE]: {
+        ...queuePlaylist,
+        items: newItems
+      }
+    };
+  })
+  .handleAction(removeFromQueue, (state, { payload: indexToRemove }) => {
+    const queuePlaylist = state[PlaylistTypes.QUEUE];
+    const newItems = [...queuePlaylist.items];
+
+    newItems.splice(indexToRemove, 1);
 
     return {
       ...state,

@@ -1,30 +1,21 @@
 import { normalizeArray } from '@common/schemas';
+import { handleEpicError } from '@common/utils/errors/EpicError';
 import { EntitiesOf, SoundCloud } from '@types';
-import { AxiosError } from 'axios';
-import { from, of } from 'rxjs';
-import { catchError, filter, map, switchMap, tap, pluck } from 'rxjs/operators';
+import { defer, from, of } from 'rxjs';
+import { catchError, filter, map, pluck, switchMap, tap } from 'rxjs/operators';
 import { isActionOf } from 'typesafe-actions';
 import { RootEpic } from '../declarations';
 import { getUser, getUserProfiles } from './actions';
 import * as APIService from './api';
 
-const handleEpicError = (error: any) => {
-  if ((error as AxiosError).isAxiosError) {
-    console.log(error.message, error.response.data);
-  } else {
-    console.error('Epic error - user', error);
-  }
-  // TODO Sentry?
-  return error;
-};
-
 export const getUserEpic: RootEpic = action$ =>
+  // @ts-expect-error
   action$.pipe(
     filter(isActionOf(getUser.request)),
     tap(action => console.log(`${action.type} from ${process.type}`)),
     pluck('payload'),
     switchMap(({ userId, refresh }) => {
-      return from(APIService.fetchUser({ userId })).pipe(
+      return defer(() => from(APIService.fetchUser({ userId }))).pipe(
         map(user => normalizeArray<SoundCloud.User>([user])),
         map(data =>
           getUser.success({
@@ -32,10 +23,10 @@ export const getUserEpic: RootEpic = action$ =>
             entities: data.normalized.entities
           })
         ),
-        catchError(error =>
-          of(
+        catchError(
+          handleEpicError(
+            action$,
             getUser.failure({
-              error: handleEpicError(error),
               userId
             })
           )
@@ -45,12 +36,13 @@ export const getUserEpic: RootEpic = action$ =>
   );
 
 export const getUserProfilesEpic: RootEpic = action$ =>
+  // @ts-expect-error
   action$.pipe(
     filter(isActionOf(getUserProfiles.request)),
     tap(action => console.log(`${action.type} from ${process.type}`)),
     pluck('payload'),
     switchMap(({ userUrn }) => {
-      return from(APIService.fetchUserProfiles({ userUrn })).pipe(
+      return defer(() => from(APIService.fetchUserProfiles({ userUrn }))).pipe(
         map(data => {
           const entities: EntitiesOf<SoundCloud.UserProfiles> = {
             userProfileEntities: {
@@ -63,10 +55,10 @@ export const getUserProfilesEpic: RootEpic = action$ =>
             entities
           });
         }),
-        catchError(error =>
-          of(
+        catchError(
+          handleEpicError(
+            action$,
             getUserProfiles.failure({
-              error: handleEpicError(error),
               userUrn
             })
           )

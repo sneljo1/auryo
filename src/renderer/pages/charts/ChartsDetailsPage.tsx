@@ -1,10 +1,10 @@
-import { AUDIO_GENRES, GenreConfig, MUSIC_GENRES } from '@common/constants';
+import { AUDIO_GENRES, MUSIC_GENRES } from '@common/constants';
+import { PlaylistTypes } from '@common/store/objects';
 import { SortTypes } from '@common/store/playlist/types';
 import React, { FC, useState } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { GenericPlaylist } from '../GenericPlaylist';
 import { GENRE_IMAGES } from './genreImages';
-import { PlaylistTypes } from '@common/store/objects';
 
 type Props = RouteComponentProps<{ genre: string }>;
 

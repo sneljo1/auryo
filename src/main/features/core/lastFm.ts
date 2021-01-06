@@ -1,8 +1,7 @@
 import { Intent } from '@blueprintjs/core';
 import { EVENTS } from '@common/constants/events';
-import { getTrackEntity } from '@common/store/selectors';
 import { addToast, setConfigKey, setLastfmLoading } from '@common/store/actions';
-import { SC } from '@common/utils';
+import { getTrackEntity } from '@common/store/selectors';
 import { Auryo } from '@main/app';
 import { Logger, LoggerInstance } from '@main/utils/logger';
 import { autobind } from 'core-decorators';
@@ -12,8 +11,9 @@ import * as Lastfm from 'lastfm';
 import { debounce } from 'lodash';
 import { CONFIG } from '../../../config';
 import { SoundCloud } from '../../../types';
-import { Feature, WatchState } from '../feature';
+import { Feature } from '../feature';
 
+// TODO: Can we rewrite this in epics?
 @autobind
 export default class LastFm extends Feature {
   public readonly featureName = 'LastFm';
@@ -39,6 +39,50 @@ export default class LastFm extends Feature {
       this.logger.error(err);
     }
 
+    this.observables.trackChanged.subscribe(async ({ value: track, store }) => {
+      try {
+        const config = store.config.lastfm;
+
+        if (!config?.key) return;
+
+        if (track) {
+          const [artist, title] = this.cleanInfo(track);
+          await this.updateNowPlaying(title, artist);
+        }
+      } catch (err) {
+        this.logger.error(err);
+        throw err;
+      }
+    });
+
+    // Scrobble
+    this.observables.playerCurrentTimeChanged.subscribe(async ({ store }) => {
+      try {
+        const {
+          player: { playingTrack, duration, currentTime },
+          config: { lastfm }
+        } = store;
+
+        if (!playingTrack || !lastfm?.key) return;
+
+        const trackId = playingTrack.id;
+        const track = getTrackEntity(trackId)(store);
+
+        const shouldScrobble =
+          duration > 30 && // should be longer than 30s according to lastfm
+          (currentTime / duration > 0.5 || // should have exceeded 1/2 of the song
+            currentTime > 60 * 4); // or passed 4 minutes, whichever comes first
+
+        if (track && shouldScrobble) {
+          const [artist, title] = this.cleanInfo(track);
+          await this.scrobbleDebounced(title, artist, Math.round(Date.now() / 1000 - currentTime));
+        }
+      } catch (err) {
+        this.logger.error(err);
+        throw err;
+      }
+    });
+
     // tslint:disable-next-line: max-func-body-length
     this.on(EVENTS.APP.READY, () => {
       // Authorize
@@ -50,85 +94,34 @@ export default class LastFm extends Feature {
         }
       });
 
-      // track change
-      this.subscribe(['player', 'playingTrack'], async ({ currentState }) => {
-        try {
-          const {
-            player: { playingTrack },
-            config: { lastfm }
-          } = currentState;
-
-          if (playingTrack && lastfm && lastfm.key) {
-            const trackId = playingTrack.id;
-            const track = getTrackEntity(trackId)(currentState);
-
-            if (track) {
-              const [artist, title] = this.cleanInfo(track);
-              await this.updateNowPlaying(title, artist);
-            }
-          }
-        } catch (err) {
-          this.logger.error(err);
-          throw err;
-        }
-      });
-
       // like
-      this.on(EVENTS.TRACK.LIKED, async (args: any[]) => {
-        try {
-          const currentState = this.store.getState();
+      // TODO: can be done in an epic?
+      // this.on(EVENTS.TRACK.LIKED, async (args: any[]) => {
+      //   try {
+      //     const currentState = this.store.getState();
 
-          const {
-            config: { lastfm },
-            auth: { likes }
-          } = currentState;
+      //     const {
+      //       config: { lastfm },
+      //       auth: { likes }
+      //     } = currentState;
 
-          const trackId = args[0];
+      //     const trackId = args[0];
 
-          if (trackId && lastfm && lastfm.key) {
-            const track = getTrackEntity(trackId)(currentState);
+      //     if (trackId && lastfm && lastfm.key) {
+      //       const track = getTrackEntity(trackId)(currentState);
 
-            if (track) {
-              const liked = SC.hasID(track.id, likes.track);
+      //       if (track) {
+      //         const liked = SC.hasID(track.id, likes.track);
 
-              const [artist, title] = this.cleanInfo(track);
-              await this.updateLiked(liked, title, artist);
-            }
-          }
-        } catch (err) {
-          this.logger.error(err);
-          throw err;
-        }
-      });
-
-      // scrobble
-      this.subscribe(['player', 'currentTime'], async ({ currentState }: WatchState<number>) => {
-        try {
-          const {
-            player: { playingTrack, duration, currentTime },
-            config: { lastfm }
-          } = currentState;
-
-          if (playingTrack && lastfm && lastfm.key) {
-            const trackId = playingTrack.id;
-            const track = getTrackEntity(trackId)(currentState);
-
-            if (track) {
-              if (
-                duration > 30 && // should be longer than 30s according to lastfm
-                (currentTime / duration > 0.5 || // should have exceeded 1/2 of the song
-                  currentTime > 60 * 4) // or passed 4 minutes, whichever comes first
-              ) {
-                const [artist, title] = this.cleanInfo(track);
-                await this.scrobbleDebounced(title, artist, Math.round(Date.now() / 1000 - currentTime));
-              }
-            }
-          }
-        } catch (err) {
-          this.logger.error(err);
-          throw err;
-        }
-      });
+      //         const [artist, title] = this.cleanInfo(track);
+      //         await this.updateLiked(liked, title, artist);
+      //       }
+      //     }
+      //   } catch (err) {
+      //     this.logger.error(err);
+      //     throw err;
+      //   }
+      // });
     });
   }
 
@@ -257,7 +250,7 @@ export default class LastFm extends Feature {
       config: { lastfm: lastfmConfig }
     } = this.store.getState();
 
-    if (lastfmConfig && lastfmConfig.user && lastfmConfig.key) {
+    if (lastfmConfig?.user && lastfmConfig?.key) {
       return this.lastfm.session(lastfmConfig.user, lastfmConfig.key);
     }
 

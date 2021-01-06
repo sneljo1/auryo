@@ -1,9 +1,11 @@
 import { replace } from 'connected-react-router';
-import { from, of } from 'rxjs';
+import { from, fromEvent, merge, of } from 'rxjs';
 import { catchError, filter, map, switchMap, withLatestFrom } from 'rxjs/operators';
 import { isActionOf } from 'typesafe-actions';
+import { getRemainingPlays, initApp, login } from '../actions';
+import { configSelector } from '../config/selectors';
 import { RootEpic } from '../declarations';
-import { getRemainingPlays, initApp, loginSuccess } from '../actions';
+import { toggleOffline } from './actions';
 import * as APIService from './api';
 
 export const initAppEpic: RootEpic = (action$, state$) =>
@@ -20,7 +22,7 @@ export const initAppEpic: RootEpic = (action$, state$) =>
       }
 
       return of(
-        loginSuccess({
+        login.success({
           access_token: auth.token
         })
       );
@@ -31,12 +33,17 @@ export const getRemainingPlaysEpic: RootEpic = (action$, state$) =>
   action$.pipe(
     filter(isActionOf(getRemainingPlays.request)),
     withLatestFrom(state$),
-    switchMap(([, state]) => {
-      const {
-        config: {
-          app: { overrideClientId }
-        }
-      } = state;
+    map(([, state]) => configSelector(state).app.overrideClientId),
+    switchMap(overrideClientId => {
+      if (overrideClientId) {
+        return map(() =>
+          getRemainingPlays.success({
+            remaining: -1,
+            resetTime: Date.now(),
+            updatedAt: Date.now()
+          })
+        );
+      }
 
       return from(APIService.fetchRemainingTracks(overrideClientId)).pipe(
         map(response => {
@@ -52,4 +59,9 @@ export const getRemainingPlaysEpic: RootEpic = (action$, state$) =>
         catchError(error => of(getRemainingPlays.failure({ error })))
       );
     })
+  );
+
+export const OfflineStatusEpic: RootEpic = () =>
+  merge(of(null), fromEvent(window, 'online'), fromEvent(window, 'offline')).pipe(
+    map(() => toggleOffline(!navigator.onLine))
   );

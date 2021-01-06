@@ -1,6 +1,7 @@
 import { MenuDivider, MenuItem } from '@blueprintjs/core';
-import { IPC } from '@common/utils/ipc';
+import { copyToClipboard, openExternalUrl } from '@common/store/actions';
 import React from 'react';
+import { useDispatch } from 'react-redux';
 import { CONFIG } from '../../config';
 
 interface Props {
@@ -10,6 +11,7 @@ interface Props {
 }
 
 const ShareMenuItem = React.memo<Props>(({ title, username, permalink: rawPermalink }) => {
+  const dispatch = useDispatch();
   let text = `Listen to "${title || username}"`;
 
   if (title) {
@@ -29,38 +31,42 @@ const ShareMenuItem = React.memo<Props>(({ title, username, permalink: rawPermal
       <MenuItem
         text="Via Twitter"
         onClick={() => {
-          // tslint:disable-next-line:max-line-length
-          IPC.openExternal(
-            `https://twitter.com/intent/tweet?hashtags=SoundCloudForDesktop,Auryo&related=Auryoapp&via=Auryoapp&text=${text}&url=${permalink}`
+          dispatch(
+            openExternalUrl(
+              `https://twitter.com/intent/tweet?hashtags=SoundCloudForDesktop,Auryo&related=Auryoapp&via=Auryoapp&text=${text}&url=${permalink}`
+            )
           );
         }}
       />
       <MenuItem
         text="Via Facebook"
         onClick={() => {
-          // tslint:disable-next-line:max-line-length
-          IPC.openExternal(
-            `https://www.facebook.com/dialog/share?quote=${text}%20via%20Auryo&hashtag=%23SoundCloud&app_id=${CONFIG.FB_APP_ID}&display=popup&href=${permalink}&redirect_uri=http://auryo.com`
+          dispatch(
+            openExternalUrl(
+              `https://www.facebook.com/dialog/share?quote=${text}%20via%20Auryo&hashtag=%23SoundCloud&app_id=${CONFIG.FB_APP_ID}&display=popup&href=${permalink}&redirect_uri=http://auryo.com`
+            )
           );
         }}
       />
       <MenuItem
         text="Via Messenger"
         onClick={() => {
-          // tslint:disable-next-line:max-line-length
-          IPC.openExternal(
-            `https://www.facebook.com/dialog/send?app_id=${CONFIG.FB_APP_ID}&link=${permalink}&redirect_uri=http://auryo.com`
+          dispatch(
+            openExternalUrl(
+              `https://www.facebook.com/dialog/send?app_id=${CONFIG.FB_APP_ID}&link=${permalink}&redirect_uri=http://auryo.com`
+            )
           );
         }}
       />
       <MenuItem
         text="Via Email"
         onClick={() => {
-          // tslint:disable-next-line:max-line-length
-          IPC.openExternal(
-            `mailto:?&subject=Checkout this ${
-              title ? 'track' : 'artist'
-            } on Soundcloud&body=${text}%20${permalink}%20via%20http%3A//auryo.com`
+          dispatch(
+            openExternalUrl(
+              `mailto:?&subject=Checkout this ${
+                title ? 'track' : 'artist'
+              } on Soundcloud&body=${text}%20${permalink}%20via%20http%3A//auryo.com`
+            )
           );
         }}
       />
@@ -68,7 +74,7 @@ const ShareMenuItem = React.memo<Props>(({ title, username, permalink: rawPermal
       <MenuItem
         text="Copy to clipboard"
         onClick={() => {
-          IPC.writeToClipboard(permalink);
+          dispatch(copyToClipboard(permalink));
         }}
       />
     </MenuItem>

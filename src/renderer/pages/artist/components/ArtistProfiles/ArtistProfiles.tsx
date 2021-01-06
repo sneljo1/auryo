@@ -1,5 +1,6 @@
 import { getUserProfiles } from '@common/store/actions';
 import { getNormalizedUserProfiles, isUserProfilesError, isUserProfilesLoading } from '@common/store/selectors';
+import { stopForwarding } from 'electron-redux';
 import React, { FC, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { SoundCloud } from '../../../../../types';
@@ -55,7 +56,7 @@ export const ArtistProfiles: FC<Props> = ({ userUrn, className }) => {
   // Fetch user if it does not exist yet
   useEffect(() => {
     if (!profiles && !loading) {
-      dispatch(getUserProfiles.request({ userUrn }));
+      dispatch(stopForwarding(getUserProfiles.request({ userUrn })));
     }
   }, [loading, error, dispatch, profiles, userUrn]);
 

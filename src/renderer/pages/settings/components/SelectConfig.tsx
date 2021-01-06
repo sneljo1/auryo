@@ -1,57 +1,51 @@
 import * as actions from '@common/store/actions';
-import { ConfigState } from '@common/store/config';
-import React from 'react';
-import { autobind } from 'core-decorators';
+import { configSelector } from '@common/store/selectors';
+import React, { FC, useCallback } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 interface Props {
-  config: ConfigState;
-  setConfigKey: typeof actions.setConfigKey;
   configKey: string;
   name: string;
   data: { k: string; v: any }[];
   className?: string;
-  usePlaceholder: boolean;
+  usePlaceholder?: boolean;
   onChange?(value: string): void;
 }
 
-@autobind
-export class SelectConfig extends React.PureComponent<Props> {
-  public static readonly defaultProps: Partial<Props> = {
-    usePlaceholder: false,
-    className: '',
-    data: []
-  };
+export const SelectConfig: FC<Props> = ({
+  configKey,
+  name,
+  className = '',
+  usePlaceholder,
+  data = [],
+  onChange: propagateOnChange
+}) => {
+  const dispatch = useDispatch();
+  const config = useSelector(configSelector);
 
-  public handleChange(e: React.FormEvent<HTMLSelectElement>) {
-    const { configKey, setConfigKey, onChange } = this.props;
+  const value = configKey.split('.').reduce((o, i) => o[i], config);
 
-    setConfigKey(configKey, e.currentTarget.value);
+  const onChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      dispatch(actions.setConfigKey(configKey, e.currentTarget.value));
 
-    if (onChange) {
-      onChange(e.currentTarget.value);
-    }
-  }
+      if (propagateOnChange) {
+        propagateOnChange(e.currentTarget.value);
+      }
+    },
+    [configKey, dispatch, propagateOnChange]
+  );
 
-  public render() {
-    const { configKey, name, config, className, usePlaceholder, data } = this.props;
-
-    const value = configKey.split('.').reduce((o, i) => o[i], config);
-
-    return (
-      <div className={`setting d-flex justify-content-between align-items-center ${className}`}>
-        {!usePlaceholder && <span>{name}</span>}
-        <select
-          className="form-control form-control-sm"
-          onBlur={this.handleChange}
-          onChange={this.handleChange}
-          defaultValue={value || ''}>
-          {data.map(({ k, v }) => (
-            <option value={v} key={k}>
-              {k}
-            </option>
-          ))}
-        </select>
-      </div>
-    );
-  }
-}
+  return (
+    <div className={`setting d-flex justify-content-between align-items-center ${className}`}>
+      {!usePlaceholder && <span>{name}</span>}
+      <select className="form-control form-control-sm" onBlur={onChange} onChange={onChange} defaultValue={value || ''}>
+        {data.map(({ k, v }) => (
+          <option value={v} key={k}>
+            {k}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+};

@@ -1,28 +1,35 @@
 @import '../../css/bootstrap.imports.scss';
+
 .page-header {
-  padding: 20px 20px 15px 40px;
+  padding: 20px 30px 30px 30px;
+
   h2 {
     color: var(--clr-page-header-title);
     font-size: 2.1rem;
     margin-bottom: 0.3rem;
   }
+
   .subtitle {
     margin: 0;
     color: #dcdcdc;
     font-weight: 400;
     font-size: 1rem;
   }
+
   .button-group {
     display: flex;
     align-items: center;
     margin-top: 1.8rem;
+
     a {
       margin-right: 0.5rem;
     }
   }
-  + .detailPage {
+
+  +.detailPage {
     background: var(--clr-detail-page-bg);
   }
+
   &.withImage {
     background-position: center center;
     background-size: cover;
@@ -30,6 +37,7 @@
     margin-top: -52px;
     padding: 7rem 2rem 7rem 2.5rem;
     overflow: hidden;
+
     &:after {
       content: '';
       position: absolute;
@@ -40,6 +48,7 @@
       height: 100%;
       background-image: var(--clr-header-pseudo);
     }
+
     &:before {
       content: '';
       position: absolute;
@@ -51,15 +60,18 @@
       background: black;
       opacity: 0.3;
     }
-    & + .songs {
+
+    &+.songs {
       margin-top: -5rem;
     }
-    & + .detailPage {
+
+    &+.detailPage {
       margin-top: -6.5rem;
       position: relative;
       background: var(--clr-detail-page-bg);
       flex-grow: 1;
     }
+
     .gradient {
       background-image: linear-gradient(120deg, rgb(132, 250, 176) 0%, rgb(143, 211, 244) 100%);
       position: absolute;
@@ -71,6 +83,7 @@
       opacity: 0.3;
       z-index: -1;
     }
+
     .bgImage {
       position: absolute;
       top: 0;
@@ -83,29 +96,36 @@
       margin: -10%;
       z-index: -1;
     }
+
     h2 {
       color: #fff;
       user-select: text;
     }
+
     .header-content {
       position: relative;
       z-index: 4;
     }
+
     .bp3-select {
       border: 1px solid rgba(255, 255, 255, 0.2);
       margin-right: 0.9rem;
       border-radius: 6px;
+
       select {
         color: white;
+
         &:focus,
         &:active {
           outline: none !important;
         }
       }
+
       &:focus,
       &:active {
         outline: none !important;
       }
+
       &:after {
         color: white;
       }

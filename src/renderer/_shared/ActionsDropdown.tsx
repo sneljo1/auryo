@@ -1,7 +1,6 @@
 import { Menu, MenuDivider, MenuItem, Popover, Position } from '@blueprintjs/core';
-import { addUpNext, toggleLike, toggleRepost } from '@common/store/actions';
-import { getNormalizedSchemaForType, hasLiked } from '@common/store/selectors';
-import { IPC } from '@common/utils/ipc';
+import { addUpNext, openExternalUrl, toggleLike, toggleRepost } from '@common/store/actions';
+import { getNormalizedSchemaForType, hasLiked, hasReposted } from '@common/store/selectors';
 import cn from 'classnames';
 import React, { FC } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -10,15 +9,13 @@ import ShareMenuItem from './ShareMenuItem';
 
 interface Props {
   trackOrPlaylist: SoundCloud.Playlist | SoundCloud.Track;
-  index?: number;
-  playing?: boolean;
-  currentPlaylistId?: string;
+  removeFromQueue?(): void;
 }
 
-export const ActionsDropdown: FC<Props> = ({ trackOrPlaylist }) => {
+export const ActionsDropdown: FC<Props> = ({ trackOrPlaylist, removeFromQueue }) => {
   const dispatch = useDispatch();
   const isLiked = useSelector(hasLiked(trackOrPlaylist.id, trackOrPlaylist.kind));
-  const isReposted = useSelector(hasLiked(trackOrPlaylist.id, trackOrPlaylist.kind));
+  const isReposted = useSelector(hasReposted(trackOrPlaylist.id, trackOrPlaylist.kind));
   const idResult = getNormalizedSchemaForType(trackOrPlaylist);
 
   const likedText = isLiked ? 'Liked' : 'Like';
@@ -46,13 +43,11 @@ export const ActionsDropdown: FC<Props> = ({ trackOrPlaylist }) => {
 
           <MenuItem text="Add to queue" onClick={() => dispatch(addUpNext.request(idResult))} />
 
-          {/* {index !== undefined && !playing ? (
-            <MenuItem text="Remove from queue" onClick={() => addUpNext(trackOrPlaylist, index)} />
-          ) : null} */}
+          {removeFromQueue && <MenuItem text="Remove from queue" onClick={removeFromQueue} />}
 
           <MenuDivider />
 
-          <MenuItem text="View in browser" onClick={() => IPC.openExternal(trackOrPlaylist.permalink_url)} />
+          <MenuItem text="View in browser" onClick={() => dispatch(openExternalUrl(trackOrPlaylist.permalink_url))} />
           <ShareMenuItem
             title={trackOrPlaylist.title}
             permalink={trackOrPlaylist.permalink_url}

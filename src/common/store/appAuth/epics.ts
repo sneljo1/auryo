@@ -1,9 +1,9 @@
 import { SC } from '@common/utils';
-import { TokenResponse } from '@main/aws/awsIotService';
 import { replace } from 'connected-react-router';
 import { of } from 'rxjs';
-import { filter, map, mergeMap, switchMap, tap, withLatestFrom, pluck } from 'rxjs/operators';
+import { exhaustMap, filter, mergeMap, pluck, switchMap, tap, withLatestFrom } from 'rxjs/operators';
 import { isActionOf } from 'typesafe-actions';
+import { TokenResponse } from '.';
 import { CONFIG } from '../../../config';
 import {
   finishOnboarding,
@@ -13,21 +13,21 @@ import {
   getCurrentUserPlaylists,
   getCurrentUserRepostIds,
   getRemainingPlays,
-  loginSuccess,
+  login,
   logout,
-  refreshToken,
   resetStore,
-  setConfigKey
+  setConfigKey,
+  tokenRefresh
 } from '../actions';
 import { RootEpic } from '../declarations';
 import { configSelector } from '../selectors';
 
 export const setTokenEpic: RootEpic = action$ =>
   action$.pipe(
-    filter(isActionOf([loginSuccess, refreshToken])),
+    filter(isActionOf([login.success, tokenRefresh.success])),
     pluck('payload'),
+    tap(payload => console.log('setTokenEpic', payload)),
     filter((payload): payload is TokenResponse => !!payload?.access_token),
-    // TODO: should we also try to set this in the frontend?
     tap(payload => SC.initialize(payload.access_token)),
     filter((payload): payload is TokenResponse => !!payload.refresh_token),
     mergeMap(payload =>
@@ -43,8 +43,9 @@ export const setTokenEpic: RootEpic = action$ =>
 
 export const loginEpic: RootEpic = (action$, state$) =>
   action$.pipe(
-    filter(isActionOf(loginSuccess)),
+    filter(isActionOf(login.success)),
     withLatestFrom(state$),
+    tap(([payload]) => console.log('loginEpic', payload)),
     switchMap(([, state]) => {
       const config = configSelector(state);
 
@@ -72,7 +73,8 @@ export const loginEpic: RootEpic = (action$, state$) =>
 export const finishOnboardingEpic: RootEpic = action$ =>
   action$.pipe(
     filter(isActionOf(finishOnboarding)),
-    mergeMap(() => of(setConfigKey('lastLogin', Date.now()), loginSuccess()))
+    tap(payload => console.log('finishOnboardingEpic', payload)),
+    exhaustMap(() => of(setConfigKey('lastLogin', Date.now()), login.success()))
   );
 
 export const logoutEpic: RootEpic = action$ =>

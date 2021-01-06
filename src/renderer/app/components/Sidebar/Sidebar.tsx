@@ -1,4 +1,5 @@
 import { getAuthPlaylistsSelector, getCurrentPlaylistId } from '@common/store/selectors';
+import { PlaylistTypes } from '@common/store/types';
 import React, { FC } from 'react';
 import Scrollbars from 'react-custom-scrollbars';
 import { useSelector } from 'react-redux';
@@ -63,7 +64,9 @@ const SideBar: FC<AllProps> = () => {
           <h2>Playlists</h2>
           <div id="playlists" className={styles.nav}>
             {authPlaylists.map(normalizedResult => {
-              const isPlaying = !!currentPlaylistId && normalizedResult.id.toString() === currentPlaylistId;
+              const isPlaying =
+                currentPlaylistId?.playlistType === PlaylistTypes.PLAYLIST &&
+                normalizedResult.id.toString() === currentPlaylistId.objectId;
 
               return (
                 <SideBarPlaylistItem

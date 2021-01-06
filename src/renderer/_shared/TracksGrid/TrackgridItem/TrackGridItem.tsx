@@ -68,7 +68,7 @@ export const TrackGridItem: FC<Props> = ({ idResult, playlistID, showReposts, sh
         </div>
 
         <div>
-          <ActionsDropdown trackOrPlaylist={track} playlistID={playlistID} />
+          <ActionsDropdown trackOrPlaylist={track} />
 
           <div className="trackTime">
             <i className="bx bx-alarm" />
@@ -77,7 +77,7 @@ export const TrackGridItem: FC<Props> = ({ idResult, playlistID, showReposts, sh
         </div>
       </div>
     );
-  }, [playlistID, showInfo, track]);
+  }, [showInfo, track]);
 
   const image = SC.getImageUrl(track, IMAGE_SIZES.LARGE);
 

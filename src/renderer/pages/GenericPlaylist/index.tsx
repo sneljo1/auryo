@@ -1,10 +1,12 @@
-import { getGenericPlaylist, genericPlaylistFetchMore } from '@common/store/actions';
-import { PlaylistTypes } from '@common/store/types';
-import { getPlaylistObjectSelector } from '@common/store/selectors';
+import { genericPlaylistFetchMore, getGenericPlaylist } from '@common/store/actions';
 import { SortTypes } from '@common/store/playlist/types';
+import { getPlaylistObjectSelector } from '@common/store/selectors';
+import { PlaylistTypes } from '@common/store/types';
 import { useLoadMorePromise } from '@renderer/hooks/useLoadMorePromise';
 import { SetLayoutSettings } from '@renderer/_shared/context/contentContext';
-import React, { FC, useCallback, useEffect } from 'react';
+import { TogglePlayButton } from '@renderer/_shared/PageHeader/components/TogglePlayButton';
+import { stopForwarding } from 'electron-redux';
+import React, { FC, useCallback, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import PageHeader from '../../_shared/PageHeader/PageHeader';
 import Spinner from '../../_shared/Spinner/Spinner';
@@ -33,18 +35,21 @@ export const GenericPlaylist: FC<Props> = ({
 }) => {
   const dispatch = useDispatch();
   const isChart = playlistType === PlaylistTypes.CHART;
-  const playlistObject = useSelector(getPlaylistObjectSelector({ objectId, playlistType }));
+  const playlistID = useMemo(() => ({ objectId, playlistType }), [objectId, playlistType]);
+  const playlistObject = useSelector(getPlaylistObjectSelector(playlistID));
 
   // Do initial fetch for playlist
   useEffect(() => {
     dispatch(
-      getGenericPlaylist.request({
-        playlistType,
-        // TODO: For the stream page, do not refresh automatically. Show a button to refresh instead
-        refresh: false,
-        sortType,
-        objectId
-      })
+      stopForwarding(
+        getGenericPlaylist.request({
+          playlistType,
+          // TODO: For the stream page, do not refresh automatically. Show a button to refresh instead
+          refresh: playlistType !== PlaylistTypes.STREAM,
+          sortType,
+          objectId
+        })
+      )
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sortType]);
@@ -52,7 +57,7 @@ export const GenericPlaylist: FC<Props> = ({
   const { loadMore } = useLoadMorePromise(
     playlistObject?.isFetching,
     () => {
-      dispatch(genericPlaylistFetchMore.request({ playlistType, objectId }));
+      dispatch(stopForwarding(genericPlaylistFetchMore.request({ playlistType, objectId })));
     },
     [dispatch, playlistType]
   );
@@ -70,6 +75,9 @@ export const GenericPlaylist: FC<Props> = ({
     );
   }, [onSortTypeChange, sortType]);
 
+  const isEmpty = !playlistObject?.isFetching && playlistObject?.items?.length === 0;
+  const hasItems = playlistObject?.items?.length;
+
   if (!playlistObject || (playlistObject && playlistObject.isFetching && !playlistObject.items.length)) {
     return <Spinner contained />;
   }
@@ -77,10 +85,15 @@ export const GenericPlaylist: FC<Props> = ({
   return (
     <>
       <SetLayoutSettings hasImage={!!backgroundImage} />
-      <PageHeader image={backgroundImage} gradient={gradient}>
+      <PageHeader image={backgroundImage} gradient={gradient} title={title}>
         <>
-          {isChart && renderChartSort()}
-          <h2>{title}</h2>
+          {isChart ? (
+            renderChartSort()
+          ) : (
+            <div className="button-group">
+              {!!hasItems && !isEmpty && <TogglePlayButton colored playlistID={playlistID} />}
+            </div>
+          )}
         </>
       </PageHeader>
 

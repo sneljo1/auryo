@@ -17,13 +17,13 @@ export interface PlaylistObjectItem<O = any> extends ObjectItem<O>, PlaylistIden
 // ACTIONS
 
 export enum PlaylistActionTypes {
-  GET_GENERIC_PLAYLIST = '@@playlist/GET_GENERIC_PLAYLIST',
-  SET_PLAYLIST_LOADING = '@@playlist/SET_PLAYLIST_LOADING',
-  GENERIC_PLAYLIST_FETCH_MORE = '@@playlist/GENERIC_PLAYLIST_FETCH_MORE',
+  GET_GENERIC_PLAYLIST = 'auryo.playlist.GET_GENERIC_PLAYLIST',
+  SET_PLAYLIST_LOADING = 'auryo.playlist.SET_PLAYLIST_LOADING',
+  GENERIC_PLAYLIST_FETCH_MORE = 'auryo.playlist.GENERIC_PLAYLIST_FETCH_MORE',
 
-  SEARCH = '@@playlist/SEARCH',
-  SEARCH_FETCH_MORE = '@@playlist/SEARCH_FETCH_MORE',
+  SEARCH = 'auryo.playlist.SEARCH',
+  SEARCH_FETCH_MORE = 'auryo.playlist.SEARCH_FETCH_MORE',
 
-  GET_FORYOU_SELECTION = '@@playlist/GET_FORYOU_SELECTION',
-  GET_PLAYLIST_TRACKS = '@@playlist/GET_PLAYLIST_TRACKS'
+  GET_FORYOU_SELECTION = 'auryo.playlist.GET_FORYOU_SELECTION',
+  GET_PLAYLIST_TRACKS = 'auryo.playlist.GET_PLAYLIST_TRACKS'
 }

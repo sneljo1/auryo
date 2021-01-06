@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { FixedSizeList } from 'react-window';
 
 export const INITIAL_LAYOUT_SETTINGS: LayoutSettings = {
@@ -74,3 +74,5 @@ const SetLayoutSettingsComponent: React.SFC<SetLayoutSettingsComponentProps> = (
 };
 
 export const SetLayoutSettings = withContentContext(SetLayoutSettingsComponent);
+
+export const useContentContext = () => useContext(ContentContext);

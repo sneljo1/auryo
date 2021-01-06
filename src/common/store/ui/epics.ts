@@ -16,23 +16,24 @@ export const setDebouncedDimensionsEpic: RootEpic = action$ =>
   action$.pipe(
     filter(isActionOf(setDebouncedDimensions)),
     debounceTime(500),
-    map(action => setDimensions(action.payload))
+    pluck('payload'),
+    map(payload => setDimensions(payload))
   );
 
 export const setDebouncedSearchQueryEpic: RootEpic = action$ =>
   action$.pipe(
     filter(isActionOf(setDebouncedSearchQuery)),
     debounceTime(250),
-    map(action =>
+    pluck('payload'),
+    map(query =>
       setSearchQuery({
-        query: action.payload
+        query
       })
     )
   );
 
 export const setSearchQueryEpic: RootEpic = (action$, state$) =>
-  // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-  // @ts-ignore
+  // @ts-expect-error
   action$.pipe(
     filter(isActionOf(setSearchQuery)),
     pluck('payload'),

@@ -53,6 +53,6 @@ export type ConfigValue = string | number | boolean | object | null | (string | 
 
 // ACTIONS
 export enum ConfigActionTypes {
-  SET_CONFIG = '@@config/SET_ALL',
-  SET_CONFIG_KEY = '@@config/SET_KEY'
+  SET_CONFIG = 'auryo.config.SET_ALL',
+  SET_CONFIG_KEY = 'auryo.config.SET_KEY'
 }

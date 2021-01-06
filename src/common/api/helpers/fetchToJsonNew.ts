@@ -1,7 +1,7 @@
-import { AxiosRequestConfig } from 'axios';
-import { axiosClient } from './axiosClient';
-import { CONFIG } from '../../../config';
 import { memToken } from '@common/utils/soundcloudUtils';
+import * as querystring from 'querystring';
+import { fromFetch } from 'rxjs/fetch';
+import { CONFIG } from '../../../config';
 
 const soundCloudBaseUrl = 'https://api.soundcloud.com/';
 const soundCloudBaseUrlV2 = 'https://api-v2.soundcloud.com/';
@@ -12,12 +12,10 @@ export interface FetchOptions {
   oauthToken?: boolean;
   useV2Endpoint?: boolean;
   queryParams?: any;
+  url?: string;
 }
 
-export default async function fetchToJsonNew<T>(
-  fetchOptions: FetchOptions,
-  options: AxiosRequestConfig = {}
-): Promise<T> {
+export default function fetchToJsonNew<T>(fetchOptions: FetchOptions, options: RequestInit = {}) {
   const { queryParams = {} } = fetchOptions;
 
   if (fetchOptions.clientId) {
@@ -39,12 +37,12 @@ export default async function fetchToJsonNew<T>(
     baseUrl = soundCloudBaseUrlV2;
   }
 
-  // eslint-disable-next-line no-return-await
-  return await axiosClient
-    .request<T>({
-      url: `${baseUrl}${fetchOptions.uri}`,
-      params: queryParams,
-      ...options
-    })
-    .then(res => res.data);
+  return fromFetch<T>(fetchOptions.url ?? `${baseUrl}${fetchOptions.uri}?${querystring.stringify(queryParams)}`, {
+    selector: response => {
+      if (!response.ok) throw response;
+
+      return response.json();
+    },
+    ...options
+  });
 }

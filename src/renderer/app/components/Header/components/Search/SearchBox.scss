@@ -1,6 +1,7 @@
-@import "../../../../css/bootstrap.imports.scss";
+@import "../../../../../css/bootstrap.imports.scss";
 
 .input-group.search-box {
+
 
   i {
     background: transparent;
@@ -18,6 +19,7 @@
     transition: .25s ease-out transform;
     font-size: 1.1rem;
   }
+
   .input-group-text {
     background: transparent;
     border: 0;
@@ -31,13 +33,14 @@
     transition: .1s ease-in transform;
     font-size: .95rem;
     outline: none !important;
+    color: var(--clr-body-text);
 
     &::-webkit-input-placeholder {
       color: #ADADAD;
     }
 
     &:placeholder-shown {
-      & + .input-group-append #clear {
+      &+.input-group-append #clear {
         pointer-events: none;
         transform: scale(0);
       }

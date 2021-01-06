@@ -12,7 +12,7 @@ require('electron-debug')({ showDevTools: true });
 
 // Install `react-devtools`
 require('electron').app.on('ready', () => {
-  require('devtron').install();
+  // require('devtron').install();
 
   let installExtension = require('electron-devtools-installer');
 

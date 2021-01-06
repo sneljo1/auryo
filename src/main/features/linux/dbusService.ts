@@ -53,16 +53,16 @@ export default class DbusService extends LinuxFeature {
   private onMediaPlayerKeyPressed(_: number, keyName: string) {
     switch (keyName) {
       case 'Next':
-        this.store.dispatch(changeTrack(ChangeTypes.NEXT) as any);
+        this.store.dispatch(changeTrack(ChangeTypes.NEXT));
         break;
       case 'Previous':
-        this.store.dispatch(changeTrack(ChangeTypes.PREV) as any);
+        this.store.dispatch(changeTrack(ChangeTypes.PREV));
         break;
       case 'Play':
-        this.store.dispatch(toggleStatus() as any);
+        this.store.dispatch(toggleStatus());
         break;
       case 'Stop':
-        this.store.dispatch(toggleStatus(PlayerStatus.STOPPED) as any);
+        this.store.dispatch(toggleStatus(PlayerStatus.STOPPED));
         break;
       default:
     }

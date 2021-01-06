@@ -1,36 +1,30 @@
-import fetchToJson from '@common/api/helpers/fetchToJson';
-import { IPC } from '@common/utils/ipc';
 import { wError, wSuccess } from '@common/utils/reduxUtils';
-import { EpicFailure, SoundCloud, ThunkResult } from '@types';
-import { goBack, replace } from 'connected-react-router';
-import { Dispatch } from 'redux';
+import { EpicFailure } from '@types';
 import { action, createAction, createAsyncAction } from 'typesafe-actions';
-import { isSoundCloudUrl, SC } from '../../utils';
-import {
-  AppActionTypes,
-  CanGoHistory,
-  CastAppState,
-  ChromeCastDevice,
-  DevicePlayerStatus,
-  RemainingPlays
-} from '../types';
+import { AppActionTypes, CastAppState, ChromeCastDevice, DevicePlayerStatus, RemainingPlays } from '../types';
 
 export const resetStore = createAction(AppActionTypes.RESET_STORE)();
+export const copyToClipboard = createAction(AppActionTypes.COPY_TO_CLIPBOARD)<string>();
+export const openExternalUrl = createAction(AppActionTypes.OPEN_EXTERNAL_URL)<string>();
+export const restartApp = createAction(AppActionTypes.RESTART_APP)();
 export const initApp = createAction(AppActionTypes.INIT)();
+export const receiveProtocolAction = createAction(AppActionTypes.RECEIVE_PROTOCOL_ACTION)<{
+  action: string;
+  params: Record<string, unknown>;
+}>();
 
 export const getRemainingPlays = createAsyncAction(
   String(AppActionTypes.GET_REMAINING_PLAYS),
   wSuccess(AppActionTypes.GET_REMAINING_PLAYS),
   wError(AppActionTypes.GET_REMAINING_PLAYS)
 )<undefined, RemainingPlays | null, EpicFailure>();
-export const canGoInHistory = createAction(AppActionTypes.SET_CAN_GO)<CanGoHistory>();
 
 // ======
-export function tryAndResolveQueryAsSoundCloudUrl(query: string, dispatch: Dispatch) {
-  if (isSoundCloudUrl(query)) {
-    dispatch(resolveUrl(query) as any);
-  }
-}
+// export function tryAndResolveQueryAsSoundCloudUrl(query: string, dispatch: Dispatch) {
+//   if (isSoundCloudUrl(query)) {
+//     dispatch(resolveUrl(query) as any);
+//   }
+// }
 
 export const setLastfmLoading = (loading: boolean) => action(AppActionTypes.SET_LASTFM_LOADING, loading);
 export const addChromeCastDevice = (device: ChromeCastDevice) =>
@@ -63,23 +57,6 @@ const listeners: any[] = [];
 //   // tslint:disable-next-line: max-func-body-length
 //   return dispatch => {
 //     if (!listeners.length) {
-//       listeners.push({
-//         event: EVENTS.TRACK.LIKE,
-//         handler: (_e: any, trackId: string) => {
-//           if (trackId) {
-//             dispatch(toggleLike(+trackId, false)); // TODO determine if track or playlist
-//           }
-//         }
-//       });
-
-//       listeners.push({
-//         event: EVENTS.TRACK.REPOST,
-//         handler: (_e: string, trackId: string) => {
-//           if (trackId) {
-//             dispatch(toggleRepost(+trackId, false)); // TODO determine if track or playlist
-//           }
-//         }
-//       });
 
 //       listeners.push({
 //         event: EVENTS.APP.SEND_NOTIFICATION,
@@ -156,26 +133,26 @@ const listeners: any[] = [];
 //   };
 // }
 
-export function resolveUrl(url: string): ThunkResult<void> {
-  return dispatch => {
-    fetchToJson<SoundCloud.Asset<any>>(SC.resolveUrl(url))
-      .then(json => {
-        switch (json.kind) {
-          case 'track':
-            return dispatch(replace(`/track/${json.id}`));
-          case 'playlist':
-            return dispatch(replace(`/playlist/${json.id}`));
-          case 'user':
-            return dispatch(replace(`/user/${json.id}`));
-          default:
-            // eslint-disable-next-line no-console
-            console.error('Resolve not implemented for', json.kind);
-            return null;
-        }
-      })
-      .catch(() => {
-        dispatch(goBack());
-        IPC.openExternal(unescape(url));
-      });
-  };
-}
+// export function resolveUrl(url: string): ThunkResult<void> {
+//   return dispatch => {
+//     fetchToJson<SoundCloud.Asset<any>>(SC.resolveUrl(url))
+//       .then(json => {
+//         switch (json.kind) {
+//           case 'track':
+//             return dispatch(replace(`/track/${json.id}`));
+//           case 'playlist':
+//             return dispatch(replace(`/playlist/${json.id}`));
+//           case 'user':
+//             return dispatch(replace(`/user/${json.id}`));
+//           default:
+//             // eslint-disable-next-line no-console
+//             console.error('Resolve not implemented for', json.kind);
+//             return null;
+//         }
+//       })
+//       .catch(() => {
+//         dispatch(goBack());
+//         IPC.openExternal(unescape(url));
+//       });
+//   };
+// }

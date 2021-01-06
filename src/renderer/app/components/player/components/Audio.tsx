@@ -2,11 +2,11 @@
 import { Intent } from '@blueprintjs/core';
 import { EVENTS } from '@common/constants';
 import * as actions from '@common/store/actions';
-import { PlayerStatus } from '@common/store/player';
+import { ChangeTypes, PlayerStatus } from '@common/store/player';
 import { useAudioPlayer, useAudioPosition } from '@renderer/hooks/useAudioPlayer';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { ipcRenderer } from 'electron';
-import { FC, useCallback, useEffect, useState } from 'react';
+import { FC, memo, useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { usePrevious } from 'react-use';
 import { getPlayerCurrentTime } from '@common/store/selectors';
@@ -22,7 +22,7 @@ interface Props {
 // TODO: use webAudio?
 // https://github.com/DPr00f/electron-music-player-tutorial/blob/master/app/utils/AudioController.js
 
-export const Audio: FC<Props> = ({ src, playerStatus, playerVolume, muted, playbackDeviceId }) => {
+export const Audio: FC<Props> = memo(({ src, playerStatus, playerVolume, muted, playbackDeviceId }) => {
   const [isSeeking, setIsSeeking] = useState(false);
   const { duration, position } = useAudioPosition();
   const currentTime = useSelector(getPlayerCurrentTime);
@@ -138,9 +138,8 @@ export const Audio: FC<Props> = ({ src, playerStatus, playerVolume, muted, playb
     if (wasPrevLoading && !loading && !error) {
       // TODO: remove
       // dispatch(actions.setDuration(duration));
-
       // TODO: can we move this to our observables?
-      dispatch(actions.registerPlayO());
+      // dispatch(actions.registerPlayO());
     }
   }, [loading]);
 
@@ -188,18 +187,30 @@ export const Audio: FC<Props> = ({ src, playerStatus, playerVolume, muted, playb
           retry();
           setTimeout(retry, 500);
           break;
-        case MediaError.MEDIA_ERR_DECODE:
         case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
-        default:
           dispatch(
             actions.addToast({
-              message: 'An error occurred during playback',
+              message:
+                'We are unable to play this track. It may be that this song is not available via third party applications.',
               intent: Intent.DANGER
             })
           );
+
+          dispatch(actions.changeTrack(ChangeTypes.NEXT));
+          break;
+        case MediaError.MEDIA_ERR_DECODE:
+        default:
+          dispatch(
+            actions.addToast({
+              message: 'Something went wrong while playing this track',
+              intent: Intent.DANGER
+            })
+          );
+
+          dispatch(actions.changeTrack(ChangeTypes.NEXT));
       }
     }
   }, [error]);
 
   return null;
-};
+});

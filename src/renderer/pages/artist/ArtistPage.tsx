@@ -1,6 +1,6 @@
 import { Menu, MenuItem, Popover, Position } from '@blueprintjs/core';
 import { IMAGE_SIZES } from '@common/constants';
-import { getUser } from '@common/store/actions';
+import { getUser, openExternalUrl } from '@common/store/actions';
 import { PlaylistTypes } from '@common/store/objects';
 import { currentUserSelector, getNormalizedUserForPage, isUserError, isUserLoading } from '@common/store/selectors';
 import { abbreviateNumber, SC } from '@common/utils';
@@ -9,6 +9,7 @@ import { SetLayoutSettings } from '@renderer/_shared/context/contentContext';
 import { ToggleFollowButton } from '@renderer/_shared/PageHeader/components/ToggleFollowButton';
 import { PlaylistTrackList } from '@renderer/_shared/PlaylistTrackList';
 import cn from 'classnames';
+import { stopForwarding } from 'electron-redux';
 import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
@@ -95,7 +96,7 @@ export const ArtistPage: FC<Props> = ({
   // Fetch user if it does not exist yet
   useEffect(() => {
     if (!artist && !loading) {
-      dispatch(getUser.request({ refresh: true, userId: +artistId }));
+      dispatch(stopForwarding(getUser.request({ refresh: true, userId: +artistId })));
     }
   }, [loading, artist, error, artistId, dispatch]);
 
@@ -141,7 +142,7 @@ export const ArtistPage: FC<Props> = ({
                     <MenuItem
                       text="View in browser"
                       onClick={() => {
-                        IPC.openExternal(artist.permalink_url);
+                        dispatch(openExternalUrl(artist.permalink_url));
                       }}
                     />
                     <ShareMenuItem username={artist.username} permalink={artist.permalink_url} />
@@ -188,17 +189,17 @@ export const ArtistPage: FC<Props> = ({
             <TabContent activeTab={activeTab} className="px-1">
               {/* Tracks */}
               <TabPane tabId={TabTypes.TRACKS}>
-                {activeTab === TabTypes.TRACKS && <PlaylistTrackList id={artistTracksId} />}
+                {activeTab === TabTypes.TRACKS && <PlaylistTrackList playlistID={artistTracksId} />}
               </TabPane>
 
               {/* Tracks */}
               <TabPane tabId={TabTypes.TOP_TRACKS}>
-                {activeTab === TabTypes.TOP_TRACKS && <PlaylistTrackList id={artistTopTracksId} />}
+                {activeTab === TabTypes.TOP_TRACKS && <PlaylistTrackList playlistID={artistTopTracksId} />}
               </TabPane>
 
               {/* Likes */}
               <TabPane tabId={TabTypes.LIKES}>
-                {activeTab === TabTypes.LIKES && <PlaylistTrackList id={artistLikesId} />}
+                {activeTab === TabTypes.LIKES && <PlaylistTrackList playlistID={artistLikesId} />}
               </TabPane>
             </TabContent>
           </Col>

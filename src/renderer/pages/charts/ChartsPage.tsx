@@ -21,9 +21,7 @@ export const ChartsPage: FC<Props> = ({ match: { params } }) => {
 
   return (
     <>
-      <PageHeader title="Charts" />
-
-      <div className="container-fluid charts">
+      <PageHeader title="Charts">
         <Nav className="tabs" tabs>
           <NavLink
             className={cn('nav-link', { active: type === TabTypes.MUSIC })}
@@ -36,7 +34,9 @@ export const ChartsPage: FC<Props> = ({ match: { params } }) => {
             Audio
           </NavLink>
         </Nav>
+      </PageHeader>
 
+      <div className="container-fluid charts">
         <TabContent activeTab={type}>
           <TabPane tabId={TabTypes.MUSIC}>
             <div>

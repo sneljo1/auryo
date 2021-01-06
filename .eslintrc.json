@@ -60,6 +60,12 @@
     "jsx-a11y/media-has-caption": "off",
     "jsx-a11y/control-has-associated-label": "off",
     "no-underscore-dangle": "off",
+    "no-param-reassign": "off",
+    "@typescript-eslint/camelcase": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/ban-types": "off",
+    "@typescript-eslint/ban-ts-comment": "off",
+    "no-shadow": "off",
     "react-hooks/rules-of-hooks": "error",
     "import/no-cycle": "warn",
     "import/no-unresolved": [

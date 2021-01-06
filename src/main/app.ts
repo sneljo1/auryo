@@ -1,12 +1,12 @@
 import { Intent } from '@blueprintjs/core';
 import fetchTrack from '@common/api/fetchTrack';
-import { axiosClient } from '@common/api/helpers/axiosClient';
-import { addToast, push, setConfigKey } from '@common/store/actions';
+import { addToast, push, receiveProtocolAction } from '@common/store/actions';
 // eslint-disable-next-line import/no-unresolved
 import { StoreState } from 'AppReduxTypes';
+import Axios from 'axios';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { app, BrowserWindow, BrowserWindowConstructorOptions, Event, Menu, nativeImage, shell } from 'electron';
-import is from 'electron-is';
+import { stopForwarding } from 'electron-redux';
 import windowStateKeeper from 'electron-window-state';
 import _ from 'lodash';
 import * as os from 'os';
@@ -39,49 +39,19 @@ export class Auryo {
   public quitting = false;
   private readonly logger: LoggerInstance = Logger.createLogger(Auryo.name);
 
-  constructor() {
-    app.setAppUserModelId('com.auryo.core');
-
-    app.on('before-quit', () => {
-      this.logger.info('Application exiting...');
-      this.quitting = true;
-    });
-
-    const isPrimaryInstance = app.requestSingleInstanceLock();
-
-    if (!isPrimaryInstance) {
-      this.logger.debug(`Not the first instance - quit`);
-      app.quit();
-      return;
-    }
-
-    app.on('second-instance', () => {
-      // handle protocol for windows
-      if (is.windows()) {
-        process.argv.slice(1).forEach(arg => {
-          this.handleProtocolUrl(arg);
-        });
-      }
-    });
+  constructor(mainStore: Store<StoreState>) {
+    this.store = mainStore;
   }
 
   public setStore(store: Store<StoreState>) {
     this.store = store;
   }
 
+  public setQuitting(quitting: boolean) {
+    this.quitting = quitting;
+  }
+
   public async start() {
-    if (this.quitting) {
-      return;
-    }
-
-    app.setAsDefaultProtocolClient('auryo');
-
-    app.on('open-url', (event, data) => {
-      event.preventDefault();
-
-      this.handleProtocolUrl(data);
-    });
-
     const mainWindowState = windowStateKeeper({
       defaultWidth: 1190,
       defaultHeight: 728
@@ -103,7 +73,9 @@ export class Auryo {
       webPreferences: {
         nodeIntegration: true,
         nodeIntegrationInWorker: true,
-        webSecurity: process.env.NODE_ENV !== 'development'
+        webSecurity: process.env.NODE_ENV !== 'development',
+        contextIsolation: false, // We recommend enabling contextIsolation for security.
+        enableRemoteModule: true // Maybe wecan work this out later
       }
     };
 
@@ -151,28 +123,17 @@ export class Auryo {
     this.logger.info('App started');
   }
 
-  private handleProtocolUrl(url: string) {
-    const action = url.replace('auryo://', '').match(/^.*(?=\?.*)/g);
+  public handleProtocolUrl(url: string) {
+    if (!url) return;
 
-    if (action && url.split('?').length) {
-      const result = querystring.parse(url.split('?')[1]);
+    const { action, search } = url.match(/auryo:\/\/(?<action>\w*)\/?\?(?<search>.*)/)?.groups ?? {};
+    const params = search ? (querystring.parse(search) as Record<string, unknown>) : {};
 
-      switch (action[0]) {
-        case 'launch':
-          if (result.client_id && result.client_id.length) {
-            this.store.dispatch(setConfigKey('app.overrideClientId', result.client_id));
+    if (!action) return;
 
-            this.store.dispatch(
-              addToast({
-                message: `New clientId added`,
-                intent: Intent.SUCCESS
-              })
-            );
-          }
-          break;
-        default:
-      }
-    }
+    this.logger.debug('handleProtocolUrl', { action, params });
+
+    this.store.dispatch(stopForwarding(receiveProtocolAction({ action, params })));
   }
 
   private registerTools() {
@@ -316,7 +277,7 @@ export class Auryo {
       return null;
     }
 
-    const response = await axiosClient(`${streamUrl}?client_id=${clientId}`);
+    const response = await Axios.get(`${streamUrl}?client_id=${clientId}`);
     const mp3Url = response.data.url;
 
     return mp3Url;
@@ -324,8 +285,8 @@ export class Auryo {
 
   private readonly registerListeners = () => {
     if (this.mainWindow) {
-      this.mainWindow.webContents.on('crashed', (event: Event) => {
-        this.logger.fatal('App Crashed', event);
+      this.mainWindow.webContents.on('render-process-gone', (event: Event) => {
+        this.logger.fatal('Render process gone', event);
       });
 
       this.mainWindow.on('unresponsive', (event: Event) => {

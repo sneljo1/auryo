@@ -1,67 +1,32 @@
 import feetonmusicbox from '@assets/img/feetonmusicbox.jpg';
 import { Position } from '@blueprintjs/core';
-import { EVENTS } from '@common/constants';
 import * as actions from '@common/store/actions';
-import { getAppAuth, authTokenStateSelector, configSelector } from '@common/store/selectors';
 import AboutModal from '@renderer/app/components/modals/AboutModal/AboutModal';
 import { Toastr } from '@renderer/app/components/Toastr';
-import { StoreState } from 'AppReduxTypes';
 import cn from 'classnames';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { ipcRenderer } from 'electron';
 import React, { FC, useCallback, useEffect, useState } from 'react';
-import { connect } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
-import { bindActionCreators, Dispatch } from 'redux';
-import * as ReduxModal from 'redux-modal';
 import { LoginStep } from './components/LoginStep';
 import { PrivacyStep } from './components/PrivacyStep';
 import { WelcomeStep } from './components/WelcomeStep';
 import './OnBoarding.scss';
 
-const mapStateToProps = (state: StoreState) => ({
-  config: configSelector(state),
-  auth: authTokenStateSelector(state),
-  toasts: state.ui.toasts,
-  appAuth: getAppAuth(state)
-});
-
-const mapDispatchToProps = (dispatch: Dispatch) =>
-  bindActionCreators(
-    {
-      show: ReduxModal.show,
-      clearToasts: actions.clearToasts,
-      finishOnboarding: actions.finishOnboarding
-    },
-    dispatch
-  );
-
-type OwnProps = RouteComponentProps;
-
-type PropsFromState = ReturnType<typeof mapStateToProps>;
-
-type PropsFromDispatch = ReturnType<typeof mapDispatchToProps>;
-
 type Steps = 'welcome' | 'login' | 'privacy';
 
-type AllProps = OwnProps & PropsFromState & PropsFromDispatch & RouteComponentProps<{ step?: Steps }>;
+type Props = RouteComponentProps<{ step?: Steps }>;
 
-const OnBoarding: FC<AllProps> = ({ appAuth, show, config, toasts, clearToasts, match, finishOnboarding }) => {
-  const {
+export const OnBoarding: FC<Props> = ({
+  match: {
     params: { step: initialStep }
-  } = match;
-  const { isLoading, error } = appAuth;
+  }
+}) => {
+  const dispatch = useDispatch();
   const [step, setStep] = useState<Steps>(initialStep ?? 'login');
 
-  const login = () => {
-    if (!isLoading) {
-      ipcRenderer.send(EVENTS.APP.AUTH.LOGIN);
-    }
-  };
-
   const finish = useCallback(() => {
-    finishOnboarding();
-  }, [finishOnboarding]);
+    dispatch(actions.finishOnboarding());
+  }, [dispatch]);
 
   useEffect(() => {
     if (initialStep) {
@@ -88,7 +53,7 @@ const OnBoarding: FC<AllProps> = ({ appAuth, show, config, toasts, clearToasts, 
 
       <div className="row d-flex align-items-center">
         <div className={`login-wrap col-12 ${step !== 'login' ? 'col-md-6' : 'col-md-5'}`}>
-          {step === 'login' && <LoginStep loading={isLoading} error={error} show={show} login={login} />}
+          {step === 'login' && <LoginStep />}
 
           {step === 'welcome' && (
             <WelcomeStep
@@ -98,13 +63,11 @@ const OnBoarding: FC<AllProps> = ({ appAuth, show, config, toasts, clearToasts, 
             />
           )}
 
-          {step === 'privacy' && <PrivacyStep config={config} onNext={finish} />}
+          {step === 'privacy' && <PrivacyStep onNext={finish} />}
         </div>
       </div>
       <AboutModal />
-      <Toastr position={Position.TOP_RIGHT} toasts={toasts} clearToasts={clearToasts} />
+      <Toastr position={Position.TOP_RIGHT} />
     </div>
   );
 };
-
-export default connect(mapStateToProps, mapDispatchToProps)(OnBoarding);

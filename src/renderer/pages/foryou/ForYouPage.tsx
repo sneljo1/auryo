@@ -1,6 +1,7 @@
 import { getForYouSelection } from '@common/store/actions';
 import { getAuthPersonalizedPlaylistsSelector, getPlaylistEntities } from '@common/store/selectors';
 import cn from 'classnames';
+import { stopForwarding } from 'electron-redux';
 import React, { FC, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
@@ -20,7 +21,7 @@ export const ForYou: FC<Props> = () => {
   const playlistEntities = useSelector(getPlaylistEntities());
 
   useEffect(() => {
-    dispatch(getForYouSelection.request());
+    dispatch(stopForwarding(getForYouSelection.request()));
   }, [dispatch]);
 
   if (loading && !items?.length && !error) {

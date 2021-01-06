@@ -3,10 +3,6 @@ import { getRemainingPlays, resetStore } from '../actions';
 import { AppState } from './types';
 
 const initialState: AppState = {
-  history: {
-    back: false,
-    next: false
-  },
   error: false,
   loaded: false,
   loadingError: null,

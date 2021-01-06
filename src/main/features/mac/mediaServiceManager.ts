@@ -1,12 +1,10 @@
 import { EVENTS } from '@common/constants/events';
 import { IMAGE_SIZES } from '@common/constants/Soundcloud';
 import { changeTrack, toggleStatus } from '@common/store/actions';
-import { ChangeTypes, PlayerStatus, PlayingTrack } from '@common/store/player';
-import { getTrackEntity } from '@common/store/selectors';
+import { ChangeTypes, PlayerStatus } from '@common/store/player';
 import * as SC from '@common/utils/soundcloudUtils';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import MediaService, { MetaData } from 'electron-media-service';
-import { WatchState } from '../feature';
 import MacFeature from './macFeature';
 
 type milliseconds = number;
@@ -39,104 +37,80 @@ export default class MediaServiceManager extends MacFeature {
     this.myService.setMetaData(this.meta);
 
     this.myService.on('play', () => {
-      const {
-        player: { status }
-      } = this.store.getState();
-
-      if (status !== PlayerStatus.PLAYING) {
-        this.store.dispatch(toggleStatus(PlayerStatus.PLAYING) as any);
-      }
+      this.store.dispatch(toggleStatus(PlayerStatus.PLAYING));
     });
 
     this.myService.on('pause', () => {
-      const {
-        player: { status }
-      } = this.store.getState();
-
-      if (status !== PlayerStatus.PAUSED) {
-        this.store.dispatch(toggleStatus(PlayerStatus.PAUSED) as any);
-      }
+      this.store.dispatch(toggleStatus(PlayerStatus.PAUSED));
     });
 
     this.myService.on('stop', () => {
-      this.store.dispatch(toggleStatus(PlayerStatus.STOPPED) as any);
+      this.store.dispatch(toggleStatus(PlayerStatus.STOPPED));
     });
 
     this.myService.on('playPause', () => {
-      this.store.dispatch(toggleStatus() as any);
+      this.store.dispatch(toggleStatus());
     });
 
     this.myService.on('next', () => {
-      this.store.dispatch(changeTrack(ChangeTypes.NEXT) as any);
+      this.store.dispatch(changeTrack(ChangeTypes.NEXT));
     });
 
     this.myService.on('previous', () => {
-      this.store.dispatch(changeTrack(ChangeTypes.PREV) as any);
+      this.store.dispatch(changeTrack(ChangeTypes.PREV));
     });
 
     this.myService.on('seek', (to: milliseconds) => {
       this.sendToWebContents(EVENTS.PLAYER.SEEK, to / 1000);
     });
 
-    //
-    // WATCHERS
-    //
-
     /**
      * Update track information
      */
-    this.on(EVENTS.APP.READY, () => {
-      this.subscribe<PlayingTrack>(['player', 'playingTrack'], ({ currentState }) => {
-        const {
-          player: { playingTrack }
-        } = currentState;
+    this.observables.trackChanged.subscribe(({ value: track }) => {
+      if (this.myService) {
+        this.meta.id = track.id;
+        this.meta.title = track.title;
 
-        if (playingTrack && this.myService) {
-          const trackId = playingTrack.id;
-          const track = getTrackEntity(trackId)(this.store.getState());
+        this.meta.artist = track.user && track.user.username ? track.user.username : 'Unknown artist';
+        this.meta.albumArt = SC.getImageUrl(track, IMAGE_SIZES.LARGE);
+        this.myService.setMetaData(this.meta);
+      }
+    });
 
-          if (track) {
-            this.meta.id = track.id;
-            this.meta.title = track.title;
+    /**
+     * Sync status
+     */
+    this.observables.statusChanged.subscribe(({ value: status }) => {
+      this.meta.state = MediaStates[status];
 
-            this.meta.artist = track.user && track.user.username ? track.user.username : 'Unknown artist';
-            this.meta.albumArt = SC.getImageUrl(track, IMAGE_SIZES.LARGE);
-            this.myService.setMetaData(this.meta);
-          }
-        }
-      });
+      if (this.myService) {
+        this.myService.setMetaData(this.meta);
+      }
+    });
 
-      /**
-       * Update playback status
-       */
-      this.subscribe<PlayerStatus>(['player', 'status'], ({ currentValue: status }: any) => {
-        this.meta.state = status.toLowerCase();
+    /**
+     * Sync currentTime
+     */
+    this.observables.playerCurrentTimeChanged.subscribe(({ value: currentTime }) => {
+      this.meta.currentTime = Math.round(currentTime * 1e3);
 
-        if (this.myService) {
-          this.myService.setMetaData(this.meta);
-        }
-      });
+      if (this.myService) {
+        this.myService.setMetaData(this.meta);
+      }
+    });
 
-      /**
-       * Update time
-       */
-      this.subscribe(['player', 'currentTime'], this.updateTime);
-      this.subscribe(['player', 'duration'], this.updateTime);
+    /**
+     * Sync duration
+     */
+    this.observables.playerDurationChanged.subscribe(({ value: duration }) => {
+      this.meta.duration = Math.round(duration * 1e3);
+
+      if (this.myService) {
+        this.myService.setMetaData(this.meta);
+      }
     });
   }
-
-  public updateTime = ({
-    currentState: {
-      player: { currentTime, duration }
-    }
-  }: WatchState<number>) => {
-    this.meta.currentTime = Math.round(currentTime * 1e3);
-    this.meta.duration = Math.round(duration * 1e3);
-
-    if (this.myService) {
-      this.myService.setMetaData(this.meta);
-    }
-  };
 
   public unregister() {
     super.unregister();

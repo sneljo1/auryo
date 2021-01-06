@@ -10,8 +10,8 @@ export interface FeedItem {
   user: SoundCloud.CompactUser;
 }
 
-export async function fetchStream(options: { limit?: number }) {
-  const json = await fetchToJsonNew<Collection<FeedItem>>({
+export function fetchStream(options: { limit?: number }) {
+  return fetchToJsonNew<Collection<FeedItem>>({
     uri: 'stream',
     oauthToken: true,
     useV2Endpoint: true,
@@ -19,8 +19,6 @@ export async function fetchStream(options: { limit?: number }) {
       limit: options.limit ?? 20
     }
   });
-
-  return json;
 }
 
 // Likes
@@ -30,8 +28,8 @@ export interface LikeItem {
   created_at: string;
 }
 
-export async function fetchLikes(options: { userId?: string | number; limit?: number }) {
-  const json = await fetchToJsonNew<Collection<LikeItem>>({
+export function fetchLikes(options: { userId?: string | number; limit?: number }) {
+  return fetchToJsonNew<Collection<LikeItem>>({
     uri: `users/${options.userId}/track_likes`,
     oauthToken: true,
     useV2Endpoint: true,
@@ -39,8 +37,6 @@ export async function fetchLikes(options: { userId?: string | number; limit?: nu
       limit: options.limit ?? 20
     }
   });
-
-  return json;
 }
 
 // My Playlists
@@ -52,8 +48,8 @@ export interface PlaylistItem {
   uuid: string;
 }
 
-export async function fetchPlaylists(options: { limit?: number }) {
-  const json = await fetchToJsonNew<Collection<PlaylistItem>>({
+export function fetchPlaylists(options: { limit?: number }) {
+  return fetchToJsonNew<Collection<PlaylistItem>>({
     uri: `me/library/albums_playlists_and_system_playlists`,
     oauthToken: true,
     useV2Endpoint: true,
@@ -61,13 +57,11 @@ export async function fetchPlaylists(options: { limit?: number }) {
       limit: options.limit ?? 20
     }
   });
-
-  return json;
 }
 
 // My tracks
-export async function fetchMyTracks(options: { userId?: string | number; limit?: number }) {
-  const json = await fetchToJsonNew<Collection<SoundCloud.Track>>({
+export function fetchMyTracks(options: { userId?: string | number; limit?: number }) {
+  return fetchToJsonNew<Collection<SoundCloud.Track>>({
     uri: `users/${options.userId}/tracks`,
     oauthToken: true,
     useV2Endpoint: true,
@@ -75,8 +69,6 @@ export async function fetchMyTracks(options: { userId?: string | number; limit?:
       limit: options.limit ?? 20
     }
   });
-
-  return json;
 }
 
 // Charts
@@ -85,8 +77,8 @@ export interface ChartItem {
   track: SoundCloud.Track;
 }
 
-export async function fetchCharts(options: { limit?: number; sort?: SortTypes; genre: string }) {
-  const json = await fetchToJsonNew<Collection<ChartItem>>({
+export function fetchCharts(options: { limit?: number; sort?: SortTypes; genre: string }) {
+  return fetchToJsonNew<Collection<ChartItem>>({
     uri: `charts`,
     oauthToken: true,
     useV2Endpoint: true,
@@ -96,24 +88,20 @@ export async function fetchCharts(options: { limit?: number; sort?: SortTypes; g
       genre: options.genre
     }
   });
-
-  return json;
 }
 
 // Fetch playlist
-export async function fetchPlaylist(options: { limit?: number; playlistId: number | string }) {
-  const json = await fetchToJsonNew<SoundCloud.Playlist>({
+export function fetchPlaylist(options: { limit?: number; playlistId: number | string }) {
+  return fetchToJsonNew<SoundCloud.Playlist>({
     uri: `playlists/${options.playlistId}`,
     oauthToken: true,
     useV2Endpoint: true
   });
-
-  return json;
 }
 
 // Fetch seperate tracks
-export async function fetchTracks(options: { ids: number[] }) {
-  const json = await fetchToJsonNew<SoundCloud.Track[]>({
+export function fetchTracks(options: { ids: number[] }) {
+  return fetchToJsonNew<SoundCloud.Track[]>({
     uri: `tracks`,
     oauthToken: true,
     useV2Endpoint: true,
@@ -121,8 +109,6 @@ export async function fetchTracks(options: { ids: number[] }) {
       ids: options.ids.join(',')
     }
   });
-
-  return json;
 }
 
 interface SearchAllResponse {
@@ -136,7 +122,7 @@ interface SearchAllResponse {
 export type SearchCollectionItem = SoundCloud.Track | SoundCloud.Playlist | SoundCloud.User;
 
 // SearchByQuery
-export async function searchAll(options: {
+export function searchAll(options: {
   query?: string;
   limit: number;
   type?: 'users' | 'playlists_without_albums' | 'tracks';
@@ -152,18 +138,16 @@ export async function searchAll(options: {
     queryParams['filter.genre'] = options.genre;
   }
 
-  const json = await fetchToJsonNew<SearchAllResponse>({
+  return fetchToJsonNew<SearchAllResponse>({
     uri: `search${options.type ? `/${options.type}` : ''}`,
     oauthToken: true,
     useV2Endpoint: true,
     queryParams
   });
-
-  return json;
 }
 
-export async function fetchPlaylistsByTag(options: { limit?: number; tag: string }) {
-  const json = await fetchToJsonNew<Collection<SoundCloud.Playlist>>({
+export function fetchPlaylistsByTag(options: { limit?: number; tag: string }) {
+  return fetchToJsonNew<Collection<SoundCloud.Playlist>>({
     uri: `playlists/discovery`,
     oauthToken: true,
     useV2Endpoint: true,
@@ -172,8 +156,6 @@ export async function fetchPlaylistsByTag(options: { limit?: number; tag: string
       tag: options.tag
     }
   });
-
-  return json;
 }
 
 export interface PersonalisedCollectionItem {
@@ -191,12 +173,10 @@ export interface PersonalisedCollectionItem {
   items: Collection<SoundCloud.SystemPlaylist>;
 }
 
-export async function fetchPersonalizedPlaylists() {
-  const json = await fetchToJsonNew<Collection<PersonalisedCollectionItem>>({
+export function fetchPersonalizedPlaylists() {
+  return fetchToJsonNew<Collection<PersonalisedCollectionItem>>({
     uri: `mixed-selections`,
     oauthToken: true,
     useV2Endpoint: true
   });
-
-  return json;
 }

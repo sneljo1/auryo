@@ -36,9 +36,6 @@ body {
   color: #3e3e3e;
 }
 
-.playing .custom-scroll {
-  height: calc(100% - 56px);
-}
 
 .ReactVirtualized__Grid {
   outline: none !important;
@@ -401,6 +398,7 @@ i {
   }
 }
 
+
 .trackHeader {
   position: relative;
   color: #fff;
@@ -586,12 +584,6 @@ main {
 
 .f-height {
   height: 100%;
-}
-
-.playing {
-  .f-height {
-    height: calc(100% - 56px);
-  }
 }
 
 .grad-blue:after {

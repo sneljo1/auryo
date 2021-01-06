@@ -1,5 +1,6 @@
 import { EVENTS } from '@common/constants/events';
 import { history } from '@common/store';
+import { toggleStatus } from '@common/store/actions';
 import { configSelector } from '@common/store/selectors';
 import { ua } from '@common/utils/universalAnalytics';
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -12,19 +13,22 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
 import { useKey } from 'react-use';
 import Main from './app/Main';
-import OnBoarding from './pages/onboarding/OnBoarding';
+import { OnBoarding } from './pages/onboarding/OnBoarding';
 
 export const App: FC = () => {
-  const analyticsEnabled = useSelector(state => configSelector(state).app.analytics);
   const dispatch = useDispatch();
+  const analyticsEnabled = useSelector(state => configSelector(state).app.analytics);
 
   // Toggle player on Space
-  // TODO re-enable
-  // useKey(' ', () => dispatch(toggleStatus() as any), { event: 'keyup' });
-  // Prevent body from scrolling when pressing Space
   useKey(
     ' ',
     event => {
+      // Only toggle status when not in input field
+      if (!(event?.target instanceof HTMLInputElement)) {
+        dispatch(toggleStatus());
+      }
+
+      // Prevent body from scrolling when pressing Space
       if (event.target === document.body) {
         event.preventDefault();
         return false;
@@ -37,15 +41,7 @@ export const App: FC = () => {
 
   useEffect(() => {
     ipcRenderer.send(EVENTS.APP.READY);
-
-    const unregister = history.listen(() => {
-      ipcRenderer.send(EVENTS.APP.NAVIGATE);
-    });
-
-    return () => {
-      unregister();
-    };
-  }, [dispatch]);
+  }, []);
 
   // Page analytics
   useEffect(() => {

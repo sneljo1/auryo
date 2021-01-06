@@ -1,83 +1,76 @@
 import * as actions from '@common/store/actions';
-import { ConfigState } from '@common/store/config';
+import { configSelector } from '@common/store/selectors';
 import cn from 'classnames';
 import { debounce } from 'lodash';
-import React from 'react';
-import { autobind } from 'core-decorators';
+import React, { FC, useCallback, useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 interface Props {
-  config: ConfigState;
-  setConfigKey: typeof actions.setConfigKey;
   configKey: string;
   name: string;
   className?: string;
   description?: React.ReactNode;
-  usePlaceholder: boolean;
+  usePlaceholder?: boolean;
   placeholder: string;
-  invalid: boolean;
+  invalid?: boolean;
   type: string;
   onChange?(value: string | null, setKey: () => void): void;
 }
 
-@autobind
-export class InputConfig extends React.PureComponent<Props> {
-  private readonly saveDebounced: (value: string) => void;
+export const InputConfig: FC<Props> = ({
+  configKey,
+  name,
+  type = 'text',
+  className = '',
+  usePlaceholder = false,
+  placeholder = '',
+  invalid,
+  description,
+  onChange: propagateOnChange
+}) => {
+  const dispatch = useDispatch();
+  const config = useSelector(configSelector);
 
-  public static readonly defaultProps: Partial<Props> = {
-    type: 'text',
-    usePlaceholder: false,
-    placeholder: '',
-    className: '',
-    invalid: false
-  };
+  const value = configKey.split('.').reduce((o, i) => o[i], config);
+  const defaultValue = value || '';
+  const placeholderText = usePlaceholder ? name : placeholder;
 
-  constructor(props: Props) {
-    super(props);
+  const onChange = useCallback(
+    (value: string) => {
+      const val = value.length ? value : null;
 
-    this.saveDebounced = debounce(this.handleChange.bind(this), 50);
-  }
+      if (propagateOnChange) {
+        propagateOnChange(val, () => {
+          dispatch(actions.setConfigKey(configKey, val));
+        });
+      } else {
+        dispatch(actions.setConfigKey(configKey, val));
+      }
+    },
+    [configKey, dispatch, propagateOnChange]
+  );
 
-  public handleChange(value: string) {
-    const { configKey, onChange, setConfigKey } = this.props;
+  const saveDebounced = useRef(debounce(onChange, 50));
 
-    const val = value.length ? value : null;
+  return (
+    <div className={`setting${className} d-flex justify-content-between`}>
+      <div>
+        {!usePlaceholder && <label htmlFor={name}>{name}</label>}
 
-    if (onChange) {
-      onChange(val, () => {
-        setConfigKey(configKey, val);
-      });
-    } else {
-      setConfigKey(configKey, val);
-    }
-  }
-
-  public render() {
-    const { configKey, name, config, type, className, usePlaceholder, placeholder, invalid, description } = this.props;
-
-    const value = configKey.split('.').reduce((o, i) => o[i], config);
-    const defaultValue = value || '';
-    const placeholderText = usePlaceholder ? name : placeholder;
-
-    return (
-      <div className={`setting${className} d-flex justify-content-between`}>
-        <div>
-          {!usePlaceholder && <label htmlFor={name}>{name}</label>}
-
-          {!!description && <div className="value">{description}</div>}
-        </div>
-
-        <input
-          type={type}
-          className={cn('form-control form-control-sm ', {
-            'is-invalid': invalid
-          })}
-          name={name}
-          onChange={(event: React.ChangeEvent<HTMLInputElement>) => this.saveDebounced(event.target.value)}
-          placeholder={placeholderText}
-          onKeyUp={e => e.stopPropagation()}
-          defaultValue={defaultValue}
-        />
+        {!!description && <div className="value">{description}</div>}
       </div>
-    );
-  }
-}
+
+      <input
+        type={type}
+        className={cn('form-control form-control-sm ', {
+          'is-invalid': invalid
+        })}
+        name={name}
+        onChange={(event: React.ChangeEvent<HTMLInputElement>) => saveDebounced.current(event.target.value)}
+        placeholder={placeholderText}
+        onKeyUp={e => e.stopPropagation()}
+        defaultValue={defaultValue}
+      />
+    </div>
+  );
+};

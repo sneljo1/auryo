@@ -72,7 +72,7 @@ export const getNormalizedTrack = (id?: number | string) =>
       if (id) {
         const track = entities[id];
 
-        if (track.media) {
+        if (track?.media) {
           return track;
         }
       }

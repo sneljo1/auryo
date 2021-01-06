@@ -1,10 +1,11 @@
 import * as actions from '@common/store/actions';
 import { startPlayMusic } from '@common/store/actions';
 import { PlayerStatus } from '@common/store/player';
-import { getPlayerStatus, isPlayingSelector } from '@common/store/selectors';
+import { getPlayerStatusSelector, isPlayingSelector } from '@common/store/selectors';
 import { PlaylistIdentifier } from '@common/store/types';
 import { Normalized } from '@types';
 import cn from 'classnames';
+import { stopForwarding } from 'electron-redux';
 import React, { FC, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -18,14 +19,14 @@ interface Props {
 }
 
 export const TogglePlayButton: FC<Props> = ({ className, idResult, colored, large, playlistID }) => {
-  const playerStatus = useSelector(getPlayerStatus);
+  const playerStatus = useSelector(getPlayerStatusSelector);
   const isPlaying = useSelector(isPlayingSelector(playlistID, idResult));
   const isPlayerPlaylist = false;
 
   const dispatch = useDispatch();
 
   const onStartPlay = useCallback(() => {
-    dispatch(startPlayMusic({ idResult, origin: playlistID }));
+    dispatch(stopForwarding(startPlayMusic({ idResult, origin: playlistID })));
   }, [dispatch, idResult, playlistID]);
 
   const togglePlay = useCallback(

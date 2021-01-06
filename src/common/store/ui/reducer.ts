@@ -4,10 +4,10 @@ import { UIState } from '../types';
 
 const initialState: UIState = {
   toasts: [],
-  dimensions: {
-    width: 0,
-    height: 0
-  },
+  // dimensions: {
+  //   width: 0,
+  //   height: 0
+  // },
   searchQuery: undefined
 };
 
@@ -30,12 +30,13 @@ export const uiReducer = createReducer<UIState>(initialState)
       toasts: [...state.toasts.filter(t => t.key === action.payload)]
     };
   })
-  .handleAction(setDimensions, (state, action) => {
-    return {
-      ...state,
-      dimensions: action.payload
-    };
-  })
+  // .handleAction(setDimensions, (state, action) => {
+  //   console.log('setDimensions', action.type, process.type);
+  //   return {
+  //     ...state,
+  //     dimensions: action.payload
+  //   };
+  // })
   .handleAction(setSearchQuery, (state, action) => {
     return {
       ...state,

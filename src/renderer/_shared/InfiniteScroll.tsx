@@ -7,7 +7,7 @@ interface Props {
 }
 
 export const InfiniteScroll: FC<Props> = ({ isFetching, hasMore, loadMore, children }) => {
-  const bottomRef = useRef<HTMLDivElement>();
+  const bottomRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const currentRef = bottomRef.current;

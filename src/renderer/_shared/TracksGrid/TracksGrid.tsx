@@ -1,11 +1,11 @@
 import { PlaylistIdentifier } from '@common/store/playlist/types';
 import { Normalized } from '@types';
 import cn from 'classnames';
-import React, { SFC, useContext, useEffect, useRef } from 'react';
+import React, { FC, useEffect, useRef } from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { FixedSizeList as List } from 'react-window';
 import InfiniteLoader from 'react-window-infinite-loader';
-import { ContentContext } from '../context/contentContext';
+import { useContentContext } from '../context/contentContext';
 import Spinner from '../Spinner/Spinner';
 import { TrackGridRow } from './TrackGridRow';
 import * as styles from './TracksGrid.module.scss';
@@ -26,10 +26,10 @@ function getRowsForWidth(width: number): number {
   return Math.floor(width / 255);
 }
 
-const TracksGrid: SFC<Props> = props => {
+const TracksGrid: FC<Props> = props => {
   const { items, showInfo, isItemLoaded, loadMore, hasMore, isLoading, playlistID } = props;
   const loaderRef = useRef<InfiniteLoader & { _listRef: List }>(null);
-  const { setList } = useContext(ContentContext);
+  const { setList } = useContentContext();
   const listRef = loaderRef?.current?._listRef;
 
   useEffect(() => {

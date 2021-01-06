@@ -1,6 +1,6 @@
 import { Menu, MenuDivider, MenuItem, Popover, Position } from '@blueprintjs/core';
 import { IMAGE_SIZES } from '@common/constants';
-import { addUpNext, getTrack } from '@common/store/actions';
+import { addUpNext, getTrack, openExternalUrl } from '@common/store/actions';
 import { getNormalizedTrack, getNormalizedUser, isTrackError, isTrackLoading } from '@common/store/selectors';
 import { LikeType, PlaylistTypes, RepostType } from '@common/store/types';
 import { SC } from '@common/utils';
@@ -84,7 +84,7 @@ export const TrackPage: FC<Props> = ({
 
             <div className="button-group">
               {SC.isStreamable(track) ? (
-                <TogglePlayButton colored playlistID={relatedTrackId} />
+                <TogglePlayButton colored playlistID={relatedTrackId} idResult={{ id: +songId, schema: 'tracks' }} />
               ) : (
                 <a href="javascript:void(0)" className="disabled c_btn">
                   <span>This track is not streamable</span>
@@ -119,7 +119,7 @@ export const TrackPage: FC<Props> = ({
                             icon="link"
                             text={purchaseTitle}
                             onClick={() => {
-                              IPC.openExternal(track.purchase_url);
+                              dispatch(openExternalUrl(track.purchase_url));
                             }}
                           />
                         )}
@@ -140,7 +140,7 @@ export const TrackPage: FC<Props> = ({
                     <MenuItem
                       text="View in browser"
                       onClick={() => {
-                        IPC.openExternal(track.permalink_url);
+                        dispatch(openExternalUrl(track.permalink_url));
                       }}
                     />
 
@@ -187,7 +187,7 @@ export const TrackPage: FC<Props> = ({
 
           {/* RELATED TRACKS */}
           <TabPane tabId={TabTypes.RELATED_TRACKS} className="trackPadding-side">
-            <PlaylistTrackList id={relatedTrackId} />
+            <PlaylistTrackList playlistID={relatedTrackId} />
           </TabPane>
         </TabContent>
       </div>

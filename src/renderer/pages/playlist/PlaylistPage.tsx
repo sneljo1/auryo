@@ -1,6 +1,6 @@
 import { Menu, MenuDivider, MenuItem, Popover, Position } from '@blueprintjs/core';
 import { IMAGE_SIZES } from '@common/constants';
-import { addUpNext, genericPlaylistFetchMore, getGenericPlaylist } from '@common/store/actions';
+import { addUpNext, genericPlaylistFetchMore, getGenericPlaylist, openExternalUrl } from '@common/store/actions';
 import {
   getAuthPlaylistsSelector,
   getNormalizedPlaylist,
@@ -17,6 +17,7 @@ import { ToggleLikeButton } from '@renderer/_shared/PageHeader/components/Toggle
 import { TogglePlayButton } from '@renderer/_shared/PageHeader/components/TogglePlayButton';
 import { ToggleRepostButton } from '@renderer/_shared/PageHeader/components/ToggleRepostButton';
 import cn from 'classnames';
+import { stopForwarding } from 'electron-redux';
 import React, { FC, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
@@ -47,14 +48,16 @@ const PlaylistPage: FC<Props> = ({
 
   useEffect(() => {
     if (isPersonalisedPlaylist) {
-      dispatch(genericPlaylistFetchMore.request({ objectId, playlistType }));
+      dispatch(stopForwarding(genericPlaylistFetchMore.request({ objectId, playlistType })));
     } else if (objectId !== previousObjectId) {
       dispatch(
-        getGenericPlaylist.request({
-          objectId,
-          playlistType,
-          refresh: true
-        })
+        stopForwarding(
+          getGenericPlaylist.request({
+            objectId,
+            playlistType,
+            refresh: true
+          })
+        )
       );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -63,7 +66,7 @@ const PlaylistPage: FC<Props> = ({
   const { loadMore } = useLoadMorePromise(
     playlistObject?.isFetching,
     () => {
-      dispatch(genericPlaylistFetchMore.request({ objectId, playlistType }));
+      dispatch(stopForwarding(genericPlaylistFetchMore.request({ objectId, playlistType })));
     },
     [dispatch, objectId]
   );
@@ -135,7 +138,7 @@ const PlaylistPage: FC<Props> = ({
                     <MenuItem
                       text="View in browser"
                       onClick={() => {
-                        IPC.openExternal(permalink);
+                        dispatch(openExternalUrl(permalink));
                       }}
                     />
                     {playlistUser && !isPersonalisedPlaylist && (

@@ -1,9 +1,9 @@
 import { normalizeArray, normalizeCollection } from '@common/schemas';
 import { SC } from '@common/utils';
+import { handleEpicError } from '@common/utils/errors/EpicError';
 import { SoundCloud } from '@types';
-import { AxiosError } from 'axios';
-import { from, of } from 'rxjs';
-import { catchError, filter, map, startWith, switchMap, tap, withLatestFrom, pluck } from 'rxjs/operators';
+import { defer, from } from 'rxjs';
+import { catchError, filter, map, pluck, startWith, switchMap, tap, withLatestFrom } from 'rxjs/operators';
 import { isActionOf } from 'typesafe-actions';
 import { commentsFetchMore, getComments, getTrack, setCommentsLoading } from '../actions';
 import { fetchFromUrl } from '../api';
@@ -12,23 +12,13 @@ import { getCommentObject } from '../selectors';
 import { ObjectTypes } from '../types';
 import * as APIService from './api';
 
-const handleEpicError = (error: any) => {
-  if ((error as AxiosError).isAxiosError) {
-    console.log(error.message, error.response.data);
-  } else {
-    console.error('Epic error - track', error);
-  }
-  // TODO Sentry?
-  return error;
-};
-
 export const getTrackEpic: RootEpic = action$ =>
   action$.pipe(
     filter(isActionOf(getTrack.request)),
     tap(action => console.log(`${action.type} from ${process.type}`)),
     pluck('payload'),
     switchMap(({ trackId, refresh }) => {
-      return from(APIService.fetchTrack({ trackId })).pipe(
+      return defer(() => from(APIService.fetchTrack({ trackId }))).pipe(
         map(track => normalizeArray<SoundCloud.Track>([track])),
         map(data =>
           getTrack.success({
@@ -36,10 +26,10 @@ export const getTrackEpic: RootEpic = action$ =>
             entities: data.normalized.entities
           })
         ),
-        catchError(error =>
-          of(
+        catchError(
+          handleEpicError(
+            action$,
             getTrack.failure({
-              error: handleEpicError(error),
               trackId
             })
           )
@@ -54,7 +44,7 @@ export const getCommentsEpic: RootEpic = action$ =>
     tap(action => console.log(`${action.type} from ${process.type}`)),
     pluck('payload'),
     switchMap(({ trackId, refresh }) => {
-      return from(APIService.fetchComments({ trackId })).pipe(
+      return defer(() => from(APIService.fetchComments({ trackId }))).pipe(
         map(data => normalizeCollection<SoundCloud.Comment>(data)),
         map(data =>
           getComments.success({
@@ -63,13 +53,13 @@ export const getCommentsEpic: RootEpic = action$ =>
             entities: data.normalized.entities,
             result: data.normalized.result,
             refresh,
-            nextUrl: data.json?.['next_href']
+            nextUrl: data.json?.next_href
           })
         ),
-        catchError(error =>
-          of(
+        catchError(
+          handleEpicError(
+            action$,
             getComments.failure({
-              error: handleEpicError(error),
               trackId
             })
           )
@@ -96,7 +86,7 @@ export const commentsFetchMoreEpic: RootEpic = (action$, state$) =>
       const { trackId } = payload;
       const urlWithToken = SC.appendToken(object?.nextUrl as string);
 
-      return from(fetchFromUrl<any>(urlWithToken)).pipe(
+      return defer(() => from(fetchFromUrl<any>(urlWithToken))).pipe(
         map(data => normalizeCollection<SoundCloud.Comment>(data)),
         map(data =>
           commentsFetchMore.success({
@@ -104,13 +94,13 @@ export const commentsFetchMoreEpic: RootEpic = (action$, state$) =>
             entities: data.normalized.entities,
             objectType: ObjectTypes.COMMENTS,
             result: data.normalized.result,
-            nextUrl: data.json?.['next_href']
+            nextUrl: data.json?.next_href
           })
         ),
-        catchError(error =>
-          of(
+        catchError(
+          handleEpicError(
+            action$,
             commentsFetchMore.failure({
-              error: handleEpicError(error),
               trackId
             })
           )

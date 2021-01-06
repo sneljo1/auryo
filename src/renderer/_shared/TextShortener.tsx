@@ -12,5 +12,5 @@ export const TextShortener = React.memo<Props>(({ text, clamp }) => {
     return <ReactDotDotDot clamp={clamp}>{text}</ReactDotDotDot>;
   }
 
-  return <Marquee loop text={text || ''} trailing={1500} />;
+  return <Marquee loop text={text || ''} trailing={300} />;
 });

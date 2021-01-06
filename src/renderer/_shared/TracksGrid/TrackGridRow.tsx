@@ -3,7 +3,7 @@ import { PlaylistIdentifier } from '@common/store/playlist/types';
 import cn from 'classnames';
 import React, { FC, useCallback, useMemo } from 'react';
 import { TrackGridItem } from './TrackgridItem/TrackGridItem';
-import TrackGridUser from './TrackgridUser/TrackGridUser';
+import { TrackGridUser } from './TrackgridUser/TrackGridUser';
 
 interface Props {
   data: {

@@ -2,7 +2,7 @@ import { pick } from 'lodash';
 import { createReducer } from 'typesafe-actions';
 import { playTrack, resetStore, restartTrack, setCurrentPlaylist, setCurrentTime, toggleStatus } from '../actions';
 import { PlayerState, PlayerStatus } from '../types';
-import { addUpNext, queueInsert, setCurrentIndex } from './actions';
+import { addUpNext, clearUpNext, queueInsert, removeFromUpNext, setCurrentIndex } from './actions';
 
 const initialState: PlayerState = {
   status: PlayerStatus.STOPPED,
@@ -12,11 +12,6 @@ const initialState: PlayerState = {
   duration: 0,
   currentIndex: 0,
   upNext: []
-  // upNext: {
-  //   start: 0,
-  //   length: 0
-  // },
-  // containsPlaylists: []
 };
 
 export const playerReducer = createReducer<PlayerState>(initialState)
@@ -29,6 +24,7 @@ export const playerReducer = createReducer<PlayerState>(initialState)
   })
   .handleAction(playTrack.success, (state, { payload }) => {
     const { idResult, origin, parentPlaylistID, duration = 0, position, positionInPlaylist } = payload;
+
     return {
       ...state,
       playingTrack: {
@@ -90,10 +86,15 @@ export const playerReducer = createReducer<PlayerState>(initialState)
       upNext: [...state.upNext, ...items.map(item => ({ ...item, un: Date.now() }))]
     };
   })
-  .handleAction(queueInsert, state => {
+  // Remove first item as it is inserted into the queue
+  .handleAction(queueInsert, (state, { payload }) => {
+    const { upNext: newUpNext } = state;
+
+    newUpNext.splice(0, payload.items.length);
+
     return {
       ...state,
-      upNext: [...state.upNext.splice(1)]
+      upNext: [...newUpNext]
     };
   })
   .handleAction(setCurrentIndex, (state, { payload }) => {
@@ -101,6 +102,22 @@ export const playerReducer = createReducer<PlayerState>(initialState)
     return {
       ...state,
       currentIndex: position
+    };
+  })
+  .handleAction(clearUpNext, state => {
+    return {
+      ...state,
+      upNext: []
+    };
+  })
+  .handleAction(removeFromUpNext, (state, { payload }) => {
+    const { upNext: newUpNext } = state;
+
+    newUpNext.splice(payload, 1);
+
+    return {
+      ...state,
+      upNext: [...newUpNext]
     };
   })
   .handleAction(resetStore, () => {

@@ -1,7 +1,7 @@
 import * as actions from '@common/store/actions';
 import { searchPlaylistFetchMore } from '@common/store/actions';
 import { PlaylistTypes } from '@common/store/objects';
-import { getPlaylistObjectSelector, getSearchQuery } from '@common/store/selectors';
+import { getPlaylistObjectSelector, getSearchQuerySelector } from '@common/store/selectors';
 import { useLoadMorePromise } from '@renderer/hooks/useLoadMorePromise';
 import React, { FC, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -18,7 +18,7 @@ export const SearchPage: FC<Props> = ({
 }) => {
   const dispatch = useDispatch();
   const playlistObject = useSelector(getPlaylistObjectSelector({ playlistType }));
-  const query = useSelector(getSearchQuery);
+  const query = useSelector(getSearchQuerySelector);
 
   useEffect(() => {
     if (playlistType !== PlaylistTypes.SEARCH && playlistObject?.meta?.query !== query) {
@@ -43,8 +43,8 @@ export const SearchPage: FC<Props> = ({
 
   return (
     <>
-      <div className="container-fluid charts">
-        <div className="tabs nav nav-tabs">
+      <div className="container-fluid">
+        <div className="tabs nav nav-tabs mb-3 px-1">
           <NavLink exact className="nav-link" to="/search" activeClassName="active">
             All
           </NavLink>

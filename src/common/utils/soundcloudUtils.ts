@@ -417,7 +417,7 @@ export function getImageUrl(track: any, size: string) {
  */
 
 export function hasID(id: any, object: any) {
-  return object && object[id] && object[id] === true;
+  return object?.[id] === true;
 }
 
 export function isStreamable(track: any) {

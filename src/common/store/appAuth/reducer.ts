@@ -1,35 +1,48 @@
 import { createReducer } from 'typesafe-actions';
-import { resetStore, login, loginError, loginSuccess, loginTerminated } from '../actions';
+import { resetStore, startLoginSession } from '../actions';
+import { login, verifyLoginSession } from './actions';
 import { AppAuthState } from './types';
 
-const initialState = {
+const initialState: AppAuthState = {
   isLoading: false,
-  error: null
+  isError: false,
+  error: null,
+  sessionUUID: null,
+  codeVerifier: null
 };
 
 export const appAuthReducer = createReducer<AppAuthState>(initialState)
-  .handleAction(login, () => {
+  .handleAction(login.request, () => {
     return {
-      isLoading: true,
+      isLoading: false,
+      isError: false,
       error: null
     };
   })
-  .handleAction(loginSuccess, () => {
+  .handleAction(startLoginSession, (state, { payload }) => {
     return {
-      isLoading: false,
-      error: null
+      ...state,
+      sessionUUID: payload.uuid,
+      codeVerifier: payload.codeVerifier
     };
   })
-  .handleAction(loginError, () => {
+  .handleAction(verifyLoginSession, state => {
     return {
-      isLoading: false,
-      error: null
+      ...state,
+      isLoading: true
     };
   })
-  .handleAction(loginTerminated, () => {
+  .handleAction([login.success, login.cancel], state => {
+    return {
+      ...state,
+      isLoading: false
+    };
+  })
+  .handleAction(login.failure, (_, { payload }) => {
     return {
       isLoading: false,
-      error: null
+      isError: true,
+      error: payload?.message
     };
   })
   .handleAction(resetStore, () => initialState);

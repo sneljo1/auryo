@@ -1,19 +1,17 @@
 import fetchToJsonNew from '@common/api/helpers/fetchToJsonNew';
 import { Collection, SoundCloud } from '@types';
 
-export async function fetchTrack(options: { trackId: string | number }) {
-  const json = await fetchToJsonNew<SoundCloud.Track>({
+export function fetchTrack(options: { trackId: string | number }) {
+  return fetchToJsonNew<SoundCloud.Track>({
     uri: `tracks/${options.trackId}`,
     oauthToken: true,
     useV2Endpoint: true
   });
-
-  return json;
 }
 
 // Comments
-export async function fetchComments(options: { trackId: number; limit?: number }) {
-  const json = await fetchToJsonNew<Collection<SoundCloud.Comment>>({
+export function fetchComments(options: { trackId: number; limit?: number }) {
+  return fetchToJsonNew<Collection<SoundCloud.Comment>>({
     uri: `tracks/${options.trackId}/comments`,
     clientId: true,
     useV2Endpoint: true,
@@ -23,12 +21,10 @@ export async function fetchComments(options: { trackId: number; limit?: number }
       filter_replies: 0
     }
   });
-
-  return json;
 }
 
-export async function fetchRelatedTracks(options: { trackId: string; userId: string | number; limit?: number }) {
-  const json = await fetchToJsonNew<Collection<SoundCloud.Track>>({
+export function fetchRelatedTracks(options: { trackId: string; userId: string | number; limit?: number }) {
+  return fetchToJsonNew<Collection<SoundCloud.Track>>({
     uri: `tracks/${options.trackId}/related`,
     oauthToken: true,
     useV2Endpoint: true,
@@ -37,6 +33,4 @@ export async function fetchRelatedTracks(options: { trackId: string; userId: str
       user_id: options.userId
     }
   });
-
-  return json;
 }

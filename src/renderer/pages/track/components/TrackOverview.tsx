@@ -2,6 +2,7 @@ import { commentsFetchMore, getComments } from '@common/store/actions';
 import { getCommentObject } from '@common/store/selectors';
 import { abbreviateNumber } from '@common/utils';
 import { useLoadMorePromise } from '@renderer/hooks/useLoadMorePromise';
+import { stopForwarding } from 'electron-redux';
 import moment from 'moment';
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -10,7 +11,7 @@ import { Normalized, SoundCloud } from '../../../../types';
 import { CommentList } from '../../../_shared/CommentList/CommentList';
 import { Linkify } from '../../../_shared/Linkify';
 import { ToggleMore } from '../../../_shared/ToggleMore';
-import TrackGridUser from '../../../_shared/TracksGrid/TrackgridUser/TrackGridUser';
+import { TrackGridUser } from '../../../_shared/TracksGrid/TrackgridUser/TrackGridUser';
 
 interface Props {
   track: Normalized.Track;
@@ -35,7 +36,7 @@ export const TrackOverview = React.memo<Props>(({ track }) => {
   const comments = useSelector(getCommentObject(track?.id));
 
   useEffect(() => {
-    dispatch(getComments.request({ refresh: true, trackId: track?.id }));
+    dispatch(stopForwarding(getComments.request({ refresh: true, trackId: track?.id })));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, track?.id]);
 

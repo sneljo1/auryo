@@ -1,4 +1,4 @@
-import { getNormalizedPlaylist, getPlayerStatus } from '@common/store/selectors';
+import { getNormalizedPlaylist, getPlayerStatusSelector } from '@common/store/selectors';
 import { PlayerStatus } from '@common/store/player';
 import classNames from 'classnames';
 import React, { FC } from 'react';
@@ -14,7 +14,7 @@ interface Props {
 
 const SideBarPlaylistItem: FC<Props> = ({ playlistId, isPlaying }) => {
   const playlist = useSelector(state => getNormalizedPlaylist(playlistId)(state));
-  const playerStatus = useSelector(getPlayerStatus);
+  const playerStatus = useSelector(getPlayerStatusSelector);
   const isActuallyPlaying = playerStatus === PlayerStatus.PLAYING;
 
   if (!playlist) {

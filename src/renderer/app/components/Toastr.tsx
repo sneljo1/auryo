@@ -1,32 +1,25 @@
-import { IToasterProps, IToastOptions, Toaster } from '@blueprintjs/core';
+import { IToasterProps, Toaster } from '@blueprintjs/core';
 import * as actions from '@common/store/actions';
-import React from 'react';
+import { getToastsSelector } from '@common/store/selectors';
+import React, { FC, useEffect, useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
-interface Props extends IToasterProps {
-  toasts: IToastOptions[];
-  clearToasts: typeof actions.clearToasts;
-}
+export const Toastr: FC<IToasterProps> = props => {
+  const toasterRef = useRef<Toaster>(null);
+  const toasts = useSelector(getToastsSelector);
+  const dispatch = useDispatch();
 
-export class Toastr extends React.PureComponent<Props> {
-  private toaster = React.createRef<Toaster>();
-
-  public componentDidUpdate() {
-    const { toasts, clearToasts } = this.props;
-
+  useEffect(() => {
     if (toasts.length) {
       toasts.forEach(toast => {
-        if (this.toaster.current) {
-          this.toaster.current.show(toast);
+        if (toasterRef.current) {
+          toasterRef.current.show(toast);
         }
       });
 
-      clearToasts();
+      dispatch(actions.clearToasts());
     }
-  }
+  }, [dispatch, toasts]);
 
-  public render() {
-    const { toasts, clearToasts, ...props } = this.props;
-
-    return <Toaster {...props} ref={this.toaster} />;
-  }
-}
+  return <Toaster {...props} ref={toasterRef} />;
+};

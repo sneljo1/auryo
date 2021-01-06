@@ -1,5 +1,4 @@
 import { EntitiesOf, Normalized } from '@types';
-import { AxiosError } from 'axios';
 import { PlaylistIdentifier } from '../playlist';
 
 // TYPES
@@ -51,6 +50,7 @@ export type ObjectsState = Readonly<{
   [PlaylistTypes.SEARCH_USER]: ObjectState;
   [PlaylistTypes.SEARCH_TRACK]: ObjectState;
   [PlaylistTypes.QUEUE]: ObjectState;
+  [PlaylistTypes.RELATED]: ObjectGroup;
 
   [ObjectTypes.PLAYLISTS]: ObjectGroup;
   [ObjectTypes.COMMENTS]: ObjectGroup;
@@ -62,7 +62,7 @@ export interface ObjectGroup {
 
 export interface ObjectState {
   isFetching: boolean;
-  error: AxiosError | Error | null;
+  error: Error | null;
   items: ObjectStateItem[];
   nextUrl?: string | null;
   fetchedItems: number;
@@ -75,9 +75,9 @@ export type ObjectStateItem = Normalized.NormalizedResult & { parentPlaylistID?:
 // ACTIONS
 
 export enum ObjectsActionTypes {
-  SET = '@@objects/SET',
-  UNSET = '@@objects/UNSET',
-  UNSET_TRACK = '@@objects/UNSET_TRACK',
-  SET_TRACKS = '@@objects/SET_TRACKS',
-  UPDATE_ITEMS = '@@objects/UPDATE_ITEMS'
+  SET = 'auryo.objects.SET',
+  UNSET = 'auryo.objects.UNSET',
+  UNSET_TRACK = 'auryo.objects.UNSET_TRACK',
+  SET_TRACKS = 'auryo.objects.SET_TRACKS',
+  UPDATE_ITEMS = 'auryo.objects.UPDATE_ITEMS'
 }

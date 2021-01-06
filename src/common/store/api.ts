@@ -5,16 +5,10 @@ export * from './playlist/api';
 export * from './track/api';
 export * from './user/api';
 
-export async function fetchFromUrl<T>(url: string) {
-  const json = await fetchToJsonNew<T>(
-    {
-      oauthToken: true,
-      useV2Endpoint: true
-    },
-    {
-      url: SC.appendToken(url)
-    }
-  );
-
-  return json;
+export function fetchFromUrl<T>(url: string) {
+  return fetchToJsonNew<T>({
+    oauthToken: true,
+    useV2Endpoint: true,
+    url: SC.appendToken(url)
+  });
 }

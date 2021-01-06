@@ -5,6 +5,8 @@
 declare namespace NodeJS {
   interface Global {
     __static: any;
+    fetch: any;
+    AbortController: any;
   }
   interface ProcessEnv {
     readonly NODE_ENV: 'development' | 'production' | 'test';

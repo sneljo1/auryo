@@ -1,8 +1,5 @@
-import { AxiosError } from 'axios';
-import { ThunkAction } from 'redux-thunk';
 import * as Normalized from './normalized';
 import * as SoundCloud from './soundcloud';
-import { StoreState } from 'AppReduxTypes';
 
 export { SoundCloud, Normalized };
 
@@ -24,9 +21,6 @@ export type Collection<T> = {
 export type EntitiesOf<T> = { [key: string]: { [key: string]: T } };
 
 export type ResultOf<T, K extends keyof T> = Array<Omit<T, K> & { [P in K]: string }>;
-
-export type ThunkResult<R> = ThunkAction<R, StoreState, undefined, any>;
-
 export interface EpicFailure {
-  error: AxiosError | Error;
+  error?: Error;
 }

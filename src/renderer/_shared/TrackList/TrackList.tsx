@@ -1,9 +1,9 @@
 import { Normalized } from '@types';
-import React from 'react';
+import React, { FC, useCallback } from 'react';
 import ReactList from 'react-list';
 import { InfiniteScroll } from '../InfiniteScroll';
 import Spinner from '../Spinner/Spinner';
-import TrackListItem from './TrackListItem/TrackListItem';
+import { TrackListItem } from './TrackListItem/TrackListItem';
 import { PlaylistIdentifier } from '@common/store/types';
 
 interface Props {
@@ -17,26 +17,22 @@ interface Props {
   loadMore?(): Promise<void>;
 }
 
-export const TrackList: React.SFC<Props> = ({
-  items,
-  id,
-  hideFirstTrack,
-  isLoading = false,
-  loadMore,
-  hasMore = false
-}) => {
-  function renderItem(index: number) {
-    // using a spread because we don't want to unshift the original list
-    const showedItems = [...items];
+export const TrackList: FC<Props> = ({ items, id, hideFirstTrack, isLoading = false, loadMore, hasMore = false }) => {
+  const renderItem = useCallback(
+    (index: number) => {
+      // using a spread because we don't want to unshift the original list
+      const showedItems = [...items];
 
-    if (hideFirstTrack) {
-      showedItems.shift();
-    }
+      if (hideFirstTrack) {
+        showedItems.shift();
+      }
 
-    const item = showedItems[index];
+      const item = showedItems[index];
 
-    return <TrackListItem key={`track-list-${item.id}`} playlistId={id} idResult={item} />;
-  }
+      return <TrackListItem key={`track-list-${item.id}`} playlistID={id} idResult={item} />;
+    },
+    [hideFirstTrack, id, items]
+  );
 
   function renderWrapper(children: JSX.Element[], ref: string) {
     return (

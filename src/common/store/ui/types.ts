@@ -3,7 +3,8 @@ import { IToastOptions } from '@blueprintjs/core';
 // TYPES
 export type UIState = Readonly<{
   toasts: IToastOptions[];
-  dimensions: Dimensions;
+  // TODO: can this be removed?
+  // dimensions: Dimensions;
   searchQuery?: string;
 }>;
 
@@ -14,9 +15,9 @@ export interface Dimensions {
 
 // ACTIONS
 export enum UIActionTypes {
-  ADD_TOAST = '@@ui/ADD_TOAST',
-  REMOVE_TOAST = '@@ui/REMOVE_TOAST',
-  CLEAR_TOASTS = '@@ui/CLEAR_TOASTS',
-  SET_DIMENSIONS = '@@ui/SET_DIMENSIONS',
-  SET_SEARCH_QUERY = '@@ui/SET_SEARCH_QUERY'
+  ADD_TOAST = 'auryo.ui.ADD_TOAST',
+  REMOVE_TOAST = '@@auryo.ui.REMOVE_TOAST',
+  CLEAR_TOASTS = '@@auryo.ui.CLEAR_TOASTS',
+  SET_DIMENSIONS = '@@auryo.ui.SET_DIMENSIONS',
+  SET_SEARCH_QUERY = '@@auryo.ui.SET_SEARCH_QUERY'
 }

@@ -18,43 +18,93 @@ if (process.env.NODE_ENV !== 'development') {
 
 global.__static = staticPath.replace(/\\/g, '\\\\');
 
+import { configureStore } from '@common/store';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { app, systemPreferences } from 'electron';
+import is from 'electron-is';
 import { Auryo } from './app';
 import { Logger } from './utils/logger';
-import store from '@common/store';
-import is from 'electron-is';
 
-const auryo = new Auryo();
+const mainStore = configureStore();
 
-auryo.setStore(store);
+const auryo = new Auryo(mainStore);
 
-// Quit when all windows are closed
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
+const logger = Logger.defaultLogger();
+
+app.setAppUserModelId('com.auryo.core');
+app.setAsDefaultProtocolClient('auryo');
+
+registerListeners();
+
+const isSingleInstance = requestInstanceLock();
+
+if (isSingleInstance) {
+  app.on('second-instance', (_e, argv) => {
+    // Handle protocol url for Windows
+    if (is.windows()) {
+      auryo.handleProtocolUrl(argv[1]);
+    }
+  });
+
+  // This method will be called when Electron has done everything
+  // initialization and ready for creating browser windows.
+  app.whenReady().then(async () => {
+    if (is.osx()) systemPreferences.isTrustedAccessibilityClient(true);
+
+    // Handle protocol url for Windows
+    if (is.windows()) {
+      auryo.handleProtocolUrl(process.argv[1]);
+    }
+
+    try {
+      await auryo.start();
+    } catch (err) {
+      logger.error('Error starting auryo', err);
+    }
+  });
+}
+
+// Helpers
+
+function requestInstanceLock() {
+  const gotTheLock = app.requestSingleInstanceLock();
+
+  if (!gotTheLock) {
+    logger.debug('Not the first instance, gonna quit.');
     app.quit();
   }
-});
 
-app.on('activate', () => {
-  if (auryo.mainWindow) {
-    auryo.mainWindow.show();
-  } else {
-    // Something went wrong
-    app.quit();
-  }
-});
+  return gotTheLock;
+}
 
-// This method will be called when Electron has done everything
-// initialization and ready for creating browser windows.
-app.on('ready', async () => {
-  if (is.osx()) {
-    systemPreferences.isTrustedAccessibilityClient(true);
-  }
+function registerListeners() {
+  app.on('before-quit', () => {
+    logger.info('Application exiting...');
+    auryo.setQuitting(true);
+  });
 
-  try {
-    await auryo.start();
-  } catch (err) {
-    Logger.defaultLogger().error('Error starting auryo', err);
-  }
-});
+  // Quit when all windows are closed
+  app.on('window-all-closed', () => {
+    // On macOS it is common for applications and their menu bar
+    // to stay active until the user quits explicitly with Cmd + Q
+    if (process.platform !== 'darwin') {
+      app.quit();
+    }
+  });
+
+  app.on('activate', () => {
+    if (auryo.mainWindow) {
+      auryo.mainWindow.show();
+    } else {
+      // Something went wrong
+      app.quit();
+    }
+  });
+
+  // Handle protocol url for MacOS
+  app.on('open-url', (event, data) => {
+    event.preventDefault();
+
+    auryo.handleProtocolUrl(data);
+  });
+}

@@ -4,28 +4,29 @@ import { PlaylistIdentifier } from '@common/store/types';
 import { useLoadMorePromise } from '@renderer/hooks/useLoadMorePromise';
 import Spinner from '@renderer/_shared/Spinner/Spinner';
 import { TrackList } from '@renderer/_shared/TrackList/TrackList';
+import { stopForwarding } from 'electron-redux';
 import React, { FC, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 export interface Props {
-  id: PlaylistIdentifier;
+  playlistID: PlaylistIdentifier;
 }
 
-export const PlaylistTrackList: FC<Props> = ({ id }) => {
+export const PlaylistTrackList: FC<Props> = ({ playlistID }) => {
   const dispatch = useDispatch();
-  const playlist = useSelector(getPlaylistObjectSelector(id));
+  const playlist = useSelector(getPlaylistObjectSelector(playlistID));
 
   useEffect(() => {
-    dispatch(getGenericPlaylist.request({ refresh: true, ...id }));
+    dispatch(stopForwarding(getGenericPlaylist.request({ refresh: true, ...playlistID })));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, id]);
+  }, [dispatch, playlistID]);
 
   const { loadMore } = useLoadMorePromise(
     playlist?.isFetching,
     () => {
-      dispatch(genericPlaylistFetchMore.request(id));
+      dispatch(stopForwarding(genericPlaylistFetchMore.request(playlistID)));
     },
-    [dispatch, id]
+    [dispatch, playlistID]
   );
 
   if (!playlist) {
@@ -34,7 +35,7 @@ export const PlaylistTrackList: FC<Props> = ({ id }) => {
 
   return (
     <TrackList
-      id={id}
+      id={playlistID}
       items={playlist.items}
       hideFirstTrack
       isLoading={playlist.isFetching}

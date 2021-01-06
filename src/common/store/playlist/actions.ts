@@ -10,14 +10,14 @@ export const getGenericPlaylist = createAsyncAction(
 )<
   PlaylistIdentifier & { refresh: boolean; sortType?: SortTypes; searchString?: string },
   PlaylistObjectItem & { refresh?: boolean; query?: string },
-  EpicFailure & PlaylistIdentifier
+  PlaylistIdentifier
 >();
 
 export const genericPlaylistFetchMore = createAsyncAction(
   String(PlaylistActionTypes.GENERIC_PLAYLIST_FETCH_MORE),
   wSuccess(PlaylistActionTypes.GENERIC_PLAYLIST_FETCH_MORE),
   wError(PlaylistActionTypes.GENERIC_PLAYLIST_FETCH_MORE)
-)<PlaylistIdentifier, PlaylistObjectItem & { shuffle?: boolean }, EpicFailure & PlaylistIdentifier>();
+)<PlaylistIdentifier, PlaylistObjectItem & { shuffle?: boolean }, PlaylistIdentifier>();
 
 export const setPlaylistLoading = createAction(PlaylistActionTypes.SET_PLAYLIST_LOADING)<PlaylistIdentifier>();
 
@@ -31,19 +31,19 @@ export const getForYouSelection = createAsyncAction(
   wSuccess(PlaylistActionTypes.GET_FORYOU_SELECTION),
   wError(PlaylistActionTypes.GET_FORYOU_SELECTION)
 )<
-  unknown,
+  undefined,
   {
     objects: ForYourObject[];
     entities: EntitiesOf<Omit<SoundCloud.Playlist, 'tracks'> & { tracks: Normalized.NormalizedResult[] }>;
     result: Array<Normalized.NormalizedPersonalizedItem>;
   },
-  EpicFailure
+  object
 >();
 
 export const getPlaylistTracks = createAsyncAction(
   String(PlaylistActionTypes.GET_PLAYLIST_TRACKS),
   wSuccess(PlaylistActionTypes.GET_PLAYLIST_TRACKS),
   wError(PlaylistActionTypes.GET_PLAYLIST_TRACKS)
-)<PlaylistIdentifier, PlaylistIdentifier, EpicFailure & PlaylistIdentifier>();
+)<PlaylistIdentifier, PlaylistIdentifier, PlaylistIdentifier>();
 
 export type ForYourObject = Omit<PlaylistObjectItem, 'entities' | 'nextUrl' | 'objectId'> & { objectId: string };

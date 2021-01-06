@@ -5,7 +5,6 @@ import ChromecastManager from './core/chromecast/chromecastManager';
 import ConfigManager from './core/configManager';
 import IPCManager from './core/ipcManager';
 import LastFm from './core/lastFm';
-import NotificationManager from './core/notificationManager';
 import PowerMonitor from './core/powerMonitor';
 import ShortcutManager from './core/shortcutManager';
 import { Feature } from './feature';
@@ -24,7 +23,6 @@ export const tools: typeof Feature[] = [
   PowerMonitor,
   ShortcutManager,
   ApplicationMenu,
-  NotificationManager,
   ChromecastManager,
   // Mac
   TouchBarManager,

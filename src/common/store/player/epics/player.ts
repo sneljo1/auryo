@@ -1,11 +1,14 @@
-import { EpicError } from '@common/utils/errors/EpicError';
+import { EVENTS, IMAGE_SIZES } from '@common/constants';
+import { SC } from '@common/utils';
+import { EpicError, handleEpicError } from '@common/utils/errors/EpicError';
 import { Logger } from '@main/utils/logger';
-import { Normalized } from '@types';
+import { SoundCloud } from '@types';
 import { StoreState } from 'AppReduxTypes';
-import { AxiosError } from 'axios';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { ipcRenderer } from 'electron';
 import _ from 'lodash';
 import { StateObservable } from 'redux-observable';
-import { concat, empty, merge, of, throwError, iif } from 'rxjs';
+import { concat, EMPTY, iif, merge, of, throwError } from 'rxjs';
 import {
   catchError,
   filter,
@@ -38,35 +41,33 @@ import {
   toggleShuffle,
   toggleStatus,
   trackFinished
-} from '../actions';
-import { RootEpic } from '../declarations';
+} from '../../actions';
+import { RootEpic } from '../../declarations';
 import {
   configSelector,
   getCurrentPlaylistId,
   getPlayerCurrentTime,
-  getPlayerUpNext,
-  getPlayingTrack,
   getPlayingTrackIndex,
+  getPlayingTrackSelector,
   getPlaylistObjectSelector,
+  getPlaylistsObjects,
   getQueuePlaylistSelector,
   getQueueTrackByIndexSelector,
   getTrackEntity,
-  shuffleSelector,
-  getPlaylistsObjects
-} from '../selectors';
-import { ChangeTypes, ObjectStateItem, PlayerStatus, PlaylistTypes, RepeatTypes, PlaylistIdentifier } from '../types';
-import { setCurrentIndex, shuffleQueue, addUpNext } from './actions';
+  getUpNextSelector,
+  shuffleSelector
+} from '../../selectors';
+import {
+  ChangeTypes,
+  ObjectStateItem,
+  PlayerStatus,
+  PlaylistIdentifier,
+  PlaylistTypes,
+  RepeatTypes
+} from '../../types';
+import { setCurrentIndex, shuffleQueue } from '../actions';
 
 const logger = Logger.createLogger('REDUX/PLAYER');
-
-const handleEpicError = (error: any) => {
-  if ((error as AxiosError).isAxiosError) {
-    logger.error(error.message);
-  }
-  logger.error(error);
-  // TODO Sentry?
-  return error;
-};
 
 export const startPlayMusicEpic: RootEpic = (action$, state$) =>
   // @ts-ignore
@@ -171,13 +172,7 @@ export const startPlayMusicEpic: RootEpic = (action$, state$) =>
         )
       );
     }),
-    catchError(error =>
-      of(
-        playTrack.failure({
-          error: handleEpicError(error)
-        })
-      )
-    )
+    catchError(handleEpicError(action$, playTrack.failure({})))
   );
 
 export const playTrackEpic: RootEpic = (action$, state$) =>
@@ -199,6 +194,8 @@ export const playTrackEpic: RootEpic = (action$, state$) =>
             const track = getTrackEntity(id)(latestState);
 
             const toFetch = !!playlistContainingTrack?.itemsToFetch?.some(i => i.id === id && i.schema === 'tracks');
+
+            console.log({ track });
 
             return { track, toFetch, playlistContainingTrack };
           }),
@@ -287,13 +284,7 @@ export const playTrackEpic: RootEpic = (action$, state$) =>
         )
       );
     }),
-    catchError(error =>
-      of(
-        playTrack.failure({
-          error: handleEpicError(error)
-        })
-      )
-    )
+    catchError(handleEpicError(action$, playTrack.failure({})))
   );
 
 export const playPlaylistEpic: RootEpic = (action$, state$) =>
@@ -326,7 +317,7 @@ export const playPlaylistEpic: RootEpic = (action$, state$) =>
             if (!playlist?.items?.length) {
               // TODO: we cannot play this playlist, dispatch notification?
               logger.trace('playPlaylistEpic:: Playlist does not have any items', { id, playlist });
-              return empty();
+              return EMPTY;
             }
             const lastIndex = playlist?.items.length - 1;
 
@@ -345,13 +336,7 @@ export const playPlaylistEpic: RootEpic = (action$, state$) =>
         )
       );
     }),
-    catchError(error =>
-      of(
-        playTrack.failure({
-          error: handleEpicError(error)
-        })
-      )
-    )
+    catchError(handleEpicError(action$, playTrack.failure({})))
   );
 
 export const changeTrackEpic: RootEpic = (action$, state$) =>
@@ -364,7 +349,7 @@ export const changeTrackEpic: RootEpic = (action$, state$) =>
       const playingTrackIndex = getPlayingTrackIndex(state);
       const queue = getQueuePlaylistSelector(state);
       const currentTime = getPlayerCurrentTime(state);
-      const upNext = getPlayerUpNext(state);
+      const upNext = getUpNextSelector(state);
 
       let nextPosition = playingTrackIndex;
 
@@ -396,13 +381,7 @@ export const changeTrackEpic: RootEpic = (action$, state$) =>
         of(startPlayMusicIndex({ index: nextPosition, changeType }))
       );
     }),
-    catchError(error =>
-      of(
-        playTrack.failure({
-          error: handleEpicError(error)
-        })
-      )
-    )
+    catchError(handleEpicError(action$, playTrack.failure({})))
   );
 
 export const playlistFinishedEpic: RootEpic = (action$, state$) =>
@@ -489,17 +468,11 @@ export const startPlayMusicIndexEpic: RootEpic = (action$, state$) =>
         )
       );
     }),
-    catchError(error =>
-      of(
-        playTrack.failure({
-          error: handleEpicError(error)
-        })
-      )
-    )
+    catchError(handleEpicError(action$, playTrack.failure({})))
   );
 
 export const setCurrentPlaylistEpic: RootEpic = (action$, state$) =>
-  // @ts-ignore
+  // @ts-expect-error
   action$.pipe(
     filter(isActionOf(setCurrentPlaylist.request)),
     pluck('payload'),
@@ -541,68 +514,13 @@ export const setCurrentPlaylistEpic: RootEpic = (action$, state$) =>
 
       return setCurrentPlaylist.success({ items, playlistId });
     }),
-    catchError(error =>
-      of(
-        setCurrentPlaylist.failure({
-          error: handleEpicError(error)
-        })
-      )
-    )
-  );
-
-export const addUpNextEpic: RootEpic = (action$, state$) =>
-  // @ts-ignore
-  action$.pipe(
-    filter(isActionOf(addUpNext.request)),
-    pluck('payload'),
-    withLatestFrom(state$),
-    map(([itemToAdd, latestState]) => ({
-      itemToAdd,
-      playlists: getPlaylistsObjects(latestState)
-    })),
-    map(({ itemToAdd, playlists }) => {
-      // Replace playlists with their items
-      const items = [itemToAdd].reduce<ObjectStateItem[]>((all, item) => {
-        if (item.schema === 'playlists') {
-          const playlistExists = playlists[item.id];
-
-          if (playlistExists) {
-            all.push(
-              ...[...playlistExists.items, ...playlistExists.itemsToFetch].map(
-                (i): ObjectStateItem => ({
-                  ...i,
-                  parentPlaylistID: {
-                    objectId: item.id.toString(),
-                    playlistType: PlaylistTypes.PLAYLIST
-                  },
-                  un: item.un
-                })
-              )
-            );
-          } else {
-            all.push(item);
-          }
-        } else {
-          all.push(item);
-        }
-
-        return all;
-      }, []);
-
-      return addUpNext.success({ items });
-    }),
-    catchError(error =>
-      of(
-        addUpNext.failure({
-          error: handleEpicError(error)
-        })
-      )
-    )
+    catchError(handleEpicError(action$, setCurrentPlaylist.failure({})))
   );
 
 // Toggle shuffle
 export const toggleShuffleEpic: RootEpic = (action$, state$) =>
-  // @ts-ignore
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-expect-error
   action$.pipe(
     filter(isActionOf(toggleShuffle)),
     pluck('payload'),
@@ -648,7 +566,7 @@ const recalculateCurrentIndex = (state$: StateObservable<StoreState>) =>
       const currentPlaylistID = getCurrentPlaylistId(state);
       return {
         currentPlaylist: currentPlaylistID ? getPlaylistObjectSelector(currentPlaylistID)(state) : null,
-        playingTrack: getPlayingTrack(state)
+        playingTrack: getPlayingTrackSelector(state)
       };
     }),
     filter(({ playingTrack, currentPlaylist }) => !!playingTrack && !!currentPlaylist),
@@ -664,4 +582,36 @@ const recalculateCurrentIndex = (state$: StateObservable<StoreState>) =>
     }),
     filter(currentTrackIndex => currentTrackIndex !== -1),
     map(currentTrackIndex => setCurrentIndex({ position: currentTrackIndex }))
+  );
+
+export const trackChangeNotificationEpic: RootEpic = (action$, state$) =>
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-expect-error
+  action$.pipe(
+    filter(isActionOf(startPlayMusic)),
+    pluck('payload'),
+    filter(({ idResult }) => !!idResult),
+    withLatestFrom(state$),
+    map(([payload, state]) => ({
+      track: getTrackEntity(payload.idResult?.id as number)(state),
+      shouldShowNotification: state.config.app.showTrackChangeNotification
+      // TODO: is window focussed? then do not show
+    })),
+    tap(data => console.log('trackChangeNotificationEpic', data)),
+    filter(({ shouldShowNotification }) => shouldShowNotification),
+    pluck('track'),
+    filter<SoundCloud.Track>(Boolean),
+    tap(track => {
+      console.log('fesfsewg', process.type);
+      const myNotification = new Notification(track.title, {
+        body: `${track.user && track.user.username ? track.user.username : ''}`,
+        icon: SC.getImageUrl(track, IMAGE_SIZES.SMALL),
+        silent: true
+      });
+
+      myNotification.onclick = () => {
+        ipcRenderer.send(EVENTS.APP.RAISE);
+      };
+    }),
+    ignoreElements()
   );
