@@ -1,6 +1,5 @@
 import fetchToJsonNew from '@common/api/helpers/fetchToJsonNew';
 import { playlistSchema, userSchema } from '@common/schemas';
-import { memToken } from '@common/utils/soundcloudUtils';
 import { Collection, EntitiesOf, ResultOf, SoundCloud } from '@types';
 import { normalize, schema } from 'normalizr';
 import { map } from 'rxjs/operators';
@@ -87,23 +86,21 @@ export function fetchPlaylists() {
 }
 
 // LIKES
-export function toggleTrackLike(options: { trackId: string | number; userId: string | number; like: boolean }) {
+export function toggleTrackLike(options: { trackId: string | number; like: boolean }) {
   return fetchToJsonNew<Collection<SoundCloud.Track>>(
     {
-      uri: `users/${options.userId}/track_likes/${options.trackId}`,
-      oauthToken: true,
-      useV2Endpoint: true
+      uri: `likes/tracks/${options.trackId}`,
+      oauthToken: true
     },
     { method: options.like ? 'PUT' : 'DELETE' }
   );
 }
 
-export function togglePlaylistLike(options: { playlistId: string | number; userId: string | number; like: boolean }) {
+export function togglePlaylistLike(options: { playlistId: string | number; like: boolean }) {
   return fetchToJsonNew<Collection<SoundCloud.Track>>(
     {
-      uri: `users/${options.userId}/playlist_likes/${options.playlistId}`,
-      oauthToken: true,
-      useV2Endpoint: true
+      uri: `likes/playlists/{playlist_id}/${options.playlistId}`,
+      oauthToken: true
     },
     { method: options.like ? 'PUT' : 'DELETE' }
   );
@@ -125,9 +122,8 @@ export function toggleSystemPlaylistLike(options: { playlistUrn: string; userId:
 export function toggleTrackRepost(options: { trackId: string | number; repost: boolean }) {
   return fetchToJsonNew<Collection<SoundCloud.Track>>(
     {
-      uri: `me/track_reposts/${options.trackId}`,
-      oauthToken: true,
-      useV2Endpoint: true
+      uri: `reposts/tracks/${options.trackId}`,
+      oauthToken: true
     },
     { method: options.repost ? 'PUT' : 'DELETE' }
   );
@@ -136,9 +132,8 @@ export function toggleTrackRepost(options: { trackId: string | number; repost: b
 export function togglePlaylistRepost(options: { playlistId: string | number; repost: boolean }) {
   return fetchToJsonNew<Collection<SoundCloud.Track>>(
     {
-      uri: `me/playlist_reposts/${options.playlistId}`,
-      oauthToken: true,
-      useV2Endpoint: true
+      uri: `reposts/playlists/${options.playlistId}`,
+      oauthToken: true
     },
     { method: options.repost ? 'PUT' : 'DELETE' }
   );
@@ -148,10 +143,9 @@ export function togglePlaylistRepost(options: { playlistId: string | number; rep
 export async function toggleFollowing(options: { userId: string | number; follow: boolean }) {
   return fetchToJsonNew<Collection<SoundCloud.Track>>(
     {
-      uri: `me/followings/${options.userId}`,
-      oauthToken: true,
-      useV2Endpoint: true
+      uri: `/me/followings//${options.userId}`,
+      oauthToken: true
     },
-    { method: options.follow ? 'POST' : 'DELETE' }
+    { method: options.follow ? 'PUT' : 'DELETE' }
   );
 }

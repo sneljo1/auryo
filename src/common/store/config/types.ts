@@ -27,7 +27,6 @@ export interface AppConfig {
   crashReports: boolean;
   downloadPath: string;
   showTrackChangeNotification: boolean;
-  overrideClientId: string | null;
   theme: string;
 }
 

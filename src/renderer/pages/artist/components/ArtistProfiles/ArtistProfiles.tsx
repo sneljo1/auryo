@@ -7,15 +7,15 @@ import { SoundCloud } from '../../../../../types';
 import './ArtistProfiles.scss';
 
 interface Props {
-  userUrn: string;
+  userId: string;
   className?: string;
 }
 
-export const ArtistProfiles: FC<Props> = ({ userUrn, className }) => {
+export const ArtistProfiles: FC<Props> = ({ userId, className }) => {
   const dispatch = useDispatch();
-  const profiles = useSelector(getNormalizedUserProfiles(userUrn));
-  const loading = useSelector(isUserProfilesLoading(userUrn));
-  const error = useSelector(isUserProfilesError(userUrn));
+  const profiles = useSelector(getNormalizedUserProfiles(userId));
+  const loading = useSelector(isUserProfilesLoading(userId));
+  const error = useSelector(isUserProfilesError(userId));
 
   const getIcon = (service: string) => {
     switch (service) {
@@ -56,9 +56,9 @@ export const ArtistProfiles: FC<Props> = ({ userUrn, className }) => {
   // Fetch user if it does not exist yet
   useEffect(() => {
     if (!profiles && !loading) {
-      dispatch(stopForwarding(getUserProfiles.request({ userUrn })));
+      dispatch(stopForwarding(getUserProfiles.request({ userId })));
     }
-  }, [loading, error, dispatch, profiles, userUrn]);
+  }, [loading, error, dispatch, profiles, userId]);
 
   if (!profiles?.length) {
     return null;
@@ -69,20 +69,20 @@ export const ArtistProfiles: FC<Props> = ({ userUrn, className }) => {
       {profiles.map(profile => {
         const title = getTitle(profile.title);
 
-        const network = profile?.network;
+        const service = profile?.service;
 
-        let iconString = network.toString();
+        let iconString = service.toString();
 
-        if (network === SoundCloud.ProfileService.PERSONAL && title) {
+        if (service === SoundCloud.ProfileService.PERSONAL && title) {
           iconString = title;
         }
 
         const icon = `bx bx${getIcon(iconString)}`;
 
         return (
-          <a href={profile.url} className={`profile ${network?.toLowerCase() ?? ''}`} key={profile.title}>
+          <a href={profile.url} className={`profile ${service?.toLowerCase() ?? ''}`} key={profile.title}>
             <i className={icon} />
-            <span>{profile.title ? profile.title : network}</span>
+            <span>{profile.title ? profile.title : service}</span>
           </a>
         );
       })}

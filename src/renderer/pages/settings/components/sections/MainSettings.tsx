@@ -12,7 +12,6 @@ import { debounce } from 'lodash';
 import React, { FC, useCallback, useMemo, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { CheckboxConfig } from '../CheckboxConfig';
-import { InputConfig } from '../InputConfig';
 import { SelectConfig } from '../SelectConfig';
 
 export interface SettingGroup {
@@ -127,24 +126,6 @@ export const MainSettings: FC<Props> = ({ onShouldRestart }) => {
                 </div>
                 <Button onClick={isValidDirectory}>Change directory</Button>
               </div>
-            )
-          },
-          {
-            authenticated: false,
-            setting: (
-              <InputConfig
-                key="overrideClientId"
-                configKey="app.overrideClientId"
-                onChange={checkAndSaveClientId}
-                type="text"
-                name="Use your own clientId"
-                placeholder="clientId"
-                description={
-                  <div>
-                    Read <a href="https://github.com/Superjo149/auryo/wiki/Custom-clientId">here</a> why and how.
-                  </div>
-                }
-              />
             )
           }
         ]

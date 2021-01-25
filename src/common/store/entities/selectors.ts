@@ -81,5 +81,5 @@ export const getNormalizedTrack = (id?: number | string) =>
     }
   );
 
-export const getNormalizedUserProfiles = (userUrn?: string) =>
-  createSelector(getUserProfilesEntities(), entities => (userUrn ? entities?.[userUrn] : null));
+export const getNormalizedUserProfiles = (userId?: string) =>
+  createSelector(getUserProfilesEntities(), entities => (userId ? entities?.[userId] : null));

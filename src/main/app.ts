@@ -217,15 +217,9 @@ export class Auryo {
         urls: ['http://localhost:8888/stream/*']
       },
       async (details, callback) => {
-        const {
-          config: {
-            app: { overrideClientId }
-          }
-        } = this.store.getState();
         const { 1: trackId } = details.url.split('http://localhost:8888/stream/');
         try {
-          const clientId = overrideClientId && overrideClientId.length ? overrideClientId : CONFIG.CLIENT_ID;
-          const mp3Url = await this.getPlayingTrackStreamUrl(trackId, clientId || '');
+          const mp3Url = await this.getPlayingTrackStreamUrl(trackId, CONFIG.CLIENT_ID || '');
 
           callback({
             redirectURL: mp3Url

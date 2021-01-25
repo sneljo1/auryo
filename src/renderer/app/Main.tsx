@@ -85,7 +85,7 @@ const Main: FC<Props> = ({ location: { search } }) => {
           <Route path="/user/:artistId" component={ArtistPage} />
           <Route path="/playlist/:playlistId" component={PlaylistPage} />
           <Route exact path="/search/:playlistType?" component={SearchPage} />
-          <Route path="/tags/:tag/:playlistType?" component={TagsPage} />
+          <Route path="/tags/:tag" component={TagsPage} />
           <Route path="/resolve" render={handleResolve} />
         </Switch>
       </>

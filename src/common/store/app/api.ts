@@ -17,11 +17,11 @@ interface Status {
 }
 
 // TODO
-export async function fetchRemainingTracks(overrideClientId?: string | null): Promise<RemainingPlays | null> {
+export async function fetchRemainingTracks(): Promise<RemainingPlays | null> {
   try {
     const json = await fetchToJsonNew<FetchRemainingTracksResponse>({
       uri: 'rate_limit_status',
-      clientId: overrideClientId ?? true
+      clientId: true
     });
 
     if (!json.statuses.length) {

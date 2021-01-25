@@ -3,74 +3,54 @@ import { searchPlaylistFetchMore } from '@common/store/actions';
 import { PlaylistTypes } from '@common/store/objects';
 import { getPlaylistObjectSelector } from '@common/store/selectors';
 import { useLoadMorePromise } from '@renderer/hooks/useLoadMorePromise';
-import cn from 'classnames';
 import React, { FC, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { NavLink, RouteComponentProps } from 'react-router-dom';
-import { Nav } from 'reactstrap';
+import { RouteComponentProps } from 'react-router-dom';
 import PageHeader from '../../_shared/PageHeader/PageHeader';
 import Spinner from '../../_shared/Spinner/Spinner';
 import TracksGrid from '../../_shared/TracksGrid/TracksGrid';
 
-type Props = RouteComponentProps<{ tag: string; playlistType: PlaylistTypes }>;
+type Props = RouteComponentProps<{ tag: string }>;
 
 export const TagsPage: FC<Props> = ({
   match: {
-    params: { tag, playlistType = PlaylistTypes.SEARCH_TRACK }
+    params: { tag }
   }
 }) => {
   const dispatch = useDispatch();
-  const playlistObject = useSelector(getPlaylistObjectSelector({ playlistType }));
+  const playlistObject = useSelector(getPlaylistObjectSelector({ playlistType: PlaylistTypes.SEARCH_TRACK }));
 
   useEffect(() => {
-    if (playlistType !== PlaylistTypes.SEARCH && playlistObject?.meta?.query !== tag) {
+    if (playlistObject?.meta?.query !== tag) {
       dispatch(
         actions.getSearchPlaylist({
-          playlistType,
+          playlistType: PlaylistTypes.SEARCH_TRACK,
           refresh: true,
           tag
         })
       );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [playlistType]);
+  }, []);
 
   const { loadMore } = useLoadMorePromise(
     playlistObject?.isFetching,
     () => {
-      dispatch(searchPlaylistFetchMore({ playlistType }));
+      dispatch(searchPlaylistFetchMore({ playlistType: PlaylistTypes.SEARCH_TRACK }));
     },
-    [dispatch, playlistType]
+    [dispatch]
   );
 
   return (
     <>
-      <PageHeader title={tag} subtitle="Most popular" />
-
-      <div className="container-fluid charts">
-        <Nav className="tabs" tabs>
-          <NavLink
-            className={cn('nav-link', { active: playlistType === PlaylistTypes.SEARCH_TRACK })}
-            to={`/tags/${tag}/${PlaylistTypes.SEARCH_TRACK}`}
-            activeClassName="active">
-            Tracks
-          </NavLink>
-
-          <NavLink
-            className={cn('nav-link', { active: playlistType === PlaylistTypes.SEARCH_PLAYLIST })}
-            activeClassName="active"
-            to={`/tags/${tag}/${PlaylistTypes.SEARCH_PLAYLIST}`}>
-            Playlists
-          </NavLink>
-        </Nav>
-      </div>
+      <PageHeader title={tag} />
 
       {!playlistObject || (!playlistObject?.items.length && playlistObject?.isFetching) ? (
         <Spinner contained />
       ) : (
         <TracksGrid
           items={playlistObject.items}
-          playlistID={{ playlistType }}
+          playlistID={{ playlistType: PlaylistTypes.SEARCH_TRACK }}
           isLoading={playlistObject.isFetching}
           isItemLoaded={index => !!playlistObject.items[index]}
           loadMore={loadMore}

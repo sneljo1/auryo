@@ -54,44 +54,44 @@ export const userReducer = createReducer<UserState>(initialState)
     };
   })
   .handleAction(getUserProfiles.request, (state, action) => {
-    const { userUrn } = action.payload;
+    const { userId } = action.payload;
 
     const errors = state.userProfilesError;
 
-    delete errors[userUrn];
+    delete errors[userId];
 
     return {
       ...state,
-      userProfilesLoading: Array.from(new Set([...state.userProfilesLoading, userUrn])),
+      userProfilesLoading: Array.from(new Set([...state.userProfilesLoading, userId])),
       userProfilesError: {
         ...errors
       }
     };
   })
   .handleAction(getUserProfiles.success, (state, action) => {
-    const { userUrn } = action.payload;
+    const { userId } = action.payload;
 
     const errors = state.userProfilesError;
 
-    delete errors[userUrn];
+    delete errors[userId];
 
     return {
       ...state,
-      userProfilesLoading: state.userProfilesLoading.filter(id => id !== userUrn),
+      userProfilesLoading: state.userProfilesLoading.filter(id => id !== userId),
       userProfilesError: {
         ...errors
       }
     };
   })
   .handleAction(getUserProfiles.failure, (state, action) => {
-    const { userUrn, error } = action.payload;
+    const { userId, error } = action.payload;
 
     return {
       ...state,
-      userProfilesLoading: state.userProfilesLoading.filter(id => id !== userUrn),
+      userProfilesLoading: state.userProfilesLoading.filter(id => id !== userId),
       userProfilesError: {
         ...state.error,
-        [userUrn]: error
+        [userId]: error
       }
     };
   })

@@ -1,11 +1,10 @@
 import { Position } from '@blueprintjs/core';
 // eslint-disable-next-line import/no-cycle
-import { ContentContext, INITIAL_LAYOUT_SETTINGS } from '@renderer/_shared/context/contentContext';
+import { useContentContext } from '@renderer/_shared/context/contentContext';
 import { debounce } from 'lodash';
 import React, { FC, useCallback, useLayoutEffect, useRef, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars';
 import { useHistory, useLocation } from 'react-router-dom';
-import { FixedSizeList } from 'react-window';
 import ErrorBoundary from '../_shared/ErrorBoundary';
 import { Toastr } from './components/Toastr';
 
@@ -13,11 +12,10 @@ export const ContentWrapper: FC = ({ children }) => {
   const contentRef = useRef<Scrollbars>(null);
   const history = useHistory();
   const location = useLocation();
+  const { list } = useContentContext();
 
-  const [settings, setSettings] = useState(INITIAL_LAYOUT_SETTINGS);
   const [isScrolling, setIsScrolling] = useState(false);
   const [scrollLocations, setScrollLocations] = useState({});
-  const [list, setList] = useState<FixedSizeList | null>(null);
 
   // If we go back and know the scrollLocation of the previous page, scroll to it
   useLayoutEffect(() => {
@@ -39,7 +37,8 @@ export const ContentWrapper: FC = ({ children }) => {
     });
 
     return () => unregister();
-  }, [history, isScrolling, scrollLocations]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const debouncedSetScrollPosition = useRef(
     debounce(
@@ -58,8 +57,8 @@ export const ContentWrapper: FC = ({ children }) => {
     (e: React.ChangeEvent<HTMLDivElement>) => {
       const { scrollTop } = e.target;
 
-      if (list) {
-        list.scrollTo(scrollTop);
+      if (list?.current) {
+        list?.current.scrollTo(scrollTop);
       }
 
       debouncedSetScrollPosition.current(scrollTop, location.pathname);
@@ -68,26 +67,18 @@ export const ContentWrapper: FC = ({ children }) => {
   );
 
   return (
-    <ContentContext.Provider
-      value={{
-        settings,
-        list,
-        setList: newList => setList(newList),
-        applySettings: newSettings => setSettings(oldSettings => ({ ...oldSettings, ...newSettings }))
-      }}>
-      <Scrollbars
-        className="content"
-        ref={contentRef}
-        onScroll={handleScroll as any}
-        renderView={props => <div id="scrollContainer" {...props} />}
-        renderTrackHorizontal={() => <div />}
-        renderTrackVertical={props => <div {...props} className="track-vertical" />}
-        renderThumbHorizontal={() => <div />}
-        renderThumbVertical={props => <div {...props} className="thumb-vertical" />}>
-        <Toastr position={Position.TOP_RIGHT} />
+    <Scrollbars
+      className="content"
+      ref={contentRef}
+      onScroll={handleScroll as any}
+      renderView={props => <div id="scrollContainer" {...props} />}
+      renderTrackHorizontal={() => <div />}
+      renderTrackVertical={props => <div {...props} className="track-vertical" />}
+      renderThumbHorizontal={() => <div />}
+      renderThumbVertical={props => <div {...props} className="thumb-vertical" />}>
+      <Toastr position={Position.TOP_RIGHT} />
 
-        <ErrorBoundary>{children}</ErrorBoundary>
-      </Scrollbars>
-    </ContentContext.Provider>
+      <ErrorBoundary>{children}</ErrorBoundary>
+    </Scrollbars>
   );
 };

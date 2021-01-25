@@ -29,15 +29,7 @@ function getRowsForWidth(width: number): number {
 const TracksGrid: FC<Props> = props => {
   const { items, showInfo, isItemLoaded, loadMore, hasMore, isLoading, playlistID } = props;
   const loaderRef = useRef<InfiniteLoader & { _listRef: List }>(null);
-  const { setList } = useContentContext();
-  const listRef = loaderRef?.current?._listRef;
-
-  useEffect(() => {
-    if (listRef) {
-      setList(listRef);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [listRef]);
+  const { list } = useContentContext();
 
   return (
     <div className={cn('songs container-fluid')}>
@@ -77,7 +69,7 @@ const TracksGrid: FC<Props> = props => {
                 <>
                   <List
                     style={{ height: '100%', overflow: 'initial' }}
-                    ref={ref}
+                    ref={list}
                     height={window.innerHeight}
                     itemCount={itemCount}
                     onItemsRendered={onItemsRendered}

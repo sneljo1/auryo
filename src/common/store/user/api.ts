@@ -4,11 +4,11 @@ import { Collection, SoundCloud } from '@types';
 export function fetchUser(options: { userId: string | number }) {
   return fetchToJsonNew<SoundCloud.User>({
     uri: `users/${options.userId}`,
-    oauthToken: true,
-    useV2Endpoint: true
+    oauthToken: true
   });
 }
 
+// TODO: not available on the public api
 export function fetchUserTopTracks(options: { userId: number | string; limit?: number }) {
   return fetchToJsonNew<Collection<SoundCloud.Track>>({
     uri: `users/${options.userId}/toptracks`,
@@ -16,7 +16,7 @@ export function fetchUserTopTracks(options: { userId: number | string; limit?: n
     useV2Endpoint: true,
     queryParams: {
       limit: options.limit ?? 20,
-      linked_partitioning: 1
+      linked_partitioning: true
     }
   });
 }
@@ -24,30 +24,27 @@ export function fetchUserTracks(options: { userId: number | string; limit?: numb
   return fetchToJsonNew<Collection<SoundCloud.Track>>({
     uri: `users/${options.userId}/tracks`,
     clientId: true,
-    useV2Endpoint: true,
     queryParams: {
       limit: options.limit ?? 20,
-      linked_partitioning: 1
+      linked_partitioning: true
     }
   });
 }
 
 export function fetchUserLikes(options: { userId: string | string; limit?: number }) {
   return fetchToJsonNew<Collection<SoundCloud.Track>>({
-    uri: `users/${options.userId}/likes`,
+    uri: `users/${options.userId}/likes/tracks`,
     oauthToken: true,
-    useV2Endpoint: true,
     queryParams: {
       limit: options.limit ?? 20,
-      linked_partitioning: 1
+      linked_partitioning: true
     }
   });
 }
 
-export function fetchUserProfiles(options: { userUrn: string }) {
+export function fetchUserProfiles(options: { userId: string }) {
   return fetchToJsonNew<SoundCloud.UserProfiles>({
-    uri: `users/${options.userUrn}/web-profiles`,
-    oauthToken: true,
-    useV2Endpoint: true
+    uri: `users/${options.userId}/web-profiles`,
+    oauthToken: true
   });
 }

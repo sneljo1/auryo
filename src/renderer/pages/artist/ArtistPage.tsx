@@ -80,11 +80,11 @@ export const ArtistPage: FC<Props> = ({
             </div>
           )}
 
-          <ArtistProfiles className="pt-1" userUrn={artist.urn} />
+          <ArtistProfiles className="pt-1" userId={artistId} />
         </>
       );
     },
-    [artist]
+    [artist, artistId]
   );
 
   const artistTracksId = useMemo(() => ({ objectId: artistId, playlistType: PlaylistTypes.ARTIST_TRACKS }), [artistId]);

@@ -41,17 +41,17 @@ export const getUserProfilesEpic: RootEpic = action$ =>
     filter(isActionOf(getUserProfiles.request)),
     tap(action => console.log(`${action.type} from ${process.type}`)),
     pluck('payload'),
-    switchMap(({ userUrn }) => {
-      return defer(() => from(APIService.fetchUserProfiles({ userUrn }))).pipe(
+    switchMap(({ userId }) => {
+      return defer(() => from(APIService.fetchUserProfiles({ userId }))).pipe(
         map(data => {
           const entities: EntitiesOf<SoundCloud.UserProfiles> = {
             userProfileEntities: {
-              [userUrn]: data
+              [userId]: data
             }
           };
 
           return getUserProfiles.success({
-            userUrn,
+            userId,
             entities
           });
         }),
@@ -59,7 +59,7 @@ export const getUserProfilesEpic: RootEpic = action$ =>
           handleEpicError(
             action$,
             getUserProfiles.failure({
-              userUrn
+              userId
             })
           )
         )

@@ -32,7 +32,7 @@ export enum ProfileService {
 }
 
 export interface Profile extends Asset<AssetType.WEBPROFILE> {
-  network: ProfileService;
+  service: ProfileService;
   title: string;
   url: string;
   username: string;

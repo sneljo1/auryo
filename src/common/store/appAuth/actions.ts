@@ -13,7 +13,7 @@ export const login = createAsyncAction(
   wSuccess(AppAuthActionTypes.LOGIN),
   wError(AppAuthActionTypes.LOGIN),
   wCancel(AppAuthActionTypes.LOGIN)
-)<object, TokenResponse | undefined, { message?: string }, object>();
+)<object, TokenResponse | unknown, { message?: string }, object>();
 
 export const finishOnboarding = createAction(AppAuthActionTypes.FINISH_ONBOARDING)();
 export const startLoginSession = createAction(AppAuthActionTypes.START_LOGIN_SESSION)<{

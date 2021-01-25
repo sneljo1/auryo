@@ -33,19 +33,8 @@ export const getRemainingPlaysEpic: RootEpic = (action$, state$) =>
   action$.pipe(
     filter(isActionOf(getRemainingPlays.request)),
     withLatestFrom(state$),
-    map(([, state]) => configSelector(state).app.overrideClientId),
-    switchMap(overrideClientId => {
-      if (overrideClientId) {
-        return map(() =>
-          getRemainingPlays.success({
-            remaining: -1,
-            resetTime: Date.now(),
-            updatedAt: Date.now()
-          })
-        );
-      }
-
-      return from(APIService.fetchRemainingTracks(overrideClientId)).pipe(
+    switchMap(() => {
+      return from(APIService.fetchRemainingTracks()).pipe(
         map(response => {
           if (response) {
             return getRemainingPlays.success({

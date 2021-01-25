@@ -19,6 +19,10 @@ export const getAuthPlaylistLikesSelector = createSelector(getAuthLikesSelector,
 export const getAuthRepostsSelector = createSelector(getAuth, auth => auth.reposts || {});
 
 export const getAuthPlaylistsSelector = createSelector(getAuth, auth => auth.playlists.data);
+export const getOwnedAuthPlaylistsSelector = createSelector(
+  getAuthPlaylistsSelector,
+  authPlaylists => authPlaylists.owned
+);
 
 export type CombinedUserPlaylistState = { title: string; id: number } & ObjectState;
 

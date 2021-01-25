@@ -18,7 +18,7 @@ export const getUserProfiles = createAsyncAction(
   wSuccess(UserActionTypes.GET_USER_PROFILES),
   wError(UserActionTypes.GET_USER_PROFILES)
 )<
-  { userUrn: string },
-  { userUrn: string; entities: EntitiesOf<SoundCloud.UserProfiles> },
-  EpicFailure & { userUrn: string }
+  { userId: string },
+  { userId: string; entities: EntitiesOf<SoundCloud.UserProfiles> },
+  EpicFailure & { userId: string }
 >();

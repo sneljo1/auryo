@@ -280,10 +280,7 @@ export default class ChromecastManager extends Feature {
 
   private async startTrack(state: StoreState, fromCurrentTime = false) {
     const {
-      player: { playingTrack, currentTime, status, currentIndex },
-      config: {
-        app: { overrideClientId }
-      }
+      player: { playingTrack, currentTime, status, currentIndex }
     } = state;
 
     if (playingTrack && this.player) {
@@ -295,8 +292,8 @@ export default class ChromecastManager extends Feature {
 
       if (track) {
         const streamUrl = track.stream_url
-          ? SC.appendClientId(track.stream_url, overrideClientId)
-          : SC.appendClientId(`${track.uri}/stream`, overrideClientId);
+          ? SC.appendClientId(track.stream_url)
+          : SC.appendClientId(`${track.uri}/stream`);
 
         const media = {
           contentId: streamUrl,

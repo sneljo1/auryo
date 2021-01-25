@@ -68,10 +68,10 @@ export const getGenericPlaylistEpic: RootEpic = (action$, state$) =>
             ob$ = APIService.fetchStream({ limit: hideReposts ? 42 : 21 });
             break;
           case PlaylistTypes.LIKES:
-            ob$ = APIService.fetchLikes({ limit: 21, userId: me?.id || '' });
+            ob$ = APIService.fetchMyLikes({ limit: 21 });
             break;
           case PlaylistTypes.MYTRACKS:
-            ob$ = APIService.fetchMyTracks({ limit: 21, userId: me?.id || '' });
+            ob$ = APIService.fetchMyTracks({ limit: 21 });
             break;
           case PlaylistTypes.MYPLAYLISTS:
             ob$ = APIService.fetchPlaylists({ limit: 21 });
@@ -81,7 +81,7 @@ export const getGenericPlaylistEpic: RootEpic = (action$, state$) =>
               ob$ = throwError(new Error(`${playlistType}: objectId=${objectId} must be defined`));
               break;
             }
-            ob$ = APIService.fetchRelatedTracks({ limit: 21, trackId: objectId, userId: me?.id || '' });
+            ob$ = APIService.fetchRelatedTracks({ limit: 21, trackId: objectId });
             break;
           case PlaylistTypes.PLAYLIST:
             if (!objectId) {
@@ -130,7 +130,7 @@ export const getGenericPlaylistEpic: RootEpic = (action$, state$) =>
               return processStreamItems(state)(json as Collection<APIService.FeedItem>);
             case PlaylistTypes.LIKES:
             case PlaylistTypes.ARTIST_LIKES:
-              return processLikeItems(state)(json as Collection<APIService.LikeItem>);
+              return processLikeItems(state)(json as Collection<SoundCloud.Track>);
             case PlaylistTypes.MYTRACKS:
             case PlaylistTypes.RELATED:
             case PlaylistTypes.ARTIST_TRACKS:
@@ -299,8 +299,6 @@ export const searchEpic: RootEpic = (action$, state$) =>
           case PlaylistTypes.SEARCH_PLAYLIST:
             if (query && query.length) {
               ob$ = APIService.searchAll({ query, limit: 21, type: 'playlists_without_albums' });
-            } else if (tag) {
-              ob$ = APIService.fetchPlaylistsByTag({ tag, limit: 21 });
             }
             break;
           case PlaylistTypes.SEARCH_USER:
@@ -636,11 +634,8 @@ const processStreamItems = (state: StoreState) => (json: Collection<APIService.F
   };
 };
 
-const processLikeItems = (_state: StoreState) => (json: Collection<APIService.LikeItem>) => {
-  return normalizeCollection<SoundCloud.Track>({
-    ...json,
-    collection: json.collection.filter(({ track }) => !!track).map(({ track }) => track)
-  });
+const processLikeItems = (_state: StoreState) => (json: Collection<SoundCloud.Track>) => {
+  return normalizeCollection<SoundCloud.Track>(json);
 };
 
 const processTracks = (_state: StoreState) => (json: Collection<SoundCloud.Track>) => {

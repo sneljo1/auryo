@@ -1,10 +1,10 @@
 // TYPES
 export interface UserState {
   loading: number[];
-  error: { [userId: string]: Error | null };
+  error: { [userId: string]: Error | null | undefined };
 
   userProfilesLoading: string[];
-  userProfilesError: { [userId: string]: Error | null };
+  userProfilesError: { [userId: string]: Error | null | undefined };
 }
 // ACTIONS
 

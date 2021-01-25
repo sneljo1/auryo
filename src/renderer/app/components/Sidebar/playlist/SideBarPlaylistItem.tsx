@@ -13,7 +13,7 @@ interface Props {
 }
 
 const SideBarPlaylistItem: FC<Props> = ({ playlistId, isPlaying }) => {
-  const playlist = useSelector(state => getNormalizedPlaylist(playlistId)(state));
+  const playlist = useSelector(getNormalizedPlaylist(playlistId));
   const playerStatus = useSelector(getPlayerStatusSelector);
   const isActuallyPlaying = playerStatus === PlayerStatus.PLAYING;
 

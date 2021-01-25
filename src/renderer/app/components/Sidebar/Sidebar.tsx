@@ -1,4 +1,4 @@
-import { getAuthPlaylistsSelector, getCurrentPlaylistId } from '@common/store/selectors';
+import { getCurrentPlaylistId, getOwnedAuthPlaylistsSelector } from '@common/store/selectors';
 import { PlaylistTypes } from '@common/store/types';
 import React, { FC } from 'react';
 import Scrollbars from 'react-custom-scrollbars';
@@ -10,8 +10,8 @@ import * as styles from './Sidebar.module.scss';
 type AllProps = RouteComponentProps;
 
 const SideBar: FC<AllProps> = () => {
-  const authPlaylists = useSelector(state => getAuthPlaylistsSelector(state).owned);
-  const currentPlaylistId = useSelector(state => getCurrentPlaylistId(state));
+  const authPlaylists = useSelector(getOwnedAuthPlaylistsSelector);
+  const currentPlaylistId = useSelector(getCurrentPlaylistId);
 
   return (
     <aside id="sidebar" role="navigation" className={styles.sidebar}>

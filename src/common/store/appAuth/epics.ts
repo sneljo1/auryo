@@ -74,7 +74,7 @@ export const finishOnboardingEpic: RootEpic = action$ =>
   action$.pipe(
     filter(isActionOf(finishOnboarding)),
     tap(payload => console.log('finishOnboardingEpic', payload)),
-    exhaustMap(() => of(setConfigKey('lastLogin', Date.now()), login.success()))
+    exhaustMap(() => of(setConfigKey('lastLogin', Date.now()), login.success({})))
   );
 
 export const logoutEpic: RootEpic = action$ =>

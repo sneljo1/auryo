@@ -10,6 +10,7 @@ export interface FeedItem {
   user: SoundCloud.CompactUser;
 }
 
+// TODO: Unable to migrate to public API because repost user is not available on the API
 export function fetchStream(options: { limit?: number }) {
   return fetchToJsonNew<Collection<FeedItem>>({
     uri: 'stream',
@@ -22,18 +23,23 @@ export function fetchStream(options: { limit?: number }) {
 }
 
 // Likes
-export interface LikeItem {
-  kind: 'like';
-  track: SoundCloud.Track;
-  created_at: string;
+export function fetchMyLikes(options: { limit?: number }) {
+  return fetchToJsonNew<Collection<SoundCloud.Track>>({
+    uri: `me/likes/tracks`,
+    oauthToken: true,
+    queryParams: {
+      linked_partitioning: true,
+      limit: options.limit ?? 20
+    }
+  });
 }
 
-export function fetchLikes(options: { userId?: string | number; limit?: number }) {
-  return fetchToJsonNew<Collection<LikeItem>>({
-    uri: `users/${options.userId}/track_likes`,
+export function fetchUserLikes(options: { userId: string | number; limit?: number }) {
+  return fetchToJsonNew<Collection<SoundCloud.Track>>({
+    uri: `users/${options.userId}/likes/tracks`,
     oauthToken: true,
-    useV2Endpoint: true,
     queryParams: {
+      linked_partitioning: true,
       limit: options.limit ?? 20
     }
   });
@@ -48,6 +54,7 @@ export interface PlaylistItem {
   uuid: string;
 }
 
+// TODO: Unable to migrate to public API because liked playlists does not exist
 export function fetchPlaylists(options: { limit?: number }) {
   return fetchToJsonNew<Collection<PlaylistItem>>({
     uri: `me/library/albums_playlists_and_system_playlists`,
@@ -60,12 +67,12 @@ export function fetchPlaylists(options: { limit?: number }) {
 }
 
 // My tracks
-export function fetchMyTracks(options: { userId?: string | number; limit?: number }) {
+export function fetchMyTracks(options: { limit?: number }) {
   return fetchToJsonNew<Collection<SoundCloud.Track>>({
-    uri: `users/${options.userId}/tracks`,
+    uri: `me/tracks`,
     oauthToken: true,
-    useV2Endpoint: true,
     queryParams: {
+      linked_partitioning: true,
       limit: options.limit ?? 20
     }
   });
@@ -77,6 +84,7 @@ export interface ChartItem {
   track: SoundCloud.Track;
 }
 
+// TODO: Unable to migrate to public API because this does not exist yet onthere
 export function fetchCharts(options: { limit?: number; sort?: SortTypes; genre: string }) {
   return fetchToJsonNew<Collection<ChartItem>>({
     uri: `charts`,
@@ -94,8 +102,8 @@ export function fetchCharts(options: { limit?: number; sort?: SortTypes; genre: 
 export function fetchPlaylist(options: { limit?: number; playlistId: number | string }) {
   return fetchToJsonNew<SoundCloud.Playlist>({
     uri: `playlists/${options.playlistId}`,
-    oauthToken: true,
-    useV2Endpoint: true
+    oauthToken: true
+    // useV2Endpoint: true
   });
 }
 
@@ -104,7 +112,6 @@ export function fetchTracks(options: { ids: number[] }) {
   return fetchToJsonNew<SoundCloud.Track[]>({
     uri: `tracks`,
     oauthToken: true,
-    useV2Endpoint: true,
     queryParams: {
       ids: options.ids.join(',')
     }
@@ -143,18 +150,6 @@ export function searchAll(options: {
     oauthToken: true,
     useV2Endpoint: true,
     queryParams
-  });
-}
-
-export function fetchPlaylistsByTag(options: { limit?: number; tag: string }) {
-  return fetchToJsonNew<Collection<SoundCloud.Playlist>>({
-    uri: `playlists/discovery`,
-    oauthToken: true,
-    useV2Endpoint: true,
-    queryParams: {
-      limit: options.limit ?? 20,
-      tag: options.tag
-    }
   });
 }
 
