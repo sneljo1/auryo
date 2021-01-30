@@ -2,30 +2,30 @@ import { routerActions } from 'connected-react-router';
 import { of } from 'rxjs';
 import { debounceTime, filter, map, switchMap, withLatestFrom, pluck } from 'rxjs/operators';
 import { isActionOf } from 'typesafe-actions';
-import { PlaylistTypes } from '../types';
+import { PlaylistTypes } from '../../common/store/types';
 import {
   setDebouncedDimensions,
   setDebouncedSearchQuery,
   setDimensions,
   setSearchQuery,
   getSearchPlaylist
-} from '../actions';
-import { RootEpic } from '../declarations';
+} from '../../common/store/actions';
+import { RootEpic } from '../../common/store/declarations';
 
-export const setDebouncedDimensionsEpic: RootEpic = action$ =>
+export const setDebouncedDimensionsEpic: RootEpic = (action$) =>
   action$.pipe(
     filter(isActionOf(setDebouncedDimensions)),
     debounceTime(500),
     pluck('payload'),
-    map(payload => setDimensions(payload))
+    map((payload) => setDimensions(payload))
   );
 
-export const setDebouncedSearchQueryEpic: RootEpic = action$ =>
+export const setDebouncedSearchQueryEpic: RootEpic = (action$) =>
   action$.pipe(
     filter(isActionOf(setDebouncedSearchQuery)),
     debounceTime(250),
     pluck('payload'),
-    map(query =>
+    map((query) =>
       setSearchQuery({
         query
       })

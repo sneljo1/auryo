@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import FallbackImage from '../../../../../_shared/FallbackImage';
 import { TextShortener } from '../../../../../_shared/TextShortener';
-import * as styles from './TrackInfo.module.scss';
+import styles from './TrackInfo.module.scss';
 
 interface Props {
   img: string;

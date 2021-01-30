@@ -37,7 +37,7 @@ function makeUrl(uri: string, opts: any, v2 = false) {
 
   // Add query params
   url += `?${Object.keys(options)
-    .map(k => `${encodeURIComponent(k)}=${encodeURIComponent(options[k])}`)
+    .map((k) => `${encodeURIComponent(k)}=${encodeURIComponent(options[k])}`)
     .join('&')}`;
 
   return url;

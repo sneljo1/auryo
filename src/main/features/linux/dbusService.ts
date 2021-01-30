@@ -22,7 +22,7 @@ export default class DbusService extends LinuxFeature {
     const session = dbus.sessionBus();
 
     try {
-      await Promise.all(['mate', 'gnome'].map(platform => this.registerBindings(platform, session)));
+      await Promise.all(['mate', 'gnome'].map((platform) => this.registerBindings(platform, session)));
     } catch (err) {
       this.logger.trace({ err }, 'Error registering platform');
     }

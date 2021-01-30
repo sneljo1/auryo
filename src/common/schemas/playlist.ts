@@ -8,7 +8,7 @@ const playlistSchema = new schema.Entity('playlistEntities', {
     {
       tracks: trackSchema
     },
-    input => `${input.kind}s`
+    (input) => `${input.kind}s`
   )
 });
 

@@ -12,7 +12,7 @@ const initialState: UIState = {
 };
 
 export const uiReducer = createReducer<UIState>(initialState)
-  .handleAction(clearToasts, state => {
+  .handleAction(clearToasts, (state) => {
     return {
       ...state,
       toasts: []
@@ -27,7 +27,7 @@ export const uiReducer = createReducer<UIState>(initialState)
   .handleAction(removeToast, (state, action) => {
     return {
       ...state,
-      toasts: [...state.toasts.filter(t => t.key === action.payload)]
+      toasts: [...state.toasts.filter((t) => t.key === action.payload)]
     };
   })
   // .handleAction(setDimensions, (state, action) => {

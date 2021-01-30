@@ -26,13 +26,13 @@ export const appAuthReducer = createReducer<AppAuthState>(initialState)
       codeVerifier: payload.codeVerifier
     };
   })
-  .handleAction(verifyLoginSession, state => {
+  .handleAction(verifyLoginSession, (state) => {
     return {
       ...state,
       isLoading: true
     };
   })
-  .handleAction([login.success, login.cancel], state => {
+  .handleAction([login.success, login.cancel], (state) => {
     return {
       ...state,
       isLoading: false

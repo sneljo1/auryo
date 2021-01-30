@@ -8,6 +8,20 @@ export function fetchTrack(options: { trackId: string | number }) {
   });
 }
 
+interface Streams {
+  http_mp3_128_url: string;
+  hls_mp3_128_url: string;
+  hls_opus_64_url: string;
+  preview_mp3_128_url: string;
+}
+
+export function fetchStreams(options: { trackId: string | number }) {
+  return fetchToJsonNew<Streams>({
+    uri: `tracks/${options.trackId}/streams`,
+    oauthToken: true
+  });
+}
+
 export function fetchComments(options: { trackId: number; limit?: number }) {
   return fetchToJsonNew<Collection<SoundCloud.Comment>>({
     uri: `tracks/${options.trackId}/comments`,

@@ -58,3 +58,4 @@ AUR-repo
 test/e2e/_utils/token.txt
 auryo-snap
 dll
+.webpack/

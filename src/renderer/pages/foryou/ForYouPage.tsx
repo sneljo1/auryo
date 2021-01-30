@@ -8,32 +8,32 @@ import { RouteComponentProps } from 'react-router-dom';
 import { SoundCloud } from '../../../types';
 import Spinner from '../../_shared/Spinner/Spinner';
 import { PersonalizedPlaylistCard } from './components/PersonalizedPlaylistCard/PersonalizedPlaylistCard';
-import * as styles from './ForYouPage.module.scss';
+import styles from './ForYouPage.module.scss';
 
 type Props = RouteComponentProps;
 
 export const ForYou: FC<Props> = () => {
   const dispatch = useDispatch();
   const [itemsOpen, setItemsOpen] = useState<{ [key: string]: number }>({});
-  const loading = useSelector(state => getAuthPersonalizedPlaylistsSelector(state).loading);
-  const items = useSelector(state => getAuthPersonalizedPlaylistsSelector(state).items);
-  const error = useSelector(state => getAuthPersonalizedPlaylistsSelector(state).error);
+  const isLoading = useSelector((state) => getAuthPersonalizedPlaylistsSelector(state).isLoading);
+  const items = useSelector((state) => getAuthPersonalizedPlaylistsSelector(state).items);
+  const error = useSelector((state) => getAuthPersonalizedPlaylistsSelector(state).error);
   const playlistEntities = useSelector(getPlaylistEntities());
 
   useEffect(() => {
     dispatch(stopForwarding(getForYouSelection.request()));
   }, [dispatch]);
 
-  if (loading && !items?.length && !error) {
+  if (isLoading && !items?.length && !error) {
     return <Spinner contained />;
   }
 
   const rest = items ? [...items] : [];
 
-  const weeklyIndex = rest.findIndex(i => i.query_urn?.indexOf('weekly') !== -1);
+  const weeklyIndex = rest.findIndex((i) => i.query_urn?.indexOf('weekly') !== -1);
   const weekly = rest.splice(weeklyIndex, 1)[0];
 
-  const uploadIndex = rest.findIndex(i => i.query_urn?.indexOf('newforyou') !== -1);
+  const uploadIndex = rest.findIndex((i) => i.query_urn?.indexOf('newforyou') !== -1);
   const upload = rest.splice(uploadIndex, 1)[0];
 
   const combinedCollection = [...(weekly?.items.collection || []), ...(upload?.items.collection || [])];
@@ -49,7 +49,7 @@ export const ForYou: FC<Props> = () => {
         <div className={styles.subtitle}>{description}</div>
 
         <div className={cn(styles.playlists, 'row')}>
-          {collection.slice(0, shown || 6).map(id => {
+          {collection.slice(0, shown || 6).map((id) => {
             const playlist: SoundCloud.SystemPlaylist = playlistEntities[id];
 
             if (!playlist) {
@@ -95,7 +95,7 @@ export const ForYou: FC<Props> = () => {
   return (
     <div className={styles.container}>
       {weekly && renderPlaylist('Made for you', 'Playlists created by SoundCloud just for you', combinedCollection)}
-      {rest && rest.map(i => <div key={i.urn}>{renderPlaylist(i.title, i.description, i.items.collection)}</div>)}
+      {rest && rest.map((i) => <div key={i.urn}>{renderPlaylist(i.title, i.description, i.items.collection)}</div>)}
     </div>
   );
 };

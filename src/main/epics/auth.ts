@@ -33,11 +33,11 @@ import {
 } from 'rxjs/operators';
 import { isActionOf } from 'typesafe-actions';
 import { v4 } from 'uuid';
-import { CONFIG } from '../../../config';
+import { CONFIG } from '../../config';
 
 const logger = Logger.createLogger('EPIC/main/auth');
 
-export const loginEpic: RootEpic = action$ =>
+export const loginEpic: RootEpic = (action$) =>
   // @ts-expect-error
   action$.pipe(
     filter(isActionOf(login.request)),
@@ -92,7 +92,7 @@ export const loginEpic: RootEpic = action$ =>
               ).pipe(
                 pluck('data'),
                 map(login.success),
-                catchError(err => {
+                catchError((err) => {
                   logger.error('Error during login', err);
                   return of(logout(), login.failure({}));
                 })
@@ -102,7 +102,7 @@ export const loginEpic: RootEpic = action$ =>
             of(login.failure({ message: 'The session may have expired, please try logging in again.' }))
           )
         ),
-        catchError(err => {
+        catchError((err) => {
           if (err.name === 'TimeoutError') {
             return of(login.cancel({}));
           }
@@ -131,14 +131,14 @@ export const tokenRefreshEpic: RootEpic = (action$, state$) =>
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded'
         },
-        selector: res => {
+        selector: (res) => {
           if (!res.ok) throw res as any;
 
           return res.json();
         }
       }).pipe(
         map(tokenRefresh.success),
-        catchError(err => {
+        catchError((err) => {
           logger.error('Error refreshing token', err);
           return of(logout(), tokenRefresh.failure({}));
         })

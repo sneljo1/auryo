@@ -6,7 +6,7 @@ if (process.env.TOKEN) {
   process.env.ENV = 'test';
 }
 
-if (process.argv.some(arg => arg === '--development') || process.argv.some(arg => arg === '--dev')) {
+if (process.argv.some((arg) => arg === '--development') || process.argv.some((arg) => arg === '--dev')) {
   process.env.ENV = 'development';
 }
 

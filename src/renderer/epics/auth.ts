@@ -3,7 +3,7 @@ import { Normalized, ObjectMap } from '@types';
 import { StoreState, _StoreState } from 'AppReduxTypes';
 import { StateObservable } from 'redux-observable';
 import { defer, EMPTY, forkJoin, from, of, throwError } from 'rxjs';
-import { catchError, filter, first, map, mergeMap, retry, retryWhen, switchMap, withLatestFrom } from 'rxjs/operators';
+import { catchError, filter, first, map, mergeMap, switchMap, withLatestFrom } from 'rxjs/operators';
 import { EmptyAction, isActionOf } from 'typesafe-actions';
 import {
   getCurrentUser,
@@ -13,22 +13,22 @@ import {
   getCurrentUserRepostIds,
   toggleLike,
   toggleRepost
-} from '../actions';
-import { RootEpic } from '../declarations';
-import { getPlayingTrackSelector } from '../player/selectors';
-import { currentUserSelector, hasLiked, hasReposted } from '../selectors';
-import { LikeType, RepostType } from '../types';
-import { toggleFollowing, ToggleLikeRequestPayload, ToggleRepostRequestPayload } from './actions';
-import * as APIService from './api';
-import { isFollowing } from './selectors';
+} from '../../common/store/actions';
+import { RootEpic } from '../../common/store/declarations';
+import { getPlayingTrackSelector } from '../../common/store/player/selectors';
+import { currentUserSelector, hasLiked, hasReposted } from '../../common/store/selectors';
+import { LikeType, RepostType } from '../../common/store/types';
+import { toggleFollowing, ToggleLikeRequestPayload, ToggleRepostRequestPayload } from '../../common/store/auth/actions';
+import * as APIService from '../../common/store/auth/api';
+import { isFollowing } from '../../common/store/auth/selectors';
 
-export const getCurrentUserEpic: RootEpic = action$ =>
+export const getCurrentUserEpic: RootEpic = (action$) =>
   // @ts-expect-error
   action$.pipe(
     filter(isActionOf(getCurrentUser.request)),
     switchMap(() =>
       defer(() => from(APIService.fetchCurrentUser())).pipe(
-        map(v => getCurrentUser.success(v)),
+        map((v) => getCurrentUser.success(v)),
         catchError(handleEpicError(action$, getCurrentUser.failure({})))
       )
     )
@@ -43,13 +43,13 @@ export const getCurrentUserFollowingIdsEpic: RootEpic = (action$, state$) =>
       defer(() => from(APIService.fetchUserFollowingIds(userId as number))).pipe(
         // Map array to object with booleans for performance
         map(mapToObject),
-        map(v => getCurrentUserFollowingsIds.success(v)),
+        map((v) => getCurrentUserFollowingsIds.success(v)),
         catchError(handleEpicError(action$, getCurrentUserFollowingsIds.failure({})))
       )
     )
   );
 
-export const getCurrentUserLikeIdsEpic: RootEpic = action$ =>
+export const getCurrentUserLikeIdsEpic: RootEpic = (action$) =>
   action$.pipe(
     filter(isActionOf(getCurrentUserLikeIds.request)),
     mergeMap(() =>
@@ -72,7 +72,7 @@ export const getCurrentUserLikeIdsEpic: RootEpic = action$ =>
     )
   );
 
-export const getCurrentUserRepostIdsEpic: RootEpic = action$ =>
+export const getCurrentUserRepostIdsEpic: RootEpic = (action$) =>
   action$.pipe(
     filter(isActionOf(getCurrentUserRepostIds.request)),
     mergeMap(() =>
@@ -93,14 +93,14 @@ export const getCurrentUserRepostIdsEpic: RootEpic = action$ =>
     )
   );
 
-export const getCurrentUserPlaylistsEpic: RootEpic = action$ =>
+export const getCurrentUserPlaylistsEpic: RootEpic = (action$) =>
   action$.pipe(
     filter(isActionOf(getCurrentUserPlaylists.request)),
     switchMap(() =>
       defer(() => from(APIService.fetchPlaylists())).pipe(
-        map(response => {
+        map((response) => {
           const likedPlaylistIds = response.normalized.result
-            .filter(playlist => playlist.type === 'playlist-like')
+            .filter((playlist) => playlist.type === 'playlist-like')
             .map(
               (playlist): Normalized.NormalizedResult => ({
                 id: +playlist.playlist,
@@ -109,7 +109,7 @@ export const getCurrentUserPlaylistsEpic: RootEpic = action$ =>
             );
 
           const playlistIds = response.normalized.result
-            .filter(playlist => playlist.type === 'playlist')
+            .filter((playlist) => playlist.type === 'playlist')
             .map(
               (playlist): Normalized.NormalizedResult => ({
                 id: +playlist.playlist,
@@ -168,10 +168,10 @@ export const toggleLikeEpic: RootEpic = (action$, state$) =>
 
         switch (type) {
           case LikeType.Track:
-            ob$ = APIService.toggleTrackLike({ trackId: id, userId, like: !isLiked });
+            ob$ = APIService.toggleTrackLike({ trackId: id, like: !isLiked });
             break;
           case LikeType.Playlist:
-            ob$ = APIService.togglePlaylistLike({ playlistId: id, userId, like: !isLiked });
+            ob$ = APIService.togglePlaylistLike({ playlistId: id, like: !isLiked });
             break;
           case LikeType.SystemPlaylist:
             ob$ = APIService.toggleSystemPlaylistLike({ playlistUrn: id.toString(), userId, like: !isLiked });
@@ -323,7 +323,7 @@ const getCurrentUserFromState = (state$: StateObservable<StoreState>) => ([actio
   }
 
   return state$.pipe(
-    mergeMap(latestState => {
+    mergeMap((latestState) => {
       const userId = currentUserSelector(latestState)?.id;
 
       return userId ? of([action, userId]) : EMPTY;

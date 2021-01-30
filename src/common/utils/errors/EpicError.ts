@@ -1,6 +1,6 @@
 import { logout, tokenRefresh } from '@common/store/actions';
-import { _RootAction } from '@common/store/declarations';
 import { Logger } from '@main/utils/logger';
+import { RootAction } from 'AppReduxTypes';
 import { ActionsObservable } from 'redux-observable';
 import { EMPTY, ObservableInput, of } from 'rxjs';
 import { filter, mergeMapTo, startWith, take, takeUntil } from 'rxjs/operators';
@@ -20,7 +20,7 @@ export class EpicError extends Error {
 
 const logger = Logger.createLogger('EPIC');
 
-export const handleEpicError = <A>(action$: ActionsObservable<_RootAction>, actionOnFail?: A) => (
+export const handleEpicError = <A>(action$: ActionsObservable<RootAction>, actionOnFail?: A) => (
   error: any,
   source: ObservableInput<any>
 ) => {

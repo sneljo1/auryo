@@ -28,7 +28,7 @@ const initialObjectsState: ObjectState = {
 };
 
 const objectState = createReducer<ObjectState>(initialObjectsState)
-  .handleAction([getGenericPlaylist.request, setPlaylistLoading, getComments.request, setCommentsLoading], state => {
+  .handleAction([getGenericPlaylist.request, setPlaylistLoading, getComments.request, setCommentsLoading], (state) => {
     return {
       ...state,
       isFetching: true,
@@ -55,12 +55,12 @@ const objectState = createReducer<ObjectState>(initialObjectsState)
     let itemsToFetch: Normalized.NormalizedResult[] = [];
 
     if (payload.fetchedItemsIds) {
-      itemsToAdd = itemsToAdd.filter(i => payload.fetchedItemsIds?.includes(i.id));
+      itemsToAdd = itemsToAdd.filter((i) => payload.fetchedItemsIds?.includes(i.id));
 
       if (payload.result.length !== itemsToAdd.length) {
         // Filter out difference between arrays
         itemsToFetch = [payload.result, itemsToAdd].reduce((a, b) =>
-          a.filter(c => !b.map(({ id }) => id).includes(c.id))
+          a.filter((c) => !b.map(({ id }) => id).includes(c.id))
         );
       }
     }
@@ -84,7 +84,7 @@ const objectState = createReducer<ObjectState>(initialObjectsState)
   .handleAction(genericPlaylistFetchMore.success, (state, { payload }) => {
     const { result = [], fetchedItemsIds = [] } = payload;
 
-    const itemsToFetch = state.itemsToFetch.filter(a => !fetchedItemsIds.includes(a.id));
+    const itemsToFetch = state.itemsToFetch.filter((a) => !fetchedItemsIds.includes(a.id));
 
     return {
       ...state,
@@ -512,7 +512,7 @@ export const objectsReducer = createReducer<ObjectsState>(initialState)
     const queuePlaylist = state[PlaylistTypes.QUEUE];
     const newItems = [...queuePlaylist.items];
 
-    const indexToReplace = _.findIndex(newItems, item => _.isEqual(item, playlistItem));
+    const indexToReplace = _.findIndex(newItems, (item) => _.isEqual(item, playlistItem));
 
     if (indexToReplace === -1) {
       return state;

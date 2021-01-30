@@ -118,7 +118,7 @@ export const GenericPlaylist: FC<Props> = ({
           items={playlistObject.items}
           playlistID={{ playlistType, objectId }}
           showInfo={showInfo}
-          isItemLoaded={index => !!playlistObject.items[index]}
+          isItemLoaded={(index) => !!playlistObject.items[index]}
           loadMore={loadMore}
           isLoading={playlistObject.isFetching}
           hasMore={!!playlistObject.nextUrl && !playlistObject.error && !playlistObject.isFetching}

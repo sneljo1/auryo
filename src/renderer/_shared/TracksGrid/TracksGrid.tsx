@@ -8,7 +8,7 @@ import InfiniteLoader from 'react-window-infinite-loader';
 import { useContentContext } from '../context/contentContext';
 import Spinner from '../Spinner/Spinner';
 import { TrackGridRow } from './TrackGridRow';
-import * as styles from './TracksGrid.module.scss';
+import styles from './TracksGrid.module.scss';
 
 interface Props {
   playlistID: PlaylistIdentifier;
@@ -26,7 +26,7 @@ function getRowsForWidth(width: number): number {
   return Math.floor(width / 255);
 }
 
-const TracksGrid: FC<Props> = props => {
+const TracksGrid: FC<Props> = (props) => {
   const { items, showInfo, isItemLoaded, loadMore, hasMore, isLoading, playlistID } = props;
   const loaderRef = useRef<InfiniteLoader & { _listRef: List }>(null);
   const { list } = useContentContext();

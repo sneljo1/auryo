@@ -12,7 +12,7 @@ export const genericSchema = new schema.Array(
     tracks: trackSchema,
     users: userSchema
   },
-  input => `${input.kind}s`
+  (input) => `${input.kind}s`
 );
 
 export const normalizeArray = <T>(data: T[]) => {

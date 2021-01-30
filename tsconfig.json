@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "target": "es5",
     "module": "commonjs",
     "lib": [
       "dom",
@@ -26,6 +25,7 @@
     "strict": false,
     "skipLibCheck": true,
     "jsx": "react",
+    "outDir": "dist",
     "typeRoots": [
       "./types",
       "node_modules/@types"
@@ -53,13 +53,7 @@
     "sourceMap": true
   },
   "include": [
-    "src"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "./types",
-    "**/*.babel.js"
+    "src/**/*"
   ],
   "formatCodeOptions": {
     "indentSize": 4,

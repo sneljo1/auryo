@@ -70,7 +70,7 @@ export const QueueItem: FC<Props> = ({ playing, played, item, index }) => {
           played,
           playing
         })}
-        onClick={e => {
+        onClick={(e) => {
           if ((e.target as any).className !== 'bx bx-dots-horizontal-rounded') {
             dispatch(stopForwarding(playTrackFromQueue({ idResult: item, index })));
           }
@@ -81,7 +81,7 @@ export const QueueItem: FC<Props> = ({ playing, played, item, index }) => {
         <div className="item-info">
           <div className="title">
             <Link
-              onClick={e => {
+              onClick={(e) => {
                 e.stopPropagation();
                 e.nativeEvent.stopImmediatePropagation();
               }}
@@ -91,7 +91,7 @@ export const QueueItem: FC<Props> = ({ playing, played, item, index }) => {
           </div>
           <div className="stats">
             <Link
-              onClick={e => {
+              onClick={(e) => {
                 e.stopPropagation();
                 e.nativeEvent.stopImmediatePropagation();
               }}

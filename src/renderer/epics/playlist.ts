@@ -36,18 +36,13 @@ import {
   resolvePlaylistItems,
   searchPlaylistFetchMore,
   setPlaylistLoading
-} from '../actions';
-import * as APIService from '../api';
-import { RootEpic } from '../declarations';
-import { ObjectState, ObjectStateItem } from '../objects';
-import {
-  currentUserSelector,
-  getPlaylistObjectSelector,
-  getQueuePlaylistSelector,
-  shuffleSelector
-} from '../selectors';
-import { ObjectTypes, PlaylistTypes } from '../types';
-import { PlaylistIdentifier } from './types';
+} from '../../common/store/actions';
+import * as APIService from '../../common/store/api';
+import { RootEpic } from '../../common/store/declarations';
+import { ObjectState, ObjectStateItem } from '../../common/store/objects';
+import { getPlaylistObjectSelector, getQueuePlaylistSelector, shuffleSelector } from '../../common/store/selectors';
+import { ObjectTypes, PlaylistTypes } from '../../common/store/types';
+import { PlaylistIdentifier } from '../../common/store/playlist/types';
 
 export const getGenericPlaylistEpic: RootEpic = (action$, state$) =>
   action$.pipe(
@@ -58,7 +53,6 @@ export const getGenericPlaylistEpic: RootEpic = (action$, state$) =>
       const {
         config: { hideReposts }
       } = state;
-      const me = currentUserSelector(state);
 
       return defer(() => {
         let ob$;
@@ -124,7 +118,7 @@ export const getGenericPlaylistEpic: RootEpic = (action$, state$) =>
 
         return ob$;
       }).pipe(
-        map(json => {
+        map((json) => {
           switch (playlistType) {
             case PlaylistTypes.STREAM:
               return processStreamItems(state)(json as Collection<APIService.FeedItem>);
@@ -149,7 +143,7 @@ export const getGenericPlaylistEpic: RootEpic = (action$, state$) =>
               };
           }
         }),
-        map(data =>
+        map((data) =>
           getGenericPlaylist.success({
             objectId,
             playlistType,
@@ -204,7 +198,7 @@ export const genericPlaylistFetchMoreEpic: RootEpic = (action$, state$) =>
       const { playlistType, objectId } = payload;
       const shuffle = shuffleSelector(state);
       const urlWithToken = SC.appendToken(object?.nextUrl as string);
-      const itemsToFetch = (object?.itemsToFetch.map(i => i.id) || []).slice(0, 15);
+      const itemsToFetch = (object?.itemsToFetch.map((i) => i.id) || []).slice(0, 15);
 
       return defer(() => {
         let ob$;
@@ -217,7 +211,7 @@ export const genericPlaylistFetchMoreEpic: RootEpic = (action$, state$) =>
 
         return ob$;
       }).pipe(
-        map(json => {
+        map((json) => {
           switch (originalPlaylistType) {
             case PlaylistTypes.STREAM:
               return processStreamItems(state)(json);
@@ -242,7 +236,7 @@ export const genericPlaylistFetchMoreEpic: RootEpic = (action$, state$) =>
               };
           }
         }),
-        map(data =>
+        map((data) =>
           genericPlaylistFetchMore.success({
             objectId,
             playlistType,
@@ -272,7 +266,7 @@ export const genericPlaylistFetchMoreEpic: RootEpic = (action$, state$) =>
 export const searchEpic: RootEpic = (action$, state$) =>
   action$.pipe(
     filter(isActionOf(getSearchPlaylist)),
-    tap(action => console.log(`${action.type} from ${process.type}`)),
+    tap((action) => console.log(`${action.type} from ${process.type}`)),
     pluck('payload'),
     switchMap(({ playlistType, objectId, query, tag, refresh }) => {
       // TODO
@@ -311,8 +305,8 @@ export const searchEpic: RootEpic = (action$, state$) =>
 
         return ob$ ?? EMPTY;
       }).pipe(
-        map(data => normalizeCollection(data)),
-        map(data =>
+        map((data) => normalizeCollection(data)),
+        map((data) =>
           getGenericPlaylist.success({
             objectId,
             playlistType,
@@ -358,7 +352,7 @@ export const searchFetchMoreEpic: RootEpic = (action$, state$) =>
 
       return defer(() => from(APIService.fetchFromUrl<any>(urlWithToken))).pipe(
         map(normalizeCollection),
-        map(data =>
+        map((data) =>
           genericPlaylistFetchMore.success({
             objectId,
             playlistType,
@@ -384,17 +378,17 @@ export const searchFetchMoreEpic: RootEpic = (action$, state$) =>
     })
   );
 
-export const getForYouSelectionEpic: RootEpic = action$ =>
+export const getForYouSelectionEpic: RootEpic = (action$) =>
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-expect-error
   action$.pipe(
     filter(isActionOf(getForYouSelection.request)),
-    tap(action => console.log(`${action.type} from ${process.type}`)),
+    tap((action) => console.log(`${action.type} from ${process.type}`)),
     // map(action => action.payload),
     switchMap(() => {
       return defer(() => from(APIService.fetchPersonalizedPlaylists())).pipe(
-        map(json => {
-          const collection = json.collection.filter(t => t.urn.indexOf('chart') === -1);
+        map((json) => {
+          const collection = json.collection.filter((t) => t.urn.indexOf('chart') === -1);
 
           const normalized = normalize<
             SoundCloud.Playlist,
@@ -413,8 +407,8 @@ export const getForYouSelectionEpic: RootEpic = action$ =>
 
           const objects: ForYourObject[] = [];
 
-          normalized.result.forEach(playlistResult => {
-            (playlistResult.items.collection || []).forEach(playlistId => {
+          normalized.result.forEach((playlistResult) => {
+            (playlistResult.items.collection || []).forEach((playlistId) => {
               if (normalized.entities.playlistEntities && normalized.entities.playlistEntities[playlistId]) {
                 const playlist = normalized.entities.playlistEntities[playlistId];
 
@@ -449,7 +443,7 @@ export const getPlaylistTracksEpic: RootEpic = (action$, state$) =>
     // Otherwise we cannot do much, so we wait for it and create it
     filter(isActionOf(getPlaylistTracks.request)),
     pluck('payload'),
-    mergeMap(payload => {
+    mergeMap((payload) => {
       const { objectId, playlistType } = payload;
 
       return concat(
@@ -458,17 +452,17 @@ export const getPlaylistTracksEpic: RootEpic = (action$, state$) =>
           // Wait for the playlist to exist
           map(getPlaylistObjectSelector(payload)),
           distinctUntilChanged(),
-          filter(object => !!object),
+          filter((object) => !!object),
           first(),
 
           // Fetch all tracks
-          mergeMap(object =>
+          mergeMap((object) =>
             merge(
-              from(_.chunk(object?.itemsToFetch.map(i => i.id) || [], 50)).pipe(
-                mergeMap(itemsForThisChunk =>
+              from(_.chunk(object?.itemsToFetch.map((i) => i.id) || [], 50)).pipe(
+                mergeMap((itemsForThisChunk) =>
                   defer(() => from(APIService.fetchTracks({ ids: itemsForThisChunk }))).pipe(
-                    map(json => processPlaylistTracks(json, itemsForThisChunk)),
-                    map(data =>
+                    map((json) => processPlaylistTracks(json, itemsForThisChunk)),
+                    map((data) =>
                       genericPlaylistFetchMore.success({
                         objectId,
                         playlistType,
@@ -501,16 +495,15 @@ export const getPlaylistTracksEpic: RootEpic = (action$, state$) =>
   );
 
 export const createPlaylistObjectsEpic: RootEpic = (action$, state$) =>
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-expect-error
   action$.pipe(
     filter(isActionOf([getGenericPlaylist.success, genericPlaylistFetchMore.success])),
     delay(250),
     pluck('payload', 'result'),
-    mergeMap(result =>
+    mergeMap((result) =>
       merge(
         from(result).pipe(
-          filter(item => item.schema === 'playlists'),
+          filter((item) => item.schema === 'playlists'),
           mergeMap(({ id }) =>
             createPlaylistIfNotExists$(action$, state$, {
               objectId: id.toString(),
@@ -559,12 +552,12 @@ const createPlaylistIfNotExists$ = (
         of(state$.value).pipe(
           filter(() => !!playlistID.objectId),
           map(getQueuePlaylistSelector),
-          map(queueObject =>
+          map((queueObject) =>
             playlistID?.objectId
-              ? queueObject.items.filter(i => i.schema === 'playlists' && i.id.toString() === playlistID.objectId)
+              ? queueObject.items.filter((i) => i.schema === 'playlists' && i.id.toString() === playlistID.objectId)
               : []
           ),
-          filter(playlistItemsToReplace => !!playlistItemsToReplace.length),
+          filter((playlistItemsToReplace) => !!playlistItemsToReplace.length),
           withLatestFrom(state$),
           map(([playlistItemsToReplace, latestState]) => ({
             object: getPlaylistObjectSelector(playlistID)(latestState),
@@ -574,7 +567,7 @@ const createPlaylistIfNotExists$ = (
           mergeMap(({ playlistItemsToReplace, object }) =>
             concat(
               from(playlistItemsToReplace).pipe(
-                map(playlistItem =>
+                map((playlistItem) =>
                   resolvePlaylistItems({
                     playlistItem,
                     items: [...(object as ObjectState).items, ...(object as ObjectState).itemsToFetch].map(
@@ -606,7 +599,7 @@ const processStreamItems = (state: StoreState) => (json: Collection<APIService.F
   } = state;
 
   const processedCollection = json.collection
-    .filter(info => {
+    .filter((info) => {
       if (hideReposts) {
         return !info.type.endsWith('repost');
       }
@@ -614,7 +607,7 @@ const processStreamItems = (state: StoreState) => (json: Collection<APIService.F
       // Filter out empty playlists
       return (info as APIService.FeedItem).track || (info.playlist && info.playlist.track_count);
     })
-    .map(item => {
+    .map((item) => {
       const obj = (item as APIService.FeedItem).track || (item.playlist as SoundCloud.Playlist);
 
       obj.fromUser = item.user as any;
@@ -643,7 +636,7 @@ const processTracks = (_state: StoreState) => (json: Collection<SoundCloud.Track
 };
 
 const processCharts = (_state: StoreState) => (json: Collection<APIService.ChartItem>) => {
-  const processedCollection = json.collection.map(item => {
+  const processedCollection = json.collection.map((item) => {
     const { track } = item;
     track.score = item.score;
 
@@ -675,7 +668,7 @@ const processPlaylist = (_state: StoreState) => (json: SoundCloud.Playlist, obje
       fetchedItems = json.tracks.filter((t: Partial<SoundCloud.Track>) => t.user !== undefined);
     }
 
-    const fetchedItemsIds = fetchedItems.map(item => item.id as number);
+    const fetchedItemsIds = fetchedItems.map((item) => item.id as number);
 
     return {
       json,

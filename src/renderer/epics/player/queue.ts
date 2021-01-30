@@ -2,15 +2,15 @@ import { handleEpicError } from '@common/utils/errors/EpicError';
 import { concat, of } from 'rxjs';
 import { catchError, exhaustMap, filter, map, pluck, withLatestFrom } from 'rxjs/operators';
 import { isActionOf } from 'typesafe-actions';
-import { RootEpic } from '../../declarations';
+import { RootEpic } from '../../../common/store/declarations';
 import {
   getPlayingTrackIndex,
   getPlaylistsObjects,
   getUpNextSelector,
   isIndexInUpNextSelector,
   queuedTrackIndexSelector
-} from '../../selectors';
-import { ObjectStateItem, PlaylistTypes } from '../../types';
+} from '../../../common/store/selectors';
+import { ObjectStateItem, PlaylistTypes } from '../../../common/store/types';
 import {
   addUpNext,
   playTrackFromQueue,
@@ -19,8 +19,8 @@ import {
   removeFromQueueOrUpNext,
   removeFromUpNext,
   startPlayMusic
-} from '../actions';
-import { upNextEndSelector } from '../selectors';
+} from '../../../common/store/player/actions';
+import { upNextEndSelector } from '../../../common/store/player/selectors';
 
 /**
  * If a track is played from the QUEUE, and the selected track is after the upNext.
@@ -53,8 +53,8 @@ export const playTrackFromQueueEpic: RootEpic = (action$, state$) =>
         // If there are items in upNext, we add the first one to our queue and remove them from upNext
         of(upNext).pipe(
           filter(() => !!upNextEndToAdd),
-          map(upNext => upNext.slice(0, upNextEndToAdd)),
-          map(upNextItemsToAdd => queueInsert({ items: upNextItemsToAdd, position: playingTrackIndex + 1 }))
+          map((upNext) => upNext.slice(0, upNextEndToAdd)),
+          map((upNextItemsToAdd) => queueInsert({ items: upNextItemsToAdd, position: playingTrackIndex + 1 }))
         ),
         // Then start playing the track
         of(startPlayMusic({ idResult: payload.idResult }))

@@ -43,7 +43,7 @@ export const ContentWrapper: FC = ({ children }) => {
   const debouncedSetScrollPosition = useRef(
     debounce(
       (scrollTop: number, pathname: string) => {
-        setScrollLocations(scrollLocations => ({
+        setScrollLocations((scrollLocations) => ({
           ...scrollLocations,
           [pathname]: scrollTop
         }));
@@ -71,11 +71,11 @@ export const ContentWrapper: FC = ({ children }) => {
       className="content"
       ref={contentRef}
       onScroll={handleScroll as any}
-      renderView={props => <div id="scrollContainer" {...props} />}
+      renderView={(props) => <div id="scrollContainer" {...props} />}
       renderTrackHorizontal={() => <div />}
-      renderTrackVertical={props => <div {...props} className="track-vertical" />}
+      renderTrackVertical={(props) => <div {...props} className="track-vertical" />}
       renderThumbHorizontal={() => <div />}
-      renderThumbVertical={props => <div {...props} className="thumb-vertical" />}>
+      renderThumbVertical={(props) => <div {...props} className="thumb-vertical" />}>
       <Toastr position={Position.TOP_RIGHT} />
 
       <ErrorBoundary>{children}</ErrorBoundary>

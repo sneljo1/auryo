@@ -1,5 +1,5 @@
 import React, { useState, useEffect, FC } from 'react';
-import * as styles from './PlayerProgress.module.scss';
+import styles from './PlayerProgress.module.scss';
 import { getReadableTime } from '@common/utils';
 import { Slider } from '@blueprintjs/core';
 import { useDispatch } from 'react-redux';

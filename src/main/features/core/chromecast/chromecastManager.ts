@@ -54,7 +54,7 @@ export default class ChromecastManager extends Feature {
           }
 
           if (currentValue) {
-            const device = devices.find(d => d.id === currentValue);
+            const device = devices.find((d) => d.id === currentValue);
 
             if (!device) {
               return;

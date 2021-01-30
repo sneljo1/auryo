@@ -41,8 +41,8 @@ import {
   toggleShuffle,
   toggleStatus,
   trackFinished
-} from '../../actions';
-import { RootEpic } from '../../declarations';
+} from '../../../common/store/actions';
+import { RootEpic } from '../../../common/store/declarations';
 import {
   configSelector,
   getCurrentPlaylistId,
@@ -56,7 +56,7 @@ import {
   getTrackEntity,
   getUpNextSelector,
   shuffleSelector
-} from '../../selectors';
+} from '../../../common/store/selectors';
 import {
   ChangeTypes,
   ObjectStateItem,
@@ -64,8 +64,8 @@ import {
   PlaylistIdentifier,
   PlaylistTypes,
   RepeatTypes
-} from '../../types';
-import { setCurrentIndex, shuffleQueue } from '../actions';
+} from '../../../common/store/types';
+import { setCurrentIndex, shuffleQueue } from '../../../common/store/player/actions';
 
 const logger = Logger.createLogger('REDUX/PLAYER');
 
@@ -111,20 +111,20 @@ export const startPlayMusicEpic: RootEpic = (action$, state$) =>
           () => !!payload.idResult,
           of(payload.idResult).pipe(
             filter((idResult): idResult is ObjectStateItem => !!idResult),
-            mergeMap(idResult =>
+            mergeMap((idResult) =>
               concat(
                 // If set, shuffle the playlist
                 of(shuffle).pipe(
                   filter(Boolean),
                   map(() => state$.value),
-                  map(lastestState => ({
+                  map((lastestState) => ({
                     idResult,
                     queueObject: getQueuePlaylistSelector(lastestState)
                   })),
                   map(({ queueObject, idResult: { id, un } }) => {
                     const currentTrackIndex = _.findIndex(
                       queueObject.items,
-                      item => item.id === id && ((!!item.un && !!un && item.un === un) || (!item.un && !un))
+                      (item) => item.id === id && ((!!item.un && !!un && item.un === un) || (!item.un && !un))
                     );
 
                     return shuffleQueue({ fromIndex: currentTrackIndex + 1 });
@@ -165,9 +165,9 @@ export const startPlayMusicEpic: RootEpic = (action$, state$) =>
             map(() => state$.value),
             map(getQueuePlaylistSelector),
             pluck('items'),
-            filter(items => items.length > 0),
-            map(items => items[0]),
-            map(idResult => playTrack.request({ idResult, origin }))
+            filter((items) => items.length > 0),
+            map((items) => items[0]),
+            map((idResult) => playTrack.request({ idResult, origin }))
           )
         )
       );
@@ -193,7 +193,7 @@ export const playTrackEpic: RootEpic = (action$, state$) =>
             const playlistContainingTrack = getPlaylistObjectSelector(currentPlaylistID)(latestState);
             const track = getTrackEntity(id)(latestState);
 
-            const toFetch = !!playlistContainingTrack?.itemsToFetch?.some(i => i.id === id && i.schema === 'tracks');
+            const toFetch = !!playlistContainingTrack?.itemsToFetch?.some((i) => i.id === id && i.schema === 'tracks');
 
             console.log({ track });
 
@@ -230,7 +230,7 @@ export const playTrackEpic: RootEpic = (action$, state$) =>
             return action$.pipe(
               filter(isActionOf(getTrack.success)),
               pluck('payload', 'trackId'),
-              filter(trackId => trackId === id),
+              filter((trackId) => trackId === id),
               take(1),
               takeUntil(action$.pipe(filter(isActionOf(getTrack.failure)))),
               ignoreElements(),
@@ -259,7 +259,7 @@ export const playTrackEpic: RootEpic = (action$, state$) =>
                 ? nextPosition
                 : _.findIndex(
                     queueObject.items,
-                    item => item.id === id && ((!!item.un && !!un && item.un === un) || (!item.un && !un))
+                    (item) => item.id === id && ((!!item.un && !!un && item.un === un) || (!item.un && !un))
                   );
 
             // TODO: what if position is -1?
@@ -301,7 +301,7 @@ export const playPlaylistEpic: RootEpic = (action$, state$) =>
         action$.pipe(
           filter(isActionOf(getPlaylistTracks.success)),
           pluck('payload'),
-          filter(payload => _.isEqual(currentPlaylistIdentifier, payload)),
+          filter((payload) => _.isEqual(currentPlaylistIdentifier, payload)),
           take(1),
           takeUntil(action$.pipe(filter(isActionOf(getPlaylistTracks.failure)))),
           ignoreElements(),
@@ -374,9 +374,9 @@ export const changeTrackEpic: RootEpic = (action$, state$) =>
       return concat(
         // If there are items in upNext, we add the first one to our queue
         of(upNext).pipe(
-          filter(items => items.length > 0),
+          filter((items) => items.length > 0),
           map(({ 0: firstItem }) => firstItem),
-          map(firstItem => queueInsert({ items: [firstItem], position: nextPosition }))
+          map((firstItem) => queueInsert({ items: [firstItem], position: nextPosition }))
         ),
         of(startPlayMusicIndex({ index: nextPosition, changeType }))
       );
@@ -430,8 +430,8 @@ export const startPlayMusicIndexEpic: RootEpic = (action$, state$) =>
         of(index).pipe(
           withLatestFrom(state$),
           map(([, latestState]) => getQueueTrackByIndexSelector(index)(latestState)),
-          tap(nextTrack => logger.trace({ nextTrack })),
-          filter(nextTrack => !nextTrack),
+          tap((nextTrack) => logger.trace({ nextTrack })),
+          filter((nextTrack) => !nextTrack),
           tap(() => logger.trace('startPlayMusicIndexEpic:: Track does not exist', { index })),
           mergeMap(() =>
             action$.pipe(
@@ -449,7 +449,7 @@ export const startPlayMusicIndexEpic: RootEpic = (action$, state$) =>
         of(index).pipe(
           withLatestFrom(state$),
           map(([, latestState]) => getQueueTrackByIndexSelector(index)(latestState)),
-          mergeMap(nextTrack => {
+          mergeMap((nextTrack) => {
             if (!nextTrack) {
               // TODO: what if it still does not exist
               logger.trace('startPlayMusicIndexEpic:: Track still does not exist', { index });
@@ -524,7 +524,7 @@ export const toggleShuffleEpic: RootEpic = (action$, state$) =>
   action$.pipe(
     filter(isActionOf(toggleShuffle)),
     pluck('payload'),
-    switchMap(shuffle =>
+    switchMap((shuffle) =>
       merge(
         of(setConfigKey('shuffle', shuffle)),
         // If shuffle, shuffle queue starting from index
@@ -532,15 +532,15 @@ export const toggleShuffleEpic: RootEpic = (action$, state$) =>
           filter(Boolean),
           map(() => state$.value),
           map(getPlayingTrackIndex),
-          map(fromIndex => ({ fromIndex: fromIndex + 1 })),
+          map((fromIndex) => ({ fromIndex: fromIndex + 1 })),
           map(shuffleQueue)
         ),
         of(shuffle).pipe(
-          filter(isShuffling => !isShuffling),
+          filter((isShuffling) => !isShuffling),
           map(() => state$.value),
           map(getCurrentPlaylistId),
           filter((currentPlaylistID): currentPlaylistID is PlaylistIdentifier => !!currentPlaylistID),
-          mergeMap(currentPlaylistID =>
+          mergeMap((currentPlaylistID) =>
             concat(
               merge(
                 of(setCurrentPlaylist.request({ playlistId: currentPlaylistID })),
@@ -562,7 +562,7 @@ export const toggleShuffleEpic: RootEpic = (action$, state$) =>
 
 const recalculateCurrentIndex = (state$: StateObservable<StoreState>) =>
   of(state$.value).pipe(
-    map(state => {
+    map((state) => {
       const currentPlaylistID = getCurrentPlaylistId(state);
       return {
         currentPlaylist: currentPlaylistID ? getPlaylistObjectSelector(currentPlaylistID)(state) : null,
@@ -575,13 +575,13 @@ const recalculateCurrentIndex = (state$: StateObservable<StoreState>) =>
       const un = playingTrack?.parentPlaylistID?.un ?? playingTrack?.un;
       const currentTrackIndex = _.findIndex(
         currentPlaylist?.items ?? [],
-        item => item.id === id && ((!!item.un && !!un && item.un === un) || (!item.un && !un))
+        (item) => item.id === id && ((!!item.un && !!un && item.un === un) || (!item.un && !un))
       );
 
       return currentTrackIndex;
     }),
-    filter(currentTrackIndex => currentTrackIndex !== -1),
-    map(currentTrackIndex => setCurrentIndex({ position: currentTrackIndex }))
+    filter((currentTrackIndex) => currentTrackIndex !== -1),
+    map((currentTrackIndex) => setCurrentIndex({ position: currentTrackIndex }))
   );
 
 export const trackChangeNotificationEpic: RootEpic = (action$, state$) =>
@@ -597,11 +597,11 @@ export const trackChangeNotificationEpic: RootEpic = (action$, state$) =>
       shouldShowNotification: state.config.app.showTrackChangeNotification
       // TODO: is window focussed? then do not show
     })),
-    tap(data => console.log('trackChangeNotificationEpic', data)),
+    tap((data) => console.log('trackChangeNotificationEpic', data)),
     filter(({ shouldShowNotification }) => shouldShowNotification),
     pluck('track'),
     filter<SoundCloud.Track>(Boolean),
-    tap(track => {
+    tap((track) => {
       console.log('fesfsewg', process.type);
       const myNotification = new Notification(track.title, {
         body: `${track.user && track.user.username ? track.user.username : ''}`,

@@ -1,9 +1,9 @@
 import { wError, wSuccess } from '@common/utils/reduxUtils';
-import { Normalized, SoundCloud } from '@types';
+import { Normalized } from '@types';
 import { createAction, createAsyncAction } from 'typesafe-actions';
 import { ObjectStateItem } from '../objects';
 import { PlaylistIdentifier } from '../playlist';
-import { ChangeTypes, PlayerActionTypes, PlayerStatus, PlayingTrack } from '../types';
+import { ChangeTypes, PlayerActionTypes, PlayerStatus } from '../types';
 
 export const toggleShuffle = createAction(PlayerActionTypes.TOGGLE_SHUFFLE)<boolean>();
 export const toggleStatus = createAction(PlayerActionTypes.TOGGLE_STATUS, (status?: PlayerStatus) => status)();

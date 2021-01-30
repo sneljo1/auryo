@@ -64,7 +64,7 @@ export class Feature {
 
     this.watcher = new ReduxWatcher(app.store);
 
-    this.store$ = new Observable<StoreState>(observer => {
+    this.store$ = new Observable<StoreState>((observer) => {
       // emit the current state as first value:
       observer.next(app.store.getState());
       const unsubscribe = app.store.subscribe(() => {
@@ -107,7 +107,7 @@ export class Feature {
           ({ auth: authA, player: playerA }, { auth: authB, player: playerB }) =>
             authA.likes === authB.likes && playerA.playingTrack === playerB.playingTrack
         ),
-        map(store => ({
+        map((store) => ({
           value: store.player.playingTrack ? hasLiked(store.player.playingTrack.id, 'track')(store) : false,
           store
         })),
@@ -118,8 +118,8 @@ export class Feature {
           ({ auth: authA, player: playerA }, { auth: authB, player: playerB }) =>
             authA.reposts === authB.reposts && playerA.playingTrack === playerB.playingTrack
         ),
-        filter(store => !!store.player.playingTrack),
-        map(store => ({
+        filter((store) => !!store.player.playingTrack),
+        map((store) => ({
           value: hasReposted((store.player.playingTrack as PlayingTrack).id, 'track')(store),
           store
         })),
@@ -177,21 +177,21 @@ export class Feature {
 
   public unregister(path?: string[] | string) {
     if (path) {
-      const ipcListener = this.ipclisteners.find(l => isEqual(l.name, path));
+      const ipcListener = this.ipclisteners.find((l) => isEqual(l.name, path));
 
       if (typeof path === 'string') {
         if (ipcListener) {
           ipcMain.removeAllListeners(ipcListener.name);
         }
       } else {
-        const listener = this.listeners.find(l => isEqual(l.path, path));
+        const listener = this.listeners.find((l) => isEqual(l.path, path));
 
         if (listener) {
           this.watcher.off(listener.path, listener.handler);
         }
       }
     } else {
-      this.listeners.forEach(listener => {
+      this.listeners.forEach((listener) => {
         try {
           this.watcher.off(listener.path, listener.handler);
         } catch (err) {
@@ -201,12 +201,12 @@ export class Feature {
         }
       });
 
-      this.ipclisteners.forEach(listener => {
+      this.ipclisteners.forEach((listener) => {
         ipcMain.removeAllListeners(listener.name);
       });
     }
 
-    this.timers.forEach(timeout => {
+    this.timers.forEach((timeout) => {
       clearTimeout(timeout);
     });
   }

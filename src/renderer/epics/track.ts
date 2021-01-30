@@ -5,22 +5,22 @@ import { SoundCloud } from '@types';
 import { defer, from } from 'rxjs';
 import { catchError, filter, map, pluck, startWith, switchMap, tap, withLatestFrom } from 'rxjs/operators';
 import { isActionOf } from 'typesafe-actions';
-import { commentsFetchMore, getComments, getTrack, setCommentsLoading } from '../actions';
-import { fetchFromUrl } from '../api';
-import { RootEpic } from '../declarations';
-import { getCommentObject } from '../selectors';
-import { ObjectTypes } from '../types';
-import * as APIService from './api';
+import { commentsFetchMore, getComments, getTrack, setCommentsLoading } from '../../common/store/actions';
+import { fetchFromUrl } from '../../common/store/api';
+import { RootEpic } from '../../common/store/declarations';
+import { getCommentObject } from '../../common/store/selectors';
+import { ObjectTypes } from '../../common/store/types';
+import * as APIService from '../../common/store/track/api';
 
-export const getTrackEpic: RootEpic = action$ =>
+export const getTrackEpic: RootEpic = (action$) =>
   action$.pipe(
     filter(isActionOf(getTrack.request)),
-    tap(action => console.log(`${action.type} from ${process.type}`)),
+    tap((action) => console.log(`${action.type} from ${process.type}`)),
     pluck('payload'),
     switchMap(({ trackId, refresh }) => {
       return defer(() => from(APIService.fetchTrack({ trackId }))).pipe(
-        map(track => normalizeArray<SoundCloud.Track>([track])),
-        map(data =>
+        map((track) => normalizeArray<SoundCloud.Track>([track])),
+        map((data) =>
           getTrack.success({
             trackId,
             entities: data.normalized.entities
@@ -38,15 +38,15 @@ export const getTrackEpic: RootEpic = action$ =>
     })
   );
 
-export const getCommentsEpic: RootEpic = action$ =>
+export const getCommentsEpic: RootEpic = (action$) =>
   action$.pipe(
     filter(isActionOf(getComments.request)),
-    tap(action => console.log(`${action.type} from ${process.type}`)),
+    tap((action) => console.log(`${action.type} from ${process.type}`)),
     pluck('payload'),
     switchMap(({ trackId, refresh }) => {
       return defer(() => from(APIService.fetchComments({ trackId }))).pipe(
-        map(data => normalizeCollection<SoundCloud.Comment>(data)),
-        map(data =>
+        map((data) => normalizeCollection<SoundCloud.Comment>(data)),
+        map((data) =>
           getComments.success({
             trackId,
             objectType: ObjectTypes.COMMENTS,
@@ -87,8 +87,8 @@ export const commentsFetchMoreEpic: RootEpic = (action$, state$) =>
       const urlWithToken = SC.appendToken(object?.nextUrl as string);
 
       return defer(() => from(fetchFromUrl<any>(urlWithToken))).pipe(
-        map(data => normalizeCollection<SoundCloud.Comment>(data)),
-        map(data =>
+        map((data) => normalizeCollection<SoundCloud.Comment>(data)),
+        map((data) =>
           commentsFetchMore.success({
             trackId,
             entities: data.normalized.entities,

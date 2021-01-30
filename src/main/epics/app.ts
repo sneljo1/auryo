@@ -8,25 +8,25 @@ import { isActionOf } from 'typesafe-actions';
 
 const logger = Logger.createLogger('EPIC/main/app');
 
-export const copyToClipboardEpic: RootEpic = action$ =>
+export const copyToClipboardEpic: RootEpic = (action$) =>
   // @ts-expect-error
   action$.pipe(
     filter(isActionOf(copyToClipboard)),
     pluck('payload'),
-    tap(text => clipboard.writeText(text)),
+    tap((text) => clipboard.writeText(text)),
     ignoreElements()
   );
 
-export const openExternalEpic: RootEpic = action$ =>
+export const openExternalEpic: RootEpic = (action$) =>
   // @ts-expect-error
   action$.pipe(
     filter(isActionOf(openExternalUrl)),
     pluck('payload'),
-    tap(url => shell.openExternal(url).catch(logger.error)),
+    tap((url) => shell.openExternal(url).catch(logger.error)),
     ignoreElements()
   );
 
-export const restartAppEpic: RootEpic = action$ =>
+export const restartAppEpic: RootEpic = (action$) =>
   // @ts-expect-error
   action$.pipe(
     filter(isActionOf(restartApp)),

@@ -66,7 +66,7 @@ export const ArtistProfiles: FC<Props> = ({ userId, className }) => {
 
   return (
     <div id="web-profiles" className={className}>
-      {profiles.map(profile => {
+      {profiles.map((profile) => {
         const title = getTitle(profile.title);
 
         const service = profile?.service;

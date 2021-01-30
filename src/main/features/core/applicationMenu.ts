@@ -236,7 +236,7 @@ export default class ApplicationMenu extends Feature {
       const trackId = playingTrack.id;
       const track = trackEntities[trackId];
 
-      const index = template.findIndex(r => r.label === 'Track');
+      const index = template.findIndex((r) => r.label === 'Track');
 
       if (trackId && track) {
         const liked = SC.hasID(track.id, likes.track);
@@ -261,7 +261,7 @@ export default class ApplicationMenu extends Feature {
           }
         }
       } else {
-        (template[index].submenu as MenuItemConstructorOptions[]).map(s => {
+        (template[index].submenu as MenuItemConstructorOptions[]).map((s) => {
           s.enabled = false; // eslint-disable-line
 
           return s;

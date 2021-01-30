@@ -1,4 +1,4 @@
-import immutable from 'object-path-immutable';
+import * as immutable from 'object-path-immutable';
 import { createReducer } from 'typesafe-actions';
 import { CONFIG } from '../../../config';
 import { setConfig, setConfigKey } from './actions';

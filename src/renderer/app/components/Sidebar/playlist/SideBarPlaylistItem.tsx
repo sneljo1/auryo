@@ -5,7 +5,7 @@ import React, { FC } from 'react';
 import { useSelector } from 'react-redux';
 import { NavLink } from 'react-router-dom';
 import { TextShortener } from '../../../../_shared/TextShortener';
-import * as styles from '../Sidebar.module.scss';
+import styles from '../Sidebar.module.scss';
 
 interface Props {
   playlistId: number;

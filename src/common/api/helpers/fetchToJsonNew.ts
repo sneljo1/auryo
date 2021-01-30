@@ -28,6 +28,8 @@ export default function fetchToJsonNew<T>(fetchOptions: FetchOptions, options: R
   }
 
   if (fetchOptions.oauthToken) {
+    if (!memToken) throw new Error('No token');
+
     queryParams.oauth_token = memToken;
   }
 
@@ -38,7 +40,7 @@ export default function fetchToJsonNew<T>(fetchOptions: FetchOptions, options: R
   }
 
   return fromFetch<T>(fetchOptions.url ?? `${baseUrl}${fetchOptions.uri}?${querystring.stringify(queryParams)}`, {
-    selector: response => {
+    selector: (response) => {
       if (!response.ok) throw response;
 
       return response.json();

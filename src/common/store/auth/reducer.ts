@@ -35,13 +35,13 @@ const initialState: AuthState = {
     }
   },
   personalizedPlaylists: {
-    loading: false,
+    isLoading: false,
     items: null
   }
 };
 
 export const authReducer = createReducer<AuthState>(initialState)
-  .handleAction(getCurrentUser.request, state => {
+  .handleAction(getCurrentUser.request, (state) => {
     return {
       ...state,
       me: {
@@ -67,7 +67,7 @@ export const authReducer = createReducer<AuthState>(initialState)
       me: {
         ...state.me,
         isLoading: false,
-        error: action.payload.error
+        error: action.payload as any
       }
     };
   })
@@ -149,7 +149,7 @@ export const authReducer = createReducer<AuthState>(initialState)
       }
     };
   })
-  .handleAction(getCurrentUserPlaylists.request, state => {
+  .handleAction(getCurrentUserPlaylists.request, (state) => {
     return {
       ...state,
       playlists: {
@@ -175,11 +175,11 @@ export const authReducer = createReducer<AuthState>(initialState)
       playlists: {
         ...state.playlists,
         isLoading: false,
-        error: action.payload.error
+        error: action.payload
       }
     };
   })
-  .handleAction(getForYouSelection.request, state => {
+  .handleAction(getForYouSelection.request, (state) => {
     return {
       ...state,
       personalizedPlaylists: {

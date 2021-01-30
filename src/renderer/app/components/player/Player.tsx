@@ -24,7 +24,7 @@ import { CastPopover } from './components/CastPopover';
 import PlayerControls from './components/PlayerControls/PlayerControls';
 import { PlayerProgress } from './components/PlayerProgress/PlayerProgress';
 import { TrackInfo } from './components/TrackInfo/TrackInfo';
-import * as styles from './Player.module.scss';
+import styles from './Player.module.scss';
 
 export const Player: FC = () => {
   const dispatch = useDispatch();
@@ -114,7 +114,7 @@ export const Player: FC = () => {
     return (
       <Audio
         // ref={this.audio}
-        src={`http://localhost:8888/stream/${track.id}`}
+        src={`http://resolve-stream/${track.id}`}
         playerStatus={playerStatus}
         // autoPlay={autoplay}
         playerVolume={audioVolume}

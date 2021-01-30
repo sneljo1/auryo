@@ -12,7 +12,7 @@ export const InfiniteScroll: FC<Props> = ({ isFetching, hasMore, loadMore, child
   useEffect(() => {
     const currentRef = bottomRef.current;
     const currentObserver = new IntersectionObserver(
-      entries => {
+      (entries) => {
         const firstEntry = entries[0];
 
         if (firstEntry.isIntersecting && !isFetching) {

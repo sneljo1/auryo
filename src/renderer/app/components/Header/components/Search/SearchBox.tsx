@@ -42,13 +42,13 @@ export const SearchBox: FC = () => {
         className="form-control"
         placeholder="Search people, tracks and albums"
         value={query}
-        onKeyPress={event => {
+        onKeyPress={(event) => {
           if (event.key === 'Enter') {
             dispatch(setDebouncedSearchQuery(query));
           }
         }}
-        onKeyUp={e => e.preventDefault()}
-        onChange={event => updateQuery(event.target.value)}
+        onKeyUp={(e) => e.preventDefault()}
+        onChange={(event) => updateQuery(event.target.value)}
       />
 
       <div className="input-group-append">

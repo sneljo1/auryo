@@ -1,14 +1,14 @@
 import { StoreState } from 'AppReduxTypes';
 import { combineEpics } from 'redux-observable';
-import * as app from './app/epics';
-import * as appAuth from './appAuth/epics';
-import * as auth from './auth/epics';
-import { RootAction } from './declarations';
-import * as playlist from './playlist/epics';
-import * as player from './player/epics';
-import * as ui from './ui/epics';
-import * as track from './track/epics';
-import * as user from './user/epics';
+import * as app from './app';
+import * as appAuth from './appAuth';
+import * as auth from './auth';
+import { RootAction } from '../../common/store/declarations';
+import * as playlist from './playlist';
+import * as player from './player';
+import * as ui from './ui';
+import * as track from './track';
+import * as user from './user';
 
 export const rootEpic = combineEpics<RootAction, RootAction, StoreState>(
   ...Object.values(app),

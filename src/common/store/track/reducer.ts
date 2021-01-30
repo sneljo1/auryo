@@ -31,7 +31,7 @@ export const trackReducer = createReducer<TrackState>(initialState)
     delete errors[trackId];
 
     return {
-      loading: state.loading.filter(id => id !== trackId),
+      loading: state.loading.filter((id) => id !== trackId),
       error: {
         ...errors
       }
@@ -41,7 +41,7 @@ export const trackReducer = createReducer<TrackState>(initialState)
     const { trackId, error } = action.payload;
 
     return {
-      loading: state.loading.filter(id => id !== trackId),
+      loading: state.loading.filter((id) => id !== trackId),
       error: {
         ...state.error,
         [trackId]: error

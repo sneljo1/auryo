@@ -27,10 +27,7 @@ function random(size: number, mask: string | any[]) {
  * @returns {string} The base64 url encoded string
  */
 function base64UrlEncode(base64: string) {
-  return base64
-    .replace(/=/g, '')
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_');
+  return base64.replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
 }
 
 /** Generate a PKCE challenge verifier
@@ -47,9 +44,7 @@ function generateVerifier(length: number) {
  * @returns {string} The base64 url encoded code challenge
  */
 function generateChallenge(code_verifier: string) {
-  const hash = createHash('sha256')
-    .update(code_verifier)
-    .digest('base64');
+  const hash = createHash('sha256').update(code_verifier).digest('base64');
   return base64UrlEncode(hash);
 }
 

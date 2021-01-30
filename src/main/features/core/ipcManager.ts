@@ -45,7 +45,7 @@ export default class IPCManager extends Feature {
 
       if (this.win) {
         download(this.win, url, downloadSettings)
-          .then(dl => this.logger.info('filed saved to', dl.getSavePath()))
+          .then((dl) => this.logger.info('filed saved to', dl.getSavePath()))
           .catch(this.logger.error);
       }
     });

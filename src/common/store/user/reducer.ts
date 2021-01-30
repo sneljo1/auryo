@@ -35,7 +35,7 @@ export const userReducer = createReducer<UserState>(initialState)
 
     return {
       ...state,
-      loading: state.loading.filter(id => id !== userId),
+      loading: state.loading.filter((id) => id !== userId),
       error: {
         ...errors
       }
@@ -46,7 +46,7 @@ export const userReducer = createReducer<UserState>(initialState)
 
     return {
       ...state,
-      loading: state.loading.filter(id => id !== userId),
+      loading: state.loading.filter((id) => id !== userId),
       error: {
         ...state.error,
         [userId]: error
@@ -77,7 +77,7 @@ export const userReducer = createReducer<UserState>(initialState)
 
     return {
       ...state,
-      userProfilesLoading: state.userProfilesLoading.filter(id => id !== userId),
+      userProfilesLoading: state.userProfilesLoading.filter((id) => id !== userId),
       userProfilesError: {
         ...errors
       }
@@ -88,7 +88,7 @@ export const userReducer = createReducer<UserState>(initialState)
 
     return {
       ...state,
-      userProfilesLoading: state.userProfilesLoading.filter(id => id !== userId),
+      userProfilesLoading: state.userProfilesLoading.filter((id) => id !== userId),
       userProfilesError: {
         ...state.error,
         [userId]: error

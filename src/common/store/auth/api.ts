@@ -64,7 +64,7 @@ export function fetchPlaylists() {
   });
 
   return json$.pipe(
-    map(json => {
+    map((json) => {
       const normalized = normalize<
         FetchedPlaylistItem,
         EntitiesOf<FetchedPlaylistItem>,

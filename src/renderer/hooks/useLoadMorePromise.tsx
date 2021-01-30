@@ -17,7 +17,7 @@ export const useLoadMorePromise = (
   }, [isFetching, previous]);
 
   const loadMore = useCallback(() => {
-    return new Promise<void>(resolve => {
+    return new Promise<void>((resolve) => {
       resolverRef.current = resolve;
       loadMoreFunction();
     });

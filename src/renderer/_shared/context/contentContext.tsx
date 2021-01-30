@@ -38,7 +38,7 @@ export function withContentContext<P extends InjectedContentContextProps>(Compon
   return (props: Pick<P, Exclude<keyof P, keyof ContentContextProps>>) => {
     return (
       <ContentContext.Consumer>
-        {context => <Component {...(props as P)} settings={context.settings} applySettings={context.applySettings} />}
+        {(context) => <Component {...(props as P)} settings={context.settings} applySettings={context.applySettings} />}
       </ContentContext.Consumer>
     );
   };
@@ -73,7 +73,7 @@ export const ContentContextProvider: FC = ({ children }) => {
     (): ContentContextProps => ({
       settings,
       list,
-      applySettings: newSettings => setSettings(oldSettings => ({ ...oldSettings, ...newSettings }))
+      applySettings: (newSettings) => setSettings((oldSettings) => ({ ...oldSettings, ...newSettings }))
     }),
     [list, settings]
   );

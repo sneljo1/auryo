@@ -83,7 +83,7 @@ const PlaylistPage: FC<Props> = ({
 
   const hasImage = playlist.artwork_url || (firstItem && firstItem.artwork_url);
 
-  const playlistOwned = authPlaylists.owned.find(p => p.id === playlist.id);
+  const playlistOwned = authPlaylists.owned.find((p) => p.id === playlist.id);
 
   const isEmpty =
     !playlistObject.isFetching &&
@@ -175,7 +175,7 @@ const PlaylistPage: FC<Props> = ({
           items={playlistObject.items}
           playlistID={{ playlistType, objectId }}
           isLoading={playlistObject.isFetching}
-          isItemLoaded={index => !!playlistObject.items[index]}
+          isItemLoaded={(index) => !!playlistObject.items[index]}
           loadMore={loadMore}
           hasMore={!!playlistObject.itemsToFetch.length && !playlistObject.error && !playlistObject.isFetching}
         />

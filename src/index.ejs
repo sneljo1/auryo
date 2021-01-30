@@ -13,24 +13,11 @@
     <link href="https://fonts.googleapis.com/css?family=Titillium+Web:700|Asap:400,600" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css" />
 
-    <% if (htmlWebpackPlugin.options.nodeModules) { %>
-    <!-- Add `node_modules/` to global paths so `require` works properly in development -->
-    <script>
-      require('module').globalPaths.push('<%= htmlWebpackPlugin.options.nodeModules.replace(/\\/g, '\\\\') %>')
-    </script>
-    <% } %>
+
   </head>
   <body>
     <div id="root"></div>
-    <!-- Set `__static` path to static files in production -->
-    <% if (!process.browser) { %>
-    <script>
-      if (process.env.NODE_ENV !== 'development')
-        window.__static = require('path')
-          .join(__dirname, '/static')
-          .replace(/\\/g, '\\\\');
-    </script>
-    <% } %>
+
 
     <!-- webpack builds are automatically injected -->
   </body>

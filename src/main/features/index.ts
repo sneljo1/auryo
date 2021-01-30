@@ -37,4 +37,4 @@ export const tools: typeof Feature[] = [
   DbusService
 ];
 
-export const getTools = (app: Auryo) => tools.map(FeatureClass => new FeatureClass(app)).filter(o => o.shouldRun());
+export const getTools = (app: Auryo) => tools.map((FeatureClass) => new FeatureClass(app)).filter((o) => o.shouldRun());

@@ -3,7 +3,7 @@ import moment from 'moment';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { SoundCloud } from '../../../../../types';
-import * as styles from './PersonalizedPlaylistCard.module.scss';
+import styles from './PersonalizedPlaylistCard.module.scss';
 
 const colorHash = new ColorHash({ saturation: 0.7, lightness: 0.775 });
 

@@ -15,7 +15,7 @@ export const ChartsDetailsPage: FC<Props> = ({
 }) => {
   const [sortType, setSortType] = useState<SortTypes>(SortTypes.TOP);
 
-  const selectedGenre = [...MUSIC_GENRES, ...AUDIO_GENRES].find(g => g.key === genre);
+  const selectedGenre = [...MUSIC_GENRES, ...AUDIO_GENRES].find((g) => g.key === genre);
 
   if (!selectedGenre) {
     return null;
@@ -30,7 +30,7 @@ export const ChartsDetailsPage: FC<Props> = ({
       playlistType={PlaylistTypes.CHART}
       objectId={`soundcloud:genres:${genre}`}
       sortType={sortType}
-      onSortTypeChange={event => setSortType(event.target.value as SortTypes)}
+      onSortTypeChange={(event) => setSortType(event.target.value as SortTypes)}
     />
   );
 };

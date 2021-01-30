@@ -68,7 +68,7 @@ export const InputConfig: FC<Props> = ({
         name={name}
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => saveDebounced.current(event.target.value)}
         placeholder={placeholderText}
-        onKeyUp={e => e.stopPropagation()}
+        onKeyUp={(e) => e.stopPropagation()}
         defaultValue={defaultValue}
       />
     </div>

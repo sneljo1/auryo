@@ -9,7 +9,7 @@ export const getPlaylistRootObject = (playlistType: PlaylistTypes | ObjectTypes)
 export const getPlaylistObjectSelector = (identifier: PlaylistIdentifier) =>
   createSelector<StoreState | StoreState, ObjectGroup | ObjectState, ObjectState | null>(
     [getPlaylistRootObject(identifier.playlistType)],
-    playlistsOrObjectState =>
+    (playlistsOrObjectState) =>
       identifier.objectId ? playlistsOrObjectState[identifier.objectId] : playlistsOrObjectState
   );
 
@@ -20,7 +20,7 @@ export const getQueueTrackByIndexSelector = (index: number) => (state: StoreStat
 export const getCommentsObjects = (state: StoreState) => state.objects[ObjectTypes.COMMENTS] || {};
 
 export const getCommentObject = (trackId?: string | number) =>
-  createSelector<StoreState, ObjectGroup, ObjectState | null>([getCommentsObjects], comments =>
+  createSelector<StoreState, ObjectGroup, ObjectState | null>([getCommentsObjects], (comments) =>
     trackId && trackId in comments ? comments[trackId] : null
   );
 

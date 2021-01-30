@@ -3,7 +3,7 @@ import { castSelector } from '@common/store/app/selectors';
 import cn from 'classnames';
 import React, { FC } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import * as styles from '../Player.module.scss';
+import styles from '../Player.module.scss';
 import * as actions from '@common/store/actions';
 
 export const CastPopover: FC = () => {
@@ -19,7 +19,7 @@ export const CastPopover: FC = () => {
       content={
         <div style={{ minWidth: 200 }}>
           <div className={styles.popoverTitle}>Nearby devices</div>
-          {chromecast.devices.map(d => {
+          {chromecast.devices.map((d) => {
             return (
               <div
                 role="button"

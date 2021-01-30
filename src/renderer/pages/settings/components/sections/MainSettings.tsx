@@ -49,7 +49,7 @@ export const MainSettings: FC<Props> = ({ onShouldRestart }) => {
   const tryClientId = useCallback(
     (saveValue: Function, clientId: string) => {
       fetchToJson(SC.getRemainingTracks(clientId))
-        .then(remaining => {
+        .then((remaining) => {
           if (remaining) {
             saveValue();
             dispatch(
@@ -112,7 +112,7 @@ export const MainSettings: FC<Props> = ({ onShouldRestart }) => {
                 key="theme"
                 name="Theme"
                 configKey="app.theme"
-                data={Object.keys(ThemeKeys).map(theme => ({ k: theme, v: theme }))}
+                data={Object.keys(ThemeKeys).map((theme) => ({ k: theme, v: theme }))}
               />
             )
           },
@@ -185,7 +185,7 @@ export const MainSettings: FC<Props> = ({ onShouldRestart }) => {
                     alignIndicator="right"
                     large
                     checked={!!config.lastfm}
-                    onChange={event => {
+                    onChange={(event) => {
                       dispatch(actions.setConfigKey('lastfm', (event.target as any).checked ? {} : null));
                     }}
                   />
@@ -260,10 +260,10 @@ export const MainSettings: FC<Props> = ({ onShouldRestart }) => {
 
   return (
     <div>
-      {settings.map(settingGroup => {
+      {settings.map((settingGroup) => {
         const settings = settingGroup.settings
-          .filter(setting => setting.authenticated === authenticated || setting.authenticated === false)
-          .map(setting => setting.setting);
+          .filter((setting) => setting.authenticated === authenticated || setting.authenticated === false)
+          .map((setting) => setting.setting);
 
         if (!settings.length) {
           return null;

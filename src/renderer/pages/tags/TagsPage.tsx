@@ -52,7 +52,7 @@ export const TagsPage: FC<Props> = ({
           items={playlistObject.items}
           playlistID={{ playlistType: PlaylistTypes.SEARCH_TRACK }}
           isLoading={playlistObject.isFetching}
-          isItemLoaded={index => !!playlistObject.items[index]}
+          isItemLoaded={(index) => !!playlistObject.items[index]}
           loadMore={loadMore}
           hasMore={!!playlistObject.nextUrl && !playlistObject.error && !playlistObject.isFetching}
         />

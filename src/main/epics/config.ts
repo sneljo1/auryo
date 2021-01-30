@@ -1,5 +1,6 @@
 import { setConfig, setConfigKey } from '@common/store/actions';
 import { RootEpic } from '@common/store/declarations';
+import { SC } from '@common/utils';
 import { settings } from '@main/settings';
 import { Logger } from '@main/utils/logger';
 import { debounceTime, filter, ignoreElements, map, tap, withLatestFrom } from 'rxjs/operators';
@@ -14,7 +15,10 @@ export const saveSettingsEpic: RootEpic = (action$, state$) =>
     withLatestFrom(state$),
     debounceTime(500),
     map(([, state]) => state.config),
-    tap(latestConfig => settings.set(latestConfig)),
+    tap((latestConfig) => {
+      settings.set(latestConfig);
+      SC.initialize(latestConfig.auth.token);
+    }),
     tap(() => logger.trace('Settings saved')),
     ignoreElements()
   );

@@ -22,5 +22,6 @@
   },
   "typescript.tsdk": "node_modules/typescript/lib",
   "eslint.packageManager": "yarn",
-  "eslint.enable": true
+  "javascript.preferences.importModuleSpecifier": "non-relative",
+  "typescript.preferences.importModuleSpecifier": "non-relative"
 }

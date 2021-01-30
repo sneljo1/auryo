@@ -5,7 +5,7 @@ import Scrollbars from 'react-custom-scrollbars';
 import { useSelector } from 'react-redux';
 import { NavLink, RouteComponentProps, withRouter } from 'react-router-dom';
 import SideBarPlaylistItem from './playlist/SideBarPlaylistItem';
-import * as styles from './Sidebar.module.scss';
+import styles from './Sidebar.module.scss';
 
 type AllProps = RouteComponentProps;
 
@@ -19,9 +19,9 @@ const SideBar: FC<AllProps> = () => {
 
       <Scrollbars
         renderTrackHorizontal={() => <div />}
-        renderTrackVertical={props => <div {...props} className="track-vertical" />}
+        renderTrackVertical={(props) => <div {...props} className="track-vertical" />}
         renderThumbHorizontal={() => <div />}
-        renderThumbVertical={props => <div {...props} className="thumb-vertical" />}>
+        renderThumbVertical={(props) => <div {...props} className="thumb-vertical" />}>
         <div id="sidebar-menu" className={styles.sidebarMenu}>
           <h2>Discover</h2>
           <ul className={styles.nav}>
@@ -63,7 +63,7 @@ const SideBar: FC<AllProps> = () => {
 
           <h2>Playlists</h2>
           <div id="playlists" className={styles.nav}>
-            {authPlaylists.map(normalizedResult => {
+            {authPlaylists.map((normalizedResult) => {
               const isPlaying =
                 currentPlaylistId?.playlistType === PlaylistTypes.PLAYLIST &&
                 normalizedResult.id.toString() === currentPlaylistId.objectId;

@@ -66,7 +66,7 @@ export const Queue: FC = () => {
             if (
               !playlist.isFetching &&
               !!playlist.itemsToFetch.length &&
-              !playlistsToFetch.find(p => p.objectId === item.parentPlaylistID?.objectId)
+              !playlistsToFetch.find((p) => p.objectId === item.parentPlaylistID?.objectId)
             ) {
               playlistsToFetch.push(item.parentPlaylistID);
             }
@@ -77,7 +77,7 @@ export const Queue: FC = () => {
         []
       );
 
-      playlistIDsToFetch.forEach(playlistID => {
+      playlistIDsToFetch.forEach((playlistID) => {
         dispatch(stopForwarding(genericPlaylistFetchMore.request(playlistID)));
       });
 
@@ -126,9 +126,9 @@ export const Queue: FC = () => {
         <Scrollbars
           onScroll={loadMoreDebounced.current}
           renderTrackHorizontal={() => <div />}
-          renderTrackVertical={props => <div {...props} className="track-vertical" />}
+          renderTrackVertical={(props) => <div {...props} className="track-vertical" />}
           renderThumbHorizontal={() => <div />}
-          renderThumbVertical={props => <div {...props} className="thumb-vertical" />}>
+          renderThumbVertical={(props) => <div {...props} className="thumb-vertical" />}>
           <ReactList
             ref={listRef}
             pageSize={8}

@@ -31,17 +31,6 @@ export function fetchUserTracks(options: { userId: number | string; limit?: numb
   });
 }
 
-export function fetchUserLikes(options: { userId: string | string; limit?: number }) {
-  return fetchToJsonNew<Collection<SoundCloud.Track>>({
-    uri: `users/${options.userId}/likes/tracks`,
-    oauthToken: true,
-    queryParams: {
-      limit: options.limit ?? 20,
-      linked_partitioning: true
-    }
-  });
-}
-
 export function fetchUserProfiles(options: { userId: string }) {
   return fetchToJsonNew<SoundCloud.UserProfiles>({
     uri: `users/${options.userId}/web-profiles`,

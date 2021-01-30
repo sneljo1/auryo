@@ -36,7 +36,7 @@ export const TrackListItem: FC<Props> = ({ playlistID, idResult }) => {
   return (
     <tr
       className={cn('trackItem', { isPlaying: isTrackPlaying })}
-      onDoubleClick={e => {
+      onDoubleClick={(e) => {
         playTrack();
       }}>
       <td>

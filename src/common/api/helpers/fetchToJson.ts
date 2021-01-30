@@ -8,5 +8,5 @@ export default async function fetchToJson<T>(url: string, options: AxiosRequestC
       url,
       ...options
     })
-    .then(res => res.data);
+    .then((res) => res.data);
 }

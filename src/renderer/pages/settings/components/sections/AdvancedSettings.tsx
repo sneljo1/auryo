@@ -16,7 +16,7 @@ export const AdvancedSettings: FC = () => {
   useEffect(() => {
     const initAudioDevices = async () => {
       const devices = await navigator.mediaDevices.enumerateDevices();
-      const audioDevices = devices.filter(device => device.kind === 'audiooutput');
+      const audioDevices = devices.filter((device) => device.kind === 'audiooutput');
 
       setAudioDevices(audioDevices);
     };
@@ -39,7 +39,7 @@ export const AdvancedSettings: FC = () => {
 
           <SelectConfig
             name="Audio output"
-            data={[{ k: 'Use device settings', v: null }, ...audioDevices.map(d => ({ k: d.label, v: d.deviceId }))]}
+            data={[{ k: 'Use device settings', v: null }, ...audioDevices.map((d) => ({ k: d.label, v: d.deviceId }))]}
             configKey="audio.playbackDeviceId"
           />
 

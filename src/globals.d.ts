@@ -7,6 +7,7 @@ declare namespace NodeJS {
     __static: any;
     fetch: any;
     AbortController: any;
+    MAIN_WINDOW_WEBPACK_ENTRY: string;
   }
   interface ProcessEnv {
     readonly NODE_ENV: 'development' | 'production' | 'test';

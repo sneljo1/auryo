@@ -7,7 +7,7 @@ const trackSchema = new schema.Entity(
     user: userSchema
   },
   {
-    processStrategy: entity => {
+    processStrategy: (entity) => {
       if (entity.likes_count || entity.favoritings_count) {
         entity.likes_count = entity.likes_count || entity.favoritings_count;
       }

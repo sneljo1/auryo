@@ -3,8 +3,8 @@ import { replace } from 'connected-react-router';
 import { of } from 'rxjs';
 import { exhaustMap, filter, mergeMap, pluck, switchMap, tap, withLatestFrom } from 'rxjs/operators';
 import { isActionOf } from 'typesafe-actions';
-import { TokenResponse } from '.';
-import { CONFIG } from '../../../config';
+import { TokenResponse } from '../../common/store/appAuth';
+import { CONFIG } from '../../config';
 import {
   finishOnboarding,
   getCurrentUser,
@@ -18,19 +18,19 @@ import {
   resetStore,
   setConfigKey,
   tokenRefresh
-} from '../actions';
-import { RootEpic } from '../declarations';
-import { configSelector } from '../selectors';
+} from '../../common/store/actions';
+import { RootEpic } from '../../common/store/declarations';
+import { configSelector } from '../../common/store/selectors';
 
-export const setTokenEpic: RootEpic = action$ =>
+export const setTokenEpic: RootEpic = (action$) =>
   action$.pipe(
     filter(isActionOf([login.success, tokenRefresh.success])),
     pluck('payload'),
-    tap(payload => console.log('setTokenEpic', payload)),
+    tap((payload) => console.log('setTokenEpic', payload)),
     filter((payload): payload is TokenResponse => !!payload?.access_token),
-    tap(payload => SC.initialize(payload.access_token)),
+    tap((payload) => SC.initialize(payload.access_token)),
     filter((payload): payload is TokenResponse => !!payload.refresh_token),
-    mergeMap(payload =>
+    mergeMap((payload) =>
       of(
         setConfigKey('auth', {
           expiresAt: payload.expires_at,
@@ -70,14 +70,14 @@ export const loginEpic: RootEpic = (action$, state$) =>
     })
   );
 
-export const finishOnboardingEpic: RootEpic = action$ =>
+export const finishOnboardingEpic: RootEpic = (action$) =>
   action$.pipe(
     filter(isActionOf(finishOnboarding)),
-    tap(payload => console.log('finishOnboardingEpic', payload)),
+    tap((payload) => console.log('finishOnboardingEpic', payload)),
     exhaustMap(() => of(setConfigKey('lastLogin', Date.now()), login.success({})))
   );
 
-export const logoutEpic: RootEpic = action$ =>
+export const logoutEpic: RootEpic = (action$) =>
   action$.pipe(
     filter(isActionOf(logout)),
     mergeMap(() => of(setConfigKey('auth', CONFIG.DEFAULT_CONFIG.auth), resetStore(), replace('/login')))

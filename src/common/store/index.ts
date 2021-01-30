@@ -1,7 +1,7 @@
 import { resetStore } from '@common/store/actions';
 import { PlayerActionTypes } from '@common/store/player';
 import { rootReducer } from '@common/store/rootReducer';
-import { mainRootEpic } from '@main/store/rootEpic';
+import { mainRootEpic } from '@main/epics';
 import { Logger } from '@main/utils/logger';
 import { StoreState } from 'AppReduxTypes';
 import { routerMiddleware } from 'connected-react-router';
@@ -17,7 +17,7 @@ import { createLogger } from 'redux-logger';
 import { createEpicMiddleware } from 'redux-observable';
 import { BehaviorSubject } from 'rxjs';
 import { RootAction } from './declarations';
-import { rootEpic } from './rootEpic';
+import { rootEpic } from '@renderer/epics';
 
 export const history = createMemoryHistory();
 
@@ -34,7 +34,7 @@ export const configureStore = () => {
           collapsed: true,
           predicate: (_getState: () => any, action: any) => action.type !== PlayerActionTypes.SET_TIME
         })
-      : () => next => action => {
+      : () => (next) => (action) => {
           const reduxLogger = Logger.createLogger('REDUX');
           if (action.error) {
             reduxLogger.error(action.type, action.error);
@@ -80,7 +80,7 @@ export const configureStore = () => {
     electron.ipcMain.on('electron-redux.ACTION', (event, action) => {
       const localAction = stopForwarding(action);
       store.dispatch(localAction); // Forward it to all of the other renderers
-      electron.webContents.getAllWebContents().forEach(contents => {
+      electron.webContents.getAllWebContents().forEach((contents) => {
         // Ignore the renderer that sent the action and chromium devtools
         if (contents.id !== event.sender.id && !contents.getURL().startsWith('devtools://')) {
           contents.send('electron-redux.ACTION', localAction);
@@ -97,8 +97,12 @@ export const configureStore = () => {
       );
     });
 
-    module.hot.accept('@common/store/rootEpic', () => {
-      import('@common/store/rootEpic').then(({ rootEpic: nextRootEpic }) => epic$.next(nextRootEpic));
+    module.hot.accept('@renderer/epics', () => {
+      import('@renderer/epics').then(({ rootEpic: nextRootEpic }) => epic$.next(nextRootEpic));
+    });
+
+    module.hot.accept('@main/epics', () => {
+      import('@main/epics').then(({ mainRootEpic: nextRootEpic }) => epic$.next(nextRootEpic));
     });
   }
 

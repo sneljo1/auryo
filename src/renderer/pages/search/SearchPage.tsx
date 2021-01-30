@@ -79,7 +79,7 @@ export const SearchPage: FC<Props> = ({
               items={playlistObject.items}
               playlistID={{ playlistType }}
               isLoading={playlistObject.isFetching}
-              isItemLoaded={index => !!playlistObject.items[index]}
+              isItemLoaded={(index) => !!playlistObject.items[index]}
               loadMore={loadMore}
               hasMore={!!playlistObject.nextUrl && !playlistObject.error && !playlistObject.isFetching}
             />

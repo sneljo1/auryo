@@ -64,12 +64,12 @@ export default class AppUpdater extends Feature {
         this.logger.info('New update available');
       });
 
-      autoUpdater.addListener('update-downloaded', info => {
+      autoUpdater.addListener('update-downloaded', (info) => {
         this.notify(info.version);
 
         this.listenUpdate();
       });
-      autoUpdater.addListener('error', error => {
+      autoUpdater.addListener('error', (error) => {
         this.logger.error(error);
       });
       autoUpdater.addListener('checking-for-update', () => {
@@ -108,8 +108,8 @@ export default class AppUpdater extends Feature {
   public updateLinux = () => {
     axios
       .get(CONFIG.UPDATE_SERVER_HOST)
-      .then(res => res.data)
-      .then(body => {
+      .then((res) => res.data)
+      .then((body) => {
         if (!body || body.draft || !body.tag_name) {
           return;
         }

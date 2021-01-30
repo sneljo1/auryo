@@ -45,7 +45,7 @@ export function validateCastResponse({ additionals }: MDNSResponse): CastDeviceR
     TXT: null
   };
 
-  additionals.forEach(record => {
+  additionals.forEach((record) => {
     switch (record.type) {
       case 'A':
         records.A = record as Response<'A'>;
@@ -83,7 +83,7 @@ export function parseResponse(res: MDNSResponse): ChromeCastDevice | null {
     return null;
   }
 
-  const kvp = records.TXT.data.map(buf => buf.toString('utf-8'));
+  const kvp = records.TXT.data.map((buf) => buf.toString('utf-8'));
   const info = objectFromKeyValuePairs(kvp);
 
   return {

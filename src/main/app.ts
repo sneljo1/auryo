@@ -1,9 +1,7 @@
-import { Intent } from '@blueprintjs/core';
-import fetchTrack from '@common/api/fetchTrack';
-import { addToast, push, receiveProtocolAction } from '@common/store/actions';
+import { push, receiveProtocolAction } from '@common/store/actions';
+import { fetchStreams } from '@common/store/api';
 // eslint-disable-next-line import/no-unresolved
 import { StoreState } from 'AppReduxTypes';
-import Axios from 'axios';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { app, BrowserWindow, BrowserWindowConstructorOptions, Event, Menu, nativeImage, shell } from 'electron';
 import { stopForwarding } from 'electron-redux';
@@ -13,8 +11,8 @@ import * as os from 'os';
 import * as path from 'path';
 import * as querystring from 'querystring';
 import { Store } from 'redux';
-import { Track } from 'src/types/soundcloud';
-import { CONFIG } from '../config';
+import { EMPTY, from, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 // eslint-disable-next-line import/no-cycle
 import { Feature } from './features/feature';
 import { Logger, LoggerInstance } from './utils/logger';
@@ -170,9 +168,7 @@ export class Auryo {
       return;
     }
 
-    const winURL = process.env.NODE_ENV === 'development' ? 'http://localhost:9080' : `file://${__dirname}/index.html`;
-
-    await this.mainWindow.loadURL(winURL);
+    await this.mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
     this.mainWindow.webContents.on('will-navigate', async (event, url) => {
       event.preventDefault();
@@ -210,71 +206,30 @@ export class Auryo {
       }
     });
 
-    // SoundCloud's API gave a lot of 401s using the /stream to get the audio file
-    // This is a hacky way to circumvent this :)
+    // Resolve the trackId for a stream url
     this.mainWindow.webContents.session.webRequest.onBeforeRequest(
       {
-        urls: ['http://localhost:8888/stream/*']
+        urls: ['http://resolve-stream/*']
       },
-      async (details, callback) => {
-        const { 1: trackId } = details.url.split('http://localhost:8888/stream/');
-        try {
-          const mp3Url = await this.getPlayingTrackStreamUrl(trackId, CONFIG.CLIENT_ID || '');
+      (details, callback) => {
+        const { 1: trackId } = details.url.split('http://resolve-stream/');
 
-          callback({
-            redirectURL: mp3Url
-          });
-        } catch (err) {
-          this.logger.error('Soundcloud stream hack', err);
-          callback({ cancel: true });
-        }
+        return from(fetchStreams({ trackId }))
+          .pipe(
+            map((streams) => {
+              callback({
+                redirectURL: streams.http_mp3_128_url
+              });
+            }),
+            catchError((err) => {
+              this.logger.error(err, 'Soundcloud stream hack');
+              callback({ cancel: true });
+              return of(EMPTY);
+            })
+          )
+          .toPromise();
       }
     );
-
-    this.mainWindow.webContents.session.webRequest.onCompleted(details => {
-      if (
-        this.mainWindow &&
-        (details.url.indexOf('/stream?client_id=') !== -1 || details.url.indexOf('cf-media.sndcdn.com') !== -1)
-      ) {
-        if (details.statusCode < 200 && details.statusCode > 300) {
-          if (details.statusCode === 404) {
-            this.store.dispatch(
-              addToast({
-                message: 'This resource might not exists anymore',
-                intent: Intent.DANGER
-              })
-            );
-          }
-        }
-      }
-    });
-  }
-
-  public async getPlayingTrackStreamUrl(trackId: string, clientId: string) {
-    const {
-      entities: { trackEntities }
-    } = this.store.getState();
-
-    let track: Track = trackEntities[trackId];
-
-    if (!track?.media?.transcodings) {
-      const { json } = await fetchTrack(trackId);
-
-      track = json;
-    }
-
-    const streamUrl = track?.media?.transcodings?.filter(
-      (transcoding: any) => transcoding.format.protocol === 'progressive'
-    )[0]?.url;
-
-    if (!streamUrl) {
-      return null;
-    }
-
-    const response = await Axios.get(`${streamUrl}?client_id=${clientId}`);
-    const mp3Url = response.data.url;
-
-    return mp3Url;
   }
 
   private readonly registerListeners = () => {
@@ -291,7 +246,7 @@ export class Auryo {
         this.mainWindow = undefined;
       });
 
-      this.mainWindow.on('close', event => {
+      this.mainWindow.on('close', (event) => {
         if (process.platform === 'darwin') {
           if (this.quitting) {
             this.mainWindow = undefined;

@@ -75,7 +75,7 @@ export const TrackOverview = React.memo<Props>(({ track }) => {
       <div className="trackPadding col-12 col-lg">
         <div className="flex stats align-items-center justify-content-between">
           <div className="taglist">
-            {getTags(track).map(tag => (
+            {getTags(track).map((tag) => (
               <Link key={tag} to={`/tags/${tag.replace('#', '')}`}>
                 <span className="badge badge-secondary">{tag}</span>
               </Link>

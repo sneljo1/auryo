@@ -70,7 +70,7 @@ export const playerReducer = createReducer<PlayerState>(initialState)
       currentTime: payload
     };
   })
-  .handleAction(restartTrack, state => {
+  .handleAction(restartTrack, (state) => {
     return {
       ...state,
       currentTime: 0
@@ -83,7 +83,7 @@ export const playerReducer = createReducer<PlayerState>(initialState)
 
     return {
       ...state,
-      upNext: [...state.upNext, ...items.map(item => ({ ...item, un: Date.now() }))]
+      upNext: [...state.upNext, ...items.map((item) => ({ ...item, un: Date.now() }))]
     };
   })
   // Remove first item as it is inserted into the queue
@@ -104,7 +104,7 @@ export const playerReducer = createReducer<PlayerState>(initialState)
       currentIndex: position
     };
   })
-  .handleAction(clearUpNext, state => {
+  .handleAction(clearUpNext, (state) => {
     return {
       ...state,
       upNext: []

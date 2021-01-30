@@ -64,9 +64,9 @@ export const Audio: FC<Props> = memo(({ src, playerStatus, playerVolume, muted, 
       }
 
       const devices = await navigator.mediaDevices.enumerateDevices();
-      const audioDevices = devices.filter(device => device.kind === 'audiooutput');
+      const audioDevices = devices.filter((device) => device.kind === 'audiooutput');
 
-      const selectedAudioDevice = audioDevices.find(d => d.deviceId === playbackDeviceId);
+      const selectedAudioDevice = audioDevices.find((d) => d.deviceId === playbackDeviceId);
 
       if (selectedAudioDevice) {
         await setSinkId(playbackDeviceId);
@@ -196,7 +196,7 @@ export const Audio: FC<Props> = memo(({ src, playerStatus, playerVolume, muted, 
             })
           );
 
-          dispatch(actions.changeTrack(ChangeTypes.NEXT));
+          // dispatch(actions.changeTrack(ChangeTypes.NEXT));
           break;
         case MediaError.MEDIA_ERR_DECODE:
         default:
@@ -207,7 +207,7 @@ export const Audio: FC<Props> = memo(({ src, playerStatus, playerVolume, muted, 
             })
           );
 
-          dispatch(actions.changeTrack(ChangeTypes.NEXT));
+        // dispatch(actions.changeTrack(ChangeTypes.NEXT));
       }
     }
   }, [error]);

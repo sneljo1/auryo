@@ -51,8 +51,6 @@ export const setUpdateAvailable = (version: string) =>
     version
   });
 
-const listeners: any[] = [];
-
 // export function initWatchers(): ThunkResult<any> {
 //   // tslint:disable-next-line: max-func-body-length
 //   return dispatch => {

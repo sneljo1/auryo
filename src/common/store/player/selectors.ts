@@ -8,14 +8,14 @@ import { PlaylistIdentifier } from '../types';
 
 export const getPlayerNode = (state: StoreState) => state.player;
 
-export const getPlayingTrackSelector = createSelector([getPlayerNode], player => player.playingTrack);
-export const getPlayerCurrentTime = createSelector([getPlayerNode], player => player.currentTime);
-export const getPlayingTrackIndex = createSelector([getPlayerNode], player => player.currentIndex);
-export const getUpNextSelector = createSelector([getPlayerNode], player => player.upNext);
-export const getPlayerStatusSelector = createSelector([getPlayerNode], player => player.status);
-export const getCurrentPlaylistId = createSelector([getPlayerNode], player => player.currentPlaylistId || null);
+export const getPlayingTrackSelector = createSelector([getPlayerNode], (player) => player.playingTrack);
+export const getPlayerCurrentTime = createSelector([getPlayerNode], (player) => player.currentTime);
+export const getPlayingTrackIndex = createSelector([getPlayerNode], (player) => player.currentIndex);
+export const getUpNextSelector = createSelector([getPlayerNode], (player) => player.upNext);
+export const getPlayerStatusSelector = createSelector([getPlayerNode], (player) => player.status);
+export const getCurrentPlaylistId = createSelector([getPlayerNode], (player) => player.currentPlaylistId || null);
 
-export const upNextStartSelector = createSelector([getPlayingTrackIndex], currentIndex => currentIndex + 1);
+export const upNextStartSelector = createSelector([getPlayingTrackIndex], (currentIndex) => currentIndex + 1);
 export const upNextEndSelector = createSelector(
   [upNextStartSelector, getUpNextSelector],
   (upNextStart, upNext) => upNextStart + upNext.length
@@ -50,7 +50,7 @@ export const getNormalizedSchemaForType = (
 });
 
 export const isPlayingSelector = (playlistId: PlaylistIdentifier, idResult?: Normalized.NormalizedResult) =>
-  createSelector([getPlayingTrackSelector], playingTrack => {
+  createSelector([getPlayingTrackSelector], (playingTrack) => {
     if (!playingTrack) {
       return false;
     }

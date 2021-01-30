@@ -139,10 +139,8 @@ export default class MprisService extends LinuxFeature {
 
       this.observables.statusChanged.subscribe(({ value: status }) => {
         if (status && this.player) {
-          this.player.playbackStatus = (status
-            .toLowerCase()
-            .charAt(0)
-            .toUpperCase() + status.toLowerCase().slice(1)) as any;
+          this.player.playbackStatus = (status.toLowerCase().charAt(0).toUpperCase() +
+            status.toLowerCase().slice(1)) as any;
         }
       });
 

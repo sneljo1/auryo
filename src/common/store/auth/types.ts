@@ -18,7 +18,7 @@ export type AuthState = Readonly<{
     data: AuthPlaylists;
   };
   personalizedPlaylists: {
-    loading: boolean;
+    isLoading: boolean;
     error?: EpicError | Error | null;
     items: Normalized.NormalizedPersonalizedItem[] | null;
   };

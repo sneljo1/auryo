@@ -50,7 +50,7 @@ export const ChartsPage: FC<Props> = ({ match: { params } }) => {
                 }}
                 className="my-masonry-grid"
                 columnClassName="my-masonry-grid_column">
-                {MUSIC_GENRES.map(genre => (
+                {MUSIC_GENRES.map((genre) => (
                   <ChartGenre key={`chart-genre-key-${genre.key}`} genre={genre} img={GENRE_IMAGES[genre.key]} />
                 ))}
               </Masonry>
@@ -58,7 +58,7 @@ export const ChartsPage: FC<Props> = ({ match: { params } }) => {
           </TabPane>
           <TabPane tabId={TabTypes.AUDIO}>
             <div className="row">
-              {AUDIO_GENRES.map(genre => (
+              {AUDIO_GENRES.map((genre) => (
                 <div key={genre.key} className="col-4 col-lg-3">
                   <ChartGenre genre={genre} />
                 </div>

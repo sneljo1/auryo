@@ -8,7 +8,7 @@ import { ipcRenderer, remote } from 'electron';
 import { UnregisterCallback } from 'history';
 import React, { FC, useEffect } from 'react';
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { hot } from 'react-hot-loader/root';
+import { hot } from 'react-hot-loader';
 import { useDispatch, useSelector } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
 import { useKey } from 'react-use';
@@ -17,12 +17,12 @@ import { OnBoarding } from './pages/onboarding/OnBoarding';
 
 export const App: FC = () => {
   const dispatch = useDispatch();
-  const analyticsEnabled = useSelector(state => configSelector(state).app.analytics);
+  const analyticsEnabled = useSelector((state) => configSelector(state).app.analytics);
 
   // Toggle player on Space
   useKey(
     ' ',
-    event => {
+    (event) => {
       // Only toggle status when not in input field
       if (!(event?.target instanceof HTMLInputElement)) {
         dispatch(toggleStatus());
@@ -53,7 +53,7 @@ export const App: FC = () => {
       if (analyticsEnabled) {
         ua.pv('/').send();
 
-        unregister = history.listen(location => {
+        unregister = history.listen((location) => {
           ua.pv(location.pathname).send();
         });
       }
@@ -72,4 +72,4 @@ export const App: FC = () => {
   );
 };
 
-export default hot(App);
+export default hot(module)(App);
