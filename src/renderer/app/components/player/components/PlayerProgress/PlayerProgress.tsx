@@ -1,35 +1,37 @@
-import React, { useState, useEffect, FC } from 'react';
-import styles from './PlayerProgress.module.scss';
-import { getReadableTime } from '@common/utils';
 import { Slider } from '@blueprintjs/core';
-import { useDispatch } from 'react-redux';
+import { EVENTS } from '@common/constants';
+import * as actions from '@common/store/actions';
+import { getPlayerCurrentTime, getPlayerDuration } from '@common/store/selectors';
+import { getReadableTime } from '@common/utils';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { ipcRenderer } from 'electron';
-import { EVENTS } from '@common/constants';
-import { useAudioPlayer, useAudioPosition } from '../../../../../hooks/useAudioPlayer';
-import * as actions from '@common/store/actions';
+import React, { FC, useCallback, useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import styles from './PlayerProgress.module.scss';
 
 export const PlayerProgress: FC = () => {
   const dispatch = useDispatch();
-  const { seek } = useAudioPlayer();
-  const { duration, position: currentTime } = useAudioPosition();
+  const currentTime = useSelector(getPlayerCurrentTime);
+  const duration = useSelector(getPlayerDuration);
 
   const [isSeeking, setIsSeeking] = useState(false);
   const [nextTime, setNextTime] = useState<number>();
 
   const sliderValue = isSeeking ? nextTime : currentTime;
 
-  const seekToValue = (to: number) => {
-    setIsSeeking(false);
-    seek(to);
-    dispatch(actions.setCurrentTime(to));
-    ipcRenderer.send(EVENTS.PLAYER.SEEK_END, to);
-  };
+  const seekToValue = useCallback(
+    (to: number) => {
+      setIsSeeking(false);
+      dispatch(actions.seekTo(to));
+      ipcRenderer.send(EVENTS.PLAYER.SEEK_END, to);
+    },
+    [dispatch]
+  );
 
-  const seekChange = (to: number) => {
+  const seekChange = useCallback((to: number) => {
     setNextTime(to);
     setIsSeeking(true);
-  };
+  }, []);
 
   // Progress seeking
   useEffect(() => {
@@ -57,7 +59,7 @@ export const PlayerProgress: FC = () => {
 
   return (
     <div className={styles.playerTimeline}>
-      <div className={styles.time}>{getReadableTime(isSeeking && nextTime ? nextTime : currentTime, false, true)}</div>
+      <div className={styles.time}>{getReadableTime(isSeeking && nextTime ? nextTime : currentTime)}</div>
       <div className={styles.progressInner}>
         <Slider
           min={0}
@@ -69,7 +71,7 @@ export const PlayerProgress: FC = () => {
           onRelease={seekToValue}
         />
       </div>
-      <div className={styles.time}>{getReadableTime(duration, false, true)}</div>
+      <div className={styles.time}>{getReadableTime(duration)}</div>
     </div>
   );
 };

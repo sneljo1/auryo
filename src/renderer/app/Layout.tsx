@@ -9,7 +9,6 @@ import is from 'electron-is';
 import React, { FC } from 'react';
 import Theme from 'react-custom-properties';
 import { useSelector } from 'react-redux';
-import { AudioPlayerProvider } from '../hooks/useAudioPlayer';
 import AppError from './components/AppError/AppError';
 import AboutModal from './components/modals/AboutModal/AboutModal';
 import ChangelogModal from './components/modals/ChangeLogModal/ChangelogModal';
@@ -45,9 +44,7 @@ export const Layout: FC = ({ children }) => {
             <ContentWrapper>{children}</ContentWrapper>
           </ContentContextProvider>
 
-          <AudioPlayerProvider>
-            <Player />
-          </AudioPlayerProvider>
+          <Player />
         </main>
 
         {/* Register Modals */}

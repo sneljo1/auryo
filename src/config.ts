@@ -46,7 +46,7 @@ export const CONFIG = {
     },
     audio: {
       volume: 0.5,
-      playbackDeviceId: null,
+      playbackDeviceId: 'default',
       muted: false
     },
     repeat: null,

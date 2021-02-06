@@ -1,16 +1,16 @@
 import { replace } from 'connected-react-router';
 import { from, fromEvent, merge, of } from 'rxjs';
-import { catchError, filter, map, switchMap, withLatestFrom } from 'rxjs/operators';
+import { catchError, filter, first, map, switchMap, withLatestFrom } from 'rxjs/operators';
 import { isActionOf } from 'typesafe-actions';
-import { getRemainingPlays, initApp, login } from '../../common/store/actions';
-import { RootEpic } from '../../common/store/declarations';
+import { getRemainingPlays, initApp } from '../../common/store/actions';
 import { toggleOffline } from '../../common/store/app/actions';
 import * as APIService from '../../common/store/app/api';
 import { RemainingPlays } from '../../common/store/app/types';
+import { RootEpic } from '../../common/store/declarations';
 
 export const initAppEpic: RootEpic = (action$, state$) =>
-  action$.pipe(
-    filter(isActionOf(initApp)),
+  state$.pipe(
+    first(),
     withLatestFrom(state$),
     switchMap(([, state]) => {
       const {
@@ -22,7 +22,7 @@ export const initAppEpic: RootEpic = (action$, state$) =>
       }
 
       return of(
-        login.success({
+        initApp({
           access_token: auth.token
         })
       );

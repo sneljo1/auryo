@@ -72,7 +72,7 @@ export const TrackGridItem: FC<Props> = ({ idResult, playlistID, showReposts, sh
 
           <div className="trackTime">
             <i className="bx bx-alarm" />
-            <span>{getReadableTime(track.duration, true, true)}</span>
+            <span>{getReadableTime(track.duration / 1000)}</span>
           </div>
         </div>
       </div>

@@ -13,6 +13,7 @@ import {
   getCurrentUserPlaylists,
   getCurrentUserRepostIds,
   getRemainingPlays,
+  initApp,
   login,
   logout,
   resetStore,
@@ -24,7 +25,7 @@ import { configSelector } from '../../common/store/selectors';
 
 export const setTokenEpic: RootEpic = (action$) =>
   action$.pipe(
-    filter(isActionOf([login.success, tokenRefresh.success])),
+    filter(isActionOf([login.success, tokenRefresh.success, initApp])),
     pluck('payload'),
     tap((payload) => console.log('setTokenEpic', payload)),
     filter((payload): payload is TokenResponse => !!payload?.access_token),
@@ -43,7 +44,7 @@ export const setTokenEpic: RootEpic = (action$) =>
 
 export const loginEpic: RootEpic = (action$, state$) =>
   action$.pipe(
-    filter(isActionOf(login.success)),
+    filter(isActionOf([login.success, initApp])),
     withLatestFrom(state$),
     tap(([payload]) => console.log('loginEpic', payload)),
     switchMap(([, state]) => {

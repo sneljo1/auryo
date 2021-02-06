@@ -10,6 +10,7 @@ export const getPlayerNode = (state: StoreState) => state.player;
 
 export const getPlayingTrackSelector = createSelector([getPlayerNode], (player) => player.playingTrack);
 export const getPlayerCurrentTime = createSelector([getPlayerNode], (player) => player.currentTime);
+export const getPlayerDuration = createSelector([getPlayerNode], (player) => player.duration);
 export const getPlayingTrackIndex = createSelector([getPlayerNode], (player) => player.currentIndex);
 export const getUpNextSelector = createSelector([getPlayerNode], (player) => player.upNext);
 export const getPlayerStatusSelector = createSelector([getPlayerNode], (player) => player.status);

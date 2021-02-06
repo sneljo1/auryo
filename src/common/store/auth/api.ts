@@ -92,17 +92,17 @@ export function toggleTrackLike(options: { trackId: string | number; like: boole
       uri: `likes/tracks/${options.trackId}`,
       oauthToken: true
     },
-    { method: options.like ? 'PUT' : 'DELETE' }
+    { method: options.like ? 'POST' : 'DELETE' }
   );
 }
 
 export function togglePlaylistLike(options: { playlistId: string | number; like: boolean }) {
   return fetchToJsonNew<Collection<SoundCloud.Track>>(
     {
-      uri: `likes/playlists/{playlist_id}/${options.playlistId}`,
+      uri: `likes/playlists/${options.playlistId}`,
       oauthToken: true
     },
-    { method: options.like ? 'PUT' : 'DELETE' }
+    { method: options.like ? 'POST' : 'DELETE' }
   );
 }
 
@@ -143,7 +143,7 @@ export function togglePlaylistRepost(options: { playlistId: string | number; rep
 export async function toggleFollowing(options: { userId: string | number; follow: boolean }) {
   return fetchToJsonNew<Collection<SoundCloud.Track>>(
     {
-      uri: `/me/followings//${options.userId}`,
+      uri: `me/followings/${options.userId}`,
       oauthToken: true
     },
     { method: options.follow ? 'PUT' : 'DELETE' }

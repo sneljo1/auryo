@@ -63,6 +63,7 @@ export type ProcessedQueueItems = [PlayingTrack[], PlayingTrack[]];
 export enum PlayerActionTypes {
   TOGGLE_STATUS = 'auryo.player.TOGGLE_STATUS',
   TOGGLE_SHUFFLE = 'auryo.player.TOGGLE_SHUFFLE',
+  SEEK_TO = 'auryo.player.SEEK_TO',
   PLAY_TRACK = 'auryo.player.PLAY_TRACK',
   CHANGE_TRACK = 'auryo.player.CHANGE_TRACK',
   PLAY_PLAYLIST = 'auryo.player.PLAY_PLAYLIST',

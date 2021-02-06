@@ -2,7 +2,6 @@ import '@blueprintjs/core/lib/css/blueprint.css';
 import '@blueprintjs/icons/lib/css/blueprint-icons.css';
 import '@common/sentryReporter';
 import { history, configureStore } from '@common/store';
-import { initApp } from '@common/store/actions';
 import 'boxicons/css/boxicons.min.css';
 import { ConnectedRouter } from 'connected-react-router';
 import is from 'electron-is';
@@ -31,8 +30,6 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 const store = configureStore();
-
-store.dispatch(initApp());
 
 ReactDOM.render(
   <Provider store={store}>

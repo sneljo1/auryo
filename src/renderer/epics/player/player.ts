@@ -195,8 +195,6 @@ export const playTrackEpic: RootEpic = (action$, state$) =>
 
             const toFetch = !!playlistContainingTrack?.itemsToFetch?.some((i) => i.id === id && i.schema === 'tracks');
 
-            console.log({ track });
-
             return { track, toFetch, playlistContainingTrack };
           }),
           // TODO: should we check if the track is fetched?
@@ -345,12 +343,14 @@ export const changeTrackEpic: RootEpic = (action$, state$) =>
     filter(isActionOf(changeTrack)),
     pluck('payload'),
     withLatestFrom(state$),
-    switchMap(([{ changeType }, state]) => {
-      const playingTrackIndex = getPlayingTrackIndex(state);
-      const queue = getQueuePlaylistSelector(state);
-      const currentTime = getPlayerCurrentTime(state);
-      const upNext = getUpNextSelector(state);
-
+    map(([payload, state]) => ({
+      payload,
+      playingTrackIndex: getPlayingTrackIndex(state),
+      queue: getQueuePlaylistSelector(state),
+      currentTime: getPlayerCurrentTime(state),
+      upNext: getUpNextSelector(state)
+    })),
+    switchMap(({ payload: { changeType }, playingTrackIndex, queue, currentTime, upNext }) => {
       let nextPosition = playingTrackIndex;
 
       if (changeType === ChangeTypes.NEXT) {

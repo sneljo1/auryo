@@ -9,6 +9,7 @@ import * as player from './player';
 import * as ui from './ui';
 import * as track from './track';
 import * as user from './user';
+import * as audio from './audio';
 
 export const rootEpic = combineEpics<RootAction, RootAction, StoreState>(
   ...Object.values(app),
@@ -18,5 +19,6 @@ export const rootEpic = combineEpics<RootAction, RootAction, StoreState>(
   ...Object.values(playlist),
   ...Object.values(track),
   ...Object.values(user),
-  ...Object.values(player)
+  ...Object.values(player),
+  ...Object.values(audio)
 );

@@ -67,7 +67,7 @@ export const TrackListItem: FC<Props> = ({ playlistID, idResult }) => {
       <td className="trackArtist">
         <Link to={`/user/${track.user_id}`}>{track.user.username}</Link>
       </td>
-      <td className="time">{getReadableTime(track.duration, true, true)}</td>
+      <td className="time">{getReadableTime(track.duration / 1000)}</td>
       <td className="trackitemActions">
         <ActionsDropdown trackOrPlaylist={track} />
       </td>

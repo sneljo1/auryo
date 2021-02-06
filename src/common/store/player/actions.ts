@@ -5,6 +5,7 @@ import { ObjectStateItem } from '../objects';
 import { PlaylistIdentifier } from '../playlist';
 import { ChangeTypes, PlayerActionTypes, PlayerStatus } from '../types';
 
+export const seekTo = createAction(PlayerActionTypes.SEEK_TO)<number>();
 export const toggleShuffle = createAction(PlayerActionTypes.TOGGLE_SHUFFLE)<boolean>();
 export const toggleStatus = createAction(PlayerActionTypes.TOGGLE_STATUS, (status?: PlayerStatus) => status)();
 export const playlistFinished = createAction(PlayerActionTypes.PLAYLIST_FINISHED)();
@@ -19,8 +20,6 @@ export const changeTrack = createAction(PlayerActionTypes.CHANGE_TRACK, (changeT
   changeType
 }))();
 
-// TODO: This could be removed if no longer needed
-// export const setDuration = createAction(PlayerActionTypes.SET_DURATION)<number>();
 export const setCurrentTime = createAction(PlayerActionTypes.SET_TIME)<number>();
 
 export const startPlayMusic = createAction(PlayerActionTypes.START_PLAY_MUSIC)<{

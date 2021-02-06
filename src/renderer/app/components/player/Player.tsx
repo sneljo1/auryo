@@ -15,11 +15,10 @@ import {
 } from '@common/store/selectors';
 import { SC } from '@common/utils';
 import moment from 'moment';
-import React, { FC, useCallback, useState } from 'react';
+import React, { FC, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import FallbackImage from '../../../_shared/FallbackImage';
 import { Queue } from '../Queue/Queue';
-import { Audio } from './components/Audio';
 import { CastPopover } from './components/CastPopover';
 import PlayerControls from './components/PlayerControls/PlayerControls';
 import { PlayerProgress } from './components/PlayerProgress/PlayerProgress';
@@ -28,9 +27,6 @@ import styles from './Player.module.scss';
 
 export const Player: FC = () => {
   const dispatch = useDispatch();
-  const [isVolumeSeeking, setIsVolumeSeeking] = useState(false);
-  const [volume, setVolume] = useState(0);
-
   const playingTrack = useSelector(getPlayingTrackSelector);
   const playerStatus = useSelector(getPlayerStatusSelector);
   const track = useSelector(getNormalizedTrack(playingTrack?.id));
@@ -40,7 +36,13 @@ export const Player: FC = () => {
   const shuffle = useSelector(shuffleSelector);
   const repeat = useSelector(repeatSelector);
   const remainingPlays = useSelector(remainingPlaysSelector);
-  const isPlayingOnChromecast = useSelector(isPlayingOnChromecastSelector);
+
+  const changeVolume = useCallback(
+    (value: number) => {
+      dispatch(actions.setConfigKey('audio.volume', value));
+    },
+    [dispatch]
+  );
 
   const volumeChange = useCallback(
     (value: number) => {
@@ -48,19 +50,9 @@ export const Player: FC = () => {
         dispatch(actions.setConfigKey('audio.muted', false));
       }
 
-      setIsVolumeSeeking(true);
-      setVolume(value);
+      changeVolume(value);
     },
-    [audioConfig.muted, dispatch]
-  );
-
-  const onVolumeRelease = useCallback(
-    (value: number) => {
-      setIsVolumeSeeking(false);
-
-      dispatch(actions.setConfigKey('audio.volume', value));
-    },
-    [dispatch]
+    [audioConfig.muted, changeVolume, dispatch]
   );
 
   const toggleShuffle = useCallback(() => {
@@ -82,20 +74,14 @@ export const Player: FC = () => {
   const toggleMute = useCallback(() => {
     if (audioConfig.muted) {
       dispatch(actions.setConfigKey('audio.muted', false));
-      dispatch(actions.setConfigKey('audio.volume', volume));
-    } else {
-      setVolume(volume);
     }
-
     dispatch(actions.setConfigKey('audio.muted', !audioConfig.muted));
-  }, [audioConfig.muted, dispatch, volume]);
+  }, [audioConfig.muted, dispatch]);
 
   const renderAudio = useCallback(() => {
     if (!track || !playingTrack) {
       return null;
     }
-
-    const audioVolume = isVolumeSeeking ? volume : audioConfig.volume;
 
     const limitReached = remainingPlays && remainingPlays.remaining === 0;
 
@@ -111,18 +97,8 @@ export const Player: FC = () => {
       );
     }
 
-    return (
-      <Audio
-        // ref={this.audio}
-        src={`http://resolve-stream/${track.id}`}
-        playerStatus={playerStatus}
-        // autoPlay={autoplay}
-        playerVolume={audioVolume}
-        muted={audioConfig.muted || isPlayingOnChromecast}
-        playbackDeviceId={audioConfig.playbackDeviceId}
-      />
-    );
-  }, [audioConfig, isPlayingOnChromecast, isVolumeSeeking, playerStatus, playingTrack, remainingPlays, track, volume]);
+    return null;
+  }, [playingTrack, remainingPlays, track]);
 
   if (!track || trackLoading || !user) {
     return null;
@@ -134,7 +110,7 @@ export const Player: FC = () => {
 
   const overlayImage = SC.getImageUrl(track, IMAGE_SIZES.XSMALL);
 
-  const audioVolume = isVolumeSeeking ? volume : audioConfig.volume;
+  const audioVolume = audioConfig.muted ? 0 : audioConfig.volume;
 
   let volumeIcon = 'volume-full';
 
@@ -189,7 +165,6 @@ export const Player: FC = () => {
                 vertical
                 onChange={volumeChange}
                 labelRenderer={false}
-                onRelease={onVolumeRelease}
               />
             </div>
           }>

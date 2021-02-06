@@ -1,7 +1,6 @@
 import { resetStore } from '@common/store/actions';
 import { PlayerActionTypes } from '@common/store/player';
 import { rootReducer } from '@common/store/rootReducer';
-import { mainRootEpic } from '@main/epics';
 import { Logger } from '@main/utils/logger';
 import { StoreState } from 'AppReduxTypes';
 import { routerMiddleware } from 'connected-react-router';
@@ -16,13 +15,11 @@ import { devToolsEnhancer } from 'redux-devtools-extension';
 import { createLogger } from 'redux-logger';
 import { createEpicMiddleware } from 'redux-observable';
 import { BehaviorSubject } from 'rxjs';
-import { RootAction } from './declarations';
-import { rootEpic } from '@renderer/epics';
+import { RootAction, RootEpic } from './declarations';
 
 export const history = createMemoryHistory();
 
 export const configureStore = () => {
-  const epic$ = new BehaviorSubject(rootEpic);
   const epicMiddleware = createEpicMiddleware<RootAction, RootAction, StoreState>();
   const connectRouterMiddleware = routerMiddleware(history);
 
@@ -63,18 +60,28 @@ export const configureStore = () => {
 
   const store = createStore(rootReducer(history), enhancer);
 
+  let epic$: BehaviorSubject<RootEpic>;
+
   if (is.renderer()) {
     window.onbeforeunload = () => {
       store.dispatch(resetStore());
     };
-    epicMiddleware.run(rootEpic);
+
+    import('@renderer/epics').then(({ rootEpic }) => {
+      epicMiddleware.run(rootEpic);
+      epic$ = new BehaviorSubject(rootEpic);
+    });
 
     // HACK: electron-redux currently only works like this https://github.com/klarna/electron-redux/issues/285
     ipcRenderer.on('electron-redux.ACTION', (_, action: Action) => {
       store.dispatch(stopForwarding(action));
     });
   } else {
-    epicMiddleware.run(mainRootEpic);
+    import('@main/epics').then(({ mainRootEpic }) => {
+      epicMiddleware.run(mainRootEpic);
+
+      epic$ = new BehaviorSubject(mainRootEpic);
+    });
 
     // HACK: electron-redux currently only works like this https://github.com/klarna/electron-redux/issues/285
     electron.ipcMain.on('electron-redux.ACTION', (event, action) => {
@@ -88,7 +95,6 @@ export const configureStore = () => {
       });
     });
   }
-  // epicMiddleware.run(rootEpic);
 
   if (module.hot) {
     module.hot.accept('@common/store', () => {

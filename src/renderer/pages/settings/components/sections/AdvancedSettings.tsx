@@ -19,6 +19,7 @@ export const AdvancedSettings: FC = () => {
       const audioDevices = devices.filter((device) => device.kind === 'audiooutput');
 
       setAudioDevices(audioDevices);
+      console.log(audioDevices);
     };
 
     initAudioDevices();
@@ -39,7 +40,7 @@ export const AdvancedSettings: FC = () => {
 
           <SelectConfig
             name="Audio output"
-            data={[{ k: 'Use device settings', v: null }, ...audioDevices.map((d) => ({ k: d.label, v: d.deviceId }))]}
+            data={[...audioDevices.map((d) => ({ k: d.label, v: d.deviceId }))]}
             configKey="audio.playbackDeviceId"
           />
 

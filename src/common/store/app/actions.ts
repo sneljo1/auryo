@@ -7,7 +7,7 @@ export const resetStore = createAction(AppActionTypes.RESET_STORE)();
 export const copyToClipboard = createAction(AppActionTypes.COPY_TO_CLIPBOARD)<string>();
 export const openExternalUrl = createAction(AppActionTypes.OPEN_EXTERNAL_URL)<string>();
 export const restartApp = createAction(AppActionTypes.RESTART_APP)();
-export const initApp = createAction(AppActionTypes.INIT)();
+export const initApp = createAction(AppActionTypes.INIT)<{ access_token: string }>();
 export const receiveProtocolAction = createAction(AppActionTypes.RECEIVE_PROTOCOL_ACTION)<{
   action: string;
   params: Record<string, unknown>;
