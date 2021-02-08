@@ -16264,6 +16264,10 @@ rx-lite@*, rx-lite@^4.0.8:
   resolved "https://registry.yarnpkg.com/rx-lite/-/rx-lite-4.0.8.tgz#0b1e11af8bc44836f04a6407e92da42467b79444"
   integrity sha1-Cx4Rr4vESDbwSmQH6S2kJGe3lEQ=
 
+rxjs-audio@Superjo149/rxjs-audio:
+  version "0.0.0-development"
+  resolved "https://codeload.github.com/Superjo149/rxjs-audio/tar.gz/c3f60f147361b328f2b38747753d8ff5c2e9d3a9"
+
 rxjs@^6.5.2:
   version "6.5.4"
   resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-6.5.4.tgz#e0777fe0d184cec7872df147f303572d414e211c"

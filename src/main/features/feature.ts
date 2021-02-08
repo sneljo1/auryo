@@ -1,17 +1,15 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
+import { getTrackEntity, hasLiked, hasReposted } from '@common/store/selectors';
+import { PlayerStatus, PlayingTrack } from '@common/store/types';
+import { SoundCloud } from '@types';
+import { StoreState, _StoreState } from 'AppReduxTypes';
 import { BrowserWindow, ipcMain } from 'electron';
 import { isEqual } from 'lodash';
 import { Store } from 'redux';
-import ReduxWatcher from 'redux-watcher';
+import { Observable } from 'rxjs';
+import { distinctUntilChanged, distinctUntilKeyChanged, filter, map, pluck, withLatestFrom } from 'rxjs/operators';
 // eslint-disable-next-line import/no-cycle
 import { Auryo } from '../app';
-import { StoreState, _StoreState } from 'AppReduxTypes';
-import { from, Observable, of, OperatorFunction } from 'rxjs';
-import { distinctUntilChanged, distinctUntilKeyChanged, filter, map, pluck, withLatestFrom } from 'rxjs/operators';
-import { SoundCloud } from '@types';
-import { AuthLikes, AuthReposts, PlayerStatus, PlayingTrack } from '@common/store/types';
-import { getTrackEntity, hasLiked, hasReposted } from '@common/store/selectors';
-import { SC } from '@common/utils';
 
 export type Handler<T> = (t: {
   store: Store<StoreState>;
@@ -61,8 +59,6 @@ export class Feature {
       this.win = app.mainWindow;
     }
     this.store = app.store;
-
-    this.watcher = new ReduxWatcher(app.store);
 
     this.store$ = new Observable<StoreState>((observer) => {
       // emit the current state as first value:
@@ -146,15 +142,6 @@ export class Feature {
     };
   }
 
-  public subscribe<T>(path: string[], handler: Handler<T>) {
-    this.watcher.watch(path, handler);
-
-    this.listeners.push({
-      path,
-      handler
-    });
-  }
-
   public sendToWebContents(channel: string, params?: any) {
     if (this.win && this.win.webContents) {
       this.win.webContents.send(channel, params, this.constructor.name);
@@ -183,24 +170,8 @@ export class Feature {
         if (ipcListener) {
           ipcMain.removeAllListeners(ipcListener.name);
         }
-      } else {
-        const listener = this.listeners.find((l) => isEqual(l.path, path));
-
-        if (listener) {
-          this.watcher.off(listener.path, listener.handler);
-        }
       }
     } else {
-      this.listeners.forEach((listener) => {
-        try {
-          this.watcher.off(listener.path, listener.handler);
-        } catch (err) {
-          if (!err.message.startsWith('No such listener for')) {
-            throw err;
-          }
-        }
-      });
-
       this.ipclisteners.forEach((listener) => {
         ipcMain.removeAllListeners(listener.name);
       });

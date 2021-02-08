@@ -1,4 +1,4 @@
-declare module "redux-watcher" {
+declare module 'node-mdns-easy' {
   export default class _default {
     libraryName: any;
     library: any;

@@ -280,7 +280,6 @@
     "redux-devtools-extension": "^2.13.8",
     "redux-modal": "^4.0.0",
     "redux-observable": "^1.2.0",
-    "redux-watcher": "^1.0.1",
     "reselect": "^4.0.0",
     "rxjs": "^6.6.3",
     "semver": "^5.3.0",
