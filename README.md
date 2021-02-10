@@ -38,6 +38,7 @@ As of release 2.0.0, Auryo also has been open-sourced. See the list of [contribu
 
 ### Tip Jar
 Show me some love, buy me a 🍺.
+- Github sponsors: [github.com/sponsors/Superjo149](https://github.com/sponsors/Superjo149)
 - Patreon: [patreon.com/sneljo](https://www.patreon.com/sneljo)
 - Ethereum: 0xC9268DF874467474b6e0D4f87409214167fa9070
 - Stellar: GAET3RYSW7KYUBVKOXF46DOSFX5YXZUF7HJ4YZREPXDDVE6FAG7U3TXI
