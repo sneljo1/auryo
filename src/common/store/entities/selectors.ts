@@ -37,9 +37,10 @@ export const getDenormalizedEntity = <T>(result: Normalized.NormalizedResult) =>
 
 export const getMusicEntity = getDenormalizedEntity;
 export const getUserEntity = (id: number) => getDenormalizedEntity<SoundCloud.User | null>({ id, schema: 'users' });
-export const getTrackEntity = (id: number) => getDenormalizedEntity<SoundCloud.Track | null>({ id, schema: 'tracks' });
-export const getPlaylistEntity = (id: number) =>
-  getDenormalizedEntity<SoundCloud.Playlist | null>({ id, schema: 'playlists' });
+export const getTrackEntity = (id: number | string) =>
+  getDenormalizedEntity<SoundCloud.Track | null>({ id: +id, schema: 'tracks' });
+export const getPlaylistEntity = (id: number | string) =>
+  getDenormalizedEntity<SoundCloud.Playlist | null>({ id: +id, schema: 'playlists' });
 
 export const getCommentEntity = (id: number) =>
   getDenormalizedEntity<SoundCloud.Comment | null>({ id, schema: 'comments' });

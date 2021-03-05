@@ -22,7 +22,7 @@ const getTags = (track: SoundCloud.Track | Normalized.Track) => {
     return [];
   }
 
-  return track.tag_list.split(/\s(?=(?:[^'"`]*(['"`])[^'"`]*\1)*[^'"`]*$)/g).reduce((all: string[], obj: string) => {
+  return (track.tag_list.match(/[^" ]+|"[^"]*"/g) ?? []).reduce((all: string[], obj: string) => {
     if (obj && obj !== '"') {
       all.push(obj.replace(/"/g, ''));
     }
@@ -57,7 +57,7 @@ export const TrackOverview = React.memo<Props>(({ track }) => {
           </div>
 
           <div className="col-6 col-lg-12">
-            <div className="p-3 track-info">
+            <div className="p-2 track-info">
               <strong>Created</strong>
               <div>{moment(new Date(track.created_at)).fromNow()}</div>
 
@@ -67,31 +67,29 @@ export const TrackOverview = React.memo<Props>(({ track }) => {
                   <div>{track.label_name}</div>
                 </>
               )}
+              <div className="taglist">
+                {getTags(track).map((tag) => (
+                  <Link key={tag} to={`/tags/${tag.replace('#', '')}`}>
+                    <span className="badge badge-secondary">{tag}</span>
+                  </Link>
+                ))}
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       <div className="trackPadding col-12 col-lg">
-        <div className="flex stats align-items-center justify-content-between">
-          <div className="taglist">
-            {getTags(track).map((tag) => (
-              <Link key={tag} to={`/tags/${tag.replace('#', '')}`}>
-                <span className="badge badge-secondary">{tag}</span>
-              </Link>
-            ))}
-          </div>
-          <div className="d-flex align-items-center">
-            <i className="bx bxs-heart" />
+        <div className="flex stats align-items-center">
+          <i className="bx bxs-heart" />
 
-            <span>{abbreviateNumber(track.likes_count)}</span>
+          <span>{abbreviateNumber(track.likes_count)}</span>
 
-            <i className="bx bx-play" />
-            <span>{abbreviateNumber(track.playback_count)}</span>
+          <i className="bx bx-play" />
+          <span>{abbreviateNumber(track.playback_count)}</span>
 
-            <i className="bx bx-repost" />
-            <span>{abbreviateNumber(track.reposts_count)}</span>
-          </div>
+          <i className="bx bx-repost" />
+          <span>{abbreviateNumber(track.reposts_count)}</span>
         </div>
 
         {track.description && (

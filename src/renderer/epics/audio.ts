@@ -1,5 +1,8 @@
+import { Intent } from '@blueprintjs/core';
 import {
+  addToast,
   initApp,
+  logout,
   playTrack,
   restartTrack,
   seekTo,
@@ -10,10 +13,13 @@ import {
 } from '@common/store/actions';
 import { RootEpic } from '@common/store/declarations';
 import { audioConfigSelector, getPlayerStatusSelector } from '@common/store/selectors';
+import { fetchStreams } from '@common/store/track/api';
 import { PlayerStatus } from '@common/store/types';
-import { EMPTY, of } from 'rxjs';
+import { handleEpicError } from '@common/utils/errors/EpicError';
+import { defer, EMPTY, of } from 'rxjs';
 import { AudioStream } from 'rxjs-audio';
 import {
+  catchError,
   distinctUntilChanged,
   exhaustMap,
   filter,
@@ -36,11 +42,18 @@ export const initializeAudioStreamEpic: RootEpic = (action$, state$) =>
     withLatestFrom(state$),
     map(([_, state]) => audioConfigSelector(state)),
     tap((audoConfig) => {
-      console.log(audoConfig);
-
       audio.setVolume(audoConfig.volume);
       audio.setMute(audoConfig.muted);
       audio.setSinkId(audoConfig.playbackDeviceId);
+    }),
+    ignoreElements()
+  );
+
+export const stopAudioStreamEpic: RootEpic = (action$) =>
+  action$.pipe(
+    filter(isActionOf([logout])),
+    tap(() => {
+      audio.stop();
     }),
     ignoreElements()
   );
@@ -49,8 +62,12 @@ export const audioStreamErrorEpic: RootEpic = () =>
   // @ts-expect-error
   audio
     .events()
-    .pipe(filter((event) => event.type === 'error'))
     .pipe(
+      // @ts-expect-error
+      filter((event) => event.type === 'error')
+    )
+    .pipe(
+      // @ts-expect-error
       exhaustMap((error) => {
         console.error('Audio error', error);
 
@@ -60,7 +77,7 @@ export const audioStreamErrorEpic: RootEpic = () =>
             break;
           case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
             return of(
-              actions.addToast({
+              addToast({
                 message:
                   'We are unable to play this track. It may be that this song is not available via third party applications.',
                 intent: Intent.DANGER
@@ -70,7 +87,7 @@ export const audioStreamErrorEpic: RootEpic = () =>
           case MediaError.MEDIA_ERR_DECODE:
           default:
             return of(
-              actions.addToast({
+              addToast({
                 message: 'Something went wrong while playing this track',
                 intent: Intent.DANGER
               })
@@ -85,10 +102,15 @@ export const loadTrackOnPlayEpic: RootEpic = (action$) =>
   action$.pipe(
     filter(isActionOf(playTrack.success)),
     pluck('payload'),
-    tap((payload) => {
-      audio.loadTrack(`http://resolve-stream/${payload.idResult.id}`);
-    }),
-    ignoreElements()
+    switchMap(({ idResult }) =>
+      defer(() => fetchStreams({ trackId: idResult.id })).pipe(
+        tap((streams) => {
+          audio.loadTrack(streams.http_mp3_128_url);
+        }),
+        ignoreElements(),
+        catchError(handleEpicError(action$))
+      )
+    )
   );
 
 export const toggleStatusEpic: RootEpic = (action$, state$) =>
@@ -123,16 +145,23 @@ export const restartTrackEpic: RootEpic = (action$) =>
     ignoreElements()
   );
 
-const canPlay$ = audio.events().pipe(filter((event) => event.type === 'canplay'));
-const ended$ = audio.events().pipe(filter((event: Event) => event.type === 'ended'));
+const canPlay$ = audio.events().pipe(
+  // @ts-expect-error
+  filter((event) => event.type === 'canplay')
+);
+const ended$ = audio.events().pipe(
+  // @ts-expect-error
+  filter((event: Event) => event.type === 'ended')
+);
 
 export const trackFinishedEpic: RootEpic = () =>
   // @ts-expect-error
   canPlay$.pipe(switchMap(() => ended$)).pipe(mapTo(trackFinished()));
 
-export const trackCurrentPositionEpic: RootEpic = (action$) =>
+export const trackCurrentPositionEpic: RootEpic = () =>
   // @ts-expect-error
   audio.getState().pipe(
+    // @ts-expect-error
     pluck('trackInfo', 'currentTime'),
     filter((currentTime) => currentTime != null),
     map((currentTime) => Math.ceil(currentTime)),
@@ -142,7 +171,6 @@ export const trackCurrentPositionEpic: RootEpic = (action$) =>
   );
 
 export const changeVolumeEpic: RootEpic = (action$) =>
-  // @ts-expect-error
   action$.pipe(
     filter(isActionOf(setConfigKey)),
     pluck('payload'),
@@ -155,7 +183,6 @@ export const changeVolumeEpic: RootEpic = (action$) =>
   );
 
 export const setMuteEpic: RootEpic = (action$) =>
-  // @ts-expect-error
   action$.pipe(
     filter(isActionOf(setConfigKey)),
     pluck('payload'),
@@ -167,7 +194,6 @@ export const setMuteEpic: RootEpic = (action$) =>
   );
 
 export const setSinkEpic: RootEpic = (action$) =>
-  // @ts-expect-error
   action$.pipe(
     filter(isActionOf(setConfigKey)),
     pluck('payload'),
@@ -179,7 +205,6 @@ export const setSinkEpic: RootEpic = (action$) =>
   );
 
 export const seekToEpic: RootEpic = (action$) =>
-  // @ts-expect-error
   action$.pipe(
     filter(isActionOf(seekTo)),
     pluck('payload'),

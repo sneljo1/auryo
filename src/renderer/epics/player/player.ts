@@ -1,5 +1,5 @@
 import { EVENTS, IMAGE_SIZES } from '@common/constants';
-import { SC } from '@common/utils';
+import { isMatchingPlaylistID, SC } from '@common/utils';
 import { EpicError, handleEpicError } from '@common/utils/errors/EpicError';
 import { Logger } from '@main/utils/logger';
 import { SoundCloud } from '@types';
@@ -11,6 +11,9 @@ import { StateObservable } from 'redux-observable';
 import { concat, EMPTY, iif, merge, of, throwError } from 'rxjs';
 import {
   catchError,
+  debounceTime,
+  distinctUntilChanged,
+  exhaustMap,
   filter,
   ignoreElements,
   map,
@@ -43,12 +46,14 @@ import {
   trackFinished
 } from '../../../common/store/actions';
 import { RootEpic } from '../../../common/store/declarations';
+import { setCurrentIndex, shuffleQueue } from '../../../common/store/player/actions';
 import {
   configSelector,
   getCurrentPlaylistId,
   getPlayerCurrentTime,
   getPlayingTrackIndex,
   getPlayingTrackSelector,
+  getPlaylistEntity,
   getPlaylistObjectSelector,
   getPlaylistsObjects,
   getQueuePlaylistSelector,
@@ -65,7 +70,6 @@ import {
   PlaylistTypes,
   RepeatTypes
 } from '../../../common/store/types';
-import { setCurrentIndex, shuffleQueue } from '../../../common/store/player/actions';
 
 const logger = Logger.createLogger('REDUX/PLAYER');
 
@@ -80,7 +84,7 @@ export const startPlayMusicEpic: RootEpic = (action$, state$) =>
       currentPlaylistId: getCurrentPlaylistId(state),
       shuffle: shuffleSelector(state)
     })),
-    switchMap(({ payload, currentPlaylistId, shuffle }) => {
+    mergeMap(({ payload, currentPlaylistId, shuffle }) => {
       const origin = payload.origin ?? currentPlaylistId;
 
       if (!origin) {
@@ -88,21 +92,35 @@ export const startPlayMusicEpic: RootEpic = (action$, state$) =>
       }
 
       return concat(
-        // If origin is set, set playlist
-        of(payload).pipe(
-          pluck('origin'),
-          filter(Boolean),
-          mergeMap(() =>
-            merge(
-              // Set current playlist
-              of(setCurrentPlaylist.request({ playlistId: origin })),
+        of({}).pipe(
+          // If origin is set, and not the same as the current playlist
+          filter(
+            () => !!payload.origin && (!currentPlaylistId || !isMatchingPlaylistID(payload.origin, currentPlaylistId))
+          ),
+          exhaustMap(() =>
+            // Set current playlist and shuffle from current position is needed
+            action$.pipe(
+              filter(isActionOf(setCurrentPlaylist.success)),
+              take(1),
+              takeUntil(action$.pipe(filter(isActionOf([setCurrentPlaylist.failure])))),
 
-              action$.pipe(
-                // Wait for playlist to be set
-                filter(isActionOf(setCurrentPlaylist.success)),
-                take(1),
-                takeUntil(action$.pipe(filter(isActionOf(setCurrentPlaylist.failure))))
-              )
+              // Check if we need to shuffle this playlist
+              filter((idResult) => shuffle && !!idResult),
+              withLatestFrom(state$),
+              map(([_, state]) => ({
+                idResult: payload.idResult as ObjectStateItem,
+                queueObject: getQueuePlaylistSelector(state)
+              })),
+              map(({ queueObject, idResult: { id, un } }) => {
+                const currentTrackIndex = _.findIndex(
+                  queueObject.items,
+                  (item) => item.id === id && ((!!item.un && !!un && item.un === un) || (!item.un && !un))
+                );
+
+                return shuffleQueue({ fromIndex: currentTrackIndex + 1 });
+              }),
+
+              startWith(setCurrentPlaylist.request({ playlistId: origin })) // < -- Start here
             )
           )
         ),
@@ -113,24 +131,6 @@ export const startPlayMusicEpic: RootEpic = (action$, state$) =>
             filter((idResult): idResult is ObjectStateItem => !!idResult),
             mergeMap((idResult) =>
               concat(
-                // If set, shuffle the playlist
-                of(shuffle).pipe(
-                  filter(Boolean),
-                  map(() => state$.value),
-                  map((lastestState) => ({
-                    idResult,
-                    queueObject: getQueuePlaylistSelector(lastestState)
-                  })),
-                  map(({ queueObject, idResult: { id, un } }) => {
-                    const currentTrackIndex = _.findIndex(
-                      queueObject.items,
-                      (item) => item.id === id && ((!!item.un && !!un && item.un === un) || (!item.un && !un))
-                    );
-
-                    return shuffleQueue({ fromIndex: currentTrackIndex + 1 });
-                  })
-                ),
-
                 // Execute sub-action according to type of track or playlist
                 // If it is a playlist we do playPlaylist, to try and fetch tracks, after this, we will do playTrack.
                 // If it is a track, we just do playTrack.
@@ -302,15 +302,18 @@ export const playPlaylistEpic: RootEpic = (action$, state$) =>
           filter((payload) => _.isEqual(currentPlaylistIdentifier, payload)),
           take(1),
           takeUntil(action$.pipe(filter(isActionOf(getPlaylistTracks.failure)))),
-          ignoreElements(),
-          startWith(getPlaylistTracks.request(currentPlaylistIdentifier))
-        ),
 
-        // Get items, start playing first or last depending on changeType
-        of(currentPlaylistIdentifier).pipe(
+          startWith(getPlaylistTracks.request(currentPlaylistIdentifier)),
+
           withLatestFrom(state$),
           mergeMap(([, latestState]) => {
+            console.log('ddddddd', currentPlaylistIdentifier.objectId);
+
             const playlist = getPlaylistObjectSelector(currentPlaylistIdentifier)(latestState);
+            const p = getPlaylistEntity(currentPlaylistIdentifier.objectId)(latestState);
+
+            console.log(p);
+            console.log(playlist);
 
             if (!playlist?.items?.length) {
               // TODO: we cannot play this playlist, dispatch notification?
@@ -332,6 +335,9 @@ export const playPlaylistEpic: RootEpic = (action$, state$) =>
             );
           })
         )
+
+        // Get items, start playing first or last depending on changeType
+        // of(currentPlaylistIdentifier).pipe()
       );
     }),
     catchError(handleEpicError(action$, playTrack.failure({})))
@@ -430,9 +436,7 @@ export const startPlayMusicIndexEpic: RootEpic = (action$, state$) =>
         of(index).pipe(
           withLatestFrom(state$),
           map(([, latestState]) => getQueueTrackByIndexSelector(index)(latestState)),
-          tap((nextTrack) => logger.trace({ nextTrack })),
           filter((nextTrack) => !nextTrack),
-          tap(() => logger.trace('startPlayMusicIndexEpic:: Track does not exist', { index })),
           mergeMap(() =>
             action$.pipe(
               filter(isActionOf(genericPlaylistFetchMore.success)),
@@ -441,7 +445,6 @@ export const startPlayMusicIndexEpic: RootEpic = (action$, state$) =>
               take(1),
               takeUntil(action$.pipe(filter(isActionOf(genericPlaylistFetchMore.failure)))),
               ignoreElements(),
-              tap(() => logger.trace('startPlayMusicIndexEpic:: Using generic fetch more to fetch track')),
               startWith(genericPlaylistFetchMore.request({ playlistType: PlaylistTypes.QUEUE }))
             )
           )
@@ -452,7 +455,7 @@ export const startPlayMusicIndexEpic: RootEpic = (action$, state$) =>
           mergeMap((nextTrack) => {
             if (!nextTrack) {
               // TODO: what if it still does not exist
-              logger.trace('startPlayMusicIndexEpic:: Track still does not exist', { index });
+              console.trace('startPlayMusicIndexEpic:: Track still does not exist', { index });
 
               return ignoreElements();
             }
@@ -472,7 +475,6 @@ export const startPlayMusicIndexEpic: RootEpic = (action$, state$) =>
   );
 
 export const setCurrentPlaylistEpic: RootEpic = (action$, state$) =>
-  // @ts-expect-error
   action$.pipe(
     filter(isActionOf(setCurrentPlaylist.request)),
     pluck('payload'),
@@ -483,7 +485,9 @@ export const setCurrentPlaylistEpic: RootEpic = (action$, state$) =>
       playlists: getPlaylistsObjects(latestState)
     })),
     filter(({ playlistObject }) => !!playlistObject),
-    map(({ playlistId, playlistObject, playlists }) => {
+    exhaustMap(({ playlistId, playlistObject, playlists }) => {
+      console.log('setCurrentPlaylist');
+
       // Replace playlists with their items
       const items = (playlistObject?.items ?? []).reduce<ObjectStateItem[]>((all, item) => {
         if (item.schema === 'playlists') {
@@ -512,7 +516,7 @@ export const setCurrentPlaylistEpic: RootEpic = (action$, state$) =>
         return all;
       }, []);
 
-      return setCurrentPlaylist.success({ items, playlistId });
+      return of(setCurrentPlaylist.success({ items, playlistId }));
     }),
     catchError(handleEpicError(action$, setCurrentPlaylist.failure({})))
   );
@@ -520,7 +524,7 @@ export const setCurrentPlaylistEpic: RootEpic = (action$, state$) =>
 // Toggle shuffle
 export const toggleShuffleEpic: RootEpic = (action$, state$) =>
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-expect-error
+
   action$.pipe(
     filter(isActionOf(toggleShuffle)),
     pluck('payload'),
@@ -571,8 +575,8 @@ const recalculateCurrentIndex = (state$: StateObservable<StoreState>) =>
     }),
     filter(({ playingTrack, currentPlaylist }) => !!playingTrack && !!currentPlaylist),
     map(({ playingTrack, currentPlaylist }) => {
-      const id = playingTrack?.parentPlaylistID?.id ?? playingTrack?.id;
-      const un = playingTrack?.parentPlaylistID?.un ?? playingTrack?.un;
+      const { id, un } = playingTrack ?? {};
+
       const currentTrackIndex = _.findIndex(
         currentPlaylist?.items ?? [],
         (item) => item.id === id && ((!!item.un && !!un && item.un === un) || (!item.un && !un))
@@ -591,18 +595,16 @@ export const trackChangeNotificationEpic: RootEpic = (action$, state$) =>
     filter(isActionOf(startPlayMusic)),
     pluck('payload'),
     filter(({ idResult }) => !!idResult),
+    distinctUntilChanged(),
+    debounceTime(500),
     withLatestFrom(state$),
     map(([payload, state]) => ({
       track: getTrackEntity(payload.idResult?.id as number)(state),
-      shouldShowNotification: state.config.app.showTrackChangeNotification
-      // TODO: is window focussed? then do not show
+      shouldShowNotification: state.config.app.showTrackChangeNotification && !document.hasFocus()
     })),
-    tap((data) => console.log('trackChangeNotificationEpic', data)),
-    filter(({ shouldShowNotification }) => shouldShowNotification),
+    filter(({ shouldShowNotification, track }) => shouldShowNotification && !!track),
     pluck('track'),
-    filter<SoundCloud.Track>(Boolean),
-    tap((track) => {
-      console.log('fesfsewg', process.type);
+    tap<SoundCloud.Track>((track) => {
       const myNotification = new Notification(track.title, {
         body: `${track.user && track.user.username ? track.user.username : ''}`,
         icon: SC.getImageUrl(track, IMAGE_SIZES.SMALL),

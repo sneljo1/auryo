@@ -10,7 +10,6 @@ import {
 } from '@common/store/selectors';
 import { LikeType, PlaylistTypes, RepostType } from '@common/store/types';
 import { getReadableTimeFull, SC } from '@common/utils';
-import { IPC } from '@common/utils/ipc';
 import { useLoadMorePromise } from '@renderer/hooks/useLoadMorePromise';
 import { SetLayoutSettings } from '@renderer/_shared/context/contentContext';
 import { ToggleLikeButton } from '@renderer/_shared/PageHeader/components/ToggleLikeButton';

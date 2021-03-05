@@ -3,7 +3,6 @@ import * as actions from '@common/store/actions';
 import { isAuthenticatedSelector } from '@common/store/selectors';
 import React, { FC, useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { CONFIG } from 'src/config';
 import { SelectConfig } from '../SelectConfig';
 
 export const AdvancedSettings: FC = () => {
@@ -19,7 +18,6 @@ export const AdvancedSettings: FC = () => {
       const audioDevices = devices.filter((device) => device.kind === 'audiooutput');
 
       setAudioDevices(audioDevices);
-      console.log(audioDevices);
     };
 
     initAudioDevices();
@@ -48,8 +46,6 @@ export const AdvancedSettings: FC = () => {
             <a
               role="button"
               onClick={() => {
-                // TODO should be an action
-                dispatch(actions.setConfig(CONFIG.DEFAULT_CONFIG));
                 dispatch(actions.logout());
               }}
               className="text-danger">

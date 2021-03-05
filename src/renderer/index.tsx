@@ -1,3 +1,5 @@
+// eslint-disable-next-line import/no-extraneous-dependencies
+import 'react-hot-loader';
 import '@blueprintjs/core/lib/css/blueprint.css';
 import '@blueprintjs/icons/lib/css/blueprint-icons.css';
 import '@common/sentryReporter';
@@ -8,7 +10,7 @@ import is from 'electron-is';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
-import { App } from './App';
+import App from './App';
 import './css/app.scss';
 
 let osClass = '';
@@ -22,12 +24,6 @@ if (is.macOS()) {
 }
 
 document.getElementsByTagName('html')[0].classList.add(osClass);
-
-if (process.env.NODE_ENV === 'development') {
-  // eslint-disable-next-line
-  // const { whyDidYouUpdate } = require('why-did-you-update');
-  // whyDidYouUpdate(React);
-}
 
 const store = configureStore();
 

@@ -62,7 +62,9 @@ rules.push(
         loader: 'url-loader',
         query: {
           limit: 10000,
-          name: 'imgs/[name]--[folder].[ext]'
+          name: '[name]--[folder].[ext]',
+          outputPath: 'imgs/',
+          publicPath: '../imgs/'
         }
       },
       {
@@ -96,7 +98,9 @@ rules.push(
     loader: 'url-loader',
     options: {
       limit: 10000,
-      name: 'media/[name]--[folder].[ext]'
+      name: '[name]--[folder].[ext]',
+      outputPath: 'media/',
+      publicPath: '../media/'
     }
   },
   {
@@ -105,7 +109,9 @@ rules.push(
       loader: 'url-loader',
       query: {
         limit: 10000,
-        name: 'fonts/[name]--[folder].[ext]'
+        name: '[name]--[folder].[ext]',
+        outputPath: 'fonts/',
+        publicPath: '../fonts/'
       }
     }
   }

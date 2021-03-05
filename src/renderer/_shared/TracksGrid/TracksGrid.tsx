@@ -69,7 +69,7 @@ const TracksGrid: FC<Props> = (props) => {
                 <>
                   <List
                     style={{ height: '100%', overflow: 'initial' }}
-                    ref={list}
+                    ref={list as any}
                     height={window.innerHeight}
                     itemCount={itemCount}
                     onItemsRendered={onItemsRendered}

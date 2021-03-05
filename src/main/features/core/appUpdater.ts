@@ -25,11 +25,12 @@ export default class AppUpdater extends Feature {
   }
 
   public shouldRun() {
-    return (
-      !process.env.TOKEN &&
-      process.env.NODE_ENV === 'production' &&
-      !(process.platform === 'linux' && process.env.SNAP_USER_DATA != null)
-    );
+    return false;
+    // return (
+    //   !process.env.TOKEN &&
+    //   process.env.NODE_ENV === 'production' &&
+    //   !(process.platform === 'linux' && process.env.SNAP_USER_DATA != null)
+    // );
   }
 
   public register() {

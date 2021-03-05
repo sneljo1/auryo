@@ -1,9 +1,9 @@
-import { replace } from 'connected-react-router';
-import { from, fromEvent, merge, of } from 'rxjs';
-import { catchError, filter, first, map, switchMap, withLatestFrom } from 'rxjs/operators';
+import { push, replace } from 'connected-react-router';
+import { defer, EMPTY, from, fromEvent, merge, of } from 'rxjs';
+import { catchError, filter, first, map, pluck, switchMap, withLatestFrom } from 'rxjs/operators';
 import { isActionOf } from 'typesafe-actions';
-import { getRemainingPlays, initApp } from '../../common/store/actions';
-import { toggleOffline } from '../../common/store/app/actions';
+import { getRemainingPlays, initApp, toggleStatus } from '../../common/store/actions';
+import { openExternalUrl, resolveSoundCloudUrl, toggleOffline } from '../../common/store/app/actions';
 import * as APIService from '../../common/store/app/api';
 import { RemainingPlays } from '../../common/store/app/types';
 import { RootEpic } from '../../common/store/declarations';
@@ -63,7 +63,49 @@ export const getRemainingPlaysEpic: RootEpic = (action$, state$) =>
     })
   );
 
-export const OfflineStatusEpic: RootEpic = () =>
+export const offlineStatusEpic: RootEpic = () =>
   merge(of(null), fromEvent(window, 'online'), fromEvent(window, 'offline')).pipe(
     map(() => toggleOffline(!navigator.onLine))
+  );
+
+export const toggleStatusSpaceBarEpic: RootEpic = () =>
+  fromEvent(document, 'keydown').pipe(
+    filter<KeyboardEvent>((d) => d.code === 'Space'),
+    switchMap((event) => {
+      // Only toggle status when not in input field
+      if (!(event?.target instanceof HTMLInputElement)) {
+        event.preventDefault();
+        return of(toggleStatus());
+      }
+
+      return EMPTY;
+    })
+  );
+
+export const resolveUrlEpic: RootEpic = (action$) =>
+  action$.pipe(
+    filter(isActionOf(resolveSoundCloudUrl)),
+    pluck('payload'),
+    switchMap((url) =>
+      defer(() => APIService.resolveSoundCloudUrl(url)).pipe(
+        map((json) => {
+          switch (json.kind) {
+            case 'track':
+              return push(`/track/${json.id}`);
+            case 'playlist':
+              return push(`/playlist/${json.id}`);
+            case 'user':
+              return push(`/user/${json.id}`);
+            default:
+              // eslint-disable-next-line no-console
+              console.error('Resolve not implemented for', json.kind);
+              return openExternalUrl(url);
+          }
+        }),
+        catchError((err) => {
+          // TODO: error handling needed?
+          return of(openExternalUrl(url));
+        })
+      )
+    )
   );

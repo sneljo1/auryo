@@ -81,6 +81,7 @@ export const QueueItem: FC<Props> = ({ playing, played, item, index }) => {
         <div className="item-info">
           <div className="title">
             <Link
+              style={{ display: 'inline-block' }}
               onClick={(e) => {
                 e.stopPropagation();
                 e.nativeEvent.stopImmediatePropagation();

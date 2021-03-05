@@ -1,4 +1,5 @@
 import fetchToJsonNew from '@common/api/helpers/fetchToJsonNew';
+import { SoundCloud } from '@types';
 
 interface FetchRemainingTracksResponse {
   statuses: Status[];
@@ -19,5 +20,15 @@ export function fetchRemainingTracks() {
   return fetchToJsonNew<FetchRemainingTracksResponse>({
     uri: 'rate_limit_status',
     clientId: true
+  });
+}
+
+export function resolveSoundCloudUrl(url: string) {
+  return fetchToJsonNew<SoundCloud.Asset<any>>({
+    uri: 'resolve',
+    clientId: true,
+    queryParams: {
+      url
+    }
   });
 }

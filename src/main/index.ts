@@ -10,13 +10,12 @@ if (process.argv.some((arg) => arg === '--development') || process.argv.some((ar
   process.env.ENV = 'development';
 }
 
-let staticPath = path.resolve(__dirname, '..', '..', 'static');
+global.__static = path.resolve(__dirname, '..', 'renderer', 'static');
 
-if (process.env.NODE_ENV !== 'development') {
-  staticPath = path.resolve(__dirname, 'static');
+if (process.env.NODE_ENV === 'development') {
+  // eslint-disable-next-line global-require
+  require('./index.dev');
 }
-
-global.__static = staticPath.replace(/\\/g, '\\\\');
 
 import { configureStore } from '@common/store';
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -59,7 +58,7 @@ if (isSingleInstance) {
     try {
       await auryo.start();
     } catch (err) {
-      logger.error('Error starting auryo', err);
+      logger.error(err, 'Error starting Auryo');
     }
   });
 }

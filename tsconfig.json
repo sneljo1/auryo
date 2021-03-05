@@ -49,7 +49,6 @@
         "src/types/index"
       ]
     },
-    // prod
     "sourceMap": true
   },
   "include": [

@@ -1,24 +1,12 @@
 import { Button } from '@blueprintjs/core';
-import * as actions from '@common/store/actions';
-import { ConfigValue } from '@common/store/config';
 import { CheckboxConfig } from '@renderer/pages/settings/components/CheckboxConfig';
-import React, { useCallback } from 'react';
-import { useDispatch } from 'react-redux';
+import React from 'react';
 
 interface Props {
   onNext(): void;
 }
 
 export const PrivacyStep = React.memo<Props>(({ onNext }) => {
-  const dispatch = useDispatch();
-
-  const setConfigKey = useCallback(
-    (key: string, value: ConfigValue) => {
-      return dispatch(actions.setConfigKey(key, value));
-    },
-    [dispatch]
-  );
-
   return (
     <>
       <h1 className="animated fadeInLeft faster first">🔒 Privacy</h1>

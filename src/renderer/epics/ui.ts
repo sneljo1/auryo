@@ -33,7 +33,6 @@ export const setDebouncedSearchQueryEpic: RootEpic = (action$) =>
   );
 
 export const setSearchQueryEpic: RootEpic = (action$, state$) =>
-  // @ts-expect-error
   action$.pipe(
     filter(isActionOf(setSearchQuery)),
     pluck('payload'),

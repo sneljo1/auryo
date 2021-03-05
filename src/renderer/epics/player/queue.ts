@@ -27,7 +27,6 @@ import { upNextEndSelector } from '../../../common/store/player/selectors';
  * UpNext should be inserted into the QUEUE before playing the music.
  */
 export const playTrackFromQueueEpic: RootEpic = (action$, state$) =>
-  // @ts-expect-error
   action$.pipe(
     filter(isActionOf(playTrackFromQueue)),
     pluck('payload'),
@@ -68,7 +67,7 @@ export const playTrackFromQueueEpic: RootEpic = (action$, state$) =>
  */
 export const addUpNextEpic: RootEpic = (action$, state$) =>
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-expect-error
+
   action$.pipe(
     filter(isActionOf(addUpNext.request)),
     pluck('payload'),
@@ -115,7 +114,6 @@ export const addUpNextEpic: RootEpic = (action$, state$) =>
  * Removes a track using an index from either the QUEUE playlist or upNext
  */
 export const removeFromQueueEpic: RootEpic = (action$, state$) =>
-  // @ts-expect-error
   action$.pipe(
     filter(isActionOf(removeFromQueueOrUpNext)),
     pluck('payload'),

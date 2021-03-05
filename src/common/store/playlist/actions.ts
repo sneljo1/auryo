@@ -1,15 +1,17 @@
-import { wError, wSuccess } from '@common/utils/reduxUtils';
-import { EntitiesOf, EpicFailure, Normalized, SoundCloud } from '@types';
+import { wCancel, wError, wSuccess } from '@common/utils/reduxUtils';
+import { EntitiesOf, Normalized, SoundCloud } from '@types';
 import { createAction, createAsyncAction } from 'typesafe-actions';
 import { PlaylistActionTypes, PlaylistIdentifier, PlaylistObjectItem, SortTypes } from '../types';
 
 export const getGenericPlaylist = createAsyncAction(
   String(PlaylistActionTypes.GET_GENERIC_PLAYLIST),
   wSuccess(PlaylistActionTypes.GET_GENERIC_PLAYLIST),
-  wError(PlaylistActionTypes.GET_GENERIC_PLAYLIST)
+  wError(PlaylistActionTypes.GET_GENERIC_PLAYLIST),
+  wCancel(PlaylistActionTypes.GET_GENERIC_PLAYLIST)
 )<
   PlaylistIdentifier & { refresh: boolean; sortType?: SortTypes; searchString?: string },
   PlaylistObjectItem & { refresh?: boolean; query?: string },
+  PlaylistIdentifier,
   PlaylistIdentifier
 >();
 
@@ -31,7 +33,7 @@ export const getForYouSelection = createAsyncAction(
   wSuccess(PlaylistActionTypes.GET_FORYOU_SELECTION),
   wError(PlaylistActionTypes.GET_FORYOU_SELECTION)
 )<
-  undefined,
+  unknown,
   {
     objects: ForYourObject[];
     entities: EntitiesOf<Omit<SoundCloud.Playlist, 'tracks'> & { tracks: Normalized.NormalizedResult[] }>;

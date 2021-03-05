@@ -9,7 +9,6 @@ import { isActionOf } from 'typesafe-actions';
 const logger = Logger.createLogger('EPIC/main/config');
 
 export const saveSettingsEpic: RootEpic = (action$, state$) =>
-  // @ts-expect-error
   action$.pipe(
     filter(isActionOf([setConfigKey, setConfig])),
     withLatestFrom(state$),
@@ -17,7 +16,10 @@ export const saveSettingsEpic: RootEpic = (action$, state$) =>
     map(([, state]) => state.config),
     tap((latestConfig) => {
       settings.set(latestConfig);
-      SC.initialize(latestConfig.auth.token);
+
+      if (latestConfig.auth.token) {
+        SC.initialize(latestConfig.auth.token);
+      }
     }),
     tap(() => logger.trace('Settings saved')),
     ignoreElements()

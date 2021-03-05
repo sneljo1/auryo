@@ -18,7 +18,6 @@ export const configReducer = createReducer<ConfigState>(initialState)
   .handleAction(setConfigKey, (state, action) => {
     const { payload } = action;
 
-    console.log(payload, action.type, process.type);
     return {
       ...state,
       ...immutable.set(state, payload.key, payload.value)

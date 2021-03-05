@@ -27,7 +27,6 @@ export const setTokenEpic: RootEpic = (action$) =>
   action$.pipe(
     filter(isActionOf([login.success, tokenRefresh.success, initApp])),
     pluck('payload'),
-    tap((payload) => console.log('setTokenEpic', payload)),
     filter((payload): payload is TokenResponse => !!payload?.access_token),
     tap((payload) => SC.initialize(payload.access_token)),
     filter((payload): payload is TokenResponse => !!payload.refresh_token),
@@ -46,7 +45,6 @@ export const loginEpic: RootEpic = (action$, state$) =>
   action$.pipe(
     filter(isActionOf([login.success, initApp])),
     withLatestFrom(state$),
-    tap(([payload]) => console.log('loginEpic', payload)),
     switchMap(([, state]) => {
       const config = configSelector(state);
 
@@ -74,7 +72,6 @@ export const loginEpic: RootEpic = (action$, state$) =>
 export const finishOnboardingEpic: RootEpic = (action$) =>
   action$.pipe(
     filter(isActionOf(finishOnboarding)),
-    tap((payload) => console.log('finishOnboardingEpic', payload)),
     exhaustMap(() => of(setConfigKey('lastLogin', Date.now()), login.success({})))
   );
 

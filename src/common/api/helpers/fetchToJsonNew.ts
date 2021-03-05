@@ -1,6 +1,7 @@
 import { memToken } from '@common/utils/soundcloudUtils';
-import * as querystring from 'querystring';
-import { fromFetch } from 'rxjs/fetch';
+import { AxiosRequestConfig } from 'axios';
+import Axios from 'axios-observable';
+import { pluck } from 'rxjs/operators';
 import { CONFIG } from '../../../config';
 
 const soundCloudBaseUrl = 'https://api.soundcloud.com/';
@@ -15,7 +16,7 @@ export interface FetchOptions {
   url?: string;
 }
 
-export default function fetchToJsonNew<T>(fetchOptions: FetchOptions, options: RequestInit = {}) {
+export default function fetchToJsonNew<T>(fetchOptions: FetchOptions, options: AxiosRequestConfig = {}) {
   const { queryParams = {} } = fetchOptions;
 
   if (fetchOptions.clientId) {
@@ -38,13 +39,9 @@ export default function fetchToJsonNew<T>(fetchOptions: FetchOptions, options: R
   if (fetchOptions.useV2Endpoint) {
     baseUrl = soundCloudBaseUrlV2;
   }
-
-  return fromFetch<T>(fetchOptions.url ?? `${baseUrl}${fetchOptions.uri}?${querystring.stringify(queryParams)}`, {
-    selector: (response) => {
-      if (!response.ok) throw response;
-
-      return response.json();
-    },
+  return Axios.request<T>({
+    url: fetchOptions.url ?? `${baseUrl}${fetchOptions.uri}`,
+    params: queryParams,
     ...options
-  });
+  }).pipe(pluck('data'));
 }

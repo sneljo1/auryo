@@ -1,8 +1,9 @@
 import {
-  addToast,
   login,
   logout,
   receiveProtocolAction,
+  resetStore,
+  setConfigKey,
   startLoginSession,
   tokenRefresh,
   verifyLoginSession
@@ -12,17 +13,18 @@ import { configSelector } from '@common/store/selectors';
 import { TokenResponse } from '@common/store/types';
 import { Logger } from '@main/utils/logger';
 import { pkceChallenge } from '@main/utils/pkce';
-import Axios from 'axios';
+import Axios from 'axios-observable';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { shell } from 'electron';
 import { stopForwarding } from 'electron-redux';
+import { merge } from 'lodash';
 import * as querystring from 'querystring';
-import { concat, from, iif, merge, of, TimeoutError } from 'rxjs';
-import { fromFetch } from 'rxjs/fetch';
+import { concat, iif, of } from 'rxjs';
 import {
   catchError,
   filter,
   map,
+  mergeMap,
   pluck,
   startWith,
   switchMap,
@@ -38,7 +40,6 @@ import { CONFIG } from '../../config';
 const logger = Logger.createLogger('EPIC/main/auth');
 
 export const loginEpic: RootEpic = (action$) =>
-  // @ts-expect-error
   action$.pipe(
     filter(isActionOf(login.request)),
 
@@ -63,10 +64,8 @@ export const loginEpic: RootEpic = (action$) =>
         takeUntil(action$.pipe(filter(isActionOf([login.request, login.failure, login.success, login.cancel])))),
         pluck('payload'),
         filter(({ action }) => action === 'auth'),
-
         // 5 minute timeout
         timeout(60000 * 5),
-
         switchMap(({ params }) =>
           iif(
             // If session uuid matched the current one
@@ -74,23 +73,22 @@ export const loginEpic: RootEpic = (action$) =>
             // continue as normal
             concat(
               of(stopForwarding(verifyLoginSession())),
-              from(
-                Axios.post(
-                  CONFIG.AURYO_API_TOKEN_URL,
-                  querystring.stringify({
-                    grant_type: 'authorization_code',
-                    code: params.code,
-                    code_verifier: challenge.codeVerifier,
-                    redirect_uri: CONFIG.AURYO_API_CALLBACK_URL
-                  }),
-                  {
-                    headers: {
-                      'Content-Type': 'application/x-www-form-urlencoded'
-                    }
+              Axios.post(
+                CONFIG.AURYO_API_TOKEN_URL,
+                querystring.stringify({
+                  grant_type: 'authorization_code',
+                  code: params.code,
+                  code_verifier: challenge.codeVerifier,
+                  redirect_uri: CONFIG.AURYO_API_CALLBACK_URL
+                }),
+                {
+                  headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
                   }
-                )
+                }
               ).pipe(
                 pluck('data'),
+                tap(() => console.log('test')),
                 map(login.success),
                 catchError((err) => {
                   logger.error('Error during login', err);
@@ -114,7 +112,6 @@ export const loginEpic: RootEpic = (action$) =>
   );
 
 export const tokenRefreshEpic: RootEpic = (action$, state$) =>
-  // @ts-expect-error
   action$.pipe(
     filter(isActionOf(tokenRefresh.request)),
     withLatestFrom(state$),
@@ -122,21 +119,18 @@ export const tokenRefreshEpic: RootEpic = (action$, state$) =>
       refreshToken: configSelector(state).auth.refreshToken
     })),
     switchMap(({ refreshToken }) => {
-      return fromFetch<TokenResponse>(CONFIG.AURYO_API_TOKEN_URL, {
+      return Axios.request<TokenResponse>({
+        url: CONFIG.AURYO_API_TOKEN_URL,
         method: 'POST',
-        body: querystring.stringify({
+        data: querystring.stringify({
           grant_type: 'refresh_token',
           refresh_token: refreshToken
         }),
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        selector: (res) => {
-          if (!res.ok) throw res as any;
-
-          return res.json();
         }
       }).pipe(
+        pluck('data'),
         map(tokenRefresh.success),
         catchError((err) => {
           logger.error('Error refreshing token', err);
@@ -144,4 +138,10 @@ export const tokenRefreshEpic: RootEpic = (action$, state$) =>
         })
       );
     })
+  );
+
+export const logoutEpic: RootEpic = (action$) =>
+  action$.pipe(
+    filter(isActionOf(logout)),
+    mergeMap(() => merge(of(setConfigKey('auth', CONFIG.DEFAULT_CONFIG.auth)), of(resetStore())))
   );

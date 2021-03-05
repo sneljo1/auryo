@@ -76,6 +76,8 @@ export enum AppActionTypes {
   RESTART_APP = 'auryo.app.RESTART_APP',
   INIT = 'auryo.app.INIT',
   RECEIVE_PROTOCOL_ACTION = 'auryo.app.RECEIVE_PROTOCOL_ACTION',
+  CONNECT_LAST_FM = 'auryo.app.CONNECT_LAST_FM',
+  RESOLVE_SOUNDCLOUD_URL = 'auryo.app.RESOLVE_SOUNDCLOUD_URL',
 
   TOGGLE_OFFLINE = 'auryo.app.TOGGLE_OFFLINE',
   SET_LOADED = 'auryo.app.SET_LOADED',

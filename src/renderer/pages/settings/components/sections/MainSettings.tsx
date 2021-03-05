@@ -1,15 +1,13 @@
-import { Button, Intent, Switch } from '@blueprintjs/core';
-import fetchToJson from '@common/api/helpers/fetchToJson';
+import { Button, Switch } from '@blueprintjs/core';
 import { EVENTS } from '@common/constants/events';
 import * as actions from '@common/store/actions';
+import { connectLastFm } from '@common/store/actions';
 import { lastFmLoadingSelector } from '@common/store/app/selectors';
 import { configSelector, isAuthenticatedSelector } from '@common/store/selectors';
-import { SC } from '@common/utils';
 import { ThemeKeys } from '@renderer/app/components/Theme/themes';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { ipcRenderer } from 'electron';
-import { debounce } from 'lodash';
-import React, { FC, useCallback, useMemo, useRef } from 'react';
+import React, { FC, useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { CheckboxConfig } from '../CheckboxConfig';
 import { SelectConfig } from '../SelectConfig';
@@ -34,10 +32,9 @@ export const MainSettings: FC<Props> = ({ onShouldRestart }) => {
   const lastfmLoading = useSelector(lastFmLoadingSelector);
   const config = useSelector(configSelector);
 
-  // TODO refactor to redux-observables
   const authorizeLastFm = useCallback(() => {
-    ipcRenderer.send(EVENTS.APP.LASTFM.AUTH);
-  }, []);
+    dispatch(connectLastFm.request());
+  }, [dispatch]);
 
   const isValidDirectory = useCallback(() => {
     ipcRenderer.send(EVENTS.APP.VALID_DIR);
@@ -45,42 +42,6 @@ export const MainSettings: FC<Props> = ({ onShouldRestart }) => {
       dispatch(actions.setConfigKey('app.downloadPath', dir));
     });
   }, [dispatch]);
-
-  const tryClientId = useCallback(
-    (saveValue: Function, clientId: string) => {
-      fetchToJson(SC.getRemainingTracks(clientId))
-        .then((remaining) => {
-          if (remaining) {
-            saveValue();
-            dispatch(
-              actions.addToast({
-                message: 'Your clientId has been set',
-                intent: Intent.SUCCESS
-              })
-            );
-          }
-        })
-        .catch(() => {
-          dispatch(
-            actions.addToast({
-              message: 'This clientId might not be correct',
-              intent: Intent.DANGER
-            })
-          );
-        });
-    },
-    [dispatch]
-  );
-
-  const debounceTryClientId = useRef(debounce(tryClientId, 800));
-
-  const checkAndSaveClientId = useCallback((clientId: string, saveValue: () => void) => {
-    if (clientId?.length === 32) {
-      debounceTryClientId.current(saveValue, clientId);
-    } else {
-      saveValue();
-    }
-  }, []);
 
   const settings = useMemo((): SettingGroup[] => {
     return [
@@ -195,68 +156,8 @@ export const MainSettings: FC<Props> = ({ onShouldRestart }) => {
           }
         ]
       }
-      // {
-      //   name: 'Proxy (Experimental)',
-      //   settings: [
-      //     {
-      //       authenticated: false,
-      //       setting: (
-      //         <div key="proxy">
-      //           <CheckboxConfig
-      //             name="Enable proxy"
-      //             configKey="enableProxy"
-      //             {...this.props}
-      //             onChange={(_value, setKey) => {
-      //               this.setState({
-      //                 restartMsg: true
-      //               });
-      //               setKey();
-      //             }}
-      //           />
-
-      //           {config.enableProxy ? (
-      //             <div className="container-fluid p-0 mt-2">
-      //               <div className="form-group form-row">
-      //                 <InputConfig
-      //                   usePlaceholder
-      //                   className="col-8"
-      //                   name="Host"
-      //                   configKey="proxy.host"
-      //                   {...this.props}
-      //                 />
-      //                 <InputConfig
-      //                   usePlaceholder
-      //                   className="col-4"
-      //                   name="Port"
-      //                   configKey="proxy.port"
-      //                   {...this.props}
-      //                 />
-      //               </div>
-      //               <div className="form-group form-row">
-      //                 <InputConfig
-      //                   usePlaceholder
-      //                   className="col-6"
-      //                   name="Username"
-      //                   configKey="proxy.username"
-      //                   {...this.props}
-      //                 />
-      //                 <InputConfig
-      //                   usePlaceholder
-      //                   className="col-6"
-      //                   name="Password"
-      //                   configKey="proxy.password"
-      //                   {...this.props}
-      //                 />
-      //               </div>
-      //             </div>
-      //           ) : null}
-      //         </div>
-      //       )
-      //     }
-      //   ]
-      // }
     ];
-  }, [authorizeLastFm, checkAndSaveClientId, config, dispatch, isValidDirectory, lastfmLoading]);
+  }, [authorizeLastFm, config, dispatch, isValidDirectory, lastfmLoading, onShouldRestart]);
 
   return (
     <div>

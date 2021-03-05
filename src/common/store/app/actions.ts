@@ -19,12 +19,20 @@ export const getRemainingPlays = createAsyncAction(
   wError(AppActionTypes.GET_REMAINING_PLAYS)
 )<undefined, RemainingPlays | null, EpicFailure>();
 
-// ======
-// export function tryAndResolveQueryAsSoundCloudUrl(query: string, dispatch: Dispatch) {
-//   if (isSoundCloudUrl(query)) {
-//     dispatch(resolveUrl(query) as any);
-//   }
-// }
+export const connectLastFm = createAsyncAction(
+  String(AppActionTypes.CONNECT_LAST_FM),
+  wSuccess(AppActionTypes.CONNECT_LAST_FM),
+  wError(AppActionTypes.CONNECT_LAST_FM)
+)<undefined, any, EpicFailure>();
+
+export const resolveSoundCloudUrl = createAction(AppActionTypes.RESOLVE_SOUNDCLOUD_URL)<string>();
+
+export const toggleOffline = createAction(AppActionTypes.TOGGLE_OFFLINE, (offline: boolean) => ({
+  time: new Date().getTime(),
+  offline
+}))();
+
+// ----
 
 export const setLastfmLoading = (loading: boolean) => action(AppActionTypes.SET_LASTFM_LOADING, loading);
 export const addChromeCastDevice = (device: ChromeCastDevice) =>
@@ -41,116 +49,7 @@ export const setChromeCastPlayerStatus = (playerStatus: DevicePlayerStatus) =>
 export const setChromecastAppState = (state: CastAppState | null) =>
   action(AppActionTypes.SET_CHROMECAST_APP_STATE, state);
 
-export const toggleOffline = (offline: boolean) =>
-  action(AppActionTypes.TOGGLE_OFFLINE, {
-    time: new Date().getTime(),
-    offline
-  });
 export const setUpdateAvailable = (version: string) =>
   action(AppActionTypes.SET_UPDATE_AVAILABLE, {
     version
   });
-
-// export function initWatchers(): ThunkResult<any> {
-//   // tslint:disable-next-line: max-func-body-length
-//   return dispatch => {
-//     if (!listeners.length) {
-
-//       listeners.push({
-//         event: EVENTS.APP.SEND_NOTIFICATION,
-//         handler: (_e: string, contents: { title: string; message: string; image: string }) => {
-//           const myNotification = new Notification(contents.title, {
-//             body: contents.message,
-//             icon: contents.image,
-//             silent: true
-//           });
-
-//           myNotification.onclick = () => {
-//             ipcRenderer.send(EVENTS.APP.RAISE);
-//           };
-//         }
-//       });
-
-//       listeners.forEach(l => {
-//         if (is.renderer()) {
-//           ipcRenderer.on(l.event, l.handler);
-//         }
-//       });
-//     }
-//   };
-// }
-
-// export function stopWatchers(): void {
-//   listeners.forEach(l => {
-//     ipcRenderer.removeListener(l.event, l.handler);
-//   });
-
-//   listeners = [];
-// }
-
-// export function initApp(): ThunkResult<void> {
-//   return (dispatch, getState) => {
-//     const {
-//       config: {
-//         auth: { token }
-//       }
-//     } = getState();
-
-//     if (!token) {
-//       dispatch(replace('/login'));
-
-//       return Promise.resolve();
-//     }
-
-//     SC.initialize(token);
-
-//     dispatch(initWatchers());
-
-//     if (process.env.NODE_ENV === 'development') {
-//       dispatch(action(AppActionTypes.RESET_STORE));
-//     }
-
-//     return dispatch(
-//       action(
-//         AppActionTypes.SET_LOADED,
-//         Promise.all([
-//           dispatch(getAuth()),
-//           dispatch(getAuthFollowings()),
-//           dispatch(getAuthReposts()),
-
-//           dispatch(getAuthFeed()),
-//           dispatch(getAuthLikesIfNeeded()),
-//           dispatch(getAuthLikeIds()),
-//           dispatch(getAuthPlaylists()),
-//           dispatch(getRemainingPlays())
-//         ]).then(() => {
-//           setInterval(() => dispatch(getRemainingPlays()), 30000);
-//         })
-//       )
-//     );
-//   };
-// }
-
-// export function resolveUrl(url: string): ThunkResult<void> {
-//   return dispatch => {
-//     fetchToJson<SoundCloud.Asset<any>>(SC.resolveUrl(url))
-//       .then(json => {
-//         switch (json.kind) {
-//           case 'track':
-//             return dispatch(replace(`/track/${json.id}`));
-//           case 'playlist':
-//             return dispatch(replace(`/playlist/${json.id}`));
-//           case 'user':
-//             return dispatch(replace(`/user/${json.id}`));
-//           default:
-//             // eslint-disable-next-line no-console
-//             console.error('Resolve not implemented for', json.kind);
-//             return null;
-//         }
-//       })
-//       .catch(() => {
-//         dispatch(goBack());
-//         IPC.openExternal(unescape(url));
-//       });
-//   };
-// }

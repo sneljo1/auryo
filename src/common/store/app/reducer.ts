@@ -1,5 +1,5 @@
 import { createReducer } from 'typesafe-actions';
-import { getRemainingPlays, resetStore } from '../actions';
+import { getRemainingPlays, resetStore, toggleOffline } from '../actions';
 import { AppState } from './types';
 
 const initialState: AppState = {
@@ -28,6 +28,12 @@ export const appReducer = createReducer<AppState>(initialState)
     return {
       ...state,
       remainingPlays: action.payload
+    };
+  })
+  .handleAction(toggleOffline, (state, action) => {
+    return {
+      ...state,
+      offline: action.payload.offline
     };
   })
   .handleAction(resetStore, () => initialState);

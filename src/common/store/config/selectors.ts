@@ -4,6 +4,7 @@ import { createSelector } from 'reselect';
 export const configSelector = (state: StoreState) => state.config;
 
 export const authTokenStateSelector = createSelector([configSelector], (config) => config.auth);
+export const lastFmSelector = createSelector([configSelector], (config) => config.lastfm);
 export const shuffleSelector = createSelector([configSelector], (config) => config.shuffle);
 export const repeatSelector = createSelector([configSelector], (config) => config.repeat);
 export const appVersionSelector = createSelector([configSelector], (config) => config.version);

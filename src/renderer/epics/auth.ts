@@ -23,7 +23,6 @@ import * as APIService from '../../common/store/auth/api';
 import { isFollowing } from '../../common/store/auth/selectors';
 
 export const getCurrentUserEpic: RootEpic = (action$) =>
-  // @ts-expect-error
   action$.pipe(
     filter(isActionOf(getCurrentUser.request)),
     switchMap(() =>

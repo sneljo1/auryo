@@ -30,8 +30,9 @@ export const Settings: FC = () => {
               <strong>Are you enjoying this app as much as I am? Or even more?</strong>
               <div>
                 I would love to spend more time on this, and other open-source projects. I do not earn anything off this
-                project, so I would highly appreciate any financial contribution towards this goal.
-                <a href="https://github.com/sponsors/Superjo149">Contribute now</a>
+                project, so I would highly appreciate any financial contribution towards this goal. Contribute via{' '}
+                <a href="https://github.com/sponsors/Superjo149">Github Sponsors</a> or
+                <a href="https://patreon.com/sneljo">Patreon</a>
               </div>
             </div>
           </div>

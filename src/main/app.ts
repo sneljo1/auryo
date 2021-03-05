@@ -1,5 +1,5 @@
-import { push, receiveProtocolAction } from '@common/store/actions';
-import { fetchStreams } from '@common/store/api';
+import { receiveProtocolAction, resolveSoundCloudUrl } from '@common/store/actions';
+import { isSoundCloudUrl } from '@common/utils';
 // eslint-disable-next-line import/no-unresolved
 import { StoreState } from 'AppReduxTypes';
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -11,8 +11,6 @@ import * as os from 'os';
 import * as path from 'path';
 import * as querystring from 'querystring';
 import { Store } from 'redux';
-import { EMPTY, from, of } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
 // eslint-disable-next-line import/no-cycle
 import { Feature } from './features/feature';
 import { Logger, LoggerInstance } from './utils/logger';
@@ -69,6 +67,7 @@ export class Auryo {
       show: false,
       fullscreen: mainWindowState.isFullScreen,
       webPreferences: {
+        preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
         nodeIntegration: true,
         nodeIntegrationInWorker: true,
         webSecurity: process.env.NODE_ENV !== 'development',
@@ -124,12 +123,12 @@ export class Auryo {
   public handleProtocolUrl(url: string) {
     if (!url) return;
 
-    const { action, search } = url.match(/auryo:\/\/(?<action>\w*)\/?\?(?<search>.*)/)?.groups ?? {};
+    const { action, search } = url.match(/auryo:\/\/(?<action>(\w|-)*)\/?(\?(?<search>.*))?/)?.groups ?? {};
     const params = search ? (querystring.parse(search) as Record<string, unknown>) : {};
 
     if (!action) return;
 
-    this.logger.debug('handleProtocolUrl', { action, params });
+    this.logger.debug({ action, params }, 'handleProtocolUrl');
 
     this.store.dispatch(stopForwarding(receiveProtocolAction({ action, params })));
   }
@@ -175,15 +174,8 @@ export class Auryo {
 
       try {
         if (/^(https?:\/\/)/g.exec(url) !== null) {
-          if (/https?:\/\/(www.)?soundcloud\.com\//g.exec(url) !== null) {
-            if (this.mainWindow) {
-              this.store.dispatch(
-                push({
-                  pathname: '/resolve',
-                  search: url
-                })
-              );
-            }
+          if (isSoundCloudUrl(url)) {
+            this.store.dispatch(resolveSoundCloudUrl(url));
           } else {
             await shell.openExternal(url);
           }
@@ -205,31 +197,6 @@ export class Auryo {
         this.logger.error('Error handling new window', err);
       }
     });
-
-    // Resolve the trackId for a stream url
-    this.mainWindow.webContents.session.webRequest.onBeforeRequest(
-      {
-        urls: ['http://resolve-stream/*']
-      },
-      (details, callback) => {
-        const { 1: trackId } = details.url.split('http://resolve-stream/');
-
-        return from(fetchStreams({ trackId }))
-          .pipe(
-            map((streams) => {
-              callback({
-                redirectURL: streams.http_mp3_128_url
-              });
-            }),
-            catchError((err) => {
-              this.logger.error(err, 'Soundcloud stream hack');
-              callback({ cancel: true });
-              return of(EMPTY);
-            })
-          )
-          .toPromise();
-      }
-    );
   }
 
   private readonly registerListeners = () => {

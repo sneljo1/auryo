@@ -10,6 +10,15 @@
   transition: .25s background ease-in-out;
 }
 
+.offline-indicator {
+  border: 2px solid theme-color("primary");
+  padding: 2px 12px;
+  border-radius: 8px;
+  margin-right: 10px;
+  font-size: .9rem;
+  color: var(--clr-user-profile-text);
+}
+
 .header-wrapper {
 
   .bp3-popover-target {

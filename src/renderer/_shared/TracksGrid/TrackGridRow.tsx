@@ -2,19 +2,18 @@ import { PlaylistTypes } from '@common/store/objects';
 import { PlaylistIdentifier } from '@common/store/playlist/types';
 import cn from 'classnames';
 import React, { FC, useCallback, useMemo } from 'react';
+import { ListChildComponentProps } from 'react-window';
 import { TrackGridItem } from './TrackgridItem/TrackGridItem';
 import { TrackGridUser } from './TrackgridUser/TrackGridUser';
 
-interface Props {
+type Props = ListChildComponentProps & {
   data: {
     itemsPerRow: number;
     items: any[];
     showInfo: boolean;
     playlistID: PlaylistIdentifier;
   };
-  index: number;
-  style: React.CSSProperties;
-}
+};
 
 export const TrackGridRow: FC<Props> = ({ data, index, style }) => {
   const { itemsPerRow, items, showInfo, playlistID } = data;
@@ -67,7 +66,7 @@ export const TrackGridRow: FC<Props> = ({ data, index, style }) => {
   }
 
   return (
-    <div className="row m-0" style={style}>
+    <div className="row m-0" style={style as any}>
       {nodes}
     </div>
   );

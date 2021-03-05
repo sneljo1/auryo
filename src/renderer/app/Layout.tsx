@@ -1,6 +1,7 @@
 import { EVENTS } from '@common/constants/events';
-import { loadingErrorSelector } from '@common/store/app/selectors';
+import { loadingErrorSelector, offlineSelector } from '@common/store/app/selectors';
 import { themeSelector } from '@common/store/selectors';
+import { Offline } from '@renderer/app/components/Offline/Offline';
 import { ContentContextProvider } from '@renderer/_shared/context/contentContext';
 import cn from 'classnames';
 // eslint-disable-next-line import/no-extraneous-dependencies

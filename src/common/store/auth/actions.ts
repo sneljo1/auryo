@@ -1,7 +1,7 @@
+import { AuthActionTypes, AuthLikes, AuthPlaylists, AuthReposts, LikeType, RepostType } from '@common/store/auth/types';
 import { wError, wSuccess } from '@common/utils/reduxUtils';
 import { EntitiesOf, ObjectMap, SoundCloud } from '@types';
 import { createAsyncAction } from 'typesafe-actions';
-import { AuthActionTypes, AuthLikes, AuthPlaylists, AuthReposts, LikeType, RepostType } from '../types';
 import { FetchedPlaylistItem } from './api';
 
 export const getCurrentUser = createAsyncAction(

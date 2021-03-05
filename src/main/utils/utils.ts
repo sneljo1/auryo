@@ -1,4 +1,5 @@
 import { ProxyConfig } from '@common/store/config/types';
+import { SoundCloud } from '@types';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { BrowserWindowConstructorOptions, screen } from 'electron';
 
@@ -22,5 +23,26 @@ export class Utils {
     }
 
     return browserWindowOptions;
+  }
+
+  static cleanInfo(track: SoundCloud.Track) {
+    let artist = track.user && track.user.username ? track.user.username : 'Unknown artist';
+    let { title } = track;
+
+    if (track.title.match(/\s-\s|\s—\s|\s–\s/)) {
+      const parts = track.title.split(/\s-\s|\s—\s|\s–\s/);
+      if (parts && parts.length) {
+        const shift = parts.shift();
+        if (shift) {
+          artist = shift.trim();
+        }
+        title = parts.join(' — ').trim();
+      }
+    }
+
+    return {
+      artist: artist.replace(/\s*\[.*?\]\s*/gi, ''),
+      title: title.replace(/\s*\[.*?\]\s*/gi, '')
+    };
   }
 }

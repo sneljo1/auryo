@@ -25,7 +25,7 @@ export const handleEpicError = <A>(action$: ActionsObservable<RootAction>, actio
   source: ObservableInput<any>
 ) => {
   // Refresh token if 401
-  if (error.status === 401) {
+  if (error.isAxiosError && error?.response?.status === 401) {
     // TODO: should have a retryCount
     return action$.pipe(
       filter(isActionOf(tokenRefresh.success)),
@@ -49,5 +49,23 @@ export const handleEpicError = <A>(action$: ActionsObservable<RootAction>, actio
     return of(actionOnFail);
   }
 
-  return of(EMPTY);
+  logger.error(error, 'handleEpicError');
+
+  return EMPTY;
+};
+
+export const handleUncaughtErrors = (error: any, source: ObservableInput<any>) => {
+  // if (error.xhr) {
+  //   const errorActionCreator = ERRORS_MAP[error.status];
+
+  //   return concat(
+  //     of(error).pipe(delay(4000), map(actions.clearError), startWith(errorActionCreator(error.xhr.response))),
+  //     stream
+  //   );
+  // }
+
+  // Loging uncaught errors and returning stream (avoids epics to break)
+  console.error('Uncaught', error);
+
+  return source;
 };

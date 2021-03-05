@@ -9,10 +9,22 @@ const isCI =
   process.env.BUILD_NUMBER || // Jenkins, TeamCity
   process.env.RUN_ID;
 
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+
+const assets = ['static'];
+
 module.exports = [
   new ForkTsCheckerWebpackPlugin(),
   new Dotenv({
     path: path.join(__dirname, `.env.${NODE_ENV}`),
     systemvars: isCI
+  }),
+  ...assets.map((asset) => {
+    return new CopyWebpackPlugin([
+      {
+        from: path.resolve(__dirname, asset),
+        to: path.resolve(__dirname, '.webpack/renderer', asset)
+      }
+    ]);
   })
 ];

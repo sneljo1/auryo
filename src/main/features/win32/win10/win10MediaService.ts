@@ -5,6 +5,20 @@ import * as SC from '@common/utils/soundcloudUtils';
 import { Logger, LoggerInstance } from '../../../utils/logger';
 import { WindowsFeature } from '../windowsFeature';
 
+import {
+  MediaPlaybackStatus,
+  MediaPlaybackType,
+  SystemMediaTransportControlsButton
+  // eslint-disable-next-line import/no-extraneous-dependencies
+} from '@nodert-win10-rs4/windows.media';
+
+// eslint-disable-next-line
+import { BackgroundMediaPlayer } from '@nodert-win10-rs4/windows.media.playback';
+// eslint-disable-next-line
+import { RandomAccessStreamReference } from '@nodert-win10-rs4/windows.storage.streams';
+// eslint-disable-next-line
+import { Uri } from '@nodert-win10-rs4/windows.foundation';
+
 export default class Win10MediaService extends WindowsFeature {
   public readonly featureName = 'Win10MediaService';
   private readonly logger: LoggerInstance = Logger.createLogger(this.featureName);
@@ -15,19 +29,6 @@ export default class Win10MediaService extends WindowsFeature {
 
   public register() {
     try {
-      const {
-        MediaPlaybackStatus,
-        MediaPlaybackType,
-        SystemMediaTransportControlsButton
-        // eslint-disable-next-line
-      } = require('@nodert-win10/windows.media');
-      // eslint-disable-next-line
-      const { BackgroundMediaPlayer } = require('@nodert-win10/windows.media.playback');
-      // eslint-disable-next-line
-      const { RandomAccessStreamReference } = require('@nodert-win10/windows.storage.streams');
-      // eslint-disable-next-line
-      const { Uri } = require('@nodert-win10/windows.foundation');
-
       const Controls = BackgroundMediaPlayer.current.systemMediaTransportControls;
 
       Controls.isChannelDownEnabled = false;

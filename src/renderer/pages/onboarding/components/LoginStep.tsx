@@ -1,11 +1,10 @@
 import logo from '@assets/img/auryo-dark.png';
 import { Button } from '@blueprintjs/core';
-import { getAppAuth } from '@common/store/selectors';
 import * as actions from '@common/store/actions';
+import { getAppAuth } from '@common/store/selectors';
 import SettingsModal from '@renderer/app/components/modals/SettingsModal/SettingsModal';
 import React, { FC, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import * as reduxModal from 'redux-modal';
 
 export const LoginStep: FC = () => {
   const dispatch = useDispatch();
@@ -37,15 +36,6 @@ export const LoginStep: FC = () => {
         <Button className="block" color="primary" loading={isLoading} onClick={login}>
           Login
         </Button>
-
-        <a
-          href="javascript:void(0)"
-          className="settings btn btn-link mt-1 btn-block"
-          onClick={() => {
-            dispatch(reduxModal.show('settings', {}));
-          }}>
-          Settings
-        </a>
       </div>
 
       <SettingsModal />

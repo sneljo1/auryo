@@ -13,12 +13,6 @@ export const EVENTS = {
     VALID_DIR: 'app/valid_dir',
     VALID_DIR_RESPONSE: 'app/valid_dir/response',
     DOWNLOAD_FILE: 'app/download_file',
-    RAISE: 'app/raise',
-    AUTH: {
-      REFRESH: 'app/auth/refresh'
-    },
-    LASTFM: {
-      AUTH: 'app/lastfm/auth'
-    }
+    RAISE: 'app/raise'
   }
 };

@@ -1,7 +1,7 @@
 import { normalizeArray } from '@common/schemas';
 import { handleEpicError } from '@common/utils/errors/EpicError';
 import { EntitiesOf, SoundCloud } from '@types';
-import { defer, from, of } from 'rxjs';
+import { defer, from } from 'rxjs';
 import { catchError, filter, map, pluck, switchMap, tap } from 'rxjs/operators';
 import { isActionOf } from 'typesafe-actions';
 import { RootEpic } from '../../common/store/declarations';
@@ -9,7 +9,6 @@ import { getUser, getUserProfiles } from '../../common/store/user/actions';
 import * as APIService from '../../common/store/user/api';
 
 export const getUserEpic: RootEpic = (action$) =>
-  // @ts-expect-error
   action$.pipe(
     filter(isActionOf(getUser.request)),
     tap((action) => console.log(`${action.type} from ${process.type}`)),
@@ -36,7 +35,6 @@ export const getUserEpic: RootEpic = (action$) =>
   );
 
 export const getUserProfilesEpic: RootEpic = (action$) =>
-  // @ts-expect-error
   action$.pipe(
     filter(isActionOf(getUserProfiles.request)),
     tap((action) => console.log(`${action.type} from ${process.type}`)),

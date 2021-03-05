@@ -21,7 +21,7 @@ export const ForYou: FC<Props> = () => {
   const playlistEntities = useSelector(getPlaylistEntities());
 
   useEffect(() => {
-    dispatch(stopForwarding(getForYouSelection.request()));
+    dispatch(stopForwarding(getForYouSelection.request({})));
   }, [dispatch]);
 
   if (isLoading && !items?.length && !error) {

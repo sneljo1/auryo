@@ -17,16 +17,17 @@ export const TagsPage: FC<Props> = ({
     params: { tag }
   }
 }) => {
+  const decodedTag = decodeURI(tag);
   const dispatch = useDispatch();
   const playlistObject = useSelector(getPlaylistObjectSelector({ playlistType: PlaylistTypes.SEARCH_TRACK }));
 
   useEffect(() => {
-    if (playlistObject?.meta?.query !== tag) {
+    if (playlistObject?.meta?.query !== decodedTag) {
       dispatch(
         actions.getSearchPlaylist({
           playlistType: PlaylistTypes.SEARCH_TRACK,
           refresh: true,
-          tag
+          tag: decodedTag
         })
       );
     }
@@ -43,7 +44,7 @@ export const TagsPage: FC<Props> = ({
 
   return (
     <>
-      <PageHeader title={tag} />
+      <PageHeader title={decodedTag} />
 
       {!playlistObject || (!playlistObject?.items.length && playlistObject?.isFetching) ? (
         <Spinner contained />

@@ -1,8 +1,8 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { getTrackEntity, hasLiked, hasReposted } from '@common/store/selectors';
 import { PlayerStatus, PlayingTrack } from '@common/store/types';
 import { SoundCloud } from '@types';
 import { StoreState, _StoreState } from 'AppReduxTypes';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { BrowserWindow, ipcMain } from 'electron';
 import { isEqual } from 'lodash';
 import { Store } from 'redux';

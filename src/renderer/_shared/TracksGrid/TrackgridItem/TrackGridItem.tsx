@@ -112,7 +112,7 @@ export const TrackGridItem: FC<Props> = ({ idResult, playlistID, showReposts, sh
 
           {Stats}
           {track.genre && track.genre !== '' ? (
-            <Link to={`/tags/${track.genre}`} className="trackGenre">
+            <Link to={`/tags/${encodeURI(track.genre)}`} className="trackGenre">
               {track.genre}
             </Link>
           ) : null}

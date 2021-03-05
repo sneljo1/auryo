@@ -1,7 +1,7 @@
 import { Icon, Menu, MenuDivider, MenuItem, Popover, Position } from '@blueprintjs/core';
 import { EVENTS } from '@common/constants/events';
 import { logout } from '@common/store/actions';
-import { isUpdateAvailableSelector } from '@common/store/app/selectors';
+import { isUpdateAvailableSelector, offlineSelector } from '@common/store/app/selectors';
 import { currentUserSelector } from '@common/store/selectors';
 import { useContentContext } from '@renderer/_shared/context/contentContext';
 import cn from 'classnames';
@@ -22,6 +22,7 @@ export const Header: FC = ({ children }) => {
   const { settings } = useContentContext();
   const currentUser = useSelector(currentUserSelector);
   const isUpdateAvailable = useSelector(isUpdateAvailableSelector);
+  const isOffline = useSelector(offlineSelector);
   const history = useHistory();
   const dispatch = useDispatch();
 
@@ -36,6 +37,8 @@ export const Header: FC = ({ children }) => {
             </div>
 
             <div className="d-flex align-items-center justify-content-between">
+              {isOffline && <div className="offline-indicator">Offline</div>}
+
               <User currentUser={currentUser} />
 
               <Popover
@@ -75,6 +78,7 @@ export const Header: FC = ({ children }) => {
 
                     <MenuDivider />
 
+                    <MenuItem text="Changelog" href="https://github.com/Superjo149/auryo/releases/" />
                     <MenuItem text="Contribute" href="https://github.com/Superjo149/auryo/" />
                     <MenuItem text="Report an issue" href="https://github.com/Superjo149/auryo/issues" />
                     <MenuItem text="Suggest a feature" href="https://github.com/Superjo149/auryo/issues" />

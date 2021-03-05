@@ -4,18 +4,15 @@ import { rootReducer } from '@common/store/rootReducer';
 import { Logger } from '@main/utils/logger';
 import { StoreState } from 'AppReduxTypes';
 import { routerMiddleware } from 'connected-react-router';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import electron, { ipcRenderer } from 'electron';
 import is from 'electron-is';
-import { mainStateSyncEnhancer, rendererStateSyncEnhancer, stopForwarding } from 'electron-redux';
+import { composeWithStateSync } from 'electron-redux';
 import { createMemoryHistory } from 'history';
-import { Action, applyMiddleware, compose, createStore, Middleware, StoreEnhancer } from 'redux';
-import { devToolsEnhancer } from 'redux-devtools-extension';
+import { applyMiddleware, createStore, Middleware, StoreEnhancer } from 'redux';
+import { composeWithDevTools } from 'redux-devtools-extension';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { createLogger } from 'redux-logger';
 import { createEpicMiddleware } from 'redux-observable';
-import { BehaviorSubject } from 'rxjs';
-import { RootAction, RootEpic } from './declarations';
+import { RootAction } from './declarations';
 
 export const history = createMemoryHistory();
 
@@ -48,67 +45,28 @@ export const configureStore = () => {
   const generateMiddlewares = (): Middleware[] =>
     is.renderer() ? [connectRouterMiddleware, ...middlewares] : [...middlewares];
 
-  const enhancers: StoreEnhancer[] = [is.renderer() ? rendererStateSyncEnhancer({}) : mainStateSyncEnhancer()];
-
-  if (is.renderer() && is.dev()) {
-    enhancers.push(devToolsEnhancer({}));
-  }
-
   const middleware = applyMiddleware(...generateMiddlewares());
 
-  const enhancer: StoreEnhancer = compose(middleware, ...enhancers);
+  const enhancer: StoreEnhancer = composeWithDevTools(composeWithStateSync(middleware));
 
   const store = createStore(rootReducer(history), enhancer);
 
-  let epic$: BehaviorSubject<RootEpic>;
-
   if (is.renderer()) {
-    window.onbeforeunload = () => {
-      store.dispatch(resetStore());
-    };
-
     import('@renderer/epics').then(({ rootEpic }) => {
       epicMiddleware.run(rootEpic);
-      epic$ = new BehaviorSubject(rootEpic);
-    });
-
-    // HACK: electron-redux currently only works like this https://github.com/klarna/electron-redux/issues/285
-    ipcRenderer.on('electron-redux.ACTION', (_, action: Action) => {
-      store.dispatch(stopForwarding(action));
     });
   } else {
     import('@main/epics').then(({ mainRootEpic }) => {
       epicMiddleware.run(mainRootEpic);
-
-      epic$ = new BehaviorSubject(mainRootEpic);
-    });
-
-    // HACK: electron-redux currently only works like this https://github.com/klarna/electron-redux/issues/285
-    electron.ipcMain.on('electron-redux.ACTION', (event, action) => {
-      const localAction = stopForwarding(action);
-      store.dispatch(localAction); // Forward it to all of the other renderers
-      electron.webContents.getAllWebContents().forEach((contents) => {
-        // Ignore the renderer that sent the action and chromium devtools
-        if (contents.id !== event.sender.id && !contents.getURL().startsWith('devtools://')) {
-          contents.send('electron-redux.ACTION', localAction);
-        }
-      });
     });
   }
 
   if (module.hot) {
     module.hot.accept('@common/store', () => {
-      import('@common/store/rootReducer').then(({ rootReducer: nextReducer }) =>
-        store.replaceReducer(nextReducer(history))
-      );
-    });
-
-    module.hot.accept('@renderer/epics', () => {
-      import('@renderer/epics').then(({ rootEpic: nextRootEpic }) => epic$.next(nextRootEpic));
-    });
-
-    module.hot.accept('@main/epics', () => {
-      import('@main/epics').then(({ mainRootEpic: nextRootEpic }) => epic$.next(nextRootEpic));
+      import('@common/store/rootReducer').then(({ rootReducer: nextReducer }) => {
+        store.replaceReducer(nextReducer(history));
+        store.dispatch(resetStore());
+      });
     });
   }
 
