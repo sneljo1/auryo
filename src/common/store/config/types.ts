@@ -27,6 +27,7 @@ export interface AppConfig {
   crashReports: boolean;
   downloadPath: string;
   showTrackChangeNotification: boolean;
+  logTrackChange: boolean;
   theme: string;
 }
 

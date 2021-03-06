@@ -65,7 +65,8 @@ export const CONFIG = {
       crashReports: true,
       theme: ThemeKeys.darkBlue,
       downloadPath,
-      showTrackChangeNotification: true
+      showTrackChangeNotification: true,
+      logTrackChange: false
     }
   }
 };

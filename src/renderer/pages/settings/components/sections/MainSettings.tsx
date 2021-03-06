@@ -59,16 +59,6 @@ export const MainSettings: FC<Props> = ({ onShouldRestart }) => {
           {
             authenticated: true,
             setting: (
-              <CheckboxConfig
-                key="showTrackChangeNotification"
-                name="Show notification on track change"
-                configKey="app.showTrackChangeNotification"
-              />
-            )
-          },
-          {
-            authenticated: true,
-            setting: (
               <SelectConfig
                 key="theme"
                 name="Theme"
@@ -105,6 +95,32 @@ export const MainSettings: FC<Props> = ({ onShouldRestart }) => {
                   onShouldRestart();
                   setKey();
                 }}
+              />
+            )
+          }
+        ]
+      },
+      {
+        name: 'Player',
+        settings: [
+          {
+            authenticated: true,
+            setting: (
+              <CheckboxConfig
+                key="showTrackChangeNotification"
+                name="Show notification on track change"
+                configKey="app.showTrackChangeNotification"
+              />
+            )
+          },
+          {
+            authenticated: true,
+            setting: (
+              <CheckboxConfig
+                key="logTrackChange"
+                name="Log the current playing track to a file"
+                subText="Logs the current artist and title to `/tmp/auryo_current_track.log`. This is useful for OBS or other applications to consume"
+                configKey="app.logTrackChange"
               />
             )
           }

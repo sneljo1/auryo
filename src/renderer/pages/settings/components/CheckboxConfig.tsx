@@ -7,12 +7,12 @@ import { useDispatch, useSelector } from 'react-redux';
 interface Props {
   configKey: string;
   name?: string;
-  alignIndicator?: 'right' | 'left' | 'center';
+  subText?: string;
   className?: string;
   onChange?(value: boolean, setKey: () => void): void;
 }
 
-export const CheckboxConfig: FC<Props> = ({ configKey, name, alignIndicator, onChange: propagateOnChange }) => {
+export const CheckboxConfig: FC<Props> = ({ configKey, name, onChange: propagateOnChange, subText }) => {
   const dispatch = useDispatch();
   const config = useSelector(configSelector);
 
@@ -32,8 +32,14 @@ export const CheckboxConfig: FC<Props> = ({ configKey, name, alignIndicator, onC
   );
 
   return (
-    <div className="setting">
-      <Switch alignIndicator={alignIndicator || 'right'} large label={name} checked={value} onChange={onChange} />
+    <div className="setting d-flex justify-content-between align-items-center">
+      <div>
+        {name}
+        {subText && <div className="value">{subText}</div>}
+      </div>
+      <div>
+        <Switch className="mb-0" large checked={value} onChange={onChange} inline />
+      </div>
     </div>
   );
 };
