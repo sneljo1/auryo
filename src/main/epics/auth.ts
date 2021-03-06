@@ -1,4 +1,5 @@
 import {
+  addErrorToast,
   login,
   logout,
   receiveProtocolAction,
@@ -88,7 +89,6 @@ export const loginEpic: RootEpic = (action$) =>
                 }
               ).pipe(
                 pluck('data'),
-                tap(() => console.log('test')),
                 map(login.success),
                 catchError((err) => {
                   logger.error('Error during login', err);
@@ -97,7 +97,13 @@ export const loginEpic: RootEpic = (action$) =>
               )
             ),
             // Otherwise throw error and
-            of(login.failure({ message: 'The session may have expired, please try logging in again.' }))
+            of(
+              login.failure({ message: 'The session may have expired, please try logging in again.' }),
+              addErrorToast({
+                title: 'Your session has expired',
+                message: 'Please try again'
+              })
+            )
           )
         ),
         catchError((err) => {
@@ -105,7 +111,13 @@ export const loginEpic: RootEpic = (action$) =>
             return of(login.cancel({}));
           }
 
-          return of(login.failure({ message: 'Something went wrong during login. Please try again.' }));
+          return of(
+            login.failure({ message: 'Something went wrong during login. Please try again.' }),
+            addErrorToast({
+              title: 'Your session has expired',
+              message: 'Please try again'
+            })
+          );
         })
       )
     )
@@ -133,8 +145,15 @@ export const tokenRefreshEpic: RootEpic = (action$, state$) =>
         pluck('data'),
         map(tokenRefresh.success),
         catchError((err) => {
-          logger.error('Error refreshing token', err);
-          return of(logout(), tokenRefresh.failure({}));
+          logger.error(err, 'Error refreshing token');
+          return of(
+            logout(),
+            tokenRefresh.failure({}),
+            addErrorToast({
+              title: 'Your session has expired',
+              message: 'We were unable to refresh your session, please re-login'
+            })
+          );
         })
       );
     })

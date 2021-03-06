@@ -1,16 +1,29 @@
-import { IToastOptions } from '@blueprintjs/core';
-import { createAction } from 'typesafe-actions';
-import { UIActionTypes, Dimensions } from './types';
 import { wDebounce } from '@common/utils/reduxUtils';
+import { actions as toasterActions, AddToastPayload } from 'react-redux-toastr';
+import { createAction } from 'typesafe-actions';
+import { UIActionTypes } from './types';
 
 // Toasts
-export const addToast = createAction<UIActionTypes.ADD_TOAST>(UIActionTypes.ADD_TOAST)<IToastOptions>();
-export const removeToast = createAction(UIActionTypes.REMOVE_TOAST)<string>();
-export const clearToasts = createAction(UIActionTypes.CLEAR_TOASTS)();
+export const addErrorToast = (data: Omit<AddToastPayload, 'id' | 'type'>) =>
+  toasterActions.add({
+    id: Date.now().toString(),
+    type: 'error',
+    ...data
+  });
 
-// Dimensions
-export const setDimensions = createAction(UIActionTypes.SET_DIMENSIONS)<Dimensions>();
-export const setDebouncedDimensions = createAction(wDebounce(UIActionTypes.SET_DIMENSIONS))<Dimensions>();
+export const addSuccessToast = (data: Omit<AddToastPayload, 'id' | 'type'>) =>
+  toasterActions.add({
+    id: Date.now().toString(),
+    type: 'success',
+    ...data
+  });
+
+export const addInfoToast = (data: Omit<AddToastPayload, 'id' | 'type'>) =>
+  toasterActions.add({
+    id: Date.now().toString(),
+    type: 'info',
+    ...data
+  });
 
 // Search
 export const setSearchQuery = createAction(UIActionTypes.SET_SEARCH_QUERY)<{ query: string; noNavigation?: boolean }>();

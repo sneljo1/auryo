@@ -1,4 +1,6 @@
 import {
+  addErrorToast,
+  addSuccessToast,
   connectLastFm,
   playTrack,
   receiveProtocolAction,
@@ -65,36 +67,61 @@ export const connectLastFmEpic: RootEpic = (action$) =>
         timeout(60000 * 5),
         switchMap(({ params: { token } }) =>
           from(lastFm.auth.getSession(token as string)).pipe(
-            mergeMap((session) => {
-              // TODO: notification
-              return of(
-                setConfigKey('lastfm.key', session.key),
-                setConfigKey('lastfm.user', session.name),
-                connectLastFm.success({})
-              );
-            })
+            mergeMap((session) => [
+              setConfigKey('lastfm.key', session.key),
+              setConfigKey('lastfm.user', session.name),
+              connectLastFm.success({}),
+
+              addSuccessToast({
+                title: 'Lasfm connected successfully',
+                message: 'We will now scrobble every time you listen to a track'
+              })
+            ])
           )
         ),
-        catchError(handleEpicError(action$, connectLastFm.failure))
+        catchError(
+          handleEpicError(action$, (error) =>
+            of(
+              addErrorToast({
+                title: 'Lasfm authentication failed',
+                message: 'We were unable to authenticate your account with lasfm'
+              }),
+              connectLastFm.failure(error)
+            )
+          )
+        )
       )
     )
   );
 
 const handleLastFmError = (error: any, _source: ObservableInput<any>) => {
-  logger.error(error);
-
   // Invalid session key - Please re-authenticate
   // TODO: 11 & 16 should be retried
   // https://www.last.fm/api/scrobbling
   if (error?.response?.error === 9) {
-    // TODO: Show notification with link to reconnect?
-    // It may be nice to have an onClick, but we will have to find another
-    // way to create the notification as we cannot serialize onClick
-
-    return of(setConfigKey('lastfm', null));
+    return of(
+      setConfigKey('lastfm', null),
+      addErrorToast({
+        title: 'Lasfm authentication failed',
+        message: 'Please re-authenticate via the settings'
+        // TODO: it may be nice to have an onclick here. But we need to find a workaround as onClick is not serializable
+      })
+    );
   }
 
-  return EMPTY;
+  if (error.code === 'ENOTFOUND') {
+    // Ignore as we just do not have internet
+    return EMPTY;
+  }
+
+  logger.error(error);
+
+  return of(
+    addErrorToast({
+      title: 'Lasfm connection failed',
+      message: 'An issue occured while sending track info to lastfm'
+    })
+  );
 };
 
 export const scrobbleEpic: RootEpic = (action$, state$) =>

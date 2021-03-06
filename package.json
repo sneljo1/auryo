@@ -11,29 +11,12 @@
   "description": "Listen to SoundCloud® from the comfort of your desktop. Use keyboard shortcuts to navigate through your music. Be more productive.",
   "main": ".webpack/main/index",
   "scripts": {
-    "build": "node .electron-react/build.js",
-    "build:dir": "cross-env IS_LOCAL=1 node .electron-react/build.js && electron-builder --dir",
-    "build:clean": "cross-env BUILD_TARGET=clean node .electron-react/build.js",
-    "build:web": "cross-env BUILD_TARGET=web node .electron-react/build.js",
-    "dev": "node .electron-react/dev-runner.js",
     "lint": "eslint --ext .ts,.tsx -f ./node_modules/eslint-friendly-formatter src",
     "lint:fix": "eslint --ext .ts,.tsx -f ./node_modules/eslint-friendly-formatter --fix src",
-    "pack": "yarn run pack:main && yarn run pack:renderer",
-    "pack:main": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-react/webpack.main.config.js",
-    "pack:renderer": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-react/webpack.renderer.config.js",
     "postinstall": "patch-package && yarn run lint:fix",
     "test": "yarn run test:unit && yarn run test:e2e",
     "test:unit": "jest -c jest.unit.config.js",
     "test:e2e": "yarn run pack && jest -c jest.e2e.config.js",
-    "package:dir": "electron-builder --dir",
-    "package:win": "electron-builder --win --x64",
-    "package:mac": "electron-builder --mac",
-    "package:linux": "electron-builder --linux deb",
-    "package:all": "electron-builder -mwl",
-    "release": "electron-builder -wl --ia32 --x64 --publish onTagOrDraft",
-    "release:win": "electron-builder -w --ia32 --x64 --publish onTagOrDraft",
-    "release:linux": "electron-builder -l --x64 --publish onTagOrDraft",
-    "release:mac": "electron-builder -m --x64 --publish onTagOrDraft",
     "start": "NODE_ENV=development electron-forge start",
     "package": "NODE_ENV=production electron-forge package",
     "make:dev": "NODE_ENV=development electron-forge make",
@@ -75,6 +58,7 @@
     "@types/react-dom": "^17.0.0",
     "@types/react-list": "^0.8.5",
     "@types/react-redux": "^7.1.7",
+    "@types/react-redux-toastr": "^7.6.0",
     "@types/react-router-dom": "^5.1.7",
     "@types/react-sticky-el": "^1.0.2",
     "@types/react-virtualized": "^9.21.4",
@@ -127,7 +111,6 @@
     "eslint-config-standard": "^14.1.1",
     "eslint-friendly-formatter": "^4.0.1",
     "eslint-import-resolver-typescript": "^2.0.0",
-    "eslint-loader": "^4.0.2",
     "eslint-plugin-html": "^6.0.2",
     "eslint-plugin-import": "^2.20.0",
     "eslint-plugin-jsx-a11y": "^6.2.3",
@@ -225,6 +208,7 @@
     "react-marquee": "^1.0.0",
     "react-masonry-css": "^1.0.11",
     "react-redux": "^7.2.2",
+    "react-redux-toastr": "^7.6.5",
     "react-router-dom": "^5.2.0",
     "react-sticky-el": "^2.0.5",
     "react-use": "^13.27.0",
@@ -346,7 +330,7 @@
   },
   "husky": {
     "hooks": {
-      // "pre-commit": "npm run lint -- --fix"
+      "pre-commit": "npm run lint -- --fix"
     }
   },
   "resolutions": {

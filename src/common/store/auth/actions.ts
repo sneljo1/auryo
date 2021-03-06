@@ -1,6 +1,6 @@
 import { AuthActionTypes, AuthLikes, AuthPlaylists, AuthReposts, LikeType, RepostType } from '@common/store/auth/types';
 import { wError, wSuccess } from '@common/utils/reduxUtils';
-import { EntitiesOf, ObjectMap, SoundCloud } from '@types';
+import { EntitiesOf, EpicFailure, ObjectMap, SoundCloud } from '@types';
 import { createAsyncAction } from 'typesafe-actions';
 import { FetchedPlaylistItem } from './api';
 
@@ -8,31 +8,31 @@ export const getCurrentUser = createAsyncAction(
   String(AuthActionTypes.GET_USER),
   wSuccess(AuthActionTypes.GET_USER),
   wError(AuthActionTypes.GET_USER)
-)<unknown, SoundCloud.User, object>();
+)<unknown, SoundCloud.User, EpicFailure>();
 
 export const getCurrentUserFollowingsIds = createAsyncAction(
   String(AuthActionTypes.GET_USER_FOLLOWINGS_IDS),
   wSuccess(AuthActionTypes.GET_USER_FOLLOWINGS_IDS),
   wError(AuthActionTypes.GET_USER_FOLLOWINGS_IDS)
-)<undefined, ObjectMap, object>();
+)<undefined, ObjectMap, EpicFailure>();
 
 export const getCurrentUserLikeIds = createAsyncAction(
   String(AuthActionTypes.GET_USER_LIKE_IDS),
   wSuccess(AuthActionTypes.GET_USER_LIKE_IDS),
   wError(AuthActionTypes.GET_USER_LIKE_IDS)
-)<undefined, AuthLikes, object>();
+)<undefined, AuthLikes, EpicFailure>();
 
 export const getCurrentUserRepostIds = createAsyncAction(
   String(AuthActionTypes.GET_USER_REPOST_IDS),
   wSuccess(AuthActionTypes.GET_USER_REPOST_IDS),
   wError(AuthActionTypes.GET_USER_REPOST_IDS)
-)<undefined, AuthReposts, object>();
+)<undefined, AuthReposts, EpicFailure>();
 
 export const getCurrentUserPlaylists = createAsyncAction(
   String(AuthActionTypes.GET_USER_PLAYLISTS),
   wSuccess(AuthActionTypes.GET_USER_PLAYLISTS),
   wError(AuthActionTypes.GET_USER_PLAYLISTS)
-)<unknown, AuthPlaylists & { entities: EntitiesOf<FetchedPlaylistItem> }, object>();
+)<unknown, AuthPlaylists & { entities: EntitiesOf<FetchedPlaylistItem> }, EpicFailure>();
 
 export interface ToggleLikeRequestPayload {
   id: number | string;
@@ -46,7 +46,7 @@ export const toggleLike = createAsyncAction(
 )<
   {} | ToggleLikeRequestPayload,
   { id: number | string; type: LikeType; liked: boolean },
-  { id: number | string; type: LikeType; liked: boolean }
+  EpicFailure & { id: number | string; type: LikeType; liked: boolean }
 >();
 
 export interface ToggleRepostRequestPayload {
@@ -61,7 +61,7 @@ export const toggleRepost = createAsyncAction(
 )<
   {} | ToggleRepostRequestPayload,
   { id: number | string; type: RepostType; reposted: boolean },
-  { id: number | string; type: RepostType; reposted: boolean }
+  EpicFailure & { id: number | string; type: RepostType; reposted: boolean }
 >();
 
 export const toggleFollowing = createAsyncAction(
@@ -71,5 +71,5 @@ export const toggleFollowing = createAsyncAction(
 )<
   { userId: number | string },
   { userId: number | string; follow: boolean },
-  { userId: number | string; follow: boolean }
+  EpicFailure & { userId: number | string; follow: boolean }
 >();

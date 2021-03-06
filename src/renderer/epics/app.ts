@@ -102,8 +102,8 @@ export const resolveUrlEpic: RootEpic = (action$) =>
               return openExternalUrl(url);
           }
         }),
-        catchError((err) => {
-          // TODO: error handling needed?
+        catchError(() => {
+          // If resolving fails. just open externally
           return of(openExternalUrl(url));
         })
       )

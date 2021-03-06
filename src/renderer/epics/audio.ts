@@ -1,6 +1,5 @@
-import { Intent } from '@blueprintjs/core';
 import {
-  addToast,
+  addErrorToast,
   initApp,
   logout,
   playTrack,
@@ -77,19 +76,18 @@ export const audioStreamErrorEpic: RootEpic = () =>
             break;
           case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
             return of(
-              addToast({
-                message:
-                  'We are unable to play this track. It may be that this song is not available via third party applications.',
-                intent: Intent.DANGER
+              addErrorToast({
+                title: 'Track failed to play',
+                message: 'Please try again, if the problem persist, we may not be able to play this.'
               })
             );
             break;
           case MediaError.MEDIA_ERR_DECODE:
           default:
             return of(
-              addToast({
-                message: 'Something went wrong while playing this track',
-                intent: Intent.DANGER
+              addErrorToast({
+                title: 'Track failed to play',
+                message: 'An error occured while playing this track.'
               })
             );
         }

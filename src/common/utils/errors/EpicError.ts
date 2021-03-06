@@ -1,8 +1,9 @@
 import { logout, tokenRefresh } from '@common/store/actions';
 import { Logger } from '@main/utils/logger';
 import { RootAction } from 'AppReduxTypes';
+import { Action } from 'redux';
 import { ActionsObservable } from 'redux-observable';
-import { EMPTY, ObservableInput, of } from 'rxjs';
+import { EMPTY, Observable, ObservableInput, of } from 'rxjs';
 import { filter, mergeMapTo, startWith, take, takeUntil } from 'rxjs/operators';
 import { serializeError } from 'serialize-error';
 import { isActionOf } from 'typesafe-actions';
@@ -20,10 +21,12 @@ export class EpicError extends Error {
 
 const logger = Logger.createLogger('EPIC');
 
-export const handleEpicError = <A>(action$: ActionsObservable<RootAction>, actionOnFail?: A) => (
-  error: any,
-  source: ObservableInput<any>
-) => {
+type ErrorCallback<A> = (error: any) => A;
+
+export const handleEpicError = <A extends Observable<Action<any>>>(
+  action$: ActionsObservable<RootAction>,
+  actionOnFail?: A | ErrorCallback<A>
+) => (error: any, source: ObservableInput<any>) => {
   // Refresh token if 401
   if (error.isAxiosError && error?.response?.status === 401) {
     // TODO: should have a retryCount
@@ -39,14 +42,12 @@ export const handleEpicError = <A>(action$: ActionsObservable<RootAction>, actio
   if (actionOnFail) {
     logger.error(error);
 
-    if ((actionOnFail as any).payload) {
-      (actionOnFail as any).payload.error = error;
-    } else {
-      (actionOnFail as any).payload = { error };
+    if (typeof actionOnFail === 'function') {
+      return actionOnFail(error);
     }
 
     // TODO Sentry?
-    return of(actionOnFail);
+    return actionOnFail;
   }
 
   logger.error(error, 'handleEpicError');

@@ -59,6 +59,7 @@ declare module 'AppReduxTypes' {
   import { UIState } from '@common/store/ui';
   import { ModalState } from 'redux-modal';
   import { RouterState } from 'connected-react-router';
+  import { ToastrState } from 'react-redux-toastr';
 
   interface _StoreState {
     auth: AuthState;
@@ -73,6 +74,7 @@ declare module 'AppReduxTypes' {
     router: RouterState;
     track: TrackState;
     user: UserState;
+    toastr: ToastrState;
   }
 
   export type Store = StateType<typeof import('@common/store/index').default>;

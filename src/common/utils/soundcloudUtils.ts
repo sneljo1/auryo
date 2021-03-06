@@ -4,6 +4,13 @@ import { IMAGE_SIZES } from '../constants';
 // eslint-disable-next-line import/no-mutable-exports
 export let memToken: string;
 
+if (typeof window !== 'undefined') {
+  // eslint-disable-next-line func-names
+  (window as any).changeToken = function (token: string) {
+    memToken = token;
+  };
+}
+
 export function initialize(token: string) {
   memToken = token;
 }

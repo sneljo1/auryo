@@ -1,11 +1,14 @@
 import { EpicError, handleEpicError } from '@common/utils/errors/EpicError';
-import { Normalized, ObjectMap } from '@types';
+import { Normalized, ObjectMap, SoundCloud } from '@types';
 import { StoreState, _StoreState } from 'AppReduxTypes';
 import { StateObservable } from 'redux-observable';
 import { defer, EMPTY, forkJoin, from, of, throwError } from 'rxjs';
-import { catchError, filter, first, map, mergeMap, switchMap, withLatestFrom } from 'rxjs/operators';
+import { catchError, filter, first, map, mergeMap, switchMap, tap, withLatestFrom } from 'rxjs/operators';
 import { EmptyAction, isActionOf } from 'typesafe-actions';
 import {
+  addErrorToast,
+  addInfoToast,
+  addSuccessToast,
   getCurrentUser,
   getCurrentUserFollowingsIds,
   getCurrentUserLikeIds,
@@ -16,11 +19,13 @@ import {
 } from '../../common/store/actions';
 import { RootEpic } from '../../common/store/declarations';
 import { getPlayingTrackSelector } from '../../common/store/player/selectors';
-import { currentUserSelector, hasLiked, hasReposted } from '../../common/store/selectors';
+import { currentUserSelector, getMusicEntity, hasLiked, hasReposted } from '../../common/store/selectors';
 import { LikeType, RepostType } from '../../common/store/types';
 import { toggleFollowing, ToggleLikeRequestPayload, ToggleRepostRequestPayload } from '../../common/store/auth/actions';
 import * as APIService from '../../common/store/auth/api';
 import { isFollowing } from '../../common/store/auth/selectors';
+import { lowerFirst } from 'lodash';
+import { Action } from 'redux';
 
 export const getCurrentUserEpic: RootEpic = (action$) =>
   action$.pipe(
@@ -28,7 +33,7 @@ export const getCurrentUserEpic: RootEpic = (action$) =>
     switchMap(() =>
       defer(() => from(APIService.fetchCurrentUser())).pipe(
         map((v) => getCurrentUser.success(v)),
-        catchError(handleEpicError(action$, getCurrentUser.failure({})))
+        catchError(handleEpicError(action$, (error) => of(getCurrentUser.failure(error))))
       )
     )
   );
@@ -43,7 +48,7 @@ export const getCurrentUserFollowingIdsEpic: RootEpic = (action$, state$) =>
         // Map array to object with booleans for performance
         map(mapToObject),
         map((v) => getCurrentUserFollowingsIds.success(v)),
-        catchError(handleEpicError(action$, getCurrentUserFollowingsIds.failure({})))
+        catchError(handleEpicError(action$, (error) => of(getCurrentUserFollowingsIds.failure(error))))
       )
     )
   );
@@ -66,7 +71,7 @@ export const getCurrentUserLikeIdsEpic: RootEpic = (action$) =>
             systemPlaylist
           })
         ),
-        catchError(handleEpicError(action$, getCurrentUserLikeIds.failure({})))
+        catchError(handleEpicError(action$, (error) => of(getCurrentUserLikeIds.failure(error))))
       )
     )
   );
@@ -87,7 +92,7 @@ export const getCurrentUserRepostIdsEpic: RootEpic = (action$) =>
             playlist
           })
         ),
-        catchError(handleEpicError(action$, getCurrentUserRepostIds.failure({})))
+        catchError(handleEpicError(action$, (error) => of(getCurrentUserRepostIds.failure(error))))
       )
     )
   );
@@ -122,12 +127,11 @@ export const getCurrentUserPlaylistsEpic: RootEpic = (action$) =>
             entities: response.normalized.entities
           });
         }),
-        catchError(handleEpicError(action$, getCurrentUserPlaylists.failure({})))
+        catchError(handleEpicError(action$, (error) => of(getCurrentUserPlaylists.failure(error))))
       )
     )
   );
 
-// TODO: add toaster for success and erro
 export const toggleLikeEpic: RootEpic = (action$, state$) =>
   action$.pipe(
     filter(isActionOf(toggleLike.request)),
@@ -181,28 +185,55 @@ export const toggleLikeEpic: RootEpic = (action$, state$) =>
 
         return ob$;
       }).pipe(
-        map(() =>
-          toggleLike.success({
-            id,
-            type,
-            liked: !isLiked
-          })
-        ),
-        catchError(
-          handleEpicError(
-            action$,
-            toggleLike.failure({
+        withLatestFrom(state$),
+        mergeMap(([_, state]) => {
+          const trackOrPlaylist = getMusicEntity<SoundCloud.Track | SoundCloud.Playlist>({
+            id: +id,
+            schema: type === LikeType.Track ? 'tracks' : 'playlists'
+          })(state);
+
+          const successActions: Action[] = [
+            toggleLike.success({
               id,
               type,
               liked: !isLiked
             })
+          ];
+
+          if (!isLiked) {
+            successActions.push(
+              addInfoToast({
+                title: trackOrPlaylist?.title ?? 'Liked',
+                message: `This ${type} was ${!isLiked ? 'added to' : 'removed from'} your library`,
+                options: {
+                  timeOut: 2000
+                }
+              })
+            );
+          }
+
+          return successActions;
+        }),
+        catchError(
+          handleEpicError(action$, (error) =>
+            of(
+              toggleLike.failure({
+                id,
+                type,
+                liked: !isLiked,
+                error
+              }),
+              addErrorToast({
+                title: `Error occurred while ${!isLiked ? 'liking' : 'unliking'}`,
+                message: `Please try again later`
+              })
+            )
           )
         )
       );
     })
   );
 
-// TODO: add toaster for success and error
 export const toggleRepostEpic: RootEpic = (action$, state$) =>
   action$.pipe(
     filter(isActionOf(toggleRepost.request)),
@@ -252,21 +283,49 @@ export const toggleRepostEpic: RootEpic = (action$, state$) =>
         }
         return ob$;
       }).pipe(
-        map(() =>
-          toggleRepost.success({
-            id,
-            type,
-            reposted: repost
-          })
-        ),
-        catchError(
-          handleEpicError(
-            action$,
-            toggleRepost.failure({
+        withLatestFrom(state$),
+        mergeMap(([_, state]) => {
+          const trackOrPlaylist = getMusicEntity<SoundCloud.Track | SoundCloud.Playlist>({
+            id: +id,
+            schema: type === RepostType.Track ? 'tracks' : 'playlists'
+          })(state);
+
+          const successActions: Action[] = [
+            toggleRepost.success({
               id,
               type,
               reposted: repost
             })
+          ];
+
+          if (!isReposted) {
+            successActions.push(
+              addInfoToast({
+                title: trackOrPlaylist?.title ?? 'Liked',
+                message: `This ${type} was reposted to your stream`,
+                options: {
+                  timeOut: 2000
+                }
+              })
+            );
+          }
+
+          return successActions;
+        }),
+        catchError(
+          handleEpicError(action$, (error) =>
+            of(
+              toggleRepost.failure({
+                id,
+                type,
+                reposted: repost,
+                error
+              }),
+              addErrorToast({
+                title: `Error occurred while ${!isReposted ? 'reposting' : 'removing repost'}`,
+                message: `Please try again later`
+              })
+            )
           )
         )
       );
@@ -297,12 +356,18 @@ export const toggleFollowingEpic: RootEpic = (action$, state$) =>
           })
         ),
         catchError(
-          handleEpicError(
-            action$,
-            toggleFollowing.failure({
-              userId,
-              follow
-            })
+          handleEpicError(action$, (error) =>
+            of(
+              toggleFollowing.failure({
+                userId,
+                follow,
+                error
+              }),
+              addErrorToast({
+                title: `Error occurred while ${!isFollowingUser ? 'following' : 'unfollowing'} artist`,
+                message: `Please try again later`
+              })
+            )
           )
         )
       );

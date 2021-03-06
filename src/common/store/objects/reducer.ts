@@ -122,24 +122,23 @@ const objectState = createReducer<ObjectState>(initialObjectsState)
     };
   })
   .handleAction(
-    [
-      getGenericPlaylist.failure,
-      getGenericPlaylist.cancel,
-      genericPlaylistFetchMore.failure,
-      getComments.failure,
-      commentsFetchMore.failure
-    ],
+    [getGenericPlaylist.failure, genericPlaylistFetchMore.failure, getComments.failure, commentsFetchMore.failure],
     (state, action) => {
       const { payload } = action;
 
       return {
         ...state,
-        isFetching: false
-        // TODO
-        // error: payload.error
+        isFetching: false,
+        error: payload.error
       };
     }
-  );
+  )
+  .handleAction([getGenericPlaylist.cancel], (state, action) => {
+    return {
+      ...state,
+      isFetching: false
+    };
+  });
 
 const initialObjectGroupState: ObjectGroup = {};
 

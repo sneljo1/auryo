@@ -22,5 +22,5 @@ export type EntitiesOf<T> = { [key: string]: { [key: string]: T } };
 
 export type ResultOf<T, K extends keyof T> = Array<Omit<T, K> & { [P in K]: string }>;
 export interface EpicFailure {
-  error?: Error;
+  error: Error;
 }

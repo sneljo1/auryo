@@ -1,5 +1,5 @@
 import { wCancel, wError, wSuccess } from '@common/utils/reduxUtils';
-import { EntitiesOf, Normalized, SoundCloud } from '@types';
+import { EntitiesOf, EpicFailure, Normalized, SoundCloud } from '@types';
 import { createAction, createAsyncAction } from 'typesafe-actions';
 import { PlaylistActionTypes, PlaylistIdentifier, PlaylistObjectItem, SortTypes } from '../types';
 
@@ -11,7 +11,7 @@ export const getGenericPlaylist = createAsyncAction(
 )<
   PlaylistIdentifier & { refresh: boolean; sortType?: SortTypes; searchString?: string },
   PlaylistObjectItem & { refresh?: boolean; query?: string },
-  PlaylistIdentifier,
+  EpicFailure & PlaylistIdentifier,
   PlaylistIdentifier
 >();
 
@@ -19,7 +19,7 @@ export const genericPlaylistFetchMore = createAsyncAction(
   String(PlaylistActionTypes.GENERIC_PLAYLIST_FETCH_MORE),
   wSuccess(PlaylistActionTypes.GENERIC_PLAYLIST_FETCH_MORE),
   wError(PlaylistActionTypes.GENERIC_PLAYLIST_FETCH_MORE)
-)<PlaylistIdentifier, PlaylistObjectItem & { shuffle?: boolean }, PlaylistIdentifier>();
+)<PlaylistIdentifier, PlaylistObjectItem & { shuffle?: boolean }, EpicFailure & PlaylistIdentifier>();
 
 export const setPlaylistLoading = createAction(PlaylistActionTypes.SET_PLAYLIST_LOADING)<PlaylistIdentifier>();
 
@@ -39,13 +39,13 @@ export const getForYouSelection = createAsyncAction(
     entities: EntitiesOf<Omit<SoundCloud.Playlist, 'tracks'> & { tracks: Normalized.NormalizedResult[] }>;
     result: Array<Normalized.NormalizedPersonalizedItem>;
   },
-  object
+  EpicFailure
 >();
 
 export const getPlaylistTracks = createAsyncAction(
   String(PlaylistActionTypes.GET_PLAYLIST_TRACKS),
   wSuccess(PlaylistActionTypes.GET_PLAYLIST_TRACKS),
   wError(PlaylistActionTypes.GET_PLAYLIST_TRACKS)
-)<PlaylistIdentifier, PlaylistIdentifier, PlaylistIdentifier>();
+)<PlaylistIdentifier, PlaylistIdentifier, EpicFailure & PlaylistIdentifier>();
 
 export type ForYourObject = Omit<PlaylistObjectItem, 'entities' | 'nextUrl' | 'objectId'> & { objectId: string };

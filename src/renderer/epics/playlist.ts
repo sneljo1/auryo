@@ -147,12 +147,14 @@ export const getGenericPlaylistCollectionEpic: RootEpic = (action$, state$) =>
           })
         ),
         catchError(
-          handleEpicError(
-            action$,
-            getGenericPlaylist.failure({
-              objectId,
-              playlistType
-            })
+          handleEpicError(action$, (error) =>
+            of(
+              getGenericPlaylist.failure({
+                objectId,
+                playlistType,
+                error
+              })
+            )
           )
         )
       );
@@ -183,12 +185,14 @@ export const getPlaylistEpic: RootEpic = (action$) =>
           })
         ),
         catchError(
-          handleEpicError(
-            action$,
-            getGenericPlaylist.failure({
-              objectId,
-              playlistType
-            })
+          handleEpicError(action$, (error) =>
+            of(
+              getGenericPlaylist.failure({
+                objectId,
+                playlistType,
+                error
+              })
+            )
           )
         )
       );
@@ -278,12 +282,14 @@ export const genericPlaylistFetchMoreEpic: RootEpic = (action$, state$) =>
         startWith(setPlaylistLoading({ objectId, playlistType })),
 
         catchError(
-          handleEpicError(
-            action$,
-            genericPlaylistFetchMore.failure({
-              objectId,
-              playlistType
-            })
+          handleEpicError(action$, (error) =>
+            of(
+              genericPlaylistFetchMore.failure({
+                objectId,
+                playlistType,
+                error
+              })
+            )
           )
         )
       );
@@ -351,12 +357,14 @@ export const searchEpic: RootEpic = (action$) =>
           })
         ),
         catchError(
-          handleEpicError(
-            action$,
-            getGenericPlaylist.failure({
-              objectId,
-              playlistType
-            })
+          handleEpicError(action$, (error) =>
+            of(
+              getGenericPlaylist.failure({
+                objectId,
+                playlistType,
+                error
+              })
+            )
           )
         )
       );
@@ -396,12 +404,14 @@ export const searchFetchMoreEpic: RootEpic = (action$, state$) =>
         startWith(setPlaylistLoading({ objectId, playlistType })),
 
         catchError(
-          handleEpicError(
-            action$,
-            genericPlaylistFetchMore.failure({
-              objectId,
-              playlistType
-            })
+          handleEpicError(action$, (error) =>
+            of(
+              genericPlaylistFetchMore.failure({
+                objectId,
+                playlistType,
+                error
+              })
+            )
           )
         )
       );
@@ -460,7 +470,7 @@ export const getForYouSelectionEpic: RootEpic = (action$) =>
           });
         }),
 
-        catchError(handleEpicError(action$, getForYouSelection.failure({})))
+        catchError(handleEpicError(action$, (error) => of(getForYouSelection.failure(error))))
       );
     })
   );
@@ -509,12 +519,14 @@ export const getPlaylistTracksEpic: RootEpic = (action$, state$) =>
             )
           ),
           catchError(
-            handleEpicError(
-              action$,
-              getPlaylistTracks.failure({
-                objectId,
-                playlistType
-              })
+            handleEpicError(action$, (error) =>
+              of(
+                getPlaylistTracks.failure({
+                  objectId,
+                  playlistType,
+                  error
+                })
+              )
             )
           )
         ),

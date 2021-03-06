@@ -1,25 +1,21 @@
-import { IToasterProps, Toaster } from '@blueprintjs/core';
-import * as actions from '@common/store/actions';
-import { getToastsSelector } from '@common/store/selectors';
-import React, { FC, useEffect, useRef } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { IToasterProps } from '@blueprintjs/core';
+import React, { FC } from 'react';
+import { useSelector } from 'react-redux';
+import ReduxToastr from 'react-redux-toastr';
 
 export const Toastr: FC<IToasterProps> = (props) => {
-  const toasterRef = useRef<Toaster>(null);
-  const toasts = useSelector(getToastsSelector);
-  const dispatch = useDispatch();
+  const toastr = useSelector((state) => state.toastr);
 
-  useEffect(() => {
-    if (toasts.length) {
-      toasts.forEach((toast) => {
-        if (toasterRef.current) {
-          toasterRef.current.show(toast);
-        }
-      });
-
-      dispatch(actions.clearToasts());
-    }
-  }, [dispatch, toasts]);
-
-  return <Toaster {...props} ref={toasterRef} />;
+  return (
+    <ReduxToastr
+      timeOut={4000}
+      newestOnTop={false}
+      preventDuplicates={false}
+      position="top-right"
+      transitionIn="fadeIn"
+      transitionOut="fadeOut"
+      toastr={toastr}
+      closeOnToastrClick
+    />
+  );
 };

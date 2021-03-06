@@ -59,7 +59,7 @@ export const playTrackFromQueueEpic: RootEpic = (action$, state$) =>
         of(startPlayMusic({ idResult: payload.idResult }))
       );
     }),
-    catchError(handleEpicError(action$, addUpNext.failure({})))
+    catchError(handleEpicError(action$, (error) => of(addUpNext.failure(error))))
   );
 
 /**
@@ -107,7 +107,7 @@ export const addUpNextEpic: RootEpic = (action$, state$) =>
 
       return addUpNext.success({ items });
     }),
-    catchError(handleEpicError(action$, addUpNext.failure({})))
+    catchError(handleEpicError(action$, (error) => of(addUpNext.failure(error))))
   );
 
 /**

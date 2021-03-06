@@ -45,6 +45,11 @@ export const TrackPage: FC<Props> = ({
 
   const relatedTrackId = useMemo(() => ({ objectId: songId, playlistType: PlaylistTypes.RELATED }), [songId]);
 
+  // Reset tabs
+  useEffect(() => {
+    setActiveTab(TabTypes.OVERVIEW);
+  }, [songId]);
+
   // Fetch track if it does not exist yet
   useEffect(() => {
     if (!track && !loading) {

@@ -87,7 +87,7 @@ export function fetchPlaylists() {
 
 // LIKES
 export function toggleTrackLike(options: { trackId: string | number; like: boolean }) {
-  return fetchToJsonNew<Collection<SoundCloud.Track>>(
+  return fetchToJsonNew<{ status: string }>(
     {
       uri: `likes/tracks/${options.trackId}`,
       oauthToken: true
@@ -97,7 +97,7 @@ export function toggleTrackLike(options: { trackId: string | number; like: boole
 }
 
 export function togglePlaylistLike(options: { playlistId: string | number; like: boolean }) {
-  return fetchToJsonNew<Collection<SoundCloud.Track>>(
+  return fetchToJsonNew<{ status: string }>(
     {
       uri: `likes/playlists/${options.playlistId}`,
       oauthToken: true
@@ -120,32 +120,32 @@ export function toggleSystemPlaylistLike(options: { playlistUrn: string; userId:
 // REPOSTS
 
 export function toggleTrackRepost(options: { trackId: string | number; repost: boolean }) {
-  return fetchToJsonNew<Collection<SoundCloud.Track>>(
+  return fetchToJsonNew<{ status: string }>(
     {
       uri: `reposts/tracks/${options.trackId}`,
       oauthToken: true
     },
-    { method: options.repost ? 'PUT' : 'DELETE' }
+    { method: options.repost ? 'POST' : 'DELETE' }
   );
 }
 
 export function togglePlaylistRepost(options: { playlistId: string | number; repost: boolean }) {
-  return fetchToJsonNew<Collection<SoundCloud.Track>>(
+  return fetchToJsonNew<{ status: string }>(
     {
       uri: `reposts/playlists/${options.playlistId}`,
       oauthToken: true
     },
-    { method: options.repost ? 'PUT' : 'DELETE' }
+    { method: options.repost ? 'POST' : 'DELETE' }
   );
 }
 
 // Following
-export async function toggleFollowing(options: { userId: string | number; follow: boolean }) {
+export function toggleFollowing(options: { userId: string | number; follow: boolean }) {
   return fetchToJsonNew<Collection<SoundCloud.Track>>(
     {
       uri: `me/followings/${options.userId}`,
       oauthToken: true
     },
-    { method: options.follow ? 'PUT' : 'DELETE' }
+    { method: options.follow ? 'POST' : 'DELETE' }
   );
 }

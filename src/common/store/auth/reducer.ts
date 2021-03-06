@@ -174,9 +174,8 @@ export const authReducer = createReducer<AuthState>(initialState)
       ...state,
       playlists: {
         ...state.playlists,
-        isLoading: false
-        // TODO
-        // error: action.payload
+        isLoading: false,
+        error: action.payload.error
       }
     };
   })
@@ -205,9 +204,8 @@ export const authReducer = createReducer<AuthState>(initialState)
       ...state,
       personalizedPlaylists: {
         ...state.personalizedPlaylists,
-        isLoading: false
-        // TODO
-        // error: action.payload.error
+        isLoading: false,
+        error: action.payload.error
       }
     };
   })

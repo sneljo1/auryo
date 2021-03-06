@@ -26,8 +26,9 @@ import {
   tap,
   withLatestFrom
 } from 'rxjs/operators';
-import { isActionOf } from 'typesafe-actions';
+import { Action, isActionOf } from 'typesafe-actions';
 import {
+  addErrorToast,
   changeTrack,
   genericPlaylistFetchMore,
   getPlaylistTracks,
@@ -172,7 +173,7 @@ export const startPlayMusicEpic: RootEpic = (action$, state$) =>
         )
       );
     }),
-    catchError(handleEpicError(action$, playTrack.failure({})))
+    catchError(handleEpicError(action$, (error) => of(playTrack.failure(error))))
   );
 
 export const playTrackEpic: RootEpic = (action$, state$) =>
@@ -200,7 +201,7 @@ export const playTrackEpic: RootEpic = (action$, state$) =>
           // TODO: should we check if the track is fetched?
           filter(({ track, toFetch }) => !track || toFetch),
           tap(() =>
-            logger.trace('playTrackEpic:: Track could not be found', {
+            logger.trace('playTrackEpic:: Track could not be found, we should try and fetch it', {
               id,
               origin,
               currentPlaylistIdentifier: currentPlaylistID
@@ -213,7 +214,14 @@ export const playTrackEpic: RootEpic = (action$, state$) =>
                 pluck('payload'),
                 filter(({ playlistType, objectId }) => _.isEqual(currentPlaylistID, { playlistType, objectId })),
                 take(1),
-                takeUntil(action$.pipe(filter(isActionOf(genericPlaylistFetchMore.failure)))),
+                takeUntil(
+                  action$.pipe(
+                    filter(isActionOf(genericPlaylistFetchMore.failure)),
+                    filter(({ payload: { playlistType, objectId } }) =>
+                      _.isEqual(currentPlaylistID, { playlistType, objectId })
+                    )
+                  )
+                ),
                 ignoreElements(),
                 tap(() =>
                   logger.trace('playTrackEpic:: Using generic fetch more to fetch track', {
@@ -230,7 +238,12 @@ export const playTrackEpic: RootEpic = (action$, state$) =>
               pluck('payload', 'trackId'),
               filter((trackId) => trackId === id),
               take(1),
-              takeUntil(action$.pipe(filter(isActionOf(getTrack.failure)))),
+              takeUntil(
+                action$.pipe(
+                  filter(isActionOf(getTrack.failure)),
+                  filter(({ payload }) => payload.trackId === id)
+                )
+              ),
               ignoreElements(),
               tap(() =>
                 logger.trace('playTrackEpic:: Using getTrack to fetch track', {
@@ -244,7 +257,6 @@ export const playTrackEpic: RootEpic = (action$, state$) =>
         ),
 
         // If the tracks exists, start playing
-        // TODO: should we check if it is streamable??
         of({}).pipe(
           withLatestFrom(state$),
           map(([, latestState]) => ({
@@ -260,13 +272,21 @@ export const playTrackEpic: RootEpic = (action$, state$) =>
                     (item) => item.id === id && ((!!item.un && !!un && item.un === un) || (!item.un && !un))
                   );
 
-            // TODO: what if position is -1?
+            if (!track) {
+              return throwError(new EpicError('TRACK_NOT_FOUND'));
+            }
+
+            if (!track.streamable) {
+              return throwError(new EpicError('TRACK_NOT_STREAMABLE'));
+            }
+
             if (position === -1) {
-              // TODO: what if it does not exist?
               logger.error('playTrackEpic:: Track not found in queue', {
                 queueObject,
                 id
               });
+
+              return throwError(new EpicError('TRACK_NOT_IN_QUEUE'));
             }
 
             return of(
@@ -274,15 +294,49 @@ export const playTrackEpic: RootEpic = (action$, state$) =>
                 idResult,
                 origin,
                 parentPlaylistID,
-                duration: (track?.duration ?? 0) / 1000,
+                duration: (track.duration ?? 0) / 1000,
                 position
               })
             );
           })
         )
+      ).pipe(
+        catchError(
+          handleEpicError(action$, (error) => {
+            const errorActions: Action[] = [playTrack.failure(error)];
+
+            if (error.message === 'TRACK_NOT_IN_QUEUE') {
+              errorActions.push(
+                addErrorToast({
+                  title: 'Unable to play this track',
+                  message: "For an unknown reason, this track couldn't be found in the queue"
+                })
+              );
+            }
+
+            if (error.message === 'TRACK_NOT_STREAMABLE') {
+              errorActions.push(
+                addErrorToast({
+                  title: 'Unable to play this track',
+                  message: 'This track is not streamable'
+                })
+              );
+            }
+
+            if (error.message === 'TRACK_NOT_FOUND') {
+              errorActions.push(
+                addErrorToast({
+                  title: 'Unable to play this track',
+                  message: 'We were unable to fetch this track'
+                })
+              );
+            }
+
+            return of(...errorActions);
+          })
+        )
       );
-    }),
-    catchError(handleEpicError(action$, playTrack.failure({})))
+    })
   );
 
 export const playPlaylistEpic: RootEpic = (action$, state$) =>
@@ -307,19 +361,13 @@ export const playPlaylistEpic: RootEpic = (action$, state$) =>
 
           withLatestFrom(state$),
           mergeMap(([, latestState]) => {
-            console.log('ddddddd', currentPlaylistIdentifier.objectId);
-
             const playlist = getPlaylistObjectSelector(currentPlaylistIdentifier)(latestState);
-            const p = getPlaylistEntity(currentPlaylistIdentifier.objectId)(latestState);
-
-            console.log(p);
-            console.log(playlist);
 
             if (!playlist?.items?.length) {
-              // TODO: we cannot play this playlist, dispatch notification?
               logger.trace('playPlaylistEpic:: Playlist does not have any items', { id, playlist });
-              return EMPTY;
+              return throwError(new EpicError('PLAYLIST_EMPTY'));
             }
+
             const lastIndex = playlist?.items.length - 1;
 
             const { 0: firstItem, [lastIndex]: lastItem } = playlist?.items;
@@ -335,12 +383,25 @@ export const playPlaylistEpic: RootEpic = (action$, state$) =>
             );
           })
         )
+      ).pipe(
+        catchError(
+          handleEpicError(action$, (error) => {
+            const errorActions: Action[] = [playTrack.failure(error)];
 
-        // Get items, start playing first or last depending on changeType
-        // of(currentPlaylistIdentifier).pipe()
+            if (error.message === 'PLAYLIST_EMPTY') {
+              errorActions.push(
+                addErrorToast({
+                  title: 'Unable to play this playlist',
+                  message: 'This playlist is empty or we cannot stream any tracks from it'
+                })
+              );
+            }
+
+            return of(...errorActions);
+          })
+        )
       );
-    }),
-    catchError(handleEpicError(action$, playTrack.failure({})))
+    })
   );
 
 export const changeTrackEpic: RootEpic = (action$, state$) =>
@@ -387,7 +448,7 @@ export const changeTrackEpic: RootEpic = (action$, state$) =>
         of(startPlayMusicIndex({ index: nextPosition, changeType }))
       );
     }),
-    catchError(handleEpicError(action$, playTrack.failure({})))
+    catchError(handleEpicError(action$, (error) => of(playTrack.failure(error))))
   );
 
 export const playlistFinishedEpic: RootEpic = (action$, state$) =>
@@ -405,7 +466,7 @@ export const playlistFinishedEpic: RootEpic = (action$, state$) =>
         return of(startPlayMusicIndex({ index: 0 }));
       }
 
-      return ignoreElements();
+      return EMPTY;
     })
   );
 
@@ -454,10 +515,13 @@ export const startPlayMusicIndexEpic: RootEpic = (action$, state$) =>
           map(([, latestState]) => getQueueTrackByIndexSelector(index)(latestState)),
           mergeMap((nextTrack) => {
             if (!nextTrack) {
-              // TODO: what if it still does not exist
-              console.trace('startPlayMusicIndexEpic:: Track still does not exist', { index });
-
-              return ignoreElements();
+              logger.trace('startPlayMusicIndexEpic:: Track still does not exist', { index });
+              return of(
+                addErrorToast({
+                  title: 'Unable to play this track',
+                  message: 'We were unable to find a track at this index'
+                })
+              );
             }
 
             return of(
@@ -471,7 +535,7 @@ export const startPlayMusicIndexEpic: RootEpic = (action$, state$) =>
         )
       );
     }),
-    catchError(handleEpicError(action$, playTrack.failure({})))
+    catchError(handleEpicError(action$, (error) => of(playTrack.failure(error))))
   );
 
 export const setCurrentPlaylistEpic: RootEpic = (action$, state$) =>
@@ -486,8 +550,6 @@ export const setCurrentPlaylistEpic: RootEpic = (action$, state$) =>
     })),
     filter(({ playlistObject }) => !!playlistObject),
     exhaustMap(({ playlistId, playlistObject, playlists }) => {
-      console.log('setCurrentPlaylist');
-
       // Replace playlists with their items
       const items = (playlistObject?.items ?? []).reduce<ObjectStateItem[]>((all, item) => {
         if (item.schema === 'playlists') {
@@ -518,7 +580,7 @@ export const setCurrentPlaylistEpic: RootEpic = (action$, state$) =>
 
       return of(setCurrentPlaylist.success({ items, playlistId }));
     }),
-    catchError(handleEpicError(action$, setCurrentPlaylist.failure({})))
+    catchError(handleEpicError(action$, (error) => of(setCurrentPlaylist.failure(error))))
   );
 
 // Toggle shuffle
@@ -592,7 +654,7 @@ export const trackChangeNotificationEpic: RootEpic = (action$, state$) =>
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-expect-error
   action$.pipe(
-    filter(isActionOf(startPlayMusic)),
+    filter(isActionOf(playTrack.success)),
     pluck('payload'),
     filter(({ idResult }) => !!idResult),
     distinctUntilChanged(),

@@ -1,7 +1,7 @@
 import { normalizeArray } from '@common/schemas';
 import { handleEpicError } from '@common/utils/errors/EpicError';
 import { EntitiesOf, SoundCloud } from '@types';
-import { defer, from } from 'rxjs';
+import { defer, from, of } from 'rxjs';
 import { catchError, filter, map, pluck, switchMap, tap } from 'rxjs/operators';
 import { isActionOf } from 'typesafe-actions';
 import { RootEpic } from '../../common/store/declarations';
@@ -23,11 +23,13 @@ export const getUserEpic: RootEpic = (action$) =>
           })
         ),
         catchError(
-          handleEpicError(
-            action$,
-            getUser.failure({
-              userId
-            })
+          handleEpicError(action$, (error) =>
+            of(
+              getUser.failure({
+                userId,
+                error
+              })
+            )
           )
         )
       );
@@ -54,11 +56,13 @@ export const getUserProfilesEpic: RootEpic = (action$) =>
           });
         }),
         catchError(
-          handleEpicError(
-            action$,
-            getUserProfiles.failure({
-              userId
-            })
+          handleEpicError(action$, (error) =>
+            of(
+              getUserProfiles.failure({
+                userId,
+                error
+              })
+            )
           )
         )
       );

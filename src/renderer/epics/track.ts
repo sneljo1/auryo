@@ -2,7 +2,7 @@ import { normalizeArray, normalizeCollection } from '@common/schemas';
 import { SC } from '@common/utils';
 import { handleEpicError } from '@common/utils/errors/EpicError';
 import { SoundCloud } from '@types';
-import { defer, from } from 'rxjs';
+import { defer, from, of } from 'rxjs';
 import { catchError, filter, map, pluck, startWith, switchMap, tap, withLatestFrom } from 'rxjs/operators';
 import { isActionOf } from 'typesafe-actions';
 import { commentsFetchMore, getComments, getTrack, setCommentsLoading } from '../../common/store/actions';
@@ -27,11 +27,13 @@ export const getTrackEpic: RootEpic = (action$) =>
           })
         ),
         catchError(
-          handleEpicError(
-            action$,
-            getTrack.failure({
-              trackId
-            })
+          handleEpicError(action$, (error) =>
+            of(
+              getTrack.failure({
+                trackId,
+                error
+              })
+            )
           )
         )
       );
@@ -57,11 +59,13 @@ export const getCommentsEpic: RootEpic = (action$) =>
           })
         ),
         catchError(
-          handleEpicError(
-            action$,
-            getComments.failure({
-              trackId
-            })
+          handleEpicError(action$, (error) =>
+            of(
+              getComments.failure({
+                trackId,
+                error
+              })
+            )
           )
         )
       );
@@ -98,11 +102,13 @@ export const commentsFetchMoreEpic: RootEpic = (action$, state$) =>
           })
         ),
         catchError(
-          handleEpicError(
-            action$,
-            commentsFetchMore.failure({
-              trackId
-            })
+          handleEpicError(action$, (error) =>
+            of(
+              commentsFetchMore.failure({
+                trackId,
+                error
+              })
+            )
           )
         ),
         startWith(setCommentsLoading({ trackId }))

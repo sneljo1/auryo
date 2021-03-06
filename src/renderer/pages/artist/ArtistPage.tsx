@@ -93,6 +93,11 @@ export const ArtistPage: FC<Props> = ({
   ]);
   const artistLikesId = useMemo(() => ({ objectId: artistId, playlistType: PlaylistTypes.ARTIST_LIKES }), [artistId]);
 
+  // Reset tabs
+  useEffect(() => {
+    setActiveTab(TabTypes.TRACKS);
+  }, [artistId]);
+
   // Fetch user if it does not exist yet
   useEffect(() => {
     if (!artist && !loading) {

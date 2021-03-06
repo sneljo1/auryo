@@ -53,15 +53,6 @@ export const playerReducer = createReducer<PlayerState>(initialState)
       status
     };
   })
-  // TODO: do we still need this?
-  // .handleAction(setDuration, (state, action) => {
-  //   const { payload } = action;
-
-  //   return {
-  //     ...state,
-  //     duration: payload
-  //   };
-  // })
   .handleAction(setCurrentTime, (state, action) => {
     const { payload } = action;
 
