@@ -1,4 +1,5 @@
 # Auryo [![Join the chat at https://gitter.im/auryoapp-/Lobby](https://badges.gitter.im/auryoapp-/Lobby.svg)](https://gitter.im/auryoapp-/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Contributions welcome](https://img.shields.io/badge/Contributions-welcome-blue.svg)](https://github.com/Superjo149/auryo/issues)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FSuperjo149%2Fauryo.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FSuperjo149%2Fauryo?ref=badge_shield)
 
 
 > 🚨 I am currently working on a major re-write, I will keep https://github.com/Superjo149/auryo/pull/255 up-to-date. In the meanwhile, please consider supporting me via [patreon](https://www.patreon.com/sneljo) or [github sponsors](https://github.com/sponsors/Superjo149)
@@ -48,3 +49,6 @@ Show me some love, buy me a 🍺.
 This project is licensed under the GNU General Public License v3.0 - see the [LICENSE.md](LICENSE.md) file for details
 
 
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FSuperjo149%2Fauryo.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FSuperjo149%2Fauryo?ref=badge_large)
