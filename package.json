@@ -222,6 +222,7 @@
     "redux-observable": "^1.2.0",
     "reselect": "^4.0.0",
     "rxjs": "^6.6.6",
+    "rxjs-audio": "^2.0.0",
     "semver": "^5.3.0",
     "serialize-error": "^6.0.0",
     "source-map-support": "^0.5.16",

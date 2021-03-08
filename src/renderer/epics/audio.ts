@@ -58,15 +58,10 @@ export const stopAudioStreamEpic: RootEpic = (action$) =>
   );
 
 export const audioStreamErrorEpic: RootEpic = () =>
-  // @ts-expect-error
   audio
     .events()
+    .pipe(filter((event) => event.type === 'error'))
     .pipe(
-      // @ts-expect-error
-      filter((event) => event.type === 'error')
-    )
-    .pipe(
-      // @ts-expect-error
       exhaustMap((error) => {
         console.error('Audio error', error);
 
@@ -143,23 +138,13 @@ export const restartTrackEpic: RootEpic = (action$) =>
     ignoreElements()
   );
 
-const canPlay$ = audio.events().pipe(
-  // @ts-expect-error
-  filter((event) => event.type === 'canplay')
-);
-const ended$ = audio.events().pipe(
-  // @ts-expect-error
-  filter((event: Event) => event.type === 'ended')
-);
+const canPlay$ = audio.events().pipe(filter((event) => event.type === 'canplay'));
+const ended$ = audio.events().pipe(filter((event: Event) => event.type === 'ended'));
 
-export const trackFinishedEpic: RootEpic = () =>
-  // @ts-expect-error
-  canPlay$.pipe(switchMap(() => ended$)).pipe(mapTo(trackFinished()));
+export const trackFinishedEpic: RootEpic = () => canPlay$.pipe(switchMap(() => ended$)).pipe(mapTo(trackFinished()));
 
 export const trackCurrentPositionEpic: RootEpic = () =>
-  // @ts-expect-error
   audio.getState().pipe(
-    // @ts-expect-error
     pluck('trackInfo', 'currentTime'),
     filter((currentTime) => currentTime != null),
     map((currentTime) => Math.ceil(currentTime)),

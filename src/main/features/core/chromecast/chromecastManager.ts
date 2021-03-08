@@ -12,7 +12,11 @@ import { autobind } from 'core-decorators';
 import { Feature, WatchState } from '../../feature';
 import AuryoReceiver from './auryoReceiver';
 import { startScanning } from './deviceScanner';
-import { addToast, setChromecastAppState, setChromeCastPlayerStatus, setChromecastDevice } from '@common/store/actions';
+import {
+  /* addToast, */ setChromecastAppState,
+  setChromeCastPlayerStatus,
+  setChromecastDevice
+} from '@common/store/actions';
 
 @autobind
 export default class ChromecastManager extends Feature {
@@ -65,13 +69,14 @@ export default class ChromecastManager extends Feature {
 
               this.client.on('error', (err: any) => {
                 this.logger.error(err);
+                /*
                 this.store.dispatch(
                   addToast({
                     message: `An error occurred during the connection with the cast device`,
                     intent: Intent.DANGER
                   })
                 );
-
+*/
                 if (this.client && this.client.client) {
                   this.client.close();
                 }

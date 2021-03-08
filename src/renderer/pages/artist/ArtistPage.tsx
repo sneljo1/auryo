@@ -4,7 +4,6 @@ import { getUser, openExternalUrl } from '@common/store/actions';
 import { PlaylistTypes } from '@common/store/objects';
 import { currentUserSelector, getNormalizedUserForPage, isUserError, isUserLoading } from '@common/store/selectors';
 import { abbreviateNumber, SC } from '@common/utils';
-import { IPC } from '@common/utils/ipc';
 import { SetLayoutSettings } from '@renderer/_shared/context/contentContext';
 import { ToggleFollowButton } from '@renderer/_shared/PageHeader/components/ToggleFollowButton';
 import { PlaylistTrackList } from '@renderer/_shared/PlaylistTrackList';

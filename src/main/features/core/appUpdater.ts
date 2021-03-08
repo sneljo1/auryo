@@ -1,6 +1,6 @@
 import { Intent } from '@blueprintjs/core';
 import { EVENTS } from '@common/constants/events';
-import { addToast, setUpdateAvailable } from '@common/store/actions';
+import { /* addToast, */ setUpdateAvailable } from '@common/store/actions';
 import axios from 'axios';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { app, shell } from 'electron';
@@ -47,13 +47,14 @@ export default class AppUpdater extends Feature {
 
   public notify = (version: string) => {
     this.store.dispatch(setUpdateAvailable(version));
-
+    /*
     this.store.dispatch(
       addToast({
         message: `Update available`,
         intent: Intent.SUCCESS
       })
     );
+    */
   };
 
   public update = async () => {
