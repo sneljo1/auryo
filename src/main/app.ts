@@ -3,31 +3,16 @@ import { isSoundCloudUrl } from '@common/utils';
 // eslint-disable-next-line import/no-unresolved
 import { StoreState } from 'AppReduxTypes';
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { app, BrowserWindow, BrowserWindowConstructorOptions, Event, Menu, nativeImage, shell } from 'electron';
+import { app, BrowserWindow, BrowserWindowConstructorOptions, Event, Menu, shell } from 'electron';
 import { stopForwarding } from 'electron-redux';
 import windowStateKeeper from 'electron-window-state';
 import _ from 'lodash';
-import * as os from 'os';
-import * as path from 'path';
 import * as querystring from 'querystring';
 import { Store } from 'redux';
 // eslint-disable-next-line import/no-cycle
 import { Feature } from './features/feature';
 import { Logger, LoggerInstance } from './utils/logger';
 import { Utils } from './utils/utils';
-
-const logosPath = path.resolve(global.__static, 'logos');
-
-const icons = {
-  256: nativeImage.createFromPath(path.join(logosPath, 'auryo.png')),
-  128: nativeImage.createFromPath(path.join(logosPath, 'auryo-128.png')),
-  64: nativeImage.createFromPath(path.join(logosPath, 'auryo-64.png')),
-  48: nativeImage.createFromPath(path.join(logosPath, 'auryo-48.png')),
-  32: nativeImage.createFromPath(path.join(logosPath, 'auryo-32.png')),
-  ico: nativeImage.createFromPath(path.join(logosPath, 'auryo.ico')),
-  tray: nativeImage.createFromPath(path.join(logosPath, 'auryo-tray.png')).resize({ width: 24, height: 24 }),
-  'tray-ico': nativeImage.createFromPath(path.join(logosPath, 'auryo-tray.ico')).resize({ width: 24, height: 24 })
-};
 
 export class Auryo {
   public mainWindow: Electron.BrowserWindow | undefined;
@@ -56,7 +41,6 @@ export class Auryo {
     // Browser Window options
     const mainWindowOption: BrowserWindowConstructorOptions = {
       title: `Auryo - ${app.getVersion()}`,
-      icon: os.platform() === 'win32' ? icons.ico : icons['256'],
       x: mainWindowState.x,
       y: mainWindowState.y,
       width: mainWindowState.width,

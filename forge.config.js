@@ -24,7 +24,7 @@ module.exports = {
   buildIdentifier: isProd ? 'prod' : 'dev',
   packagerConfig: {
     asar: false,
-    icon: path.resolve(__dirname, 'assets', 'icon'),
+    icon: path.resolve(__dirname, 'build/icons', 'icon'),
     appBundleId: fromBuildIdentifier({ dev: 'be.snlkx.dev.auryo', prod: 'be.snlkx.auryo' }),
     appCategoryType: 'public.app-category.music',
     win32metadata: {
@@ -57,7 +57,7 @@ module.exports = {
           noMsi: true,
           remoteReleases: '',
           setupExe: `auryo-${package.version}-setup-${arch}.exe`,
-          setupIcon: path.resolve(__dirname, 'assets', 'icon.ico'),
+          setupIcon: path.resolve(__dirname, 'build/icons', 'icon.ico'),
           certificateFile: process.env['WINDOWS_CODESIGN_FILE'],
           certificatePassword: process.env['WINDOWS_CODESIGN_PASSWORD']
         };
