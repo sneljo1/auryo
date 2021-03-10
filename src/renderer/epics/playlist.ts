@@ -301,7 +301,9 @@ export const searchEpic: RootEpic = (action$) =>
     filter(isActionOf(getSearchPlaylist)),
     tap((action) => console.log(`${action.type} from ${process.type}`)),
     pluck('payload'),
-    switchMap(({ playlistType, objectId, query, tag, refresh }) => {
+    switchMap(({ playlistType, objectId, query: rawQuery, tag, refresh }) => {
+      const query = decodeURI(rawQuery ?? '');
+
       if (query && isSoundCloudUrl(query)) {
         return of(
           resolveSoundCloudUrl(query),
@@ -353,7 +355,7 @@ export const searchEpic: RootEpic = (action$) =>
             result: data.normalized.result,
             refresh,
             nextUrl: data.json?.next_href,
-            query: query || tag
+            query: rawQuery || tag
           })
         ),
         catchError(
