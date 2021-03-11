@@ -5,6 +5,10 @@
 declare namespace NodeJS {
   interface Global {
     __static: any;
+    fetch: any;
+    AbortController: any;
+    MAIN_WINDOW_WEBPACK_ENTRY: string;
+    MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
   }
   interface ProcessEnv {
     readonly NODE_ENV: 'development' | 'production' | 'test';
@@ -38,3 +42,43 @@ declare module 'electron-window-state';
 declare module 'react-dotdotdot';
 declare module 'color-hash';
 declare module 'react-marquee';
+
+declare module 'AppReduxTypes' {
+  import { StateType, ActionType } from 'typesafe-actions';
+  import { AuthState } from '@common/store/auth';
+  import {
+    AppAuthState,
+    EntitiesState,
+    PlayerState,
+    ObjectsState,
+    ConfigState,
+    TrackState,
+    UserState
+  } from '@common/store/types';
+  import { AppState } from '@common/store/app';
+  import { UIState } from '@common/store/ui';
+  import { ModalState } from 'redux-modal';
+  import { RouterState } from 'connected-react-router';
+  import { ToastrState } from 'react-redux-toastr';
+
+  interface _StoreState {
+    auth: AuthState;
+    appAuth: AppAuthState;
+    entities: EntitiesState;
+    player: PlayerState;
+    objects: ObjectsState;
+    app: AppState;
+    config: ConfigState;
+    ui: UIState;
+    modal: ModalState;
+    router: RouterState;
+    track: TrackState;
+    user: UserState;
+    toastr: ToastrState;
+  }
+
+  export type Store = StateType<typeof import('@common/store/index').default>;
+  export type RootAction = ActionType<typeof import('@common/store/actions')>;
+  export type RootState = StateType<_StoreState>;
+  export type StoreState = _StoreState;
+}

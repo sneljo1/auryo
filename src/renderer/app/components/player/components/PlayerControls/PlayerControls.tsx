@@ -1,7 +1,7 @@
 import { PlayerStatus, RepeatTypes } from '@common/store/player';
 import cn from 'classnames';
 import React from 'react';
-import * as styles from './PlayerControls.module.scss';
+import styles from './PlayerControls.module.scss';
 
 interface Props {
   repeat: RepeatTypes | null;

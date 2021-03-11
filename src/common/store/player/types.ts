@@ -1,22 +1,28 @@
 // TYPES
 
+import { PlaylistIdentifier } from '../playlist';
+import { ObjectStateItem } from '../types';
+
 export type PlayerState = Readonly<{
   status: PlayerStatus;
-  queue: PlayingTrack[];
-  originalQueue: PlayingTrack[];
+  currentPlaylistId: PlaylistIdentifier | null;
   playingTrack: PlayingTrack | null;
-  currentPlaylistId: string | null;
   currentIndex: number;
   currentTime: number;
   duration: number;
-  upNext: UpNextState;
-  containsPlaylists: PlayingPositionState[];
+  upNext: ObjectStateItem[];
+
+  // queue: PlayingTrack[];
+  // originalQueue: PlayingTrack[];
+  // upNext: UpNextState;
+  // containsPlaylists: PlayingPositionState[];
 }>;
 
 export interface PlayingTrack {
-  un: number; // unique identifiable number to differentiate between the same tracks in queue
   id: number;
-  playlistId: string;
+  un?: number;
+  playlistId: PlaylistIdentifier;
+  parentPlaylistID?: PlaylistIdentifier;
 }
 
 export interface PlayingPositionState {
@@ -55,14 +61,35 @@ export type ProcessedQueueItems = [PlayingTrack[], PlayingTrack[]];
 // ACTIONS
 
 export enum PlayerActionTypes {
-  SET_TIME = '@@player/SET_TIME',
-  UPDATE_TIME = '@@player/UPDATE_TIME',
-  SET_DURATION = '@@player/SET_DURATION',
-  SET_TRACK = '@@player/SET_TRACK',
-  TOGGLE_PLAYING = '@@player/TOGGLE_PLAYING',
-  SET_PLAYLIST = '@@player/SET_PLAYLIST',
-  QUEUE_INSERT = '@@player/QUEUE_INSERT',
-  ADD_UP_NEXT = '@@player/ADD_UP_NEXT',
-  CLEAR_UP_NEXT = '@@player/CLEAR_UP_NEXT',
-  TOGGLE_SHUFFLE = '@@player/TOGGLE_SHUFFLE'
+  TOGGLE_STATUS = 'auryo.player.TOGGLE_STATUS',
+  TOGGLE_SHUFFLE = 'auryo.player.TOGGLE_SHUFFLE',
+  SEEK_TO = 'auryo.player.SEEK_TO',
+  PLAY_TRACK = 'auryo.player.PLAY_TRACK',
+  CHANGE_TRACK = 'auryo.player.CHANGE_TRACK',
+  PLAY_PLAYLIST = 'auryo.player.PLAY_PLAYLIST',
+  START_PLAY_MUSIC = 'auryo.player.START_PLAY_MUSIC',
+  SET_CURRENT_PLAYLIST = 'auryo.player.SET_CURRENT_PLAYLIST',
+  RESTART_TRACK = 'auryo.player.RESTART_TRACK',
+  TRACK_FINISHED = 'auryo.player.TRACK_FINISHED',
+  PLAYLIST_FINISHED = 'auryo.player.PLAYLIST_FINISHED',
+  START_PLAY_MUSIC_INDEX = 'auryo.player.START_PLAY_MUSIC_INDEX',
+  ADD_UP_NEXT = 'auryo.player.ADD_UP_NEXT',
+  CLEAR_UP_NEXT = 'auryo.player.CLEAR_UP_NEXT',
+  QUEUE_INSERT = 'auryo.player.QUEUE_INSERT',
+  SET_QUEUE = 'auryo.player.SET_QUEUE',
+  SHUFFLE_QUEUE = 'auryo.player.SHUFFLE_QUEUE',
+  SET_CURRENT_INDEX = 'auryo.player.SET_CURRENT_INDEX',
+  RESOLVE_PLAYLIST_ITEMS = 'auryo.player.RESOLVE_PLAYLIST_ITEMS',
+  REMOVE_FROM_QUEUE = 'auryo.player.REMOVE_FROM_QUEUE',
+  PLAY_TRACK_FROM_QUEUE = 'auryo.player.PLAY_TRACK_FROM_QUEUE',
+
+  // OLD
+  SET_TIME = 'auryo.player.SET_TIME',
+  UPDATE_TIME = 'auryo.player.UPDATE_TIME',
+  SET_DURATION = 'auryo.player.SET_DURATION',
+  SET_TRACK = 'auryo.player.SET_TRACK',
+  TOGGLE_PLAYING = 'auryo.player.TOGGLE_PLAYING',
+  SET_PLAYLIST = 'auryo.player.SET_PLAYLIST',
+  REMOVE_FROM_UP_NEXT = 'REMOVE_FROM_UP_NEXT',
+  REMOVE_FROM_QUEUE_OR_UP_NEXT = 'REMOVE_FROM_QUEUE_OR_UP_NEXT'
 }

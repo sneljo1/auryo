@@ -1,19 +1,19 @@
-import { EVENTS } from '@common/constants/events';
 import { IMAGE_SIZES } from '@common/constants/Soundcloud';
-import { getTrackEntity } from '@common/store/entities/selectors';
-import { ChangeTypes, PlayerStatus } from '@common/store/player';
 import { changeTrack, toggleStatus } from '@common/store/actions';
-import { getCurrentPosition } from '@common/utils';
+import { ChangeTypes, PlayerStatus } from '@common/store/player';
+import { getQueuePlaylistSelector } from '@common/store/selectors';
 import * as SC from '@common/utils/soundcloudUtils';
+import { _StoreState } from 'AppReduxTypes';
+import { autobind } from 'core-decorators';
 import * as _ from 'lodash';
 import * as path from 'path';
 import { Logger, LoggerInstance } from '../../utils/logger';
-import { WatchState } from '../feature';
 import { MprisServiceClient } from './interfaces/mpris-service.interface';
 import LinuxFeature from './linuxFeature';
 
 const logosPath = path.resolve(global.__static, 'logos');
 
+@autobind
 export default class MprisService extends LinuxFeature {
   public readonly featureName = 'MprisService';
   private readonly logger: LoggerInstance = Logger.createLogger(MprisService.featureName);
@@ -69,106 +69,90 @@ export default class MprisService extends LinuxFeature {
       });
 
       this.player.on('play', () => {
-        this.store.dispatch(toggleStatus(PlayerStatus.PLAYING) as any);
+        this.store.dispatch(toggleStatus(PlayerStatus.PLAYING));
       });
 
       this.player.on('pause', () => {
-        this.store.dispatch(toggleStatus(PlayerStatus.PAUSED) as any);
+        this.store.dispatch(toggleStatus(PlayerStatus.PAUSED));
       });
 
       this.player.on('playpause', () => {
-        this.store.dispatch(toggleStatus() as any);
+        this.store.dispatch(toggleStatus());
       });
 
       this.player.on('stop', () => {
-        this.store.dispatch(toggleStatus(PlayerStatus.STOPPED) as any);
+        this.store.dispatch(toggleStatus(PlayerStatus.STOPPED));
       });
 
       this.player.on('next', () => {
-        this.store.dispatch(changeTrack(ChangeTypes.NEXT) as any);
+        this.store.dispatch(changeTrack(ChangeTypes.NEXT));
       });
 
       this.player.on('previous', () => {
-        this.store.dispatch(changeTrack(ChangeTypes.PREV) as any);
+        this.store.dispatch(changeTrack(ChangeTypes.PREV));
       });
 
       //
       // WATCHERS
       //
 
-      this.on(EVENTS.APP.READY, () => {
-        /**
-         * Update track information
-         */
-        this.subscribe(['player', 'playingTrack'], ({ currentState }) => {
-          const {
-            player: { playingTrack, queue }
-          } = currentState;
+      // Update track information
+      this.observables.trackChanged.subscribe(({ value: track, store }) => {
+        const {
+          player: { playingTrack, currentIndex }
+        } = store;
 
-          if (playingTrack && this.player) {
-            const trackId = playingTrack.id;
-            const track = getTrackEntity(trackId)(currentState);
+        if (track && this.player && playingTrack) {
+          const queue = getQueuePlaylistSelector(store);
+          const queueLength = queue.items.length;
 
-            const position = getCurrentPosition({ queue, playingTrack });
+          this.player.canGoPrevious = queueLength > 0 && currentIndex > 0;
+          this.player.canGoNext = queueLength > 0 && currentIndex + 1 <= queueLength;
 
-            this.player.canGoPrevious = queue.length > 0 && position > 0;
-            this.player.canGoNext = queue.length > 0 && position + 1 <= queue.length;
+          this.meta = {
+            ...this.meta,
+            ...this.player.metadata
+          };
 
-            this.meta = {
-              ...this.meta,
-              ...this.player.metadata
-            };
-
-            if (track) {
-              this.meta['mpris:trackId'] = this.player.objectPath(track.id.toString());
-              this.meta['mpris:length'] = this.parseTime(track.duration); // int
-              this.meta['mpris:artUrl'] = SC.getImageUrl(track, IMAGE_SIZES.XLARGE);
-              this.meta['xesam:genre'] = [track.genre || ''];
-              this.meta['xesam:title'] = track.title || '';
-              this.meta['xesam:artist'] = [track.user && track.user.username ? track.user.username : 'Unknown artist'];
-              this.meta['xesam:url'] = track.uri || '';
-              this.meta['xesam:useCount'] = track.playback_count || 0;
-            } else {
-              this.meta['xesam:title'] = 'Auryo';
-              this.meta['xesam:artist'] = [''];
-              this.meta['mpris:length'] = 0;
-              this.meta['xesam:url'] = '';
-              this.meta['mpris:artUrl'] = `file://${path.join(logosPath, 'auryo-128.png')}`;
-            }
-
-            if (!_.isEqual(this.meta, this.player.metadata)) {
-              this.player.metadata = this.meta;
-            }
+          if (track) {
+            this.meta['mpris:trackId'] = this.player.objectPath(track.id.toString());
+            this.meta['mpris:length'] = this.parseTime(track.duration); // int
+            this.meta['mpris:artUrl'] = SC.getImageUrl(track, IMAGE_SIZES.XLARGE);
+            this.meta['xesam:genre'] = [track.genre || ''];
+            this.meta['xesam:title'] = track.title || '';
+            this.meta['xesam:artist'] = [track.user && track.user.username ? track.user.username : 'Unknown artist'];
+            this.meta['xesam:url'] = track.uri || '';
+            this.meta['xesam:useCount'] = track.playback_count || 0;
+          } else {
+            this.meta['xesam:title'] = 'Auryo';
+            this.meta['xesam:artist'] = [''];
+            this.meta['mpris:length'] = 0;
+            this.meta['xesam:url'] = '';
+            this.meta['mpris:artUrl'] = `file://${path.join(logosPath, 'auryo-128.png')}`;
           }
-        });
 
-        /**
-         * Update time
-         */
-        this.subscribe(['player', 'status'], this.updateStatus.bind(this));
-        this.subscribe(['player', 'currentTime'], this.updateTime.bind(this));
-        this.subscribe(['player', 'duration'], this.updateTime.bind(this));
+          if (!_.isEqual(this.meta, this.player.metadata)) {
+            this.player.metadata = this.meta;
+          }
+        }
       });
+
+      this.observables.statusChanged.subscribe(({ value: status }) => {
+        if (status && this.player) {
+          this.player.playbackStatus = (status.toLowerCase().charAt(0).toUpperCase() +
+            status.toLowerCase().slice(1)) as any;
+        }
+      });
+
+      this.observables.playerDurationChanged.subscribe(({ store }) => this.updateTime(store));
+      this.observables.playerCurrentTimeChanged.subscribe(({ store }) => this.updateTime(store));
     } catch (e) {
       this.logger.warn('Mpris not supported');
       this.logger.warn(e);
     }
   }
 
-  public updateStatus({ currentValue }: WatchState<PlayerStatus>) {
-    if (currentValue && this.player) {
-      this.player.playbackStatus = (currentValue
-        .toLowerCase()
-        .charAt(0)
-        .toUpperCase() + currentValue.toLowerCase().slice(1)) as any;
-    }
-  }
-
-  public updateTime = ({
-    currentState: {
-      player: { currentTime, duration }
-    }
-  }: WatchState<number>) => {
+  public updateTime = ({ player: { currentTime, duration } }: _StoreState) => {
     if (this.player) {
       this.meta = {
         ...this.meta,

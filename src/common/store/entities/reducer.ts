@@ -1,13 +1,13 @@
 import { merge } from 'lodash';
 import { Reducer } from 'redux';
-import { AppActionTypes } from '../app';
-import { EntitiesState } from './types';
+import { EntitiesState, AppActionTypes } from '../types';
 
-const initialState = {
+const initialState: EntitiesState = {
   playlistEntities: {},
   trackEntities: {},
   userEntities: {},
-  commentEntities: {}
+  commentEntities: {},
+  userProfileEntities: {}
 };
 
 export const entitiesReducer: Reducer<EntitiesState> = (state = initialState, action) => {

@@ -1,22 +1,37 @@
 @import "../../../css/bootstrap.imports.scss";
 
-.sticky-outer-wrapper.sticky {
+.sticky {
   position: relative;
   z-index: 9;
 }
 
+.navbar-wrapper {
+
+  transition: .25s background ease-in-out;
+}
+
+.offline-indicator {
+  border: 2px solid theme-color("primary");
+  padding: 2px 12px;
+  border-radius: 8px;
+  margin-right: 10px;
+  font-size: .9rem;
+  color: var(--clr-user-profile-text);
+}
+
 .header-wrapper {
+
   .bp3-popover-target {
     transform: rotate(90deg)
   }
 
   &.withImage {
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(65, 56, 56, 0.15);
     position: relative;
     z-index: 5;
 
 
-    .sticky-outer-wrapper:not(.sticky) {
+    &>div>div:not(.sticky) {
       .bp3-popover-target svg {
         color: white;
       }
@@ -68,37 +83,8 @@
 
     .navbar-wrapper {
       background: var(--clr-navbar-bg-sticky);
-      transition: .5s tranform;
     }
   }
-
-
-  .sticky-1 {
-    .navbar-wrapper {
-      box-shadow: 3px 3px 15px rgba(0, 0, 0, 0.03), 3px 3px 30px rgba(0, 0, 0, 0.01);
-    }
-  }
-
-  .sticky-2 {
-    .navbar-wrapper {
-      box-shadow: 3px 3px 15px rgba(0, 0, 0, 0.06), 3px 3px 30px rgba(0, 0, 0, 0.03);
-    }
-  }
-
-  .sticky-3 {
-    .navbar-wrapper {
-      box-shadow: 3px 3px 15px rgba(0, 0, 0, 0.11), 3px 3px 30px rgba(0, 0, 0, 0.05);
-    }
-  }
-}
-
-.sticky-appear {
-  transform: translateY(-52px);
-}
-
-.sticky-appear.sticky-appear-active {
-  transform: translateY(0);
-  transition: all 300ms ease-in-out;
 }
 
 .navbar {

@@ -1,13 +1,14 @@
-import { StoreState } from '@common/store';
-import { ChangeTypes, PlayerStatus } from '@common/store/player';
 import { changeTrack, toggleStatus } from '@common/store/actions';
+import { ChangeTypes, PlayerStatus } from '@common/store/player';
+import { getQueuePlaylistSelector } from '@common/store/selectors';
+import { StoreState } from 'AppReduxTypes';
+import { autobind } from 'core-decorators';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { nativeImage } from 'electron';
-import * as is from 'electron-is';
+import is from 'electron-is';
 import * as path from 'path';
 import { Auryo } from '../../app';
 import { Feature } from '../feature';
-import { autobind } from 'core-decorators';
 
 const iconsDirectory = path.resolve(global.__static, 'icons');
 
@@ -41,7 +42,7 @@ export default class Thumbar extends Feature {
         tooltip: 'Play',
         icon: nativeImage.createFromPath(path.join(iconsDirectory, 'play.png')),
         click: () => {
-          this.togglePlay(PlayerStatus.PLAYING);
+          this.store.dispatch(toggleStatus(PlayerStatus.PLAYING));
         }
       },
       playDisabled: {
@@ -55,7 +56,7 @@ export default class Thumbar extends Feature {
         tooltip: 'Pause',
         icon: nativeImage.createFromPath(path.join(iconsDirectory, 'pause.png')),
         click: () => {
-          this.togglePlay(PlayerStatus.PAUSED);
+          this.store.dispatch(toggleStatus(PlayerStatus.PAUSED));
         }
       },
       pauseDisabled: {
@@ -69,7 +70,7 @@ export default class Thumbar extends Feature {
         tooltip: 'Prev',
         icon: nativeImage.createFromPath(path.join(iconsDirectory, 'previous.png')),
         click: () => {
-          this.changeTrack(ChangeTypes.PREV);
+          this.store.dispatch(changeTrack(ChangeTypes.PREV));
         }
       },
       prevDisabled: {
@@ -83,7 +84,7 @@ export default class Thumbar extends Feature {
         tooltip: 'Next',
         icon: nativeImage.createFromPath(path.join(iconsDirectory, 'next.png')),
         click: () => {
-          this.changeTrack(ChangeTypes.NEXT);
+          this.store.dispatch(changeTrack(ChangeTypes.NEXT));
         }
       },
       nextDisabled: {
@@ -97,63 +98,52 @@ export default class Thumbar extends Feature {
 
     this.setThumbarButtons(this.store.getState());
 
-    this.subscribe(['player', 'status'], ({ currentState }) => {
-      this.setThumbarButtons(currentState);
+    this.observables.statusChanged.subscribe(({ store }) => {
+      this.setThumbarButtons(store);
     });
 
-    this.subscribe(['player', 'playingTrack'], ({ currentState }) => {
-      this.setThumbarButtons(currentState);
+    this.observables.trackChanged.subscribe(({ store }) => {
+      this.setThumbarButtons(store);
     });
   }
 
-  public setThumbarButtons(state: StoreState) {
+  public setThumbarButtons(store: StoreState) {
     const {
-      player: { status, queue, currentIndex }
-    } = state;
+      player: { status, currentIndex }
+    } = store;
 
-    if (this.win && this.thumbarButtons) {
-      switch (status) {
-        case PlayerStatus.PLAYING:
-          this.win.setThumbarButtons([
-            queue.length > 0 || currentIndex > 0 ? this.thumbarButtons.prev : this.thumbarButtons.prevDisabled,
-            this.thumbarButtons.pause,
-            queue.length > 0 && currentIndex + 1 <= queue.length
-              ? this.thumbarButtons.next
-              : this.thumbarButtons.nextDisabled
-          ]);
-          break;
-        case PlayerStatus.PAUSED:
-          this.win.setThumbarButtons([
-            queue.length > 0 || currentIndex > 0 ? this.thumbarButtons.prev : this.thumbarButtons.prevDisabled,
-            this.thumbarButtons.play,
-            queue.length > 0 && currentIndex + 1 <= queue.length
-              ? this.thumbarButtons.next
-              : this.thumbarButtons.nextDisabled
-          ]);
-          break;
-        case PlayerStatus.STOPPED:
-          this.win.setThumbarButtons([
-            this.thumbarButtons.prevDisabled,
-            this.thumbarButtons.playDisabled,
-            this.thumbarButtons.nextDisabled
-          ]);
-          break;
-        default:
-      }
+    if (!(this.win && this.thumbarButtons)) return;
+
+    const queue = getQueuePlaylistSelector(store);
+    const queueLength = queue.items.length;
+
+    switch (status) {
+      case PlayerStatus.PLAYING:
+        this.win.setThumbarButtons([
+          queueLength > 0 || currentIndex > 0 ? this.thumbarButtons.prev : this.thumbarButtons.prevDisabled,
+          this.thumbarButtons.pause,
+          queueLength > 0 && currentIndex + 1 <= queueLength
+            ? this.thumbarButtons.next
+            : this.thumbarButtons.nextDisabled
+        ]);
+        break;
+      case PlayerStatus.PAUSED:
+        this.win.setThumbarButtons([
+          queueLength > 0 || currentIndex > 0 ? this.thumbarButtons.prev : this.thumbarButtons.prevDisabled,
+          this.thumbarButtons.play,
+          queueLength > 0 && currentIndex + 1 <= queueLength
+            ? this.thumbarButtons.next
+            : this.thumbarButtons.nextDisabled
+        ]);
+        break;
+      case PlayerStatus.STOPPED:
+        this.win.setThumbarButtons([
+          this.thumbarButtons.prevDisabled,
+          this.thumbarButtons.playDisabled,
+          this.thumbarButtons.nextDisabled
+        ]);
+        break;
+      default:
     }
-  }
-
-  public togglePlay(newStatus: PlayerStatus) {
-    const {
-      player: { status }
-    } = this.store.getState();
-
-    if (status !== newStatus) {
-      this.store.dispatch(toggleStatus(newStatus) as any);
-    }
-  }
-
-  public changeTrack(changeType: ChangeTypes) {
-    this.store.dispatch(changeTrack(changeType) as any);
   }
 }

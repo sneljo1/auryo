@@ -3,11 +3,9 @@ import pino from 'pino';
 const isProd = process.env.NODE_ENV === 'production' && process.env.ENV !== 'development';
 
 const config: pino.LoggerOptions = {
-  prettyPrint: {
-    colorize: !isProd
-  },
+  prettyPrint: !isProd,
   base: null,
-  level: isProd ? 'info' : 'debug'
+  level: isProd ? 'info' : process.env.LOG_LEVEL ?? 'debug'
 };
 
 export type LoggerInstance = pino.Logger;

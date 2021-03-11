@@ -21,16 +21,16 @@ export default class Shortcut extends Feature {
 
   public register() {
     globalShortcut.register('MediaPlayPause', () => {
-      this.store.dispatch(toggleStatus() as any);
+      this.store.dispatch(toggleStatus());
     });
     globalShortcut.register('MediaPreviousTrack', () => {
-      this.store.dispatch(changeTrack(ChangeTypes.PREV) as any);
+      this.store.dispatch(changeTrack(ChangeTypes.PREV));
     });
     globalShortcut.register('MediaNextTrack', () => {
-      this.store.dispatch(changeTrack(ChangeTypes.NEXT) as any);
+      this.store.dispatch(changeTrack(ChangeTypes.NEXT));
     });
     globalShortcut.register('MediaStop', () => {
-      this.store.dispatch(toggleStatus(PlayerStatus.STOPPED) as any);
+      this.store.dispatch(toggleStatus(PlayerStatus.STOPPED));
     });
   }
 

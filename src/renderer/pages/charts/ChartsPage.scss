@@ -1,8 +1,11 @@
 @import "../../css/bootstrap.imports.scss";
 
 .tabs {
+  margin-top: 1.8rem;
+
   &.nav-tabs {
     border: none;
+
     .nav-link {
       font-size: .8rem;
       background: var(--clr-tabs-bg);
@@ -17,17 +20,19 @@
 
       &.active {
         border-color: var(--clr-tabs-border-active);
-        color: theme-color("primary") !important;
         font-weight: $font-weight-bold;
+
+        background: var(--clr-transparent-tabs-active-bg);
+        color: var(--clr-transparent-tabs-active-text);
       }
     }
   }
-  padding-bottom: 2rem;
 
 }
 
+
 .charts {
-  padding: 0 2.5rem !important;
+  padding: 0 30px !important;
 
   .chart {
     position: relative;
@@ -35,6 +40,7 @@
     border-radius: 8px;
     overflow: hidden;
     margin-bottom: 2.5rem;
+
     &.withImage {
       min-height: 100px;
     }
@@ -43,10 +49,12 @@
       padding: 1.5rem 0;
       width: 100%;
       margin-bottom: 1.5rem;
+
       h1 {
         font-size: 1rem;
       }
     }
+
     &:after {
       content: '';
       position: absolute;
@@ -58,6 +66,7 @@
       z-index: 1;
       opacity: .3;
     }
+
     i {
       position: absolute;
       font-size: 5rem;
@@ -80,6 +89,7 @@
       z-index: 1;
       opacity: .5;
     }
+
     h1 {
       position: absolute;
       left: 0;
@@ -92,6 +102,7 @@
       font-size: 1.5rem;
       z-index: 3;
     }
+
     img {
       max-width: 100%;
     }
@@ -99,20 +110,25 @@
 }
 
 .my-masonry-grid {
-  display: -webkit-box; /* Not needed if autoprefixing */
-  display: -ms-flexbox; /* Not needed if autoprefixing */
+  display: -webkit-box;
+  /* Not needed if autoprefixing */
+  display: -ms-flexbox;
+  /* Not needed if autoprefixing */
   display: flex;
-  margin-left: -30px; /* gutter size offset */
+  margin-left: -30px;
+  /* gutter size offset */
   width: auto;
 }
 
 .my-masonry-grid_column {
-  padding-left: 30px; /* gutter size */
+  padding-left: 30px;
+  /* gutter size */
   background-clip: padding-box;
 }
 
 // Style your items
-.my-masonry-grid_column > div { /* change div to reference your elements you put in <Masonry> */
+.my-masonry-grid_column>div {
+  /* change div to reference your elements you put in <Masonry> */
   background: grey;
   margin-bottom: 30px;
 }

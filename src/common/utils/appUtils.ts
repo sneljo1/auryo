@@ -24,38 +24,13 @@ export function abbreviateNumber(num: number, fixed?: number) {
   return d + ['', 'K', 'M', 'B', 'T'][k]; // append power
 }
 
-export function getReadableTime(sec: number, ms: boolean, withSeconds: boolean) {
-  if (!sec) {
-    return '00:00';
-  }
+export function getReadableTime(seconds: number) {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = Math.round(seconds % 60);
 
-  // Get hours from milliseconds
-  let hours = sec / (60 * 60);
-  if (ms) {
-    hours = sec / (60 * 60 * 1000);
-  }
-  const absoluteHours = Math.floor(hours);
-  const h = absoluteHours > 9 ? absoluteHours : `0${absoluteHours}`;
-
-  // Get remainder from hours and convert to minutes
-  const minutes = (hours - absoluteHours) * 60;
-  const absoluteMinutes = Math.floor(minutes);
-  const m = absoluteMinutes > 9 ? absoluteMinutes : `0${absoluteMinutes}`;
-
-  // Get remainder from minutes and convert to seconds
-  const seconds = (minutes - absoluteMinutes) * 60;
-  const absoluteSeconds = Math.floor(seconds);
-  const s = absoluteSeconds > 9 ? absoluteSeconds : `0${absoluteSeconds}`;
-
-  let str = '';
-
-  if (h !== '00') {
-    str += `${h}:${m}${withSeconds ? `:${s}` : ''}`;
-  } else {
-    str += `${m}:${s}`;
-  }
-
-  return str;
+  // eslint-disable-next-line no-nested-ternary
+  return [h, m > 9 ? m : h ? `0${m}` : m || '0', s > 9 ? s : `0${s}`].filter(Boolean).join(':');
 }
 
 export function getReadableTimeFull(sec: number, inMs?: boolean) {
@@ -83,4 +58,8 @@ export function getReadableTimeFull(sec: number, inMs?: boolean) {
   }
 
   return str;
+}
+
+export function isSoundCloudUrl(query: string) {
+  return /https?:\/\/(www.)?soundcloud\.com\//g.exec(query) !== null;
 }

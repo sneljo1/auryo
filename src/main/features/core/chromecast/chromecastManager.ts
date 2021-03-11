@@ -2,9 +2,9 @@ import { PlatformSender } from '@amilajack/castv2-client';
 import { Intent } from '@blueprintjs/core';
 import { IMAGE_SIZES } from '@common/constants';
 import { EVENTS } from '@common/constants/events';
-import { StoreState } from '@common/store';
+import { StoreState } from 'AppReduxTypes';
 import { DevicePlayerStatus } from '@common/store/app';
-import { getTrackEntity } from '@common/store/entities/selectors';
+import { getQueuePlaylistSelector, getTrackEntity } from '@common/store/selectors';
 import { PlayerStatus } from '@common/store/player';
 import { SC } from '@common/utils';
 import { Logger, LoggerInstance } from '@main/utils/logger';
@@ -12,7 +12,11 @@ import { autobind } from 'core-decorators';
 import { Feature, WatchState } from '../../feature';
 import AuryoReceiver from './auryoReceiver';
 import { startScanning } from './deviceScanner';
-import { addToast, setChromecastAppState, setChromeCastPlayerStatus, useChromeCast } from '@common/store/actions';
+import {
+  /* addToast, */ setChromecastAppState,
+  setChromeCastPlayerStatus,
+  setChromecastDevice
+} from '@common/store/actions';
 
 @autobind
 export default class ChromecastManager extends Feature {
@@ -54,7 +58,7 @@ export default class ChromecastManager extends Feature {
           }
 
           if (currentValue) {
-            const device = devices.find(d => d.id === currentValue);
+            const device = devices.find((d) => d.id === currentValue);
 
             if (!device) {
               return;
@@ -65,18 +69,19 @@ export default class ChromecastManager extends Feature {
 
               this.client.on('error', (err: any) => {
                 this.logger.error(err);
+                /*
                 this.store.dispatch(
                   addToast({
                     message: `An error occurred during the connection with the cast device`,
                     intent: Intent.DANGER
                   })
                 );
-
+*/
                 if (this.client && this.client.client) {
                   this.client.close();
                 }
 
-                this.store.dispatch(useChromeCast());
+                this.store.dispatch(setChromecastDevice());
               });
 
               this.client.on('status', this.handleClientStatusChange);
@@ -98,17 +103,16 @@ export default class ChromecastManager extends Feature {
         } catch (err) {
           this.logger.error(err);
           this.store.dispatch(setChromecastAppState(null));
-          this.store.dispatch(useChromeCast());
+          this.store.dispatch(setChromecastDevice());
           throw err;
         }
       }
     );
 
-    this.subscribe(['player', 'playingTrack'], async ({ currentState }) => {
+    this.observables.trackChanged.subscribe(async ({ store }) => {
+      if (!(this.client && this.player)) return;
       try {
-        if (this.client && this.player) {
-          await this.startTrack(currentState);
-        }
+        await this.startTrack(store);
       } catch (err) {
         this.logger.error(err);
         throw err;
@@ -117,10 +121,10 @@ export default class ChromecastManager extends Feature {
 
     // Handle volume change
     this.subscribe(['config', 'audio', 'volume'], async ({ currentValue }: WatchState<number>) => {
+      if (!this.client) return;
+
       try {
-        if (this.client) {
-          await this.client.setVolume({ level: currentValue });
-        }
+        await this.client.setVolume({ level: currentValue });
       } catch (err) {
         this.logger.error(err);
         throw err;
@@ -129,10 +133,10 @@ export default class ChromecastManager extends Feature {
 
     // Handle mute
     this.subscribe(['config', 'audio', 'muted'], async ({ currentValue }: WatchState<boolean>) => {
+      if (!this.client) return;
+
       try {
-        if (this.client) {
-          await this.client.setVolume({ muted: currentValue });
-        }
+        await this.client.setVolume({ muted: currentValue });
       } catch (err) {
         this.logger.error(err);
         throw err;
@@ -140,35 +144,35 @@ export default class ChromecastManager extends Feature {
     });
 
     // Handle status change
-    this.subscribe(['player', 'status'], async ({ currentValue }: WatchState<PlayerStatus>) => {
+    this.observables.statusChanged.subscribe(async ({ value: playerStatus }) => {
+      if (!this.player) return;
+
       try {
-        if (this.player) {
-          const status: any = await this.player.getStatus();
+        const status: any = await this.player.getStatus();
 
-          if (status) {
-            const deviceStatus = status.playerState as DevicePlayerStatus;
+        if (status) {
+          const deviceStatus = status.playerState as DevicePlayerStatus;
 
-            switch (currentValue) {
-              case PlayerStatus.PAUSED: {
-                if (deviceStatus !== DevicePlayerStatus.PAUSED) {
-                  await this.player.pause();
-                }
-                break;
+          switch (playerStatus) {
+            case PlayerStatus.PAUSED: {
+              if (deviceStatus !== DevicePlayerStatus.PAUSED) {
+                await this.player.pause();
               }
-              case PlayerStatus.PLAYING: {
-                if (deviceStatus !== DevicePlayerStatus.PLAYING) {
-                  await this.player.play();
-                }
-                break;
-              }
-              case PlayerStatus.STOPPED: {
-                if (deviceStatus !== DevicePlayerStatus.IDLE) {
-                  await this.player.stop();
-                }
-                break;
-              }
-              default:
+              break;
             }
+            case PlayerStatus.PLAYING: {
+              if (deviceStatus !== DevicePlayerStatus.PLAYING) {
+                await this.player.play();
+              }
+              break;
+            }
+            case PlayerStatus.STOPPED: {
+              if (deviceStatus !== DevicePlayerStatus.IDLE) {
+                await this.player.stop();
+              }
+              break;
+            }
+            default:
           }
         }
       } catch (err) {
@@ -217,7 +221,7 @@ export default class ChromecastManager extends Feature {
         );
       } else {
         this.store.dispatch(setChromecastAppState(null));
-        this.store.dispatch(useChromeCast());
+        this.store.dispatch(setChromecastDevice());
       }
     }
   }
@@ -281,22 +285,20 @@ export default class ChromecastManager extends Feature {
 
   private async startTrack(state: StoreState, fromCurrentTime = false) {
     const {
-      player: { playingTrack, currentTime, status, currentIndex, queue },
-      config: {
-        app: { overrideClientId }
-      }
+      player: { playingTrack, currentTime, status, currentIndex }
     } = state;
 
     if (playingTrack && this.player) {
       const trackId = playingTrack.id;
       const track = getTrackEntity(trackId)(state);
-      const nextTrackId = queue[currentIndex + 1];
+      const queue = getQueuePlaylistSelector(state);
+      const nextTrackId = queue.items[currentIndex + 1];
       const nextTrack = nextTrackId && nextTrackId.id ? getTrackEntity(nextTrackId.id)(state) : null;
 
       if (track) {
         const streamUrl = track.stream_url
-          ? SC.appendClientId(track.stream_url, overrideClientId)
-          : SC.appendClientId(`${track.uri}/stream`, overrideClientId);
+          ? SC.appendClientId(track.stream_url)
+          : SC.appendClientId(`${track.uri}/stream`);
 
         const media = {
           contentId: streamUrl,

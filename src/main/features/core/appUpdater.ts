@@ -1,6 +1,6 @@
 import { Intent } from '@blueprintjs/core';
 import { EVENTS } from '@common/constants/events';
-import { addToast, setUpdateAvailable } from '@common/store/actions';
+import { /* addToast, */ setUpdateAvailable } from '@common/store/actions';
 import axios from 'axios';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { app, shell } from 'electron';
@@ -25,11 +25,12 @@ export default class AppUpdater extends Feature {
   }
 
   public shouldRun() {
-    return (
-      !process.env.TOKEN &&
-      process.env.NODE_ENV === 'production' &&
-      !(process.platform === 'linux' && process.env.SNAP_USER_DATA != null)
-    );
+    return false;
+    // return (
+    //   !process.env.TOKEN &&
+    //   process.env.NODE_ENV === 'production' &&
+    //   !(process.platform === 'linux' && process.env.SNAP_USER_DATA != null)
+    // );
   }
 
   public register() {
@@ -46,13 +47,14 @@ export default class AppUpdater extends Feature {
 
   public notify = (version: string) => {
     this.store.dispatch(setUpdateAvailable(version));
-
+    /*
     this.store.dispatch(
       addToast({
         message: `Update available`,
         intent: Intent.SUCCESS
       })
     );
+    */
   };
 
   public update = async () => {
@@ -64,12 +66,12 @@ export default class AppUpdater extends Feature {
         this.logger.info('New update available');
       });
 
-      autoUpdater.addListener('update-downloaded', info => {
+      autoUpdater.addListener('update-downloaded', (info) => {
         this.notify(info.version);
 
         this.listenUpdate();
       });
-      autoUpdater.addListener('error', error => {
+      autoUpdater.addListener('error', (error) => {
         this.logger.error(error);
       });
       autoUpdater.addListener('checking-for-update', () => {
@@ -108,8 +110,8 @@ export default class AppUpdater extends Feature {
   public updateLinux = () => {
     axios
       .get(CONFIG.UPDATE_SERVER_HOST)
-      .then(res => res.data)
-      .then(body => {
+      .then((res) => res.data)
+      .then((body) => {
         if (!body || body.draft || !body.tag_name) {
           return;
         }

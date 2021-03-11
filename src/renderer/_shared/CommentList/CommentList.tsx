@@ -1,9 +1,9 @@
 import { Normalized } from '@types';
-import React from 'react';
+import React, { useRef } from 'react';
 import ReactList from 'react-list';
-import { useInfiniteScroll } from '../hooks/useInfiniteScroll';
 import Spinner from '../Spinner/Spinner';
 import CommentListItem from './CommentListItem/CommentListitem';
+import { InfiniteScroll } from '../InfiniteScroll';
 
 interface Props {
   items: Normalized.NormalizedResult[];
@@ -14,9 +14,7 @@ interface Props {
   loadMore?(): Promise<void>;
 }
 
-export const CommentList: React.SFC<Props> = ({ isLoading, loadMore, items = [], hasMore }) => {
-  useInfiniteScroll(isLoading, hasMore ? loadMore : undefined);
-
+export const CommentList: React.SFC<Props> = ({ isLoading = false, loadMore, items = [], hasMore = false }) => {
   function renderItem(index: number) {
     const item = items[index];
 
@@ -25,8 +23,10 @@ export const CommentList: React.SFC<Props> = ({ isLoading, loadMore, items = [],
 
   return (
     <div className="comments">
-      <ReactList pageSize={8} type="simple" length={items.length} itemRenderer={renderItem} useTranslate3d />
-      {isLoading && <Spinner />}
+      <InfiniteScroll hasMore={hasMore} isFetching={isLoading} loadMore={loadMore}>
+        <ReactList pageSize={8} type="simple" length={items.length} itemRenderer={renderItem} useTranslate3d />
+        {isLoading && <Spinner />}
+      </InfiniteScroll>
     </div>
   );
 };

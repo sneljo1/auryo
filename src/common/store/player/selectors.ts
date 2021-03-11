@@ -1,34 +1,69 @@
+import { Normalized, SoundCloud } from '@types';
+import { StoreState } from 'AppReduxTypes';
+import { isEqual } from 'lodash';
 import { createSelector } from 'reselect';
-import { StoreState } from '..';
-import { Normalized } from '@types';
-import { PlayerState, PlayingTrack } from './types';
+import { AssetType } from 'src/types/soundcloud';
+import { PlaylistTypes } from '../objects';
+import { PlaylistIdentifier } from '../types';
 
-export const getPlayer = (state: StoreState) => state.player;
+export const getPlayerNode = (state: StoreState) => state.player;
 
-export const getPlayingTrack = createSelector<StoreState, PlayerState, PlayingTrack | null>(
-  [getPlayer],
-  player => player.playingTrack
+export const getPlayingTrackSelector = createSelector([getPlayerNode], (player) => player.playingTrack);
+export const getPlayerCurrentTime = createSelector([getPlayerNode], (player) => player.currentTime);
+export const getPlayerDuration = createSelector([getPlayerNode], (player) => player.duration);
+export const getPlayingTrackIndex = createSelector([getPlayerNode], (player) => player.currentIndex);
+export const getUpNextSelector = createSelector([getPlayerNode], (player) => player.upNext);
+export const getPlayerStatusSelector = createSelector([getPlayerNode], (player) => player.status);
+export const getCurrentPlaylistId = createSelector([getPlayerNode], (player) => player.currentPlaylistId || null);
+
+export const upNextStartSelector = createSelector([getPlayingTrackIndex], (currentIndex) => currentIndex + 1);
+export const upNextEndSelector = createSelector(
+  [upNextStartSelector, getUpNextSelector],
+  (upNextStart, upNext) => upNextStart + upNext.length
 );
 
-export const getQueue = createSelector<StoreState, PlayerState, PlayingTrack[]>(
-  [getPlayer],
-  player => player.queue || []
-);
+export const isIndexInUpNextSelector = (itemIndex: number) =>
+  createSelector([upNextStartSelector, upNextEndSelector], (upNextStart, upNextEnd) => {
+    return itemIndex >= upNextStart && itemIndex < upNextEnd;
+  });
 
-export const getCurrentPlaylistId = createSelector<StoreState, PlayerState, string | null>(
-  [getPlayer],
-  player => player.currentPlaylistId || null
-);
+export const queuedTrackIndexSelector = (itemIndex: number) =>
+  createSelector(
+    [getPlayingTrackIndex, getUpNextSelector, isIndexInUpNextSelector(itemIndex), upNextEndSelector],
+    (currentIndex, upNext, isIndexInUpNext, upNextEnd) => {
+      if (isIndexInUpNext) {
+        return itemIndex - currentIndex - 1;
+      }
 
-export const isPlaying = (result: Normalized.NormalizedResult, playlistId: string) =>
-  createSelector<StoreState, PlayingTrack | null, boolean>([getPlayingTrack], playingTrack => {
+      if (itemIndex > upNextEnd) {
+        return itemIndex - upNext.length;
+      }
+
+      return itemIndex;
+    }
+  );
+
+export const getNormalizedSchemaForType = (
+  trackOrPlaylist: SoundCloud.Track | SoundCloud.Playlist
+): Normalized.NormalizedResult => ({
+  id: trackOrPlaylist.id,
+  schema: trackOrPlaylist.kind === AssetType.PLAYLIST ? 'playlists' : 'tracks'
+});
+
+export const isPlayingSelector = (playlistId: PlaylistIdentifier, idResult?: Normalized.NormalizedResult) =>
+  createSelector([getPlayingTrackSelector], (playingTrack) => {
     if (!playingTrack) {
       return false;
     }
 
-    if (result.schema === 'playlists') {
-      return playingTrack.playlistId === result.id.toString();
+    if (!idResult) return isEqual(playingTrack.playlistId, playlistId);
+
+    if (idResult.schema === 'playlists') {
+      return isEqual(playingTrack.parentPlaylistID, {
+        playlistType: PlaylistTypes.PLAYLIST,
+        objectId: idResult.id.toString()
+      });
     }
 
-    return playingTrack.id === result.id && playingTrack.playlistId === playlistId;
+    return playingTrack.id === idResult.id && isEqual(playingTrack.playlistId, playlistId);
   });

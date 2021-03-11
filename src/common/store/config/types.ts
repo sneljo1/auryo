@@ -1,7 +1,6 @@
-import { RepeatTypes } from '../player/types';
+import { RepeatTypes } from '../types';
 
 // TYPES
-
 export interface Config extends Object {
   updatedAt: number;
   auth: {
@@ -29,9 +28,9 @@ export interface AppConfig {
   downloadPath: string;
   showTrackChangeNotification: boolean;
   logTrackChange: boolean;
-  overrideClientId: string | null;
   theme: string;
 }
+
 export interface AudioConfig {
   volume: number;
   playbackDeviceId: null | string;
@@ -50,11 +49,10 @@ export interface ProxyConfig {
   password?: string;
 }
 
-// ACTIONS
+export type ConfigValue = string | number | boolean | object | null | (string | number | object)[];
 
+// ACTIONS
 export enum ConfigActionTypes {
-  SET_TOKEN = '@@config/SET_TOKEN',
-  SET_ALL = '@@config/SET_ALL',
-  SET_KEY = '@@config/SET_KEY',
-  SET_LOGIN = '@@config/SET_LOGIN'
+  SET_CONFIG = 'auryo.config.SET_ALL',
+  SET_CONFIG_KEY = 'auryo.config.SET_KEY'
 }

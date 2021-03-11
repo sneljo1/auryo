@@ -3,25 +3,23 @@
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface AppState
   extends Readonly<{
-    history: CanGoHistory;
     error: boolean;
     loaded: boolean;
     loadingError: string | null;
     offline: boolean;
     update: UpdateInfo;
     lastChecked: number;
-    dimensions: Dimensions;
     remainingPlays: RemainingPlays | null;
     lastfmLoading: boolean;
     chromecast: ChromeCastState;
   }> {}
 
 export const DEVICE_MODELS = {
-  Group: 'Google Cast Group' as 'Google Cast Group',
-  Home: 'Google Home' as 'Google Home',
-  HomeMini: 'Google Home Mini' as 'Google Home Mini',
-  MagniFiMini: 'MagniFi Mini' as 'MagniFi Mini',
-  Chromecast: 'Chromecast' as 'Chromecast'
+  Group: 'Google Cast Group' as const,
+  Home: 'Google Home' as const,
+  HomeMini: 'Google Home Mini' as const,
+  MagniFiMini: 'MagniFi Mini' as const,
+  Chromecast: 'Chromecast' as const
 };
 
 // TODO: add more valid models as they're found
@@ -63,34 +61,32 @@ export interface RemainingPlays {
   resetTime: number;
   updatedAt?: number;
 }
-
-export interface CanGoHistory {
-  back: boolean;
-  next: boolean;
-}
 export interface UpdateInfo {
   available: boolean;
   version: string | null;
-}
-export interface Dimensions {
-  width: number;
-  height: number;
 }
 
 // ACTIONS
 
 export enum AppActionTypes {
-  TOGGLE_OFFLINE = '@@app/TOGGLE_OFFLINE',
-  SET_LOADED = '@@app/SET_LOADED',
-  SET_DIMENSIONS = '@@app/SET_DIMENSIONS',
-  SET_UPDATE_AVAILABLE = '@@app/SET_UPDATE_AVAILABLE',
-  SET_CAN_GO = '@@app/SET_CAN_GO',
-  RESET_STORE = '@@app/RESET_STORE',
-  SET_REMAINING_PLAYS = '@@app/SET_REMAINING_PLAYS',
-  SET_LASTFM_LOADING = '@@app/SET_LASTFM_LOADING',
-  ADD_CHROMECAST_DEVICE = '@@app/ADD_CHROMECAST_DEVICE',
-  REMOVE_CHROMECAST_DEVICE = '@@app/REMOVE_CHROMECAST_DEVICE',
-  SET_CHROMECAST_DEVICE = '@@app/SET_CHROMECAST_DEVICE',
-  SET_CHROMECAST_PLAYER_STATUS = '@@app/SET_CHROMECAST_PLAYER_STATUS',
-  SET_CHROMECAST_APP_STATE = '@@app/SET_CHROMECAST_APP_STATE'
+  GET_REMAINING_PLAYS = 'auryo.app.GET_REMAINING_PLAYS',
+  RESET_STORE = 'auryo.app.RESET_STORE',
+  COPY_TO_CLIPBOARD = 'auryo.app.COPY_TO_CLIPBOARD',
+  OPEN_EXTERNAL_URL = 'auryo.app.OPEN_EXTERNAL_URL',
+  RESTART_APP = 'auryo.app.RESTART_APP',
+  INIT = 'auryo.app.INIT',
+  RECEIVE_PROTOCOL_ACTION = 'auryo.app.RECEIVE_PROTOCOL_ACTION',
+  CONNECT_LAST_FM = 'auryo.app.CONNECT_LAST_FM',
+  RESOLVE_SOUNDCLOUD_URL = 'auryo.app.RESOLVE_SOUNDCLOUD_URL',
+
+  TOGGLE_OFFLINE = 'auryo.app.TOGGLE_OFFLINE',
+  SET_LOADED = 'auryo.app.SET_LOADED',
+  SET_UPDATE_AVAILABLE = 'auryo.app.SET_UPDATE_AVAILABLE',
+  SET_REMAINING_PLAYS = 'auryo.app.SET_REMAINING_PLAYS',
+  SET_LASTFM_LOADING = 'auryo.app.SET_LASTFM_LOADING',
+  ADD_CHROMECAST_DEVICE = 'auryo.app.ADD_CHROMECAST_DEVICE',
+  REMOVE_CHROMECAST_DEVICE = 'auryo.app.REMOVE_CHROMECAST_DEVICE',
+  SET_CHROMECAST_DEVICE = 'auryo.app.SET_CHROMECAST_DEVICE',
+  SET_CHROMECAST_PLAYER_STATUS = 'auryo.app.SET_CHROMECAST_PLAYER_STATUS',
+  SET_CHROMECAST_APP_STATE = 'auryo.app.SET_CHROMECAST_APP_STATE'
 }

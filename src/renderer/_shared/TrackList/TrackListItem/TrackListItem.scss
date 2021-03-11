@@ -14,19 +14,23 @@
     width: 5%;
     max-width: 5%;
   }
+
   .row-title {
     width: 50%;
     max-width: 50%;
   }
+
   .row-artist {
     width: 25%;
     max-width: 25%;
   }
+
   .row-timer {
     width: 7%;
     max-width: 7%;
     text-align: center;
   }
+
   .row-actions {
     width: 13%;
     max-width: 13%;
@@ -43,16 +47,19 @@
     font-size: 0.9rem;
     align-items: center;
     border-radius: 10px;
+
     .stats {
       margin-bottom: 0;
       font-size: 0.8rem;
       pointer-events: none;
     }
+
     &:hover,
     &.isPlaying {
       td {
         background: var(--clr-track-item-bg-active);
       }
+
       .toggleButton {
         opacity: 1;
         transform: scale(1, 1);
@@ -81,6 +88,7 @@
     .img-with-shadow {
       position: relative;
       z-index: 1;
+
       img,
       picture {
         width: 40px;
@@ -132,17 +140,22 @@
     a:not(.toggleButton) {
       color: var(--clr-track-item-link);
     }
+
     .time {
       text-align: right;
       pointer-events: none;
+      color: var(--clr-track-item-link)
     }
+
     .trackTitle {
       font-weight: $font-weight-bold;
     }
+
     &.isPlaying .trackTitle a,
     &.isPlaying .trackArtist a {
       color: theme-color('primary');
     }
+
     .liked i {
       color: theme-color('primary');
     }
@@ -150,6 +163,7 @@
     .trackitemActions {
       text-align: right;
       padding-right: 2rem;
+
       a {
         text-decoration: none !important;
       }

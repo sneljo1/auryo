@@ -1,7 +1,7 @@
 import * as SoundCloud from './soundcloud';
 
 export interface Playlist extends Omit<SoundCloud.Playlist, 'tracks' | 'user'> {
-  tracks: NormalizedResult[];
+  tracks?: NormalizedResult[];
   user: number;
 }
 
@@ -12,6 +12,8 @@ export interface Track extends Omit<SoundCloud.Track, 'user'> {
 export interface NormalizedResult {
   schema: 'users' | 'tracks' | 'playlists' | 'comments';
   id: number;
+  // Makes fetched items unique, easier to to upNext and queue
+  un?: number;
 }
 
 export interface NormalizedPersonalizedItem {

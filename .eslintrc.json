@@ -19,6 +19,7 @@
   "parserOptions": {
     "sourceType": "module",
     "ecmaVersion": 2019,
+    "project": "./tsconfig.json",
     "ecmaFeatures": {
       "jsx": true
     }
@@ -40,13 +41,15 @@
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/indent": "off",
     "no-console": "warn",
-    "camelcase": "error",
+    "camelcase": "off",
     "react/display-name": "off",
     "react/prop-types": "off",
     "react/state-in-constructor": "off",
     "react/static-property-placement": "off",
     "class-methods-use-this": "off",
     "react/jsx-props-no-spreading": "off",
+    "@typescript-eslint/no-use-before-define": "off",
+    "react-hooks/exhaustive-deps": "warn",
     // TO FIX LATER,
     "no-script-url": "off",
     "jsx-a11y/anchor-is-valid": "off",
@@ -57,8 +60,22 @@
     "jsx-a11y/media-has-caption": "off",
     "jsx-a11y/control-has-associated-label": "off",
     "no-underscore-dangle": "off",
+    "no-param-reassign": "off",
+    "@typescript-eslint/camelcase": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/ban-types": "off",
+    "@typescript-eslint/ban-ts-comment": "off",
+    "no-shadow": "off",
     "react-hooks/rules-of-hooks": "error",
-    "react-hooks/exhaustive-deps": "warn"
+    "import/no-cycle": "warn",
+    "import/no-unresolved": [
+      "error",
+      {
+        "ignore": [
+          "AppReduxTypes"
+        ]
+      }
+    ]
   },
   "settings": {
     "react": {

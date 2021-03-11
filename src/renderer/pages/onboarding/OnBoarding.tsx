@@ -1,73 +1,38 @@
 import feetonmusicbox from '@assets/img/feetonmusicbox.jpg';
-import { StoreState } from '@common/store';
+import { Position } from '@blueprintjs/core';
 import * as actions from '@common/store/actions';
-import { authConfigSelector, configSelector } from '@common/store/config/selectors';
 import AboutModal from '@renderer/app/components/modals/AboutModal/AboutModal';
+import { Toastr } from '@renderer/app/components/Toastr';
 import cn from 'classnames';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { ipcRenderer } from 'electron';
-import React, { useEffect, useState, FC } from 'react';
-import { connect } from 'react-redux';
-import { RouteComponentProps } from 'react-router';
-import { bindActionCreators, Dispatch } from 'redux';
-import * as ReduxModal from 'redux-modal';
+import React, { FC, useCallback, useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { RouteComponentProps } from 'react-router-dom';
 import { LoginStep } from './components/LoginStep';
 import { PrivacyStep } from './components/PrivacyStep';
 import { WelcomeStep } from './components/WelcomeStep';
 import './OnBoarding.scss';
-import { Position } from '@blueprintjs/core';
-import { Toastr } from '@renderer/app/components/Toastr';
-import { EVENTS } from '@common/constants';
 
-const mapStateToProps = (state: StoreState) => ({
-  ...state.auth.authentication,
-  config: configSelector(state),
-  auth: authConfigSelector(state),
-  toasts: state.ui.toasts
-});
+type Steps = 'welcome' | 'login' | 'privacy';
 
-const mapDispatchToProps = (dispatch: Dispatch) =>
-  bindActionCreators(
-    {
-      show: ReduxModal.show,
-      setConfigKey: actions.setConfigKey,
-      clearToasts: actions.clearToasts
-    },
-    dispatch
-  );
+type Props = RouteComponentProps<{ step?: Steps }>;
 
-type OwnProps = RouteComponentProps;
+export const OnBoarding: FC<Props> = ({
+  match: {
+    params: { step: initialStep }
+  }
+}) => {
+  const dispatch = useDispatch();
+  const [step, setStep] = useState<Steps>(initialStep ?? 'login');
 
-type PropsFromState = ReturnType<typeof mapStateToProps>;
-
-type PropsFromDispatch = ReturnType<typeof mapDispatchToProps>;
-
-type AllProps = OwnProps & PropsFromState & PropsFromDispatch & RouteComponentProps;
-
-const OnBoarding: FC<AllProps> = ({ loading, error, show, config, setConfigKey, history, toasts, clearToasts }) => {
-  const [step, setStep] = useState<'welcome' | 'login' | 'privacy'>('login');
-
-  const {
-    auth: { token },
-    lastLogin
-  } = config;
+  const finish = useCallback(() => {
+    dispatch(actions.finishOnboarding());
+  }, [dispatch]);
 
   useEffect(() => {
-    if (token) {
-      if (lastLogin) {
-        history.replace('/');
-      } else {
-        setStep('welcome');
-      }
+    if (initialStep) {
+      setStep(initialStep);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token, lastLogin]);
-
-  const login = () => {
-    if (!loading) {
-      ipcRenderer.send(EVENTS.APP.AUTH.LOGIN);
-    }
-  };
+  }, [initialStep]);
 
   return (
     <div id="login" className={cn('login', { login_small: step === 'login' })}>
@@ -88,7 +53,7 @@ const OnBoarding: FC<AllProps> = ({ loading, error, show, config, setConfigKey, 
 
       <div className="row d-flex align-items-center">
         <div className={`login-wrap col-12 ${step !== 'login' ? 'col-md-6' : 'col-md-5'}`}>
-          {step === 'login' && <LoginStep loading={loading} error={error} show={show} login={login} />}
+          {step === 'login' && <LoginStep />}
 
           {step === 'welcome' && (
             <WelcomeStep
@@ -98,22 +63,11 @@ const OnBoarding: FC<AllProps> = ({ loading, error, show, config, setConfigKey, 
             />
           )}
 
-          {step === 'privacy' && (
-            <PrivacyStep
-              config={config}
-              setConfigKey={setConfigKey}
-              onNext={() => {
-                setConfigKey('lastLogin', Date.now());
-                history.replace('/');
-              }}
-            />
-          )}
+          {step === 'privacy' && <PrivacyStep onNext={finish} />}
         </div>
       </div>
       <AboutModal />
-      <Toastr position={Position.TOP_RIGHT} toasts={toasts} clearToasts={clearToasts} />
+      <Toastr position={Position.TOP_RIGHT} />
     </div>
   );
 };
-
-export default connect(mapStateToProps, mapDispatchToProps)(OnBoarding);

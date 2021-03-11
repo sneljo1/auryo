@@ -1,39 +1,74 @@
-import { connectRouter, RouterState } from 'connected-react-router';
-import { History } from 'history';
-import { combineReducers } from 'redux';
-import { reducer as modal } from 'redux-modal';
-import { ThunkAction } from 'redux-thunk';
-import { appReducer, AppState } from './app';
-import { authReducer, AuthState } from './auth';
-import { configReducer, ConfigState } from './config';
-import { entitiesReducer, EntitiesState } from './entities';
-import { objectsReducer, ObjectsState } from './objects';
-import { playerReducer, PlayerState } from './player';
-import { uiReducer, UIState } from './ui';
+import { resetStore } from '@common/store/actions';
+import { PlayerActionTypes } from '@common/store/player';
+import { rootReducer } from '@common/store/rootReducer';
+import { Logger } from '@main/utils/logger';
+import { StoreState } from 'AppReduxTypes';
+import { routerMiddleware } from 'connected-react-router';
+import is from 'electron-is';
+import { composeWithStateSync } from 'electron-redux';
+import { createMemoryHistory } from 'history';
+import { applyMiddleware, createStore, Middleware, StoreEnhancer } from 'redux';
+import { composeWithDevTools } from 'redux-devtools-extension';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { createLogger } from 'redux-logger';
+import { createEpicMiddleware } from 'redux-observable';
+import { RootAction } from './declarations';
 
-export const rootReducer = (history?: History) =>
-  combineReducers({
-    auth: authReducer,
-    entities: entitiesReducer,
-    player: playerReducer,
-    objects: objectsReducer,
-    app: appReducer,
-    config: configReducer,
-    ui: uiReducer,
-    modal,
-    ...(history ? { router: connectRouter(history) } : {})
-  });
+export const history = createMemoryHistory();
 
-export interface StoreState {
-  auth: AuthState;
-  entities: EntitiesState;
-  player: PlayerState;
-  objects: ObjectsState;
-  app: AppState;
-  config: ConfigState;
-  ui: UIState;
-  router: RouterState;
-  modal: any;
-}
+export const configureStore = () => {
+  const epicMiddleware = createEpicMiddleware<RootAction, RootAction, StoreState>();
+  const connectRouterMiddleware = routerMiddleware(history);
 
-export type ThunkResult<R> = ThunkAction<R, StoreState, undefined, any>;
+  /** configure dev middlewares */
+  const devMiddlewares: Middleware[] = [
+    is.renderer()
+      ? createLogger({
+          level: 'info',
+          collapsed: true,
+          predicate: (_getState: () => any, action: any) => action.type !== PlayerActionTypes.SET_TIME
+        })
+      : () => (next) => (action) => {
+          const reduxLogger = Logger.createLogger('REDUX');
+          if (action.error) {
+            reduxLogger.error(action.type, action.error);
+          } else {
+            reduxLogger.debug(action.type);
+          }
+          return next(action);
+        }
+  ];
+
+  /** configure production middlewares */
+  const middlewares: Middleware[] = [...(is.dev() ? devMiddlewares : []), epicMiddleware];
+
+  const generateMiddlewares = (): Middleware[] =>
+    is.renderer() ? [connectRouterMiddleware, ...middlewares] : [...middlewares];
+
+  const middleware = applyMiddleware(...generateMiddlewares());
+
+  const enhancer: StoreEnhancer = composeWithDevTools(composeWithStateSync(middleware));
+
+  const store = createStore(rootReducer(history), enhancer);
+
+  if (is.renderer()) {
+    import('@renderer/epics').then(({ rootEpic }) => {
+      epicMiddleware.run(rootEpic);
+    });
+  } else {
+    import('@main/epics').then(({ mainRootEpic }) => {
+      epicMiddleware.run(mainRootEpic);
+    });
+  }
+
+  if (module.hot) {
+    module.hot.accept('@common/store', () => {
+      import('@common/store/rootReducer').then(({ rootReducer: nextReducer }) => {
+        store.replaceReducer(nextReducer(history));
+        store.dispatch(resetStore());
+      });
+    });
+  }
+
+  return store;
+};

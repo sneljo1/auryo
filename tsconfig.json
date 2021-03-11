@@ -1,8 +1,6 @@
 {
   "compilerOptions": {
-    /* Basic Options */
-    "target": "es5" /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017', or 'ESNEXT'. */,
-    "module": "commonjs" /* Specify module code generation: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', or 'ESNext'. */,
+    "module": "commonjs",
     "lib": [
       "dom",
       "es2015",
@@ -25,7 +23,9 @@
     "moduleResolution": "node",
     "pretty": true,
     "strict": false,
+    "skipLibCheck": true,
     "jsx": "react",
+    "outDir": "dist",
     "typeRoots": [
       "./types",
       "node_modules/@types"
@@ -49,17 +49,10 @@
         "src/types/index"
       ]
     },
-    // prod
     "sourceMap": true
   },
   "include": [
-    "src"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "./types",
-    "**/*.babel.js"
+    "src/**/*"
   ],
   "formatCodeOptions": {
     "indentSize": 4,

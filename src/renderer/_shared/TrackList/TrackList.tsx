@@ -1,13 +1,14 @@
 import { Normalized } from '@types';
-import React from 'react';
+import React, { FC, useCallback } from 'react';
 import ReactList from 'react-list';
-import { useInfiniteScroll } from '../hooks/useInfiniteScroll';
+import { InfiniteScroll } from '../InfiniteScroll';
 import Spinner from '../Spinner/Spinner';
-import TrackListItem from './TrackListItem/TrackListItem';
+import { TrackListItem } from './TrackListItem/TrackListItem';
+import { PlaylistIdentifier } from '@common/store/types';
 
 interface Props {
   items: Normalized.NormalizedResult[];
-  objectId: string;
+  id: PlaylistIdentifier;
   hideFirstTrack?: boolean;
 
   // Infinite loading
@@ -16,21 +17,22 @@ interface Props {
   loadMore?(): Promise<void>;
 }
 
-export const TrackList: React.SFC<Props> = ({ items, objectId, hideFirstTrack, isLoading, loadMore, hasMore }) => {
-  useInfiniteScroll(isLoading, hasMore ? loadMore : undefined);
+export const TrackList: FC<Props> = ({ items, id, hideFirstTrack, isLoading = false, loadMore, hasMore = false }) => {
+  const renderItem = useCallback(
+    (index: number) => {
+      // using a spread because we don't want to unshift the original list
+      const showedItems = [...items];
 
-  function renderItem(index: number) {
-    // using a spread because we don't want to unshift the original list
-    const showedItems = [...items];
+      if (hideFirstTrack) {
+        showedItems.shift();
+      }
 
-    if (hideFirstTrack) {
-      showedItems.shift();
-    }
+      const item = showedItems[index];
 
-    const item = showedItems[index];
-
-    return <TrackListItem key={`track-list-${item.id}`} currentPlaylistId={objectId} idResult={item} />;
-  }
+      return <TrackListItem key={`track-list-${item.id}`} playlistID={id} idResult={item} />;
+    },
+    [hideFirstTrack, id, items]
+  );
 
   function renderWrapper(children: JSX.Element[], ref: string) {
     return (
@@ -53,17 +55,19 @@ export const TrackList: React.SFC<Props> = ({ items, objectId, hideFirstTrack, i
 
   return (
     <div className="trackList">
-      <ReactList
-        pageSize={8}
-        type="simple"
-        itemsRenderer={renderWrapper}
-        length={length}
-        itemRenderer={renderItem as any}
-        useTranslate3d
-        threshold={400}
-      />
+      <InfiniteScroll key="trackList" hasMore={hasMore} isFetching={isLoading} loadMore={loadMore}>
+        <ReactList
+          pageSize={8}
+          type="simple"
+          itemsRenderer={renderWrapper}
+          length={length}
+          itemRenderer={renderItem as any}
+          useTranslate3d
+          threshold={400}
+        />
 
-      {isLoading && <Spinner />}
+        {isLoading && <Spinner />}
+      </InfiniteScroll>
     </div>
   );
 };

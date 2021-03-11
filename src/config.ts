@@ -30,6 +30,9 @@ export const CONFIG = {
 
   // Auth
   AWS_API_URL: 'https://auth-api.auryo.com',
+  AURYO_API_URL: 'https://api.auryo.com',
+  AURYO_API_CALLBACK_URL: 'https://api.auryo.com/callback',
+  AURYO_API_TOKEN_URL: 'https://api.auryo.com/oauth2/token',
 
   // Config
 
@@ -43,7 +46,7 @@ export const CONFIG = {
     },
     audio: {
       volume: 0.5,
-      playbackDeviceId: null,
+      playbackDeviceId: 'default',
       muted: false
     },
     repeat: null,
@@ -63,8 +66,7 @@ export const CONFIG = {
       theme: ThemeKeys.darkBlue,
       downloadPath,
       showTrackChangeNotification: true,
-      logTrackChange: false,
-      overrideClientId: null
+      logTrackChange: false
     }
   }
 };

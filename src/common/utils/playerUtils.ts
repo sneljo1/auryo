@@ -1,15 +1,11 @@
-import { findIndex } from 'lodash';
-// eslint-disable-next-line import/no-cycle
-import { PlayerState, PlayerStatus, PlayingTrack } from '../store/player';
+import { isEqual } from 'lodash';
+import { ObjectStateItem, PlaylistIdentifier } from '../store/types';
 
-export function isCurrentPlaylistPlaying(player: PlayerState, playlistId: string): boolean {
-  return player.currentPlaylistId === playlistId && player.status === PlayerStatus.PLAYING;
-}
+export const isMatchingObjectState = (a: ObjectStateItem, b: ObjectStateItem) => a.id === b.id && a.un === b.un;
 
-export function getCurrentPosition(player: { playingTrack: PlayingTrack | null; queue: PlayingTrack[] }): number {
-  if (!player || !player.queue || !player.playingTrack) {
-    return -1;
-  }
-
-  return findIndex(player.queue, player.playingTrack);
-}
+export const isMatchingObjectStateWithPlaylist = (a: ObjectStateItem, b: ObjectStateItem) => {
+  return isEqual(b.parentPlaylistID, a.parentPlaylistID) && isMatchingObjectState(a, b);
+};
+export const isMatchingPlaylistID = (a: PlaylistIdentifier, b: PlaylistIdentifier) => {
+  return isEqual(b, a);
+};

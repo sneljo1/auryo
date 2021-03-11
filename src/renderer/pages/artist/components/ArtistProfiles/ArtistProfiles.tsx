@@ -1,34 +1,23 @@
-import React from 'react';
+import { getUserProfiles } from '@common/store/actions';
+import { getNormalizedUserProfiles, isUserProfilesError, isUserProfilesLoading } from '@common/store/selectors';
+import { stopForwarding } from 'electron-redux';
+import React, { FC, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { SoundCloud } from '../../../../../types';
 import './ArtistProfiles.scss';
 
 interface Props {
-  profiles?: SoundCloud.UserProfiles;
+  userId: string;
   className?: string;
 }
 
-class ArtistProfiles extends React.Component<Props> {
-  public static defaultProps: Props = {
-    profiles: { items: [], loading: false }
-  };
+export const ArtistProfiles: FC<Props> = ({ userId, className }) => {
+  const dispatch = useDispatch();
+  const profiles = useSelector(getNormalizedUserProfiles(userId));
+  const loading = useSelector(isUserProfilesLoading(userId));
+  const error = useSelector(isUserProfilesError(userId));
 
-  /*
-
-        SOUNDCLOUD = 'soundcloud',
-        INSTAGRAM = 'instagram',
-        FACEBOOK = 'facebook',
-        TWITTER = 'twitter',
-        YOUTUBE = 'youtube',
-        SPOTIFY = 'spotify',
-        TUMBLR = 'tumblr',
-        PINTEREST = 'pinterest',
-        SNAPCHAT = 'snapchat',
-        PERSONAL = 'personal',
-        SONGKICK = 'songkick',
-        BEATPORT = 'beatport'
-
-    */
-  public getIcon(service: string) {
+  const getIcon = (service: string) => {
     switch (service) {
       case SoundCloud.ProfileService.SOUNDCLOUD:
         return '-cloud';
@@ -44,9 +33,9 @@ class ArtistProfiles extends React.Component<Props> {
 
         return '-globe';
     }
-  }
+  };
 
-  public getTitle(title: string): string | null {
+  const getTitle = (title: string) => {
     if (!title) {
       return null;
     }
@@ -62,43 +51,41 @@ class ArtistProfiles extends React.Component<Props> {
       default:
         return null;
     }
-  }
+  };
 
-  public render() {
-    const { profiles, className } = this.props;
-
-    if (!profiles || !profiles.items.length) {
-      return null;
+  // Fetch user if it does not exist yet
+  useEffect(() => {
+    if (!profiles && !loading) {
+      dispatch(stopForwarding(getUserProfiles.request({ userId })));
     }
+  }, [loading, error, dispatch, profiles, userId]);
 
-    return (
-      <div id="web-profiles" className={className}>
-        {profiles.items.map(profile => {
-          const title = this.getTitle(profile.title);
-
-          const { service } = profile;
-
-          let iconString = service.toString();
-
-          if (profile.service === SoundCloud.ProfileService.PERSONAL && title) {
-            iconString = title;
-          }
-
-          const icon = `bx bx${this.getIcon(iconString)}`;
-
-          return (
-            <a
-              href={profile.url}
-              className={`profile ${profile.service && profile.service != null ? profile.service.toLowerCase() : ''}`}
-              key={profile.id}>
-              <i className={icon} />
-              <span>{profile.title ? profile.title : profile.service}</span>
-            </a>
-          );
-        })}
-      </div>
-    );
+  if (!profiles?.length) {
+    return null;
   }
-}
 
-export default ArtistProfiles;
+  return (
+    <div id="web-profiles" className={className}>
+      {profiles.map((profile) => {
+        const title = getTitle(profile.title);
+
+        const service = profile?.service;
+
+        let iconString = service.toString();
+
+        if (service === SoundCloud.ProfileService.PERSONAL && title) {
+          iconString = title;
+        }
+
+        const icon = `bx bx${getIcon(iconString)}`;
+
+        return (
+          <a href={profile.url} className={`profile ${service?.toLowerCase() ?? ''}`} key={profile.title}>
+            <i className={icon} />
+            <span>{profile.title ? profile.title : service}</span>
+          </a>
+        );
+      })}
+    </div>
+  );
+};

@@ -1,4 +1,4 @@
-import { StoreState } from '@common/store';
+import { StoreState } from 'AppReduxTypes';
 import { ChromeCastDevice } from '@common/store/app';
 import { addChromeCastDevice, removeChromeCastDevice } from '@common/store/actions';
 import createMdnsInterface from 'multicast-dns';
@@ -16,13 +16,13 @@ const handler: MDNSHandler = { onResponse: () => {} };
 mdns.on('response', (res: any) => handler.onResponse(res));
 
 export async function scanDevices(store: Store<StoreState>): Promise<void> {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     const deviceUpdates: ChromeCastDevice[] = [];
 
     // update mDNS handler with this iteration's instance of deviceUpdates
-    handler.onResponse = res => {
+    handler.onResponse = (res) => {
       const device = parseResponse(res);
-      if (device && !deviceUpdates.find(d => d.id === device.id)) {
+      if (device && !deviceUpdates.find((d) => d.id === device.id)) {
         // Add device to redux
         store.dispatch(addChromeCastDevice(device));
         deviceUpdates.push(device);
@@ -40,21 +40,21 @@ export async function scanDevices(store: Store<StoreState>): Promise<void> {
       } = store.getState();
 
       const absentDevices = previousDevices.filter(
-        d => !deviceUpdates.map(device => device.id).includes(d.id) && d.status === 'searching'
+        (d) => !deviceUpdates.map((device) => device.id).includes(d.id) && d.status === 'searching'
       );
 
       // ...and mark them as 'offline'
-      absentDevices.forEach(device => {
+      absentDevices.forEach((device) => {
         store.dispatch(removeChromeCastDevice(device.id));
       });
 
       // find all previously 'online' devices that aren't accounted for..
       const hidingDevices = previousDevices.filter(
-        d => !deviceUpdates.map(device => device.id).includes(d.id) && d.status === 'online'
+        (d) => !deviceUpdates.map((device) => device.id).includes(d.id) && d.status === 'online'
       );
 
       // ...and mark them as 'searching'
-      hidingDevices.forEach(device => {
+      hidingDevices.forEach((device) => {
         store.dispatch(
           addChromeCastDevice({
             ...device,

@@ -1,12 +1,12 @@
-import { ChangeTypes, PlayerStatus } from '@common/store/player';
 import { changeTrack, toggleStatus } from '@common/store/actions';
+import { ChangeTypes, PlayerStatus } from '@common/store/player';
+import { Auryo } from '@main/app';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import * as dbus from 'dbus-next';
-import { Logger, LoggerInstance } from '../../utils/logger';
-import LinuxFeature from './linuxFeature';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { app } from 'electron';
-import { Auryo } from '@main/app';
+import { Logger, LoggerInstance } from '../../utils/logger';
+import LinuxFeature from './linuxFeature';
 
 export default class DbusService extends LinuxFeature {
   public readonly featureName = 'DbusService';
@@ -22,7 +22,7 @@ export default class DbusService extends LinuxFeature {
     const session = dbus.sessionBus();
 
     try {
-      await Promise.all(['mate', 'gnome'].map(platform => this.registerBindings(platform, session)));
+      await Promise.all(['mate', 'gnome'].map((platform) => this.registerBindings(platform, session)));
     } catch (err) {
       this.logger.trace({ err }, 'Error registering platform');
     }
@@ -53,16 +53,16 @@ export default class DbusService extends LinuxFeature {
   private onMediaPlayerKeyPressed(_: number, keyName: string) {
     switch (keyName) {
       case 'Next':
-        this.store.dispatch(changeTrack(ChangeTypes.NEXT) as any);
+        this.store.dispatch(changeTrack(ChangeTypes.NEXT));
         break;
       case 'Previous':
-        this.store.dispatch(changeTrack(ChangeTypes.PREV) as any);
+        this.store.dispatch(changeTrack(ChangeTypes.PREV));
         break;
       case 'Play':
-        this.store.dispatch(toggleStatus() as any);
+        this.store.dispatch(toggleStatus());
         break;
       case 'Stop':
-        this.store.dispatch(toggleStatus(PlayerStatus.STOPPED) as any);
+        this.store.dispatch(toggleStatus(PlayerStatus.STOPPED));
         break;
       default:
     }

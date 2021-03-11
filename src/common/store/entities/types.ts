@@ -1,6 +1,6 @@
 import { Normalized, SoundCloud } from '@types';
 
-export type EntitiesState = Readonly<{
+export type EntitiesState = {
   playlistEntities: {
     [playlistId: number]: Normalized.Playlist;
   };
@@ -13,4 +13,7 @@ export type EntitiesState = Readonly<{
   commentEntities: {
     [commentId: number]: SoundCloud.Comment;
   };
-}>;
+  userProfileEntities: {
+    [userUrn: string]: SoundCloud.UserProfiles;
+  };
+};

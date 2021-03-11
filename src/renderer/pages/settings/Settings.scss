@@ -1,4 +1,5 @@
 @import "../../css/bootstrap.imports.scss";
+
 .settingsWrapper {
   padding: 0 2.5rem;
 }
@@ -13,6 +14,7 @@
   font-size: .9rem;
   align-items: center;
   line-height: 1.7;
+
   .iconWrapper {
     background: hsl(204, 82%, 82%);
     flex-shrink: 0;
@@ -27,6 +29,7 @@
     color: $red;
     margin-right: 2rem;
   }
+
   a {
     color: hsl(204, 61%, 35%);
     text-decoration: none;
@@ -37,6 +40,7 @@
     text-decoration-style: wavy;
     font-weight: bold;
     margin-left: .3rem;
+
     &:hover {
       color: hsl(204, 61%, 30%);
       text-decoration-color: rgba(#92d2fb, 1);
@@ -47,15 +51,18 @@
 .setting-group {
   margin: 0 0 1rem;
   font-size: .85rem;
+
   &:not(:last-of-type) {
     margin-bottom: 2rem;
   }
+
   .setting-group-title {
     padding: 6px 12px 6px 0;
     text-transform: uppercase;
     font-size: .9rem;
     color: var(--clr-settings-group-title);
     font-weight: $font-weight-bold;
+
     &:after {
       content: "";
       width: 40px;
@@ -65,35 +72,46 @@
       margin-top: 5px;
     }
   }
+
   .bp3-control {
     font-size: 15px;
   }
+
   .setting {
     font-size: 15px;
     margin-top: 1.5rem;
     display: flex;
     align-items: center;
 
-    .form-control{
+    .form-control {
       background: var(--clr-input-bg);
       color: var(--clr-input-text) !important;
       border-color: var(--clr-input-border);
     }
+
     i {
       vertical-align: middle;
     }
+
     .bp3-switch {
       flex-grow: 1;
     }
+
     .value {
       color: $brand-grey;
+      max-width: 500px;
+      font-size: .9rem;
+      margin-top: 10px;
     }
+
     &:not([class*="col-"]) {
       padding: 10px 0 5px;
     }
+
     span {
       vertical-align: text-bottom;
     }
+
     select,
     input:not([type="checkbox"]) {
       width: 270px;
@@ -108,14 +126,17 @@
   border-radius: 5px;
   color: hsla(204, 10%, 42%, 1);
   font-size: 0.85rem;
+
   a {
     text-decoration: underline;
   }
 }
-.bp3-button:not([class*="bp3-intent-"]){
+
+.bp3-button:not([class*="bp3-intent-"]) {
   background: var(--clr-input-bg);
   color: var(--clr-input-text);
-  &:hover{
+
+  &:hover {
     background: var(--clr-input-hover-bg);
   }
 }

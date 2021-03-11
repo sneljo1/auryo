@@ -1,15 +1,20 @@
 @import "../../css/bootstrap.imports.scss";
+
 .stats {
   color: #999;
   font-size: 1rem;
   margin-bottom: 1rem;
+
   i {
     font-size: 1.3rem;
+
     &.bxs-heart {
       font-size: 1rem;
     }
+
     margin-right: .1rem;
   }
+
   span {
     margin-right: .5rem;
   }
@@ -18,17 +23,22 @@
 .trackDetails {
   background: #f7f7f7;
   padding-top: 1rem;
+
   .track-info {
     color: #6c757d;
     font-size: 1rem;
     margin-bottom: 1rem;
+
     strong {
       color: var(--clr-track-info-strong);
       margin-top: .5rem;
       display: inline-block;
     }
   }
+
   .taglist {
+    margin-top: 1rem;
+
     .badge {
       background: var(--clr-badge-bg);
       color: var(--clr-badge-text);
@@ -36,19 +46,24 @@
       margin-bottom: .2rem;
     }
   }
+
   .trackHeader,
   .tracktabs {
     flex-shrink: 0;
   }
+
   .trackPadding {
     padding: 20px 40px;
   }
+
   .trackPadding-side {
     padding: 0 40px;
   }
+
   .track-comments {
     padding: 20px 40px;
   }
+
   .trackDescription {
     background: var(--clr-track-description-bg);
     color: var(--clr-track-description-text);
@@ -56,14 +71,17 @@
     border-radius: 1rem;
     margin-bottom: 2rem;
     user-select: text;
+
     .descriptionInner.cut {
       max-height: 200px;
       overflow: hidden;
     }
+
     &.isOpen {
       max-height: 500px;
     }
   }
+
   .user_card_wrap {
     flex-grow: 0;
   }

@@ -36,9 +36,6 @@ body {
   color: #3e3e3e;
 }
 
-.playing .custom-scroll {
-  height: calc(100% - 56px);
-}
 
 .ReactVirtualized__Grid {
   outline: none !important;
@@ -247,7 +244,6 @@ html.macOS ::-webkit-scrollbar-thumb {
   transition: 0.3s box-shadow;
   text-decoration: none;
   display: inline-block;
-  align-self: flex-start;
   font-size: .9rem;
   display: flex;
   align-items: center;
@@ -266,18 +262,15 @@ html.macOS ::-webkit-scrollbar-thumb {
     width: 36px;
     height: 36px;
     border-radius: 50px;
-    display: inline-block;
+    display: inline-flex;
     text-align: center;
     padding: 0;
+    justify-content: center;
+    align-items: center;
 
     i {
       font-size: 1.1rem;
       padding: 0;
-      text-align: center;
-      display: table-cell;
-      vertical-align: middle;
-      width: 36px;
-      height: 36px;
     }
   }
 
@@ -307,8 +300,18 @@ html.macOS ::-webkit-scrollbar-thumb {
 
     i {
       color: theme-color("primary");
-      font-size: 2rem !important;
+      font-size: 1.8rem !important;
       color: var(--clr-btn-colored-text) !important;
+    }
+  }
+
+  &.large {
+    width: 100px;
+    height: 100px;
+
+    i {
+
+      font-size: 4rem;
     }
   }
 
@@ -394,6 +397,7 @@ i {
     }
   }
 }
+
 
 .trackHeader {
   position: relative;
@@ -580,12 +584,6 @@ main {
 
 .f-height {
   height: 100%;
-}
-
-.playing {
-  .f-height {
-    height: calc(100% - 56px);
-  }
 }
 
 .grad-blue:after {
