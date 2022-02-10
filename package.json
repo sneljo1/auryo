@@ -170,7 +170,7 @@
     "multispinner": "^0.2.1",
     "node-gyp": "^6.1.0",
     "node-loader": "^0.6.0",
-    "node-sass": "^4.13.1",
+    "node-sass": "^7.0.0",
     "optimize-css-assets-webpack-plugin": "^5.0.3",
     "ora": "^2.1.0",
     "pbf-loader": "^1.1.0",
