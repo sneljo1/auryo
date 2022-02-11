@@ -99,7 +99,7 @@
     "@types/webpack-node-externals": "^1.6.3",
     "@typescript-eslint/eslint-plugin": "^2.18.0",
     "@typescript-eslint/parser": "^2.18.0",
-    "ajv": "^6.11.0",
+    "ajv": "^6.12.3",
     "asar": "^2.0.1",
     "autoprefixer": "^9.6.1",
     "babel-jest": "^23.6.0",
