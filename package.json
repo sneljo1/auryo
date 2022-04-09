@@ -234,7 +234,7 @@
     "lastfm": "auryo/lastfm-node#ef31b1d42e20cbc3c18ae6daa509dcfa9f81dc90",
     "lodash": "^4.17.14",
     "lodash-decorators": "^6.0.1",
-    "moment": "^2.17.0",
+    "moment": "^2.29.2",
     "multicast-dns": "^7.2.0",
     "normalizr": "^3.2.2",
     "pino": "^5.12.5",
